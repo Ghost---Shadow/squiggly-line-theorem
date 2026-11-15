@@ -1,4 +1,4 @@
-> ⚠️ **Disclaimer.** Although the proofs themselves are machine-checked by Lean, what is being proved is subject to human/LLM mistakes.
+> ⚠️ **Disclaimer.** Although the proofs themselves are machine-checked by Lean, what is being proved is subject to human/LLM mistakes. [Read the full disclaimer](DISCLAIMER.md).
 
 # The Squiggly Line Theorem
 
