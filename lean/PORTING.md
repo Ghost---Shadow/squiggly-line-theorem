@@ -8,6 +8,16 @@ order, and the finished files they build on. Everything else is here.
 The proofs already work. This is a restyle. Only names and layout change.
 The mathematics must not change at all.
 
+## For whoever briefs the port
+
+Do not underestimate the helper. Fable, the author of these briefs, should
+not assume Sonnet needs the work cut into tiny pieces, repeated rules or
+hand-holding. Sonnet can port a whole file, or several in order, from this
+brief and the message that names them. Give it the full job, trust a file
+that builds, and check the result with the statement check afterwards instead
+of redoing the work or reading every line. Keep the message short: only the
+files and the finished files they build on.
+
 ## Read first, and only these
 
 1. [`STYLE.md`](STYLE.md): the rules.
