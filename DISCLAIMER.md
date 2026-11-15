@@ -210,6 +210,12 @@ hold, a **recalled** claim that does not match its paper: please open an issue. 
 
 ---
 
+> "Nothing is true. Everything is permitted." Nietzsche adds: "With that the very belief in
+> truth was cancelled."
+>
+> Friedrich Nietzsche, *On the Genealogy of Morality*, Third Essay, §24 (trans. Ian Johnston),
+> on the Assassins' reputed motto
+
 > "All models are wrong, but some are useful."
 >
 > George E. P. Box
