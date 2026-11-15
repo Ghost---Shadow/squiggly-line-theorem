@@ -27,8 +27,9 @@ That is a strong guarantee about the *derivation*. It is a guarantee about nothi
   never states. Lean cannot be talked past a step. `rate_le_one` and
   `direction_is_stretched` appear in the statement of `spectral_bias` because the proof
   needs them.
-- **The assumptions are on the page.** Every hypothesis a theorem uses is in its statement.
-  You audit a short list, not a whole argument.
+- **The stated hypotheses are on the page.** Anything written as a hypothesis of a theorem,
+  such as `rate_le_one`, is visible in its statement, so that part of the audit is a short
+  list. This is not all the assumptions: see weakness 3c, which is the larger part.
 - **Arithmetic and algebra mistakes are caught.** A wrong sign, a missed case, an
   inequality that goes the wrong way: these do not build.
 - **It is reproducible.** Anyone can rebuild from scratch and get the same answer. CI does
@@ -74,6 +75,28 @@ empty.
 
 If a hypothesis is nearly the conclusion restated, the theorem is easy and says little. Lean
 cannot judge that. Only reading the statement can.
+
+### 3c. Assumptions that are not written as hypotheses
+
+A theorem's hypothesis list is not the whole list of what it assumes. Assumptions can sit in
+places Lean does not flag, and you have to read for them:
+
+- **In definitions.** `TAKE_GRADIENT_STEP` is plain gradient descent on squared loss. That is
+  a choice of optimiser and loss, built into a definition, and every theorem about
+  "training" inherits it without a hypothesis saying so. `LinearPredictor` builds in
+  linearity the same way.
+- **In types.** Working over the real numbers, in a finite-dimensional inner product space,
+  with a fixed data set, is an assumption about the setting that no statement lists.
+- **In the form of the conclusion.** Stating a bound with `Real.exp (-(step_count * rate))`
+  frames the result as exponential decay. The bound is proved, not assumed, so it is not a
+  logical hypothesis. But the choice to present it that way carries a modelling picture the
+  reader may take for a finding about networks. The same goes for choosing to measure error
+  along an eigenvector, or to compare two directions.
+- **In what was chosen to be proved.** A theorem about the sine case says nothing about other
+  cases, and the title of a chapter can suggest more than the statement covers.
+
+So auditing the listed hypotheses is necessary and not enough. You also have to read the
+definitions the statement uses, the setting it lives in, and the way the conclusion is put.
 
 ### 4. Lean's own conventions, which differ from ordinary mathematics
 
@@ -151,7 +174,9 @@ the link from model to real networks as a claim of a different kind.
 
 1. **Read the statement, not only the badge.** Open the theorem and read the hypotheses and
    the conclusion. Do the hypotheses fit your case?
-2. **Read the definitions it uses.** Follow each capitalised name to where it is defined.
+2. **Read the definitions it uses.** Follow each capitalised name to where it is defined,
+   and ask what each one assumes (the optimiser, the loss, linearity, the setting). These
+   assumptions are not in the hypothesis list.
 3. **Build it.** From `lean/`, run `lake build`. Search for `sorry`, `axiom`,
    `native_decide` and `unsafe` in `lean/SquigglyLine`.
 4. **List the axioms a theorem uses.** Add `#print axioms SquigglyLine.theorem_name` to a
@@ -182,3 +207,9 @@ theorem uses; a standing audit of each theorem's hypotheses for satisfiability; 
 A mistaken statement, a definition that does not match its name, a hypothesis that cannot
 hold, a **recalled** claim that does not match its paper: please open an issue. See
 [CONTRIBUTING.md](CONTRIBUTING.md).
+
+---
+
+> "All models are wrong, but some are useful."
+>
+> George E. P. Box
