@@ -6,6 +6,6 @@ status. Whether a contribution is significant is judged by Fable:latest.
 ## Existing contributors
 
 - **Claude**: the bulk of the work: proofs, theorems, experiments and writing.
-- **Nanda**: the three-part squiggly line conjecture, the ReLU spring, the wind
-  tunnel analogy, the three-polarizers analogy, the egg carton model, human
+- **Nanda**: the three-part squiggly line conjecture, the ReLU spring model analogy, the wind
+  tunnel analogy, the three-polarizers analogy, the egg carton model analogy, human
   verification and critique, and producer/investor.
