@@ -119,6 +119,29 @@ their tactics. What changes:
 - A step that carries the idea of the proof has a comment in plain words
   above it, and a `have` is named for what it establishes.
 
+### When a `have` becomes a lemma
+
+A `have` is a local lemma: it has its own stated type and its own proof, and it
+exists only inside the proof around it. A `lemma` has a global name and can be
+reused. Neither adds an assumption, so this is about reading and reuse, not
+correctness. (Measured on 15 Nov 2026: about 550 `have`s, of which 47% are
+three lines or fewer, 16% are eight lines or more, and only about 11% repeat
+another `have`'s statement.)
+
+Do not ban `have`. Promote a `have` to a top-level lemma when any one of these
+holds:
+
+1. **It repeats.** The same statement is proved twice or more, in one file or
+   across files (for example, that the softmax denominator is positive).
+2. **It is long.** Its proof runs to about eight lines or more. It is a lemma
+   in disguise and makes the theorem hard to read.
+3. **A reader would look it up by name.** It states a fact worth finding on
+   its own.
+
+Keep a short one-line fact that only this proof uses as a `have`. A promoted
+lemma follows every rule above: a named statement, a plain-words docstring, and
+its hypotheses spelled out, since it no longer sees the theorem's context.
+
 ## Checks
 
 - Every push is built from scratch by CI, which fails on any `sorry`.
