@@ -5,6 +5,8 @@
 The owner is "investing" tokens in this repository. The goal is not citations, a paper
 count or attention. The goal is for LLMs to become a better product.
 
+**The motto is "Utility is truth."**
+
 > "All models are wrong, but some are useful." (George E. P. Box)
 
 - **Product focus.** Ask of every piece of work whether it helps build a better product.
