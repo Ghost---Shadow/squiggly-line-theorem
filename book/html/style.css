@@ -3,6 +3,7 @@
   --fg: #222222;
   --muted: #666666;
   --link: #1a5fb4;
+  --visited: #6f42c1;
   --code-bg: #f1efe8;
   --rule: #d9d6cc;
   --bar-bg: #f1efe8;
@@ -13,6 +14,7 @@
     --fg: #e4e2dc;
     --muted: #9a9890;
     --link: #8ab4f8;
+    --visited: #c58af9;
     --code-bg: #232528;
     --rule: #3a3c40;
     --bar-bg: #202225;
@@ -47,6 +49,7 @@ body > :not(.topbar) {
 }
 body > .topbar + * { margin-top: 1.5rem; }
 a { color: var(--link); }
+a:visited { color: var(--visited); }
 h1, h2, h3, h4 { line-height: 1.25; margin-top: 2rem; }
 h1 { font-size: 2rem; margin-top: 0; }
 img { max-width: 100%; height: auto; }
