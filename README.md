@@ -1,7 +1,4 @@
-> ⚠️ **A disclaimer.** Lean checks that each proof follows from its statement. It does not
-> check that the statement says what the plain words around it say it does. What is
-> proved, how a quantity is defined, and what a result means for real networks were chosen
-> by a human and an LLM working together, and either can be wrong.
+> ⚠️ **Disclaimer.** Although the proofs themselves are machine-checked by Lean, what is being proved is subject to human/LLM mistakes.
 
 # The Squiggly Line Theorem
 
