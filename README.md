@@ -10,6 +10,16 @@ This repository holds an idea about why large neural networks learn
 fast, the experiments that tested it, and a machine-checked proof of what
 turned out to be true.
 
+> **A disclaimer.** Lean checks that each proof follows from its statement. It does not
+> check that the statement says what the plain words around it say it does. What is
+> proved, how a quantity is defined, and what a result means for real networks were chosen
+> by a human and an LLM working together, and either can be wrong: a definition that is
+> subtly off, a statement that is weaker or different from what the prose claims, an
+> assumption that real training does not satisfy. A green build means "this follows from
+> that", not "this is the right thing to prove". Read the statements, not only the
+> badge. Claims about experiments and random networks are measured, not proved, and are
+> labelled that way.
+
 **New to the proofs? Start with the book.**
 [A Guided Tour of the Proofs](book/README.md) goes through them chapter by
 chapter, in the order of the ideas, for a reader who knows Python and
