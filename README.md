@@ -1,12 +1,7 @@
 > ⚠️ **A disclaimer.** Lean checks that each proof follows from its statement. It does not
 > check that the statement says what the plain words around it say it does. What is
 > proved, how a quantity is defined, and what a result means for real networks were chosen
-> by a human and an LLM working together, and either can be wrong: a definition that is
-> subtly off, a statement that is weaker or different from what the prose claims, an
-> assumption that real training does not satisfy. A green build means "this follows from
-> that", not "this is the right thing to prove". Read the statements, not only the
-> badge. Claims about experiments and random networks are measured, not proved, and are
-> labelled that way.
+> by a human and an LLM working together, and either can be wrong.
 
 # The Squiggly Line Theorem
 
