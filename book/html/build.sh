@@ -37,6 +37,7 @@ build_page() {
     --to html5 \
     --standalone \
     --lua-filter html/site.lua \
+    --syntax-definition html/lean.xml \
     --css style.css \
     --metadata lang=en \
     --metadata pagetitle="$page_title" \

@@ -162,6 +162,79 @@ part is learned first and the squiggles last. So the order in which
 squiggles appear in training is set by the same sizes that set how
 squiggly the model is at the start.
 
+## Run it yourself
+
+[`ch18_strong_directions_first.ipynb`](../experiments/part4/ch18_strong_directions_first.ipynb)
+trains models that are linear in their weights by real full-batch gradient
+descent, and compares the error along each direction with the statement. These
+are measurements on examples, not proofs. The proof is `spectral_bias`.
+
+**One factor per direction, between the two bounds.** The model has 12 data
+points and 8 weights, so its kernel has 4 strengths equal to zero; the other
+8 run from 12.85 down to 0.043. The learning rate is 0.9 divided by the
+strongest strength, so every `rate` is at most 0.9. Over 400 steps the
+**measured** error along each of the 12 directions differs from
+`(1 − rate) ^ step` times its start by at most `8e-15`. It lies between the
+two bounds of `spectral_bias` to within `2e-14`, and the four directions of
+strength zero do not move. The control is an error that starts along a
+coordinate axis, which the kernel does not only stretch. It leaves its line
+(it reaches 0.42 away from it), and the largest gap between the log of its
+size and a straight line is 0.38, against `3e-12` for an eigen-direction.
+
+![Share of the start error left against gradient steps for five directions of a linear model, each between its two bounds](figures/18-two-bounds.png)
+
+The figure is **measured**. Each direction has its own slope. The three
+strongest are below `1e-4` of their start within about 50 steps, while the
+weakest shown (clock 336 steps) is still above 0.3 at step 400. The dots mark one clock of each.
+
+**Where the bounds are tight, and where the lower one is empty.** In the same
+run, 2685 points of (direction, step) have `step × rate` at least 1. At every
+one of them the lower bound is not positive, so it says nothing there. The
+upper bound divided by the true share, taken at the step where `step × rate`
+is 0.1, 0.5, 1, 2 and 5, had medians (over the directions that had not yet
+fallen below `1e-6`) of 1.002, 1.037, 1.078, 1.213 and 1.634. The lower bound
+divided by the share had medians 1.000, 0.838, 0, 0, 0. The largest ratio, 4.07,
+is the strongest direction, whose rate is 0.9. A formula worked out for this
+section, that the log of that ratio is between `step × rate² / 2` and
+`step × rate² / (2 (1 − rate))`, was checked at all 1424 points where the
+share was above `1e-6`, and none was outside. So the upper bound is tight when
+`rate` is small and loose when the rate is near 1, and the lower bound is useful only for
+the first clock.
+
+**The Fourier case.** With 16 inputs evenly spaced over one period and
+features `amplitude × cos(k × input)` and `amplitude × sin(k × input)` for
+`k` from 1 to 7, with `amplitude = 1 / k`, the sampled cosines and sines were
+only stretched by the kernel, to within `3e-14`, each with strength
+`(number_of_inputs / 2) × amplitude²`, which is `8 / k²`, to within a relative
+`2e-15`. Gradient descent then needed 1, 3, 7, 12, 19, 28 and 38 steps to
+remove half of the error for `k` from 1 to 7. The same numbers came from the
+cosines, from the sines and from the exact factor. The control moves each input by up
+to 0.3 of the spacing. The sampled cosines and sines were then not eigen-directions: the
+gap was between 0.03 and 0.94, and the strengths read off them were off from
+`8 / k²` by up to 1.8 times `8 / k²`.
+
+![Strength of each frequency of the Fourier model, and the number of steps to half the error, for evenly and unevenly spaced inputs](figures/18-fourier-order.png)
+
+The figure is **measured**. The order in which frequencies are learned here
+follows the strengths, which come from the choice `amplitude = 1 / k`; the
+experiment does not show that real networks choose such sizes.
+
+**A step that is too big.** The same model, with the learning rate set so that
+the strongest direction has `rate` equal to 0.5, 1, 1.5, 2 and 2.5. The error
+along it was `(1 − rate) ^ step` times its start at every step, to within
+`3e-14` (relative to the largest value). For `rate` at most 1 neither bound was
+broken. For `rate` above 1 the sign changed at every one of 30 steps, and
+the upper bound was broken at all 30 steps, since `rate_le_one` does not hold. The size after 30
+steps was `9e-10` at rate 1.5, 1 at rate 2, and `2e5` at rate 2.5.
+
+To run it:
+
+```bash
+jupyter nbconvert --to notebook --execute --inplace experiments/part4/ch18_strong_directions_first.ipynb
+```
+
+It makes 20 checks and prints the same lines every time.
+
 ## What is not shown
 
 - **Deep networks.** The kernel of a deep network changes while it

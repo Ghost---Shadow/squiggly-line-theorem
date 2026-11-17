@@ -65,6 +65,13 @@ the gain.
 `Real.exp` is the exponential function. When the gain is below one the
 exponent is negative and the bound falls fast as the layers pile up.
 
+**Measured** in a ReLU network of width 512 with weight variance 1.62, 2
+and 2.42 over the width (gains 0.9, 1 and 1.1), the size of the signal
+follows the line `gain ^ layers` on a log axis, and so does the gradient
+sent back from the output:
+
+![Size of the signal going forward and of the gradient going backward against layers passed, on a log axis, for gains 0.9, 1 and 1.1, with the predicted gain to the power layers and the proved bound for gain 0.9](figures/30-gain-against-depth.png)
+
 ```lean
 /-- **The factor two of He initialisation.** A unit adds up `input_count`
 inputs. With weights of variance `2 / input_count`, the half lost in the fold
@@ -96,6 +103,11 @@ theorem lipschitzWith_iterate_sigmoid
 
 *Read aloud:* a stack of sigmoids has a slope limit of one quarter to the
 power of the number of layers.
+
+**Measured**, the largest slope of a stack of sigmoids stays under that
+limit, while a stack of `tanh` layers, the control, does not:
+
+![Largest slope of a stack of sigmoid layers against the number of layers, on a log axis, below the one quarter to the power layers limit, with a tanh stack staying near one](figures/30-sigmoid-stack-slope.png)
 
 The rest is named here. `one_add_mul_le_gain_pow` says a gain of at
 least one gives at least `1 + layer_count × (gain − 1)`.
@@ -182,6 +194,34 @@ A squiggly path needs many layers, and many layers need the signal to
 survive them. The gain decides whether depth can be used at all. The idea
 is the **product of slopes** from chapter 28, now read as a gain per
 layer, and the **fold** of chapter 8, which costs half the squared size.
+
+## Run it yourself
+
+[`ch30_signals_through_depth.ipynb`](../experiments/part5/ch30_signals_through_depth.ipynb)
+checks the claims with 27 checks, most claims with a control. The bounds
+`gain ^ layers <= exp(-layers (1 - gain))` and
+`gain ^ layers >= 1 + layers (gain − 1)` held for 101 gains each and depths
+up to 300; at gain 0.9 and 50 layers the signal is 0.0052 against the
+bound 0.0067. A plate never lengthened random light in 1000 trials, and
+plates with a fixed turn of 0.3 left exactly `cos(turn) ^ layers`, 0.0104 after 100
+plates against the bound 0.0115. The gradient read through reversed plates
+agreed with the forward reading to `1e-17`, while the same order did not
+(gap up to 0.047). Bypass plates doubled the overlap exactly (`2 ^ plate_count`, to `1e-14`
+relative); the same plates without the bypass left it unchanged. The fold kept
+0.5003 of the mean square of a symmetric signal, and 0.962 of a shifted
+one. In a ReLU network of width 512 and 50 layers the slope of `log(size)`
+against layer was −0.110, −0.007 and +0.096 for gains 0.9, 1 and 1.1,
+against the predicted −0.105, 0 and +0.095. For the gradient sent back the
+slopes were −0.110, −0.006 and +0.094, so the factor-of-half mask of the
+backward pass, not modelled above, behaved the same way in this network.
+He's variance left the size at 0.83 after 50 layers, where gain one
+predicts 1. Ten sigmoid layers had largest slope 3.9e−07 against the limit
+9.5e−07, and a stack of `tanh` layers reached slope 1. These are measurements, not
+proofs; the Lean theorems cover the statements above.
+
+```bash
+jupyter nbconvert --to notebook --execute --inplace experiments/part5/ch30_signals_through_depth.ipynb
+```
 
 ## What is not shown
 

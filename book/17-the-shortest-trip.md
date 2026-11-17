@@ -42,6 +42,10 @@ descent found the nearest of the three. It had to, because its move
 `(1.5, 1.5)` points along the features `(1, 1)`, and the line of fits is
 at right angles to that.
 
+**Measured.** The line of fits, the start, the point gradient descent lands on, and two other fits, with the travel to each:
+
+![The line of fits weight 1 plus weight 2 equals 4, with the start, the gradient descent landing point at travel 2.12, and two other fits at travel 3.00 and 4.12](figures/17-line-of-fits.png)
+
 For the polarizers, take turns of 60° and 0°. The pair keeps
 `cos 60° × cos 0° = 0.5 × 1 = 0.5`. Two turns of the average, 30°, keep
 `cos 30° × cos 30° = 0.75`. The even pair keeps more.
@@ -140,6 +144,35 @@ here it becomes the cost training actually pays. The transpose is the
 lift-and-kernel machinery of chapters 10 and 11: the move lives in the
 space the features span. The plates are the polarizers of chapter 12,
 where a layer keeps only part of a signal.
+
+## Run it yourself
+
+[`ch17_the_shortest_trip.ipynb`](../experiments/part4/ch17_the_shortest_trip.ipynb)
+checks a linear model and a stack of plates. In the example, one step lands on
+`(2.5, 1.5)` with travel 2.1213, a fit with vertical error 0, and none of
+100 001 fits spread along the line is nearer. A move along `(1, 0)` instead of
+the features also reaches a fit, `(4, 0)`, with the same vertical error 0 but
+travel 3, so the vertical error cannot tell the fits apart and only the travel
+can. In 40 random linear models (3 to 8 data points, 12 to 30 weights),
+gradient descent reached the minimum-norm fit to within `1e-13`, and none of
+80 000 other fits was nearer: the smallest margin was 9e-06. With a
+preconditioner, so that the move leaves the features, the fit reached was
+further in all 40, by up to 1.11. For two plates, over 200 000 random pairs
+of turns the largest amount by which any pair beat its average was `-1.7e-14`,
+that is, none did.
+
+For `N` plates, 960 000 random splits of a total turn of at most a quarter turn
+(`N` = 2, 3, 10 and 100; uniform, lopsided, one big turn, and the equal split
+with small noise) were compared with the equal split. The largest amount by which
+any random split beat the equal split was 0: none did. For a quarter turn, the
+best random uniform split fell 0.007 below the equal split at `N = 10`.
+
+![Light amplitude kept through N plates for a quarter turn in total, the equal split against random unequal splits of the same total turn, with no random split above the equal one](figures/17-n-plates.png)
+
+The control broke the hypothesis that the total turn is at most a quarter turn:
+with total `2π` and `N = 3`, a random split beat the equal one by 1.125. These are
+**measured** for the cases drawn; an experiment is evidence, not a proof. The
+"balanced layers" under a gradient step were not tested.
 
 ## What is not shown
 

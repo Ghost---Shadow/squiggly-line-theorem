@@ -37,8 +37,8 @@ DATA, MUTED, GRID = "black", _DEEP[7], "#d9d9d9"
 
 
 def use_style():
-    """The book's figures use seaborn's default theme."""
-    sns.set_theme()
+    """The book's figures use seaborn's default theme, in the "paper" context."""
+    sns.set_theme(context="paper")
 
 
 def save_figure(figure, name):

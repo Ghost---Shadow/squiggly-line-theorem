@@ -64,6 +64,10 @@ product of those limits.
 chapter 12. `List.Forall₂` says the list of layers and the list of
 slopes match up one to one. `slopes.prod` is the product of the list.
 
+**Measured.** The steepest slope found in 96 random ReLU networks of 1 to 8 layers, against the product of their layers' slope limits. Every network is below the line where measured equals the bound, and the gap widens with depth.
+
+![Steepest slope found against the product of the layers' slope limits, for random ReLU networks of 1 to 8 layers, coloured by depth; every point lies below the line measured = bound, and deeper networks lie further below](figures/28-measured-against-product.png)
+
 ```lean
 /-- **Flipping a classifier takes a move of at least score over slope.** If the
 score at `input` is positive and the score at `other_input` is not, then
@@ -86,6 +90,10 @@ zero or below at `other_input`, then the score at `input` was at most
 
 Dividing both sides by `slope_limit` gives the move of at least
 `score / slope_limit`.
+
+**Measured.** The distance moved to flip a random ReLU network's answer, against score over the product of its slopes. Left: with the right slope bound, every flip found lies above the line. Right, a control: with a slope-2 activation but the weight-norm product still claimed as the bound, the flips fall below the line.
+
+![Two panels of the distance moved to flip an answer against score over the slope bound. Left: random ReLU networks, all flips above the line distance = score over bound. Right: a network with a slope-2 activation and a too-small claimed bound, flips below the line](figures/28-flip-distance.png)
 
 The rest of the file is named here. `lipschitzWith_relu` says a ReLU has
 slope at most one. `lipschitzWith_activation_comp` says a layer made of
@@ -160,6 +168,29 @@ and the new fact is that slopes multiply when layers are stacked, which is
 the first of the three answers of chapter 14. The fold of chapter 8 enters
 through the ReLU, whose slope is at most one: a fold costs no slope, and
 the slope of a network comes from its weights.
+
+## Run it yourself
+
+[`ch28_the_slope_of_a_network.ipynb`](../experiments/part5/ch28_the_slope_of_a_network.ipynb)
+builds random ReLU networks (width 64, input dimension 64, Gaussian weights) and
+takes each layer's slope as the spectral norm of its weight matrix. In 96
+networks of 1 to 8 layers, the largest gradient norm found over 3000 inputs
+was never above the product, and neither was the largest ratio over 3000 pairs
+of inputs. The largest ratio of gradient norm to product was 0.54 (**measured**).
+Its median fell from 0.51 at one layer to 0.001 at eight, so the bound is far
+from reached by a random network (the gradient norms are a sample, a lower
+bound on the true steepest slope). With identity layers on positive inputs the
+bound is reached exactly (ratio 1.000). With a slope-2 activation and the old
+product still claimed, the measured slope is 16 times the claim, so the
+hypothesis cannot be dropped. For flips, 100 flips found by a gradient attack
+and random directions were all at least `score / bound` away, by a factor of
+2.4 to 163 (median 11); in the slope-2 control they came at 0.07 of the claimed
+limit. For the linear nudge, the sign nudge moved the score by exactly nudge
+times the sum of sizes (0.7602 for 100 random weights), the best of 20 000
+random nudges reached 0.31 of that, and the best corner of the box in 12
+dimensions reached it exactly. These are measurements of random networks, not
+a proof; the proofs are in `NetworkSlope.lean`. Run it with
+`jupyter nbconvert --to notebook --execute --inplace experiments/part5/ch28_the_slope_of_a_network.ipynb`.
 
 ## What is not shown
 

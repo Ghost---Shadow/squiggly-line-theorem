@@ -42,6 +42,11 @@ the first two scores add up to the same number as the last two, so one
 sum cannot be negative while the other is positive. The fold
 `|first − second| − 1/2` gives `−1/2`, `−1/2`, `1/2`, `1/2`: right.
 
+**Measured**: of 200 000 random flat scores, the best gets 3 of the 4 corners right and none gets 4. The figure shows the best one
+beside the same points after the fold.
+
+![Left, the four XOR corners with the best flat line found, which gets one corner wrong (ringed). Right, the same corners plotted against the fold, split by a horizontal line](figures/26-xor-flat-and-fold.png)
+
 **No free lunch.** Take three inputs, each labelled yes or no: `2 × 2 ×
 2 = 8` labellings. Guess "yes" at the first input. Four labellings agree
 and four disagree.
@@ -157,6 +162,41 @@ nearest distance to a boundary, and the mistake bound is built from it.
 **Folds** (chapter 8): one fold splits XOR. **The lift** (chapter 11):
 the product feature splits XOR, and so does the table lookup. The lift
 and the fold are the two ways this repository makes a squiggly line.
+
+## Run it yourself
+
+[`ch26_the_perceptron.ipynb`](../experiments/part4/ch26_the_perceptron.ipynb)
+runs the perceptron itself, in float64, and reads the margin and radius off
+each data set. In 300 random separable sets (dimension 2, 5 or 20, bounds
+from 32 to 53 758) the mistake count never passed `(radius / margin)²`
+(**measured**). The largest ratio of mistakes to bound was 0.119 and the
+median 0.0095, so the bound held but was loose on these sets. After every one
+of the 6 248 mistakes the weights had moved at least `mistake_count × margin`
+along the true direction and had squared size at most `mistake_count ×
+radius²`. As a control, 15 percent of the labels were flipped in the 100
+two-dimensional sets: no run converged in 150 passes, and 81 of the 100 passed
+the bound of the clean data. (An earlier control that flipped 8 percent in all
+dimensions was dropped: some of those sets stayed separable.)
+
+**Measured**: mistakes against the bound, one point per data set.
+
+![Perceptron mistakes against (radius over margin) squared on log axes, for 300 separable sets, which lie below the bound line, and for flipped-label controls, which lie above it](figures/26-mistakes-against-bound.png)
+
+For XOR, 200 000 random flat scores had equal sums at the two diagonals to
+`7e-15`, none separated, and the best got 3 corners of 4 (25 418 of them).
+The lift and the fold both separated. The perceptron on the raw features made
+7 999 mistakes in 2000 passes and never had a clean pass. On the lifted
+features it converged after 25 mistakes, within the bound of 100
+(radius 2, margin 0.2). For no free lunch, over every guess at every input
+for 3 and 4 inputs (88 cases), exactly half of the labellings agreed. The mean
+squared error was `prediction² + 1` to `9e-16`. If neighbouring inputs must
+share a label, the guess agreed with 1 of 2 labellings, not half.
+
+These are measurements, not proofs. Run it with:
+
+```bash
+jupyter nbconvert --to notebook --execute --inplace experiments/part4/ch26_the_perceptron.ipynb
+```
 
 ## What is not shown
 

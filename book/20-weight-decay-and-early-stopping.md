@@ -28,6 +28,12 @@ pattern does not go to zero. It comes to rest.
 A pattern stronger than the penalty is learned almost fully. A pattern
 weaker than the penalty is hardly touched.
 
+**Measured** on a model with 30 data points and 41 weights, each direction of the
+kernel is one point. Its strength is on the horizontal axis and the share of the label along it that the fit has taken is
+on the vertical axis. Early stopping and weight decay at the matching penalty rise together from nothing to everything.
+
+![Share fitted against strength of the direction, for early stopping, weight decay and no decay: both habits fit almost nothing below the decay and almost everything above it](figures/20-weak-directions.png)
+
 ## An example you can do by hand
 
 One weight, one feature of size 2, so the kernel strength is
@@ -182,6 +188,34 @@ This uses the kernel and the one factor per step of chapters 10 and 13.
 It also uses travel (chapter 9). A weak pattern is a long trip in weight
 space, and a long trip disturbs the function everywhere. Each habit
 refuses the long trips and takes the short ones.
+
+## Run it yourself
+
+[`ch20_weight_decay_and_early_stopping.ipynb`](../experiments/part4/ch20_weight_decay_and_early_stopping.ipynb) runs
+gradient descent on a model linear in its weights, and solves the weight-decay fit directly. These are measurements, not
+proofs. The chapter's example comes out as stated: with `decay_strength = 1` the weight rests at 4 and 0.2 of the error is
+left, and each step multiplies the distance to the rest by 0.5. Without decay the weight goes to 5 and the factor is 0.6.
+After 10 steps the strong pattern keeps 0.000977 of its error against the bound 0.1667, and the weak one 0.951110 against
+0.952381. The bound held at every step from 0 to 300 for 40 rates in `[0, 1]`. At rate 1.9, which breaks `rate_le_one`, the
+error share at step 3 was 0.729 against a bound of 0.149. Solving the weight-decay fit directly, the matched penalty gave
+the stopping bound to within `3e-16` over 5 learning rates, 60 step counts and 40 strengths. The penalty for 20 steps
+instead of 10 left 0.0909 and not 1/6, a miss of 0.0758.
+
+On random labels in a 30 by 30 kernel, with decay 0.791 matched to 40 steps, the share fitted in each direction agreed with
+its formula to `1e-9` for both habits. Early stopping fitted at least as much as weight decay in all 30 directions. The 11
+directions weaker than `0.05 × decay` had at most 0.0431 fitted by weight decay and 0.0440 by early stopping. With no decay
+the weakest direction was fitted to 0.99986.
+
+The figure below uses noisy labels with standard deviation 0.5. The stopping step, 21, was chosen on a separate validation
+set. The test error there was 0.278, against 0.487 after 3000 steps, 43 percent lower. The train error fell at every step,
+from 0.732 to 0.0098. Weight decay at the penalty matched to step 21 reached a test error of 0.290. With noise-free labels
+the test error fell to the end, so there was nothing to stop for.
+
+![Train error and test error against gradient descent steps on noisy labels, with the stopping step marked, beside the same run on noise-free labels where the test error keeps falling](figures/20-stop-on-noise.png)
+
+```bash
+jupyter nbconvert --to notebook --execute --inplace experiments/part4/ch20_weight_decay_and_early_stopping.ipynb
+```
 
 ## What is not shown
 

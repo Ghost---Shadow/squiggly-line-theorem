@@ -87,6 +87,12 @@ file shows `kernel_rescale` (the kernel is weaker by `scale²`) and
 `learning_rate` is a step of the old model with step size
 `learning_rate / scale²`.
 
+**Measured** on a linear model with 3 outputs and 6 weights, with the sharpness
+found by autograd and the travel by running gradient descent to the labels. The
+points sit on the proved lines at every scale from 0.1 to 30.
+
+![Two panels against the rescaling. Left: sharpness of the loss, falling as one over scale squared, measured points on the proved line. Right: travel of gradient descent, rising in proportion to the scale, measured points on the proved line, with the unscaled travel as a dotted level.](figures/24-flatter-is-farther.png)
+
 ```lean
 theorem norm_sq_sub_smul_of_inner_eq_zero
     {weights gradient : Weights}
@@ -105,6 +111,13 @@ theorem `inner_gradient_self_eq_zero` says that a **scale invariant**
 loss (`IS_SCALE_INVARIANT`: unchanged when all weights are multiplied by
 a positive number) has a gradient at right angles to the weights. Then
 `norm_le_norm_sub_smul` says the weights never get shorter.
+
+**Measured** on a one-hidden-layer network with an RMSNorm after the hidden
+layer, trained by gradient descent with `learning_rate = 0.1` from long weights.
+The length follows the proved curve, and the same network without the norm
+loses length.
+
+![Length of the weights against gradient steps. The normalised layer rises very slightly and lies on the proved curve; the same network without the norm falls from 20.5 to 15.7.](figures/24-weights-only-grow.png)
 
 ```lean
 theorem balance_after_step
@@ -183,6 +196,26 @@ This is the reason to measure steepness of the function and not
 flatness of the loss. The **travel** (chapter 9) and the **kernel**
 (chapter 10) both do change, which is why this chapter is about the gap
 between weights and line.
+
+## Run it yourself
+
+[`ch24_symmetry.ipynb`](../experiments/part4/ch24_symmetry.ipynb) runs
+`jupyter nbconvert --to notebook --execute --inplace experiments/part4/ch24_symmetry.ipynb`
+and makes 29 checks. On a linear model, rescaling by 0.1 up to 30 kept every
+output and residual to `2e-16`. The **measured** sharpness times `scale²` and
+the travel over `|scale|` were each the same at all 8 scales to `6e-16`, and the
+travel of gradient descent matched the least-squares travel. The example of the
+chapter came out as 2 then 20, kernel 4 then 0.04, and 16 both times. As a
+control, rescaling only half the weights by 10 broke both laws: sharpness times
+`scale²` was 52.4 times the old sharpness, and the travel was 0.62 of
+`scale` times the old travel. In the network with an RMSNorm, the cosine between
+gradient and weights was at most `7e-17` over 100 settings, against 0.65 without
+the norm. Over 300 steps the squared length grew by the squared step
+(largest relative gap `7e-10`), and the length went from 20.5310 to 20.5391
+and never fell; without the norm it fell to 15.676. The balance formula held
+to `4e-15` in 1000 random cases and 8 became 7.28 and 6 by hand;
+with weight decay 0.1 it missed by 5% on average. RMSNorm ignored a positive scale and flipped
+under a negative one. These are checks by measurement, not proofs.
 
 ## What is not shown
 

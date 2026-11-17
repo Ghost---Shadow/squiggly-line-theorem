@@ -72,6 +72,7 @@ In `SquigglyLine/Supporting/Training/`.
 |-------------------|------------------------------------------------------------------|
 | `LeastAction`     | gradient descent reaches the nearest fit; even steps lose least  |
 | `SpectralBias`    | each kernel direction shrinks by `(1 - η lam)^t`; strong first   |
+| `KernelSpectrum`  | the whole error as a sum over directions; sampled waves, evenly spaced |
 | `EdgeOfStability` | that error shrinks iff `η lam < 2`, and grows past it            |
 | `Reparam`         | rescaling: same function, flatter by `c²`, farther by `|c|`      |
 | `SmallSteps`      | a square-law loss over `N` steps is at most `c D² / N`           |
@@ -174,6 +175,7 @@ import SquigglyLine.Networks.RandomFourier
 -- 3. Supporting material: how training moves
 import SquigglyLine.Supporting.Training.LeastAction
 import SquigglyLine.Supporting.Training.SpectralBias
+import SquigglyLine.Supporting.Training.KernelSpectrum
 import SquigglyLine.Supporting.Training.EdgeOfStability
 import SquigglyLine.Supporting.Training.Reparam
 import SquigglyLine.Supporting.Training.SmallSteps

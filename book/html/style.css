@@ -7,6 +7,13 @@
   --code-bg: #f1efe8;
   --rule: #d9d6cc;
   --bar-bg: #f1efe8;
+  --tok-keyword: #8a2be2;
+  --tok-flow: #b4460f;
+  --tok-type: #0b6e8a;
+  --tok-number: #a35a00;
+  --tok-string: #2b7a2b;
+  --tok-comment: #6b6f76;
+  --tok-operator: #a3214f;
 }
 @media (prefers-color-scheme: dark) {
   :root {
@@ -18,6 +25,13 @@
     --code-bg: #232528;
     --rule: #3a3c40;
     --bar-bg: #202225;
+    --tok-keyword: #c792ea;
+    --tok-flow: #f2a65a;
+    --tok-type: #6fd3e8;
+    --tok-number: #e8b86a;
+    --tok-string: #9ad38a;
+    --tok-comment: #8b9098;
+    --tok-operator: #f48fb1;
   }
 }
 html { background: var(--bg); }
@@ -91,3 +105,16 @@ blockquote {
   padding-bottom: 2rem;
   border-top: 1px solid var(--rule);
 }
+
+/* Syntax highlighting. pandoc marks tokens at build time (span.kw and so on)
+   and inlines its own light colours; these rules are more specific, so they win
+   and follow the light and dark themes above. */
+pre code span { background: none; }
+pre code span.kw, pre code span.pp, pre code span.im, pre code span.ex { color: var(--tok-keyword); font-weight: bold; }
+pre code span.cf, pre code span.at, pre code span.bu, pre code span.va, pre code span.fu { color: var(--tok-flow); font-weight: normal; }
+pre code span.dt, pre code span.cn, pre code span.ot { color: var(--tok-type); font-weight: normal; }
+pre code span.dv, pre code span.bn, pre code span.fl { color: var(--tok-number); }
+pre code span.st, pre code span.ss, pre code span.sc, pre code span.vs, pre code span.ch, pre code span.sp { color: var(--tok-string); }
+pre code span.co, pre code span.do, pre code span.an, pre code span.cv, pre code span.in { color: var(--tok-comment); font-style: italic; }
+pre code span.op { color: var(--tok-operator); font-weight: normal; }
+pre code span.al, pre code span.er, pre code span.wa { color: var(--tok-operator); font-weight: bold; }

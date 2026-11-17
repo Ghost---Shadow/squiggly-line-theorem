@@ -19,6 +19,13 @@ is below one in size, and the error shrinks, exactly when
 `learning_rate × strength` is between 0 and 2. At 2 the factor is −1. The
 error flips sign and never dies down. Past 2 it grows.
 
+**Measured**, on a model that is linear in its weights: the line is the
+factor, and the dots are the ratios of the error after one step to the error
+before, taken from gradient descent on the model. The shaded band is where the
+factor is below one in size.
+
+![The factor against learning rate times strength: a straight line from 1 down to minus 2, the measured dots on it, and the band from 0 to 2 where its size is below one](figures/19-factor-line.png)
+
 This is the **edge of stability**. People also report that when a
 network is trained with plain gradient descent, the sharpness of the loss
 climbs until it sits at about `2 / learning_rate` and hovers there
@@ -43,6 +50,12 @@ The edge is `2 / 10 = 0.2`. Below it the error shrinks, and the sign
 flips because the factor is negative. On it the error swings for ever.
 Past it, after 3 steps the size is `8 × 1.5³ = 27`. The theorem below
 promises at least `8 × (1 + 3 × 0.5) = 20`. It holds.
+
+**Measured**, on a model with strengths 1.03 to 17.28 whose edge is
+`2 / strongest = 0.1158`. Half the limit, the limit and 1.05 times the limit
+start from the same error. The size of the error is on a log scale.
+
+![Size of the error against steps at half the edge, at the edge and at 1.05 times the edge: the first dies away, the second stays level, the third grows](figures/19-edge-runs.png)
 
 ## The statement
 
@@ -132,6 +145,12 @@ to 9 the best step is `2 / 10 = 0.2`. The factors are 0.8 for strength 1
 and −0.8 for strength 9, and the bound is `8 / 10 = 0.8`. The more uneven
 the strengths, the closer that speed is to 1.
 
+**Measured**, with strengths 1, 2, 4 and 9: the size of each direction's
+factor after one step, at a small step, at the best step and at a step past the
+edge.
+
+![Bars for the factor size of four directions at steps 0.05, 0.2 and 0.25: at 0.2 the weakest and strongest bars are equal at 0.8, at 0.25 the strongest bar is above one](figures/19-many-directions.png)
+
 **Momentum.** With momentum `momentum`, the oscillation that never dies
 sits at `learning_rate × strength = 2 × (1 + momentum)` instead of 2
 (`momentumStep_alternating`, `iterate_momentumStep_alternating`). With no
@@ -164,6 +183,32 @@ scale, so what matters is the product `learning_rate × strength`, which
 rescaling leaves alone. A squigglier model has stronger directions, so
 for a fixed learning rate it sits nearer the edge. The averaging result
 is the idea of chapter 15.
+
+## Run it yourself
+
+[`ch19_the_largest_step.ipynb`](../experiments/part4/ch19_the_largest_step.ipynb)
+runs plain gradient descent on a model that is linear in its weights (sine and
+cosine features, and a square matrix built to have strengths 1, 2, 4 and 9),
+and projects the error on the kernel's eigenvectors. The factor
+`1 − learning_rate × strength` matched along every direction to `4e-16` of the
+start error. The three runs of the hand example gave `8, −4, 2, −1` and
+`8, −8, 8, −8` and `8, −12, 18, −27`; the size 27 is above the promised 20.
+On the Fourier model, with edge `2 / strongest = 0.1158`, the error after 300
+steps was below the start at 0.5, 0.9 and 0.99 times the edge, above it at
+1.01, 1.1 and 1.5 times, and at the edge the error along the strongest
+direction kept its size to 12 digits. At the best step 0.2 for strengths 1 to
+9 the factors were 0.8, 0.6, 0.2 and −0.8, and no rate on a grid of 1000 did
+better than 0.8 in its worst direction (0.8001, at 0.1999). Shrinking the error
+100-fold took 72 steps at 0.05, 21 steps at 0.2, and never happened at 0.25.
+A schedule matched the product of its factors to `3e-16`. Heavy-ball descent
+at `learning_rate × strength = 2 × (1 + momentum)` with momentum 0.5 kept the
+error at 8 and −8 for 20 steps, and at 0.9 and 1.1 times that edge it did not
+(size 0.0008 and 12 740). The mean of 15 single-example steps matched one step
+on the mean gradient to `2e-16`, and shares summing to 1.2 broke it (gap 0.3).
+The three answers below came out as 0.04, −3, 1.8, −1.08, and 0.2 with 0.6. The
+notebook has 31 checks, each able to fail. This is evidence for a fixed
+kernel, not a proof, and it does not test the open questions below. Run it with
+`jupyter nbconvert --to notebook --execute --inplace experiments/part4/ch19_the_largest_step.ipynb`.
 
 ## What is not shown
 

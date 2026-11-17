@@ -18,9 +18,13 @@ Your prompt names your chapter. Everything else is here.
 ## What to make
 
 - `experiments/partN/chNN_short_name.ipynb`, where `partN` is the part of
-  the book your chapter is in (`part2` for chapters 8 to 12).
+  the book your chapter is in: `part1` for chapters 1 to 7, `part2` for 8
+  to 12, `part3` for 13 to 16, `part4` for 17 to 27, `part5` for 28 to 35,
+  `part6` for 36 to 41, `part7` for 42 to 46. Create the folder if it is
+  missing.
 - Its figures, saved as PNG into `book/figures/NN-what-it-shows.png`.
-- In your chapter file, the figures where they help and a section
+  **Every chapter gets at least one figure** (see "Rules for figures").
+- In your chapter file, each figure next to the claim it shows, and a section
   `## Run it yourself` just before `## What is not shown` (or before
   `## Check yourself` if the chapter has no such section): what the
   notebook checks, the measured numbers, and the command to run it.
@@ -44,11 +48,52 @@ Your prompt names your chapter. Everything else is here.
 - **Names.** Locals are `snake_case`, constants are `SCREAMING_SNAKE_CASE`,
   functions are verbs (`measure_travel`, `draw_curve`). No single-letter
   names, in code or in prose.
-- **Figures.** Use the figure style in `common.py` (import it from
-  `experiments/part1`; do not edit it). Every axis is labelled, the title
-  says what the figure shows, and no label sits on a curve.
 - **Self-contained.** Helpers your chapter needs go in your notebook.
   Create no shared file.
+- **Say what you expect before you run it.** The markdown cell that states
+  a claim also says what number or shape is predicted, and what result
+  would count against the claim. Write it before the code cell, not after
+  seeing the output.
+- **Print only what was computed.** No cell prints a conclusion as literal
+  text. A summary line is built from the measured numbers.
+- **Two distances.** Wherever a Euclidean (nearest) distance is reported,
+  report the vertical error next to it. The loss sees only the vertical
+  one.
+- **Squiggliness alone.** When an experiment varies how squiggly a curve
+  is, hold its amplitude fixed.
+- **A control.** Where you can, add one case in which the hypothesis of the
+  theorem is broken, and show that the conclusion then fails. Report the
+  size of the failure.
+
+## Rules for figures
+
+- **At least one per chapter**, showing the mechanism the chapter proves.
+  A second only if it shows something the first cannot. One good figure
+  beats three.
+- A figure shows one of these: the quantity the theorem is about against
+  the quantity it depends on; the bound or the exact result on the same
+  axes as what was measured; a case where the claim holds beside one where
+  it breaks.
+- Every number drawn comes from the notebook, from a seed. Do not draw a
+  cartoon that looks like data. If a picture is a schematic, say so in its
+  alt text.
+- **Style.** Call `use_style()` from `experiments/part1/common.py` and use
+  its colour constants and `save_figure`. That gives seaborn's default
+  theme, the "deep" palette and the `paper` context. Do not edit
+  `common.py`, and do not choose another style, palette or context.
+  Colour follows the quantity: blue the nearest distance, orange the
+  vertical error, green a bound, purple the model, grey "before" or
+  "without".
+- Every axis is labelled in plain words, with the unit where there is one.
+  The title says what the figure shows. No label sits on a curve. With
+  two or more curves there is a legend.
+- The `paper` context makes text small. Keep figures about 5 to 7 inches
+  wide so the text is legible on the site.
+- In the chapter, the image link carries alt text that says what is shown
+  and what differs between the curves:
+  `![Error left against steps, for a strong and a weak direction, between the two bounds](figures/18-two-bounds.png)`.
+  Put the label (**measured**, or **proved** for an exact curve) in the
+  sentence before the figure.
 
 ## Rules for the chapter text
 
@@ -56,6 +101,8 @@ Your prompt names your chapter. Everything else is here.
 - Call them **measured**. An experiment is evidence, not a proof: say so
   once in the section.
 - Change nothing else in the chapter, and do not touch quoted Lean.
+- If your prompt points you at a section of `book/proposals/`, read those
+  lines only. They say which experiments the author asked for.
 
 ## Before you report
 
@@ -67,7 +114,12 @@ python book/tools/check_book.py NN
 Run the notebook twice and compare the `[PASS]` lines. The checker must
 end with `problems: 0`.
 
-Write only your notebook, your figures and your chapter. Do not run git.
+Write only your notebook, your figures and your chapter. If you make the
+notebook with a script, name the script `experiments/partN/_build_chNN.py`
+(your chapter number in the name, never a shared temporary folder: other
+helpers use the same names there) and delete it before you report. Do not run git,
+and do not run `lake`. Other helpers are working on other chapters at the
+same time: do not touch their files, `common.py`, or `book/README.md`.
 
 ## Your report
 
