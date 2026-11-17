@@ -217,8 +217,10 @@ the number of steps. That reading is **argued**, not proved.
 [`ch36_attention.ipynb`](../experiments/part6/ch36_attention.ipynb) checks the
 chapter on one head with `softmax` shares, in NumPy, and the learning claim on
 a model linear in its weights with the gradient taken by autograd. The hand
-numbers come out as written: 4.25, 5, factor 0.632, 4.425 after one layer,
-0.0713 after ten, and 0.7802 for `score_bound` 3 after 100 layers. In 20,000
+numbers (4.25, 5, factor 0.632, 4.425 after one layer, 0.0713 after ten, and
+0.7802 for `score_bound` 3 after 100 layers) are **from the formula**, not
+measured; the notebook prints them as "by construction, cannot fail" and they
+are not evidence. In 20,000
 random score vectors every output of the head on values 2, 4 and 9 stayed in
 [2, 9], and 20,000 outputs on six 2-dimensional values stayed inside their
 convex hull. Without the softmax, 0.915 of the outputs left [2, 9]. Through 60
