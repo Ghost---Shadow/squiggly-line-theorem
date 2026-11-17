@@ -198,14 +198,14 @@ the noise terms are below them.
 start weights, random queries with a junk part) the identity of
 `inner_splitFit` held to `4e-14`, the split fit gave the labels and equalled
 the pseudo-inverse fit to `3e-14`, the largest noise term was 0.520 of its
-cap, and the largest signal change was 0.998 of its allowance. The control
+cap, and the largest signal change, measured from two fits, was 0.998 of its allowance. The control
 leaves the noise direction out of the junk, so the junk is not the same in
 every direction. At junk strength 0.1 the true noise term is then 100.00, not
 the formula's 9.09, and it is above the cap 60.8.
 
 **Both fits pass through every label, and only one follows the trend.** The
 vertical residual at the 12 training inputs, the only thing the loss sees, is
-`2e-9` without junk and `2e-15` with junk strength 0.1.
+`1.1e-9` without junk and `1.3e-15` with junk strength 0.1.
 
 ![Two fits through the same twelve noisy labels: without junk the grey curve swings far from the dashed trend between the points; with junk strength 0.1 the purple curve follows the trend and has a narrow spike at each point](figures/44-two-fits.png)
 
@@ -229,9 +229,9 @@ from 0.828 to `9.3e-7`.
 
 The figure is **measured**, on the 231 inputs away from the spikes. Left: the
 noise term falls as the junk strength grows, from `9.0e-4` at junk strength
-`1e-4` to `3.6e-8` at 10, below the cap at all 400 inputs for each of 13 junk
-strengths. The signal change follows its allowance closely, so that bound is
-nearly tight, and the signal does not pay more than the chapter allows.
+`1e-4` to `3.6e-8` at 10 (the notebook prints every node), below the cap at all 400 inputs for each of 14 junk
+strengths. The signal change stays below its allowance and is within 2 percent of it up to junk strength 0.1
+(`1.07e-2` against `1.09e-2` at 0.1), so that bound is nearly tight there; at junk strength 10 the change is 0.38 against an allowance of 1.09.
 Right: at junk strength 0.1, narrow spikes (width 0.004 to 0.013, where the
 junk Gram matrix differs from the identity by at most `1e-10`) leave a noise
 term below `0.02`. As the spikes widen the junk kernel stops being the same
@@ -246,7 +246,7 @@ Run it with
 jupyter nbconvert --to notebook --execute --inplace experiments/part7/ch44_benign_overfitting.ipynb
 ```
 
-It runs in a few seconds and prints 21 `[PASS]` lines, the same on every run.
+It prints 21 `[PASS]` lines, the same on every run.
 
 ## What is not shown
 

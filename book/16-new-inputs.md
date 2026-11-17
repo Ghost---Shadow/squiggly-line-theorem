@@ -72,16 +72,21 @@ generalisation, and it is not here.
 experiment for each row of the table, on models that are linear in their
 weights. Run it with
 `jupyter nbconvert --to notebook --execute --inplace experiments/part3/ch16_new_inputs.ipynb`.
-It is evidence, not a proof. These are **measured**.
+It is evidence, not a proof. A number is called **measured** only if it came
+from running a model. Seven checks restate an identity or a definition (listed
+at the end); the notebook prints them as `[by construction, cannot fail]`, and
+they are no evidence. The notebook prints 27 `[PASS]` lines.
 
 - **Same kernel.** A model with 15 weights and one with 150, equal kernel and
   test row: their answers at a new input differ by at most `6e-16` over 400
   steps, and a model with a different kernel parts from them by 0.71.
-- **Bias and variance.** The measured mean squared error matches bias squared
-  plus variance to 0.3 percent over 200 000 noise draws, at 16 floors. From
-  floor 0 to the largest floor, bias squared rises from 0 to `1.0e-2` and
-  variance falls from `2.4e-2` to `1.3e-9`. The lowest error is at an
-  in-between floor, `3.7e-4`.
+- **Bias and variance.** From 200 000 real fits to redrawn noise, at 16 floors,
+  the measured mean squared error matches the formula's bias squared plus
+  variance to 0.7 percent. From floor 0 to the largest floor the measured bias
+  squared rises from 0 to `1.0e-2` and the measured variance falls from
+  `2.4e-2` to `1.3e-9`, with no step of the wrong sign. The formula gives
+  `1.0e-2` and `1.3e-9` at the largest floor. The lowest measured error is at
+  an in-between floor, `3.7e-4`.
 - **Benign overfitting.** The nearest fit is exact, and the damage equals
   overlap over `noise_strength + junk_strength`. It stays under the cap, at
   most 0.013 of it. Over the last four junk strengths it falls with log-log
@@ -90,25 +95,31 @@ It is evidence, not a proof. These are **measured**.
   slope is `-1.00`. With no junk along the noise direction the damage stays at
   `5.2e-2` and passes the cap by a factor of 4.6.
 - **Pruning.** The real runs follow `(1 - rate * strength) ** steps`. The whole
-  model's share is never above the pruned model's, and equal in the two
-  directions where the dropped weights have no strength. The fit is farther by
+  model's share is never above the pruned model's (by construction, from the
+  formula, not evidence). The fit is farther by
   1.118, 1.265 and 1.732 along three directions, equal to
   `sqrt((kept + dropped) / kept)`. With `rate * whole_strength = 1.9` the
   order flips in size: `-0.90` against `-0.52`.
 - **Forgetting.** One step on the new task changes the old errors by the cross
   kernel formula to `4e-16`. With a zero cross kernel the old errors moved by
   at most `9e-15`. In the general case they moved 2.98, under the ceiling 6.44.
-- **Dimple.** The loss on the data is 1.5635 at slopes 0.5, 2, 8 and 50. The
-  step off the manifold reaches the label to `2e-16`. At slope 8 the vertical
+- **Dimple.** The nearest distance, found by numerical search, lies between the
+  two bounds at all 24 pairs of data point and slope. At slope 8 the vertical
   error is 0.990 and the nearest distance 0.122, between the bounds 0.109 and
   0.124.
 - **Capacity.** With 50 weights, random labels are fitted to `2e-12` or better
   at up to 50 points, and missed by at least `7.7e-3` at 51 points and `4.8` at
   80, in 20 seeds. With 50 weights of rank 30, 40 points are missed by at
   least 2.3.
-- **No free lunch.** Four learners are each right on exactly 0.5000 of the
-  unseen inputs over all 256 labellings. On the nine step labellings the
-  nearest-input learner reaches 0.889.
+- **No free lunch.** On the nine step labellings, which have a pattern, the
+  nearest-input learner is right on 0.889 of the unseen inputs.
+
+By construction, so not evidence: the whole model's share is at most the pruned
+model's, and equal where the dropped weights have no strength; at height 0 the
+dimpled model is the profile, so the loss is the same for every slope; the step
+off the manifold reaches the label; with slope 0 no height changes the answer;
+and over all 256 labellings each learner is right on exactly half of the unseen
+inputs, and the mean squared error is `p ** 2 + 1`.
 
 The cap in the benign overfitting row is loose here: the damage is a small
 fraction of it. The experiment does not show the cap is tight.

@@ -193,24 +193,28 @@ softness is lost.
 
 The notebook
 [`ch39_hard_choices_and_temperature.ipynb`](../experiments/part6/ch39_hard_choices_and_temperature.ipynb)
-makes 19 checks with seeded random draws. It is evidence, not a proof. It
+makes 15 checks with seeded random draws. It is evidence, not a proof. It
 checks the hand example: the shares are 0.844, 0.114, 0.042 and 0.980,
 0.018, 0.002, and the averages are 2.646 and 2.957, as above. The bound
 `(count − 1) × exp(−gap / temperature)` holds in all 24000 cases (2000
 lists of 2 to 12 scores, 12 temperatures); the smallest bound minus miss
-is −1.1e-16, which is rounding in a two-choice list where the bound is
-exact. With twice the true gap, as a control, the bound fails in 10986 of
+is −1.1e-16, in a list of 2 choices with the gap over the temperature
+at 18.9. For two choices the miss is `exp(−x) / (1 + exp(−x))`, so the
+bound is not exact there: it is tight to rounding only because the gap over
+the temperature is large. With twice the true gap, as a control, the bound fails in 10986 of
 those cases, by up to 0.267. The average score never falls as the sampler
 gets colder in 2000 lists over 200 inverse temperatures (the smallest step
 is −1.8e-15). As a control, the runner-up share is not monotone in 1667 of
-the 2000 lists. The straight-through value at 0.3 is exactly 1, its slope
-is 2.00000000, and the hard step has slope 0 there and a difference
-quotient of 50000 at its jump. The Hopfield update equals the ideal
+the 2000 lists. For the straight-through trick, the value 1 and the slope 2 at 0.3 hold
+by construction, so the notebook prints them as such and does not count
+them as evidence. What it does check is that the hard step has slope 0 at
+0.3 and a difference quotient of 50000 at its jump. The Hopfield update equals the ideal
 denoiser to 1.0e-15 over 500 draws; patterns of unequal length, as a
 control, break it by up to 0.950. The recalled vector is 3.6e-15 from the
 span of the patterns. For a decoder with slope limit 6.897, no snap
-breaks the bound in 6000 pairs, and the same decoder with its output
-multiplied by 10 breaks it in 633 of them.
+breaks the bound in 6000 pairs (the largest change per distance is 1.790).
+This claim has no control: the bound is the definition of a slope limit
+applied to two points, and a false slope limit would fail trivially.
 
 One thing the experiment did not bear out as stated: the equality with
 the denoiser also holds, to 7.5e-16, for a state of length 1.5. The

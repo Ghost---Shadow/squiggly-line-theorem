@@ -8,6 +8,10 @@
 
 A book of proofs should end by saying where the proofs stop.
 
+This map is **measured** from the text itself: for each chapter 1 to 46 it counts the labels **proved**, **measured**, **argued**, **open** and **recalled**. The counts are of labels in the text, not of theorems.
+
+![Stacked bars, one per chapter 1 to 46, of how often each of the five labels appears, with the seven parts shaded in alternating bands; recalled and open labels dominate and proved labels are rare](figures/47-labels-by-chapter.png)
+
 ## The one missing piece
 
 Nearly every proof in parts II and III rests on the same assumption: a
@@ -73,5 +77,13 @@ its givens. It can still say less than its plain-words summary claims,
 or assume more than is reasonable. That is the kind of mistake to look
 for, and reading statements closely is how to find it. If you find one,
 open an issue on the repository.
+
+## Run it yourself
+
+The notebook counts the five labels in each chapter two ways and checks that the totals agree, then draws the figure above.
+
+```
+jupyter nbconvert --to notebook --execute --inplace experiments/part7/ch47_what_is_not_here.ipynb
+```
 
 Previous: [46. The dimpled manifold](46-the-dimpled-manifold.md) · Next: [Glossary](glossary.md)

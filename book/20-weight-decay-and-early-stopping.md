@@ -28,11 +28,13 @@ pattern does not go to zero. It comes to rest.
 A pattern stronger than the penalty is learned almost fully. A pattern
 weaker than the penalty is hardly touched.
 
-**Measured** on a model with 30 data points and 41 weights, each direction of the
+**Measured** on a model with 30 data points and 41 weights, each of the 30 directions of the
 kernel is one point. Its strength is on the horizontal axis and the share of the label along it that the fit has taken is
-on the vertical axis. Early stopping and weight decay at the matching penalty rise together from nothing to everything.
+on the vertical axis. Early stopping and weight decay at the matching penalty (decay 0.791) follow the two curves of their
+formulas. At a strength equal to the decay, weight decay has fitted 0.5. The early-stopping points lie on or above the
+weight-decay points. Only 2 directions are stronger than 20 times the decay, so the top of the curves rests on few points.
 
-![Share fitted against strength of the direction, for early stopping, weight decay and no decay: both habits fit almost nothing below the decay and almost everything above it](figures/20-weak-directions.png)
+![Share fitted against strength of each of 30 kernel directions: early stopping and weight decay follow their formulas and rise from 0 to 1 around the decay, early stopping a little above weight decay, and no decay fits every direction fully](figures/20-weak-directions.png)
 
 ## An example you can do by hand
 
@@ -201,10 +203,18 @@ error share at step 3 was 0.729 against a bound of 0.149. Solving the weight-dec
 the stopping bound to within `3e-16` over 5 learning rates, 60 step counts and 40 strengths. The penalty for 20 steps
 instead of 10 left 0.0909 and not 1/6, a miss of 0.0758.
 
-On random labels in a 30 by 30 kernel, with decay 0.791 matched to 40 steps, the share fitted in each direction agreed with
-its formula to `1e-9` for both habits. Early stopping fitted at least as much as weight decay in all 30 directions. The 11
-directions weaker than `0.05 × decay` had at most 0.0431 fitted by weight decay and 0.0440 by early stopping. With no decay
-the weakest direction was fitted to 0.99986.
+The matched penalty was also solved on data: 8 random points, 12 weights, a linear solve for the ridge fit, and the share
+left read along each eigenvector of the kernel. Over 2080 comparisons, 5 learning rates and up to 60 step counts, it differed
+from `1 / (1 + step_count × learning_rate × strength)` by at most `2.1e-15`. With the penalty for twice the steps the largest
+difference was 0.172. The one-weight values above (the weight resting at 4, the shares 0.2 and 1/6) come from gradient descent
+or from the closed form for the resting weight, as stated in the notebook; the closed form is a formula, not a solve.
+
+On random labels in a 30 by 30 kernel, with decay 0.791 matched to 40 steps, the share fitted in each direction (the decay fit
+is a linear solve, the stopping fit is gradient descent) agreed with its formula to `1e-9` for both habits. In the 26 of 30
+directions where the two differ by more than `1e-6`, early stopping fitted more than weight decay, by at least `3.55e-6`.
+With no decay the weakest direction was fitted to 0.99986. That 11 directions weaker than `0.05 × decay` are barely fitted
+(at most 0.0431 and 0.0440) and 2 stronger than 20 times the decay almost fully (at least 0.9596 and 1.0000) is printed, not
+checked, because it follows from the definitions of weak and strong.
 
 The figure below uses noisy labels with standard deviation 0.5. The stopping step, 21, was chosen on a separate validation
 set. The test error there was 0.278, against 0.487 after 3000 steps, 43 percent lower. The train error fell at every step,

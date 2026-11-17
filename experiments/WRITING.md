@@ -37,6 +37,15 @@ Your prompt names your chapter. Everything else is here.
 - **A check must be able to fail.** Ask of each one: would it fail if the
   claim were false? Do not loosen a threshold to make a check pass
   without saying so in the cell and in your report.
+- **No check by construction.** A check that compares a formula with
+  itself, or asserts something the code forces to be true, is not a check.
+  Leave it out, or print it with the words "by construction, cannot fail"
+  and do not count it as evidence in the chapter.
+- **"Measured" means the model was run.** A number is measured only if it
+  came out of a fit, a training run or a sampled model. A number that came
+  from evaluating the chapter's formula is "from the formula". Say which.
+- **Cite only what is printed.** Every number in the chapter's section
+  appears in the notebook's stored output.
 - **Seed everything.** Two runs must print identical `[PASS]` lines.
 - **The right stand-in model.** Use the model the theorem is about. Where
   a proof assumes a model that is *linear in its weights*, train the sine
