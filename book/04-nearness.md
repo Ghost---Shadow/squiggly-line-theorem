@@ -93,6 +93,14 @@ This is the honest form of "the squiggly curve is close to the data". It
 is close in the sense that a small move of the inputs makes it exact. It
 is a distance to move.
 
+**A common misunderstanding.** The warp looks like a soft prompt: a
+learned input that steers a frozen model. It is not one. The warp gives
+each input its own move. A soft prompt is one extra input, shared by
+every question. One shift shared by all the inputs fits the target only
+when the target is the model itself, shifted. What the warp does have is
+the shape of an adversarial example: a small move of one input that
+changes the answer at that input. **argued**
+
 ![The curve 0.8 sin(8x) in light purple and a target in black. For each of seventeen inputs, an arrow runs sideways to the input where the model equals the target there. No arrow is longer than pi over 8.](figures/04-the-warp.png)
 
 **3. The slope tax.** Put chapter 3 after fact 1:

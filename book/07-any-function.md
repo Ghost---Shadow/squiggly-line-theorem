@@ -33,6 +33,19 @@ things follow, and each is one line of reasoning.
 The sine is the special case of `sin` squeezed by its frequency, with
 `reach = PI`.
 
+**A common misunderstanding.** "Any number of inputs" does not make this
+a theorem about any thin folded sheet, such as the surface of a brain.
+The model has to be a function: one output for each input. The three
+claims are about the gap between two distances, the one straight up and
+the nearest one. A sheet that folds back over itself has no "straight
+up", so it has no vertical error. Then the nearest distance is the only
+error there is, and closer is simply better. **argued**
+
+A second one: more inputs do not call for more terms or more weights.
+One squeeze factor divides the reach, whatever the number of inputs. The
+price is paid in slope. Fitting a given target function closely is
+another task, and nothing here says that is cheap.
+
 ![One model, a sum of four sines, squeezed by 1, 2 and 4. The reach shrinks from 2.81 to 1.41 to 0.70 and the steepest slope grows from 2.1 to 4.3 to 8.5.](figures/07-squeeze.png)
 
 ## The statement
@@ -106,6 +119,11 @@ the same trade, proved on its own.
 
 Each time, the trade is the same: closer, steeper by the same factor, and
 no better in loss.
+
+**A common misunderstanding.** The dial is a frequency, and in a circuit
+a higher frequency draws more power. So it is tempting to read "steeper"
+as "costs more energy". The theorem proves bounds on a slope and on a
+distance. It says nothing about power, heat or effort.
 
 ## What is not shown
 

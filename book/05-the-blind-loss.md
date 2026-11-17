@@ -101,6 +101,20 @@ of each width this book proves no such thing, so the lemma is consistent
 with the measurement but does not explain it. This part is **measured**,
 not proved here.
 
+**A common misunderstanding.** The same loss at every width does not
+mean the same distribution of outputs at every width. Squared error
+reads only two numbers, the mean of the output and the mean of its
+square:
+
+```
+mean((label − output)²) = label² − 2 × label × mean(output) + mean(output²)
+```
+
+A narrow network and a wide one can agree on those two numbers while
+their outputs are spread in different shapes. So the flat graph above
+does not show equal marginals across widths, and it does not need them.
+**argued**
+
 A separate measurement in PyTorch is not a re-run of that script. It has
 one input, one hidden layer, 256 new points per network and PyTorch's
 default initialisation (which has biases). It adds one detail. The mean error over the draw is 0.50 at width 4 and 0.41

@@ -90,6 +90,12 @@ Previous: [..](..) · Next: [..](..)
   and which earlier chapter introduced them.
 - **What is not shown.** Take this from the note. It is not optional.
   Say which simplified model the proof is for.
+- **A common misunderstanding.** Where a sentence invites a wrong
+  reading, put a short paragraph directly after it, starting
+  `**A common misunderstanding.**`. Say the wrong reading, then why it
+  is wrong, in three to six sentences. Keep it local to the place where
+  the reader would go wrong. Do not collect these in a section of their
+  own. A claim made in one carries a label like any other.
 - **Check yourself.** Three questions, then a paragraph starting
   `**Answers.**`. Each answer must follow from a statement the chapter
   quoted or named.

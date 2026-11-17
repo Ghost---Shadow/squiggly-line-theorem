@@ -129,6 +129,10 @@ reported to take straighter paths as it trains (**recalled**: Hosseini
 and Fedorenko). The plate inequality gives the reason such a path would
 lose least. It does not show that trained layers do turn evenly.
 
+**A common misunderstanding.** "Equal steps lose least" says which path
+is best. It does not say which path training takes. Nothing here gets
+the second from the first.
+
 ## How this meets the squiggly line
 
 The travel of chapter 9 is the cost the squiggly line has to pay, and

@@ -76,6 +76,15 @@ least 98.7%.
   every layer leaves alone is never left (`dead_stays_dead`). The second
   is the "dying ReLU" problem.
 
+**A common misunderstanding.** More plates do not make a deeper network.
+Each plate is a linear map, so a stack of any number of plates is one
+linear map. A plate with a different angle at each point still treats
+each point by itself, so light from two points never meets inside the
+stack. It meets only if it spreads in a gap between plates. A detector
+reads brightness, which is the square of the light. So a stack with gaps
+and a detector computes, at most, sums of products of two inputs.
+**argued**
+
 ## A chain of chains
 
 Training has the same shape one level up. Each training step runs the

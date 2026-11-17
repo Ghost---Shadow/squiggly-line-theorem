@@ -24,6 +24,15 @@ zero does not shrink at all.
 > first, no direction can be hurried, and every direction with some
 > strength is learned in the end.
 
+**A common misunderstanding.** "Spectral" here does not mean a spectrum
+of sine waves. It means the spectrum of the kernel: its strengths, which
+are its eigenvalues. The statement below is about any direction the
+kernel only stretches. Those directions are sines in one special case:
+inputs evenly spaced over a period, and a kernel that depends only on
+the gap between two inputs, as the Fourier kernel of chapter 11 does.
+With unevenly spaced inputs the sines are no longer such directions.
+**argued**
+
 ## An example you can do by hand
 
 Take learning rate 0.1 and two directions, as in chapter 10. One has

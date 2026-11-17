@@ -100,6 +100,14 @@ random waves and a radial basis network have the same kernel on
 average, and by chapter 10 they are then the same learner. This is the
 idea behind random Fourier features.
 
+**A common misunderstanding.** Frequencies drawn at random do not space
+themselves out. Some land almost on top of each other. The even spacing
+shrinks like one over how many frequencies there are. The smallest gap
+between two random ones shrinks like one over the square of that number.
+For the average above this does no harm. It matters when the waves have
+to be told apart, because two waves of nearly the same frequency are
+nearly the same function. **argued**
+
 ![Averaged random waves against the bump, and the error against the number of frequencies](figures/11-random-fourier.png)
 
 ## Telling a transformer where a token is
