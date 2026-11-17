@@ -191,30 +191,33 @@ same, and its start weights are a different object, corrected only so that
 the start errors and the start answers at the 5 test inputs equal A's. All
 numbers below are **measured**. An experiment is evidence, not a proof.
 
-- **One step.** Over 50 random weight vectors, in both models, the change of
-  the test answer equals `learning_rate × test_row · residual` to `3e-15`.
-  The control, with the current answers in place of the errors, misses by up
-  to 0.776.
-- **Every step.** Over 20 001 steps and 5 test inputs, the largest gap
-  between the answers of A and B is `1.1e-15`. The answers did move, by up to
-  0.998, so the agreement is not for lack of change.
-- **Controls.** A model with a different kernel (16 weights, frequencies
-  0.7 to 5.6), started with the same errors and test answers, parts from A by
-  up to 0.561. A model with the same kernel but a different test row (its
-  test features shifted by noise) parts by up to 0.674. Both gaps open within
-  the first 41 steps.
-- **The fit.** At the fit that training heads for, the test answers of A and
-  B differ by `6.7e-16`, and 20 000 steps of descent land on it to `5.6e-16`.
-  The model with the other kernel has a fit that differs from A's by up to
-  0.561.
+- **One step.** The change of the test answer in one step equals
+  `learning_rate × test_row · residual` to `3.1e-15` over 50 random weight
+  vectors. This is an identity of the update rule the code applies, so it is
+  printed as "by construction, cannot fail" and is not evidence.
+- **Every step (measured).** Two training runs of 20 001 steps, one per model,
+  over 5 test inputs: the largest gap between the answers of A and B is
+  `1.1e-15`. The answers moved by up to 0.998, so the agreement is not for
+  lack of change.
+- **Controls (measured).** A model with a different kernel (16 weights,
+  frequencies 0.7 to 5.6), started with the same errors and test answers,
+  parts from A by up to 0.561, reached at step 28 and still 0.561 at the
+  end. A model with the same kernel but a different test row (its test
+  features shifted by noise) parts by up to 0.674, reached at step 41 and
+  still 0.674 at the end.
+- **Descent lands on the fit (measured).** 20 000 steps of descent end within
+  `5.6e-16` of the fit that training heads for, in both models.
+- **The fit itself (from the formula, not measured).** The test answers at
+  the fit differ between A and B by `6.7e-16`, and the model with the other
+  kernel has a fit that differs from A's by up to 0.561.
 
-![The test answers of two models with the same kernel, left, and the gap between model answers against steps, right, for the same kernel and for two controls](figures/42-same-kernel-same-answers.png)
+![The answers of two models with the same kernel at five test inputs against steps, left, and the largest gap between model answers against steps, right, for the same-kernel model and for two controls](figures/42-same-kernel-same-answers.png)
 
 The figure is **measured**. On the left the answers of A (solid) and B
 (dashed) lie on each other at all five test inputs. On the right the gap for
-B stays at rounding level for the whole run, while the gap for the
-different-kernel model (D) and the different-test-row model (E) jumps to
-about 0.5 and stays there.
+B stays at rounding level for the run, while the gap for the different-kernel
+model (D) and for the different-test-row model (E) rises to 0.561 and 0.674
+within the first 41 steps and stays there.
 
 Run it with:
 
