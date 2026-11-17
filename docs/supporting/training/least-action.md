@@ -80,8 +80,10 @@ Both say the same thing in different spaces: no movement that was not needed.
 - **Reaching the fit.** Gradient descent usually approaches a fit without
   landing on it exactly. The statement covers the case where it lands. With
   orthogonal features it lands in one step.
-- **More than two plates at once.** The comparison is for a neighbouring pair.
-  That equal steps are best among all sequences of `N` plates follows by
-  repeating it, and that last step is argued here, not proved. **open**
+- **Turns of more than a quarter turn.** For any number of plates, each
+  turning by at most a quarter turn either way, the equal split keeps the
+  most (`prod_cos_le_cos_average_pow`: the mean inequality, then Jensen's
+  inequality for the cosine). Past a quarter turn a plate flips the sign of
+  the light and the equal split need not be best.
 - **That a trained network's layers do turn evenly.** That is an observation
   from the literature, not something derived here. **open**

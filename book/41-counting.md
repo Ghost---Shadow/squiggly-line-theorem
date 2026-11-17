@@ -163,6 +163,38 @@ says a line gets near the data by being steep. A count is the limit of
 that: all step, and no slope anywhere else. An average cannot make a
 step, and a model of limited slope can only round its corners.
 
+## Run it yourself
+
+[`ch41_counting.ipynb`](../experiments/part6/ch41_counting.ipynb) checks the three
+statements on small exact models, and one use of the third for an average
+over a sequence. It does not train anything. A read-out from 5 to 6 that is
+continuous said 5.5 in all four cases tried, at `fraction = 0.7071` for
+`5 + fraction²`; a read-out with a jump never came within 0.5 of it.
+For the two hands, the ideal denoiser returned `(5.5, 1)` at every noise
+level from 0.1 to 10, and returned the midpoint in 200 random equidistant
+cases in 4 dimensions (largest error `4e-15`). Moved by 1 towards B, at
+noise level 1, the finger count became 5.9034, matching the
+`tanh` formula to `8e-16`. In 900 smooth models that say 5 and 6 at
+distances 0.2, 0.05 and 0.01, the largest slope times the distance was never
+below 1.16, and was exactly 1 for the straight line; for models that say 5
+and 5.5 the straight line gave 0.5, so the bound with gap 1 fails there, as
+it should.
+
+For an average over a sequence of `length` tokens, one more copy of a
+token moves the average by `1 / length` and the slope needed to tell the
+counts apart is `length`: 4, 8, 16, 32, 64 and 128 for those lengths, all
+on the bound. A sum, the control, needs slope 1 at every length. **Measured**:
+
+![Left, the average over a sequence against the number of copies, for four lengths; right, the slope needed to tell one count from the next against the length, on the bound slope = length for the average and flat at 1 for the sum](figures/41-average-against-copies.png)
+
+The ideal denoiser between two hands passes through 5.5 at every noise
+level; the nearest-example answer jumps. **Measured**:
+
+![Finger count returned by the ideal denoiser against position between two hands, at three noise levels, all through 5.5 at the middle, beside a grey step](figures/41-denoiser-passes-through-the-half.png)
+
+These are checks of small cases by measurement, not proofs. Run it with
+`jupyter nbconvert --to notebook --execute --inplace experiments/part6/ch41_counting.ipynb`.
+
 ## What is not shown
 
 - **That this is why real models miscount.** The facts show that counting

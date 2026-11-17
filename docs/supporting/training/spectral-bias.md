@@ -130,11 +130,28 @@ Not shown: that directions below momentum's edge are stable, the noise of a
 random example around its mean, and federated averaging after more than one
 local step, where the average is no longer a single step.
 
+## All the directions at once, and the Fourier case
+
+[`KernelSpectrum.lean`](../../../lean/SquigglyLine/Supporting/Training/KernelSpectrum.lean)
+adds two things. Given an orthonormal basis of directions that the kernel only
+stretches, the squared loss after `t` steps is the sum over the basis of
+`(1 − ηλ_i)^(2t)` times the squared start part
+(`norm_sq_residual_iterate_eq_sum`). And for `N` inputs evenly spaced over one
+period, with a kernel that is a sum of `a_k² cos(k × gap)` over frequencies
+below `N / 2`, the sampled wave of frequency `m` is such a direction, with
+strength `N / 2 × a_m²` (`fourier_direction_is_stretched`,
+`fourier_spectral_bias`). The book's chapter 18 has the plain-English proof.
+
 ## What is not shown
 
 - **Deep networks.** The kernel of a deep network changes while it trains. The
   statement here is for a fixed kernel. **open**
-- **That smooth means strong.** For common networks the strong directions are
-  reported to be the smooth ones. Here the strengths are given, not derived.
-  **open**
+- **That smooth means strong.** For the Fourier model on evenly spaced inputs
+  the strengths follow from the sizes of the coefficients
+  (`fourier_direction_is_stretched` in
+  [`KernelSpectrum.lean`](../../../lean/SquigglyLine/Supporting/Training/KernelSpectrum.lean):
+  the sampled wave of frequency `m` has strength `N / 2 × a_m²`). That the
+  sizes fall with frequency is a choice of model. For common networks the
+  strong directions are reported to be the smooth ones; that is not derived
+  here. **open**
 - **Step size.** The bounds need `ηλ ≤ 1` for the direction in question.

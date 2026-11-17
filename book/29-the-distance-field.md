@@ -27,6 +27,12 @@ curve is, the field is never steep.
 > Walk straight toward the nearest point of the curve, and it falls by
 > exactly what you walk.
 
+**Measured** (not a proof). Here is the field of `sin(4x)`, shaded by its value, with eight seeded sample points. The black line from each
+point goes to its nearest point of the curve, and its length is the field. The dotted orange line goes straight to the curve, and its length is the
+vertical error. The orange line is as long or longer, and the field changes gently across the plane while the curve climbs steeply.
+
+![The distance field of sin(4x) as a shaded plane, with eight points, each joined to its nearest point of the curve in black and to the point straight above or below it in dotted orange](figures/29-distance-field.png)
+
 ## An example you can do by hand
 
 Take the line `y = 3x`. Its height has slope 3. Look at the point
@@ -169,6 +175,11 @@ than one. Nothing is lost: for a continuous line the field is zero exactly
 on the line. The squiggle has moved from the size of the slope into the
 layout of the field, where it is zero and where it has creases.
 
+**Measured** (not a proof). Here is the largest change per unit moved, found for six sines of amplitude one with slope limits 1 to 40. The field
+stays at one. The vertical error rises with the slope limit and follows its own bound, `√(1 + slope_limit²)`.
+
+![Largest change per unit moved against slope limit, for the distance field flat at one and for the vertical error rising along its bound](figures/29-slope-of-the-field.png)
+
 That suggests why a field can be easier to learn than a height, since
 training learns gentle functions first (chapter 18). This is **argued**,
 not proved: the field has creases, which are a different kind of
@@ -181,6 +192,20 @@ chapter is the loss itself. A squigglier line has a field that is small in
 more of space, and that is the theorem. The ideas used are **slope** and
 **nearness**, from chapters 3 and 4. The new fact is that nearness has a
 slope of its own, and that slope is exactly one.
+
+## Run it yourself
+
+[`ch29_the_distance_field.ipynb`](../experiments/part5/ch29_the_distance_field.ipynb) measures the field of sines of amplitude one, with
+slope limits 1, 2, 5, 10, 20 and 40, as the exact distance to a polyline of 600 000 samples. It reproduces the example by hand: the field at
+`(0, 1)` is 0.316, at `(1, 0)` it is 0.949 with a negative sign, and halfway to the nearest point it is 0.158. Over 5 000 random pairs per curve, with gaps from `1e-3` to 0.5,
+the largest change in the field per unit moved was 1.000000 on every curve, against 40.012 for the vertical error at slope limit 40 (its bound is
+`√(1 + slope_limit²)` = 40.012). Walking a random fraction of the way to the nearest point, the field matched `(1 − fraction) × field` to
+`6e-16` on 12 000 walks. Walking all the way, the fall per unit walked was 1.000000 at the smallest, so a slope limit of 0.5 is ruled out on these curves. As a control, walking toward the
+point straight above or below fell by less than the length walked in 97 percent of walks or more on every curve, with a median of 0.033 per unit at slope limit 40.
+Steps as long as the field crossed the curve in 0 of 3 000 tries at slope limits 5 and 20, and so did the height divided by `√(1 + slope_limit²)`,
+while steps as long as the height alone crossed it in 2 015 of 3 000 tries at slope limit 5 and 2 463 at slope limit 20. The field was at most `8e-8` on
+the curve, and `vertical / nearest` reached 40.010 against the bound 40.012. This is evidence from sines, not a proof. Run it with
+`jupyter nbconvert --to notebook --execute --inplace experiments/part5/ch29_the_distance_field.ipynb`.
 
 ## What is not shown
 
