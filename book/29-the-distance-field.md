@@ -175,10 +175,10 @@ than one. Nothing is lost: for a continuous line the field is zero exactly
 on the line. The squiggle has moved from the size of the slope into the
 layout of the field, where it is zero and where it has creases.
 
-**Measured** (not a proof). Here is the largest change per unit moved, found for six sines of amplitude one with slope limits 1 to 40. The field
-stays at one. The vertical error rises with the slope limit and follows its own bound, `√(1 + slope_limit²)`.
+**Measured** for the field, **from the formula** for the vertical error (not a proof). Here is the largest change per unit moved for six sines of amplitude one with slope limits 1 to 40. The field
+stays at one. The vertical error, taken from its formula, rises with the slope limit and follows the bound `√(1 + slope_limit²)`.
 
-![Largest change per unit moved against slope limit, for the distance field flat at one and for the vertical error rising along its bound](figures/29-slope-of-the-field.png)
+![Largest change per unit moved against slope limit, for six sines: the measured distance field flat at one, and the vertical error from its formula rising along the bound](figures/29-slope-of-the-field.png)
 
 That suggests why a field can be easier to learn than a height, since
 training learns gentle functions first (chapter 18). This is **argued**,
@@ -198,12 +198,13 @@ slope of its own, and that slope is exactly one.
 [`ch29_the_distance_field.ipynb`](../experiments/part5/ch29_the_distance_field.ipynb) measures the field of sines of amplitude one, with
 slope limits 1, 2, 5, 10, 20 and 40, as the exact distance to a polyline of 600 000 samples. It reproduces the example by hand: the field at
 `(0, 1)` is 0.316, at `(1, 0)` it is 0.949 with a negative sign, and halfway to the nearest point it is 0.158. Over 5 000 random pairs per curve, with gaps from `1e-3` to 0.5,
-the largest change in the field per unit moved was 1.000000 on every curve, against 40.012 for the vertical error at slope limit 40 (its bound is
-`√(1 + slope_limit²)` = 40.012). Walking a random fraction of the way to the nearest point, the field matched `(1 − fraction) × field` to
-`6e-16` on 12 000 walks. Walking all the way, the fall per unit walked was 1.000000 at the smallest, so a slope limit of 0.5 is ruled out on these curves. As a control, walking toward the
+the largest change in the field per unit moved was 1.000000 on every curve. The vertical error, taken from its formula, reached 40.012 at slope limit 40, which is its bound
+`√(1 + slope_limit²)`, so that is **from the formula** and not a measurement. Walking a random fraction of the way to the nearest point, the field matched `(1 − fraction) × field` to
+`6.2e-16` on 12 000 walks. Walking all the way, the fall per unit walked is one by the definition of the field, so the notebook prints it as **by construction, cannot fail** and does not count it as evidence. The
+independent check is that the segment distance never exceeds the nearest-vertex distance and is within `2.7e-4` of it. As a control, walking toward the
 point straight above or below fell by less than the length walked in 97 percent of walks or more on every curve, with a median of 0.033 per unit at slope limit 40.
 Steps as long as the field crossed the curve in 0 of 3 000 tries at slope limits 5 and 20, and so did the height divided by `√(1 + slope_limit²)`,
-while steps as long as the height alone crossed it in 2 015 of 3 000 tries at slope limit 5 and 2 463 at slope limit 20. The field was at most `8e-8` on
+while steps as long as the height alone crossed it in 2 015 of 3 000 tries at slope limit 5 and 2 463 at slope limit 20. The field was at most `8.0e-08` on
 the curve, and `vertical / nearest` reached 40.010 against the bound 40.012. This is evidence from sines, not a proof. Run it with
 `jupyter nbconvert --to notebook --execute --inplace experiments/part5/ch29_the_distance_field.ipynb`.
 
