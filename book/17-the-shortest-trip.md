@@ -179,31 +179,38 @@ where a layer keeps only part of a signal.
 ## Run it yourself
 
 [`ch17_the_shortest_trip.ipynb`](../experiments/part4/ch17_the_shortest_trip.ipynb)
-runs a linear model by gradient descent and a stack of plates as 2 by 2
+runs gradient descent on linear models, and computes plate stacks with 2 by 2
 matrices. **Measured**, in the example: one step lands on `(2.5, 1.5)` with
-travel 2.1213, a fit with vertical error 0, and none of 100 001 fits spread
-along the line is nearer. A real descent whose steps leave the features
-(preconditioner `diag(1, 0)`) reaches the fit `(4, 0)` with the same vertical
-error 0 but travel 3, so the vertical error cannot tell the fits apart and only
-the travel can. In 40 random linear models (3 to 8 data points, 12 to 30
-weights), gradient descent reached the minimum-norm fit to within `1e-13`, and
-none of 80 000 other fits was nearer: the smallest margin was 9.22e-06. With a
-preconditioner, so that the move leaves the features, the fit reached was
-further in all 40, by up to 1.108. The travel of the two hand-picked fits, 3
-and 4.1231, is arithmetic, not a measurement.
+travel 2.1213 and vertical error 0. A real descent whose steps leave the
+features (preconditioner `diag(1, 0)`) reaches the fit `(4, 0)` with the same
+vertical error 0 but travel 3, so the vertical error cannot tell the fits
+apart and only the travel can. **From the geometry of the example**, not a
+model run: none of 100 001 points placed along the line of fits is nearer than
+the landing point, and the travel of the hand-picked fits, 3 and 4.1231, is
+arithmetic.
 
-For plates, run as matrices: turns of 60° and 0° keep 0.5000 and two turns of
-30° keep 0.7500. Among 2000 random pairs of turns, the largest amount by which
-a pair beat its average was `-2.1e-08`, that is, none did. For `N` plates with a
-quarter turn in total (`N` = 2, 3, 10, 100), the largest amount by which any of
-2000 random splits beat the equal split was `-1.8e-08`: none did. At `N = 10` the
+**Measured**, in 40 random linear models (3 to 8 data points, 12 to 30
+weights): gradient descent reached the minimum-norm fit to within `2.3e-13`.
+Another 240 fits were reached by descents from the same start with random
+positive diagonal preconditioners, and none was nearer: the smallest margin was
+2.56e-02. A further 80 000 fits were built as the minimum-norm move plus a
+null-space move; those cannot be nearer by Pythagoras, so they are by
+construction and not evidence. With the fixed preconditioner
+`diag(1, 5, 1, 5, ...)` the fit reached was further in all 40, by up to 0.899.
+
+**Computed with 2 by 2 plate matrices**, not measured, since this is the
+product of cosines written as matrices: turns of 60° and 0° keep 0.5000 and two
+turns of 30° keep 0.7500. Among 2000 random pairs of turns, the largest amount
+by which a pair beat its average was `-2.1e-08`, that is, none did. For `N` plates
+with a quarter turn in total (`N` = 2, 3, 10, 100), the largest amount by which any
+of 2000 random splits beat the equal split was `-1.8e-08`: none did. At `N = 10` the
 best random split kept 0.869165 and the equal split 0.883485.
 
-**From the formula**, not from a run: the product of cosines was evaluated on
-960 000 random splits of a total turn of at most a quarter turn. The largest amount
-by which any beat the equal split was 0, so none did. The equal split's amplitude
-was at least `1 - π²/(8N)` for each `N`, with smallest margin 7.53e-05. For two plates
-the same formula on 200 000 random pairs gave `-1.7e-14`. The control, total turn `2π`
+**From the formula**: the product of cosines was evaluated on 960 000 random
+splits of a total turn of at most a quarter turn. The largest amount by which any
+beat the equal split was 0, so none did. The equal split's amplitude was at least
+`1 - π²/(8N)` for each `N`, with smallest margin 7.53e-05. For two plates the
+same formula on 200 000 random pairs gave `-1.7e-14`. The control, total turn `2π`
 and `N = 3`, is also from the formula: a split beat the equal one by 1.125, because
 past a quarter turn the cosine changes sign.
 
