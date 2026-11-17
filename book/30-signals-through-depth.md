@@ -66,11 +66,14 @@ the gain.
 exponent is negative and the bound falls fast as the layers pile up.
 
 **Measured** in a ReLU network of width 512 with weight variance 1.62, 2
-and 2.42 over the width (gains 0.9, 1 and 1.1), the size of the signal
-follows the line `gain ^ layers` on a log axis, and so does the gradient
-sent back from the output:
+and 2.42 over the width (gains 0.9, 1 and 1.1), the slope of the log of the
+signal size against the layers matches the log of the gain: −0.110, −0.007
+and +0.096 against −0.105, 0 and +0.095. The size itself drifts from the
+line `gain ^ layers`: after 50 layers it is 0.0034 against 0.0052, 0.83
+against 1 and 103 against 117. The gradient sent back from the output
+shows the same slopes:
 
-![Size of the signal going forward and of the gradient going backward against layers passed, on a log axis, for gains 0.9, 1 and 1.1, with the predicted gain to the power layers and the proved bound for gain 0.9](figures/30-gain-against-depth.png)
+![Size of the signal going forward and of the gradient going backward against layers passed, on a log axis, for gains 0.9, 1 and 1.1; the measured points have the predicted slopes and sit slightly off the predicted gain to the power layers lines, and the proved bound for gain 0.9 is drawn too](figures/30-gain-against-depth.png)
 
 ```lean
 /-- **The factor two of He initialisation.** A unit adds up `input_count`
@@ -198,26 +201,36 @@ layer, and the **fold** of chapter 8, which costs half the squared size.
 ## Run it yourself
 
 [`ch30_signals_through_depth.ipynb`](../experiments/part5/ch30_signals_through_depth.ipynb)
-checks the claims with 24 checks, most with a control. Two identities (the fold's `relu(x)^2 + relu(-x)^2 = x^2` and the arithmetic of `he_gain`) are printed as true by construction and not counted. The bounds
+prints 18 `[PASS]` lines. Of these, 16 are evidence (a sampled or run
+model) and 2 are **from the formula**: the bounds
 `gain ^ layers <= exp(-layers (1 - gain))` and
-`gain ^ layers >= 1 + layers (gain − 1)` held for 101 gains each and depths
-up to 300 (**from the formula**, not measured); at gain 0.9 and 50 layers the signal is 0.0052 against the
-bound 0.0067, both from the formula. A plate never lengthened random light in 1000 trials, and
-plates with a fixed turn of 0.3 left exactly `cos(turn) ^ layers`, 0.0104 after 100
-plates against the bound 0.0115. The gradient read through reversed plates
-agreed with the forward reading to `1e-17`, while the same order did not
-(gap up to 0.047). Bypass plates doubled the overlap exactly (`2 ^ plate_count`, to `1e-14`
-relative); the same plates without the bypass left it unchanged. The fold kept
-0.5003 of the mean square of a symmetric signal, and 0.962 of a shifted
-one. In a ReLU network of width 512 and 50 layers the slope of `log(size)`
-against layer was −0.110, −0.007 and +0.096 for gains 0.9, 1 and 1.1,
-against the predicted −0.105, 0 and +0.095. For the gradient sent back the
-slopes were −0.110, −0.006 and +0.094, so the factor-of-half mask of the
-backward pass, not modelled above, behaved the same way in this network.
-He's variance left the size at 0.83 after 50 layers, where gain one
-predicts 1. Ten sigmoid layers had largest slope (by finite differences of the stack) 3.9e−07 against the limit
-9.5e−07, and a stack of `tanh` layers reached slope 1. These are measurements, not
-proofs; the Lean theorems cover the statements above.
+`gain ^ layers >= 1 + layers (gain − 1)` for 101 gains each and depths up to
+300, evaluated on a grid. At gain 0.9 and 50 layers the formula gives 0.0052
+against the bound 0.0067. Seven more lines are printed as by construction, and
+not counted: the case of gain −2, the plates' length `cos(turn) ^ layers`, the
+reversed-order reading of the gradient, the doubling of the overlap by
+bypass plates, the same plates without the bypass, the fold identity, and
+the arithmetic of `he_gain`.
+
+Evidence. A plate never lengthened random light in 1000 trials, and the light
+after 100 plates with a fixed turn of 0.3 was 0.0104 long, below the bound
+0.0115. A plate on an axis of length 2 did lengthen light (control, ratio
+up to 3.87), and sending the gradient back in the same order, not the
+reverse, disagreed with the forward reading by up to 0.047 (control). Bypass
+plates had at least `2 ^ plate_count` times the first overlap in length.
+The fold kept 0.5003 of the mean square of a symmetric signal and 0.962
+of a shifted one (control). In a ReLU network of width 512 and 50 layers
+the slope of `log(size)` against layer was −0.110, −0.007 and +0.096 for
+gains 0.9, 1 and 1.1, against the predicted −0.105, 0 and +0.095. For
+the gradient sent back the slopes were −0.110, −0.006 and +0.094, so the
+backward mask of the ReLU, not modelled above, behaved the same way in this
+network. The sizes after 50 layers were 0.0034, 0.83 and 103 against `gain ^ 50`
+of 0.00515, 1 and 117, so the size drifts from the line while the slope
+matches; He's variance left the size at 0.83, where gain one predicts 1.
+Ten sigmoid layers had largest slope 3.9e−07 (by finite differences of the
+stack) against the limit 9.5e−07, and a stack of `tanh` layers reached slope 1
+(control). These are measurements, not proofs; the Lean theorems cover the
+statements above.
 
 ```bash
 jupyter nbconvert --to notebook --execute --inplace experiments/part5/ch30_signals_through_depth.ipynb
