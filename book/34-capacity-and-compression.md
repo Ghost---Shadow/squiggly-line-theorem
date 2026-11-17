@@ -68,6 +68,13 @@ is a space with `finrank` 19. The theorem `exists_unfittable` is the same
 fact turned round: with fewer weights than data points, some labels have no
 fit.
 
+**Measured**: the share of random label sets that a model linear in its
+weights fits exactly, against the number of data points. It is 1 up to the
+weight count and 0 after it. The grey curve has 21 weights but only 11
+independent ones, and it stops at 11.
+
+![Share of random label sets fitted exactly against the number of data points, for 9, 21 and 33 weights, each dropping from 1 to 0 at its weight count, and a grey control with 21 weights of rank 11 dropping at 11](figures/34-fit-share-against-data.png)
+
 The second count lets the weights be anything, but written in a fixed
 number of bits.
 
@@ -92,6 +99,12 @@ of them.
 `Fintype.card Settings` is how many settings of the weights exist.
 `YesNoLabelling chosen_inputs` is one yes or no for each chosen input.
 
+**Measured**: the most inputs that get every yes-or-no labelling, against the
+bits that write the weights. A lookup network sits on the ceiling. A
+threshold network with weights on a grid sits below it.
+
+![Most inputs given every yes-or-no labelling against bits, with the ceiling inputs equal to bits as a dashed line, lookup networks on it and threshold networks below it](figures/34-inputs-memorised-against-bits.png)
+
 The third count is about places. In the repository a layer is a function
 from places to places, and the theorem `bottleneck` says that for a flock
 the network gets right, the count of places after any layer sits between
@@ -112,6 +125,12 @@ readout, the labels and the hypothesis `network_is_right`.
 
 *Read aloud:* the number of labels is at most the number of places, which
 is at most the number of inputs.
+
+**Measured**: the share of flocks that occupy fewer places than they have
+labels, after each layer. It is 0 at every layer for a network that is right.
+For labels that have nothing to do with the network, the wall is crossed.
+
+![Share of flocks with fewer places than labels against the number of layers run, flat at zero for a right network and rising to about 0.1 for labels unrelated to the network](figures/34-places-through-layers.png)
 
 ## Why it is true
 
@@ -176,6 +195,41 @@ about how many free numbers the curve has. The tent curve of chapter 8
 comes within `1 / 2 ^ fold_count` of every point and has only a few
 neurons to set. It has the folds of chapter 8 and the travel of chapter 9,
 and neither of them is storage.
+
+## Run it yourself
+
+[`ch34_capacity_and_compression.ipynb`](../experiments/part5/ch34_capacity_and_compression.ipynb)
+checks six counts with models small enough to enumerate. For a model linear
+in its weights (cosines and sines of fixed frequencies), the share of 40
+random label sets fitted exactly was 1 for every data count up to the weight
+count and 0 for every data count after it, for 9, 21 and 33 weights. At one
+data point too many the smallest relative residual was 0.017, 0.001 and
+0.002. The control, 21 weights of rank 11, fitted everything up to 11 points
+and nothing at 12. For networks with weights on a finite grid (19 networks of
+2 to 12 bits), the most inputs memorised was never above the bit count, and
+the threshold networks stayed below it. A lookup network reached the bit
+count exactly for 2 to 12 bits and never one more. The control, one real
+weight in `sin(weight * input)`, memorised all 256 labellings of 8 inputs.
+For 400 random stacks of 30 layers on 40 states, with a flock of 12 and 2
+labels, the number of places stayed between the label count and 12 at every
+layer, never went up, and was equal to the label count in 965 prefixes, in
+all of which two birds shared a place exactly when they shared a label.
+With labels unrelated to the network the places fell below the label count in
+250 of 12 400 prefixes. The tent map sent exactly `2 ^ fold_count` inputs to
+each output between 0 and 1, for 1 to 8 folds, and never more. A triple
+zigzag sent `3 ^ fold_count`, 729 at 6 folds against 64. A score table of
+`hidden_size` hidden numbers had rank `min(hidden_size, 25)` in 30 sizes.
+The best approximation of a random full-rank table had relative error 0.133
+at `hidden_size` 19 and 1.8e-15 at 25. A gated blend of 5 experts in 20 000
+cases never exceeded its limit (largest ratio 0.964), and without the gate
+term the bound failed in 6746. Log-loss was never below the entropy, and a
+model adding to 1.5 went below it in 4553 of 20 000 cases. These are
+measurements, not proofs: they check small cases, not the theorems. Run it
+with
+
+```
+jupyter nbconvert --to notebook --execute --inplace experiments/part5/ch34_capacity_and_compression.ipynb
+```
 
 ## What is not shown
 

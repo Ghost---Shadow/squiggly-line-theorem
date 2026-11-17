@@ -85,6 +85,13 @@ choices times `exp(−gap / temperature)`.
 the number of choices. As `temperature` falls, `−gap / temperature`
 becomes very negative, and the bound goes to zero.
 
+**Measured** for the scores 3, 1 and 0, the softmax at three temperatures
+is on the left, and the share the top score misses, against the
+temperature and under the bound `2 × exp(−2 / temperature)`, is on the
+right:
+
+![Left, softmax shares of the scores 3, 1, 0 at temperatures 2, 1 and 0.25, the top share growing as it gets colder; right, the measured miss of the top score against temperature, always under the bound](figures/39-dial-and-bound.png)
+
 ```lean
 /-- **A colder sampler picks better answers on average.** With
 `inverse_temperature` one over the temperature, the average score of a sample
@@ -107,6 +114,14 @@ the scores times `inverse_temperature`, never falls when
 `inverse_temperature` is one over the temperature, so a high one is a
 cold sampler. The sum `∑ i, share i * scores i` is the average score:
 each score weighted by its share.
+
+**Measured** for five random lists of six scores, the average score of a
+sample against the inverse temperature rises and levels off at the top
+score (left). On the right, for one list, the share of the runner-up is a
+control: it rises and then falls, so the theorem is about the average and
+not about every share:
+
+![Left, average score against inverse temperature for five lists, never falling and levelling at each top score; right, the runner-up share for one list, rising then falling](figures/39-average-against-inverse-temperature.png)
 
 The other results of the two files are named here. `hasDerivAt_step_of_pos`
 says a hard step has slope zero away from its jump.
@@ -173,6 +188,38 @@ choice is all slope at one point. A softmax is the average that lets you
 pay for that slope gradually, with the temperature as the price. The
 colder the temperature, the more slope is bought, and the more of the
 softness is lost.
+
+## Run it yourself
+
+The notebook
+[`ch39_hard_choices_and_temperature.ipynb`](../experiments/part6/ch39_hard_choices_and_temperature.ipynb)
+makes 19 checks with seeded random draws. It is evidence, not a proof. It
+checks the hand example: the shares are 0.844, 0.114, 0.042 and 0.980,
+0.018, 0.002, and the averages are 2.646 and 2.957, as above. The bound
+`(count − 1) × exp(−gap / temperature)` holds in all 24000 cases (2000
+lists of 2 to 12 scores, 12 temperatures); the smallest bound minus miss
+is −1.1e-16, which is rounding in a two-choice list where the bound is
+exact. With twice the true gap, as a control, the bound fails in 10986 of
+those cases, by up to 0.267. The average score never falls as the sampler
+gets colder in 2000 lists over 200 inverse temperatures (the smallest step
+is −1.8e-15). As a control, the runner-up share is not monotone in 1667 of
+the 2000 lists. The straight-through value at 0.3 is exactly 1, its slope
+is 2.00000000, and the hard step has slope 0 there and a difference
+quotient of 50000 at its jump. The Hopfield update equals the ideal
+denoiser to 1.0e-15 over 500 draws; patterns of unequal length, as a
+control, break it by up to 0.950. The recalled vector is 3.6e-15 from the
+span of the patterns. For a decoder with slope limit 6.897, no snap
+breaks the bound in 6000 pairs, and the same decoder with its output
+multiplied by 10 breaks it in 633 of them.
+
+One thing the experiment did not bear out as stated: the equality with
+the denoiser also holds, to 7.5e-16, for a state of length 1.5. The
+chapter's hypothesis that the state is a unit vector is therefore
+stronger than the measurement needed, though only unit patterns were
+needed. The chapter proves the unit case, so this is not a contradiction.
+
+Run it with
+`jupyter nbconvert --to notebook --execute --inplace experiments/part6/ch39_hard_choices_and_temperature.ipynb`.
 
 ## What is not shown
 

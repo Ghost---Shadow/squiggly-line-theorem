@@ -81,6 +81,10 @@ After `layer_count` layers the factor is to that power
 (`abs_iterate_messagePassing_sub_le`). It is the same statement as the
 merging of tokens in chapter 36.
 
+The curves are **measured**, the green line **proved**: the spread of the node values of 40 random graphs falls below the bound at every layer, while two groups that only listen to themselves (a case with zeros in the weights, no floor) do not shrink at all.
+
+![Spread of node values against the number of mixing layers, for 40 random graphs with weight floor 0.1, under the proved bound 10 times 0.5 to the layers, and for a control with two disconnected groups that stays at 10](figures/38-oversmoothing.png)
+
 The noising schedule. A state is the pair (share of signal, share of
 noise) of the variance.
 
@@ -128,6 +132,10 @@ the guided prediction lies off the stretch between them.
 `segment` is the stretch between two points, and `∉` means "is not in".
 The guided move is `1 + guidance_strength` times the plain one
 (`guidance_sub`, `norm_guidance_sub`).
+
+The line is **measured**: the position of the guided prediction on the line through the two predictions, 0 for the prediction without the prompt and 1 for the one with it. For a positive strength it is above 1, off the stretch. For strengths from -1 to 0 the weights are both non-negative, an average, and it stays on the stretch.
+
+![Position of the guided prediction on the line through the two predictions against guidance strength, rising above the shaded stretch from 0 to 1 for positive strength, with strengths from -1 to 0 inside it](figures/38-guidance-off-the-stretch.png)
 
 The rest are named. Averaging a model over moves of its input gives a
 model that ignores the moves (`averageOverMoves_smul`) and is no steeper
@@ -197,6 +205,26 @@ squiggle, and pulls its inputs together: the blurring of graph networks,
 the fading of the signal in the schedule, and the gentleness of a model
 averaged over moves. Guidance has one negative weight, so it is not an
 average, and it can leave the region an average must stay in.
+
+## Run it yourself
+
+[`ch38_mixing.ipynb`](../experiments/part6/ch38_mixing.ipynb) checks each statement on small models with 22 `[PASS]` lines. These are **measured**; an experiment is
+evidence, not a proof. Graph layer: in 300 random graphs on 5 nodes with floor 0.1, every layer through 8 left a spread
+at most `0.5^k` times the range, the worst spread being 0.724 of the bound after a layer; a layer built to be as bad as
+allowed reached the bound exactly (5.0 against 5.0). With zeros in the weights the spread stayed at 10 after 8 layers,
+where the bound would be 0.039. Noising: ten steps at rate 0.1 left signal 0.3487 and noise 0.6513, and the closed form
+matched to 4e-16 for four rates up to 50 steps; a schedule with rates 0.02 and 0.18 alternating left 0.3351, not 0.3487.
+Guidance: in 12 000 cases with positive strength the guided point was never on the stretch (nearest 0.119 away) and
+moved `1 + strength` times the plain step to 3e-15; strengths from -1 to 0 stayed on it. Averaging over shifts gave the same value at every shift of an input
+and a change per distance of at most 1.084, under the model's own constant 2; averaging over scalings, which keep no
+distances, gave 1.831 where the model's constant was 1. A constant baseline changed the average push by at most
+2e-16; a baseline equal to the reward changed it by 0.078. Squared error was least at 34.33 and absolute error at 2
+for the labels 1, 2, 100. The mean square overlap was exact to 3e-16 in 10 dimensions, and 0.00998 against 0.01
+in 100 (standard error 3e-5); with two coordinates made equal it was 1.960 where the formula gives 0.980.
+
+```bash
+jupyter nbconvert --to notebook --execute --inplace experiments/part6/ch38_mixing.ipynb
+```
 
 ## What is not shown
 

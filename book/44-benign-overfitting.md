@@ -175,6 +175,79 @@ the trip is long. Benign overfitting is the case with plenty. It also
 uses the **kernel** of chapter 10, in which strengths from separate sets
 of features add.
 
+## Run it yourself
+
+[`ch44_benign_overfitting.ipynb`](../experiments/part7/ch44_benign_overfitting.ipynb)
+uses two models that are linear in their weights. The first has explicit
+features: real ones, and 200 junk ones built so that the junk kernel is
+exactly `junk_strength` times the identity. The second is a kernel model on
+12 training inputs in `[0, 1]`: a smooth Gaussian real kernel (width 0.22),
+whose strong direction has strength 5.33 and whose weakest has strength
+`1.1e-7`, plus a junk kernel that is a narrow spike (width 0.004) at each
+training input. The labels are the signal plus noise along the weakest
+direction. These are measurements, not proofs.
+
+**The table.** The nearest fit, computed by a pseudo-inverse and not by the
+formula, gives **measured** signal terms 2.0000, 1.9355 and 1.5000 and noise
+terms 100.000, 9.091 and 0.990 for junk strength 0, 0.1 and 1. The cap is
+`‖test row‖ × ‖noise‖ / junk_strength`. In this model the test row has length
+`√37 = 6.08`, not 1 as the table assumed, so the caps are 60.8 and 6.08 and
+the noise terms are below them.
+
+**The three statements.** In 300 random models (random strengths, random
+start weights, random queries with a junk part) the identity of
+`inner_splitFit` held to `4e-14`, the split fit gave the labels and equalled
+the pseudo-inverse fit to `3e-14`, the largest noise term was 0.520 of its
+cap, and the largest signal change was 0.998 of its allowance. The control
+leaves the noise direction out of the junk, so the junk is not the same in
+every direction. At junk strength 0.1 the true noise term is then 100.00, not
+the formula's 9.09, and it is above the cap 60.8.
+
+**Both fits pass through every label, and only one follows the trend.** The
+vertical residual at the 12 training inputs, the only thing the loss sees, is
+`2e-9` without junk and `2e-15` with junk strength 0.1.
+
+![Two fits through the same twelve noisy labels: without junk the grey curve swings far from the dashed trend between the points; with junk strength 0.1 the purple curve follows the trend and has a narrow spike at each point](figures/44-two-fits.png)
+
+The figure is **measured**. Over 400 random new inputs the mean error against
+the trend is 0.6455 without junk (largest 2.657) and 0.0277 with junk
+(largest 0.3965). At every one of the 400 inputs the error is below the
+chapter's bound, the noise cap plus the allowed signal loss, and the worst
+ratio is 0.0234. The bound is loose: at most 17.0 against a largest error of
+0.40.
+
+My first prediction was a fall by a factor of 100 in the mean error, and it
+was wrong. The fall was 23, for the whole error, and 33 for the noise part
+alone. Two things account for it. The signal part loses the fraction
+`junk_strength / signal_strength` the chapter allows, here about 2 percent
+of a trend of size about 1. And the noise sits in the spikes: 42 percent of
+the random inputs fell within 5 spike widths of a training input, where the
+fit still holds its noise. Away from the spikes the mean noise part falls
+from 0.828 to `9.3e-7`.
+
+![Left: mean noise term and signal change against junk strength with the chapter's two caps; right: mean noise term against spike width](figures/44-damage-sweeps.png)
+
+The figure is **measured**, on the 231 inputs away from the spikes. Left: the
+noise term falls as the junk strength grows, from `9.0e-4` at junk strength
+`1e-4` to `3.6e-8` at 10, below the cap at all 400 inputs for each of 13 junk
+strengths. The signal change follows its allowance closely, so that bound is
+nearly tight, and the signal does not pay more than the chapter allows.
+Right: at junk strength 0.1, narrow spikes (width 0.004 to 0.013, where the
+junk Gram matrix differs from the identity by at most `1e-10`) leave a noise
+term below `0.02`. As the spikes widen the junk kernel stops being the same
+in every direction, and at width 0.22 and wider the noise term is back at
+0.83, the size it had with no junk. The cap was not exceeded even then: it is
+about 17, so it was too loose to catch the failure. The explicit-model
+control above is the one where it was exceeded.
+
+Run it with
+
+```bash
+jupyter nbconvert --to notebook --execute --inplace experiments/part7/ch44_benign_overfitting.ipynb
+```
+
+It runs in a few seconds and prints 21 `[PASS]` lines, the same on every run.
+
 ## What is not shown
 
 The proofs are for a **fixed kernel**, with **one signal direction and

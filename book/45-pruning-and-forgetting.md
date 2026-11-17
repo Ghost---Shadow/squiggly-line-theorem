@@ -227,6 +227,46 @@ forgetting, the travel of the new task becomes the ceiling on what the old
 task can lose. Both use the kernel and the strength of chapter 10, and
 pruning uses the one factor per step of chapter 13.
 
+## Run it yourself
+
+The notebook `experiments/part7/ch45_pruning_and_forgetting.ipynb` uses a model linear in its weights, with fixed feature
+matrices, and 29 checks. An experiment is evidence, not a proof. Every hand example above reproduces: `0.125` and `0.512`,
+`1.4`, and `0.25` and `0.81`.
+
+**Pruning.** The model has 20 data points and 120 weights, each pointing at one of 20 directions of the labels; the labels use
+10 of them, and the 60 smallest weights point at the other 10 (built that way). The whole kernel equals the kept kernel plus the
+dropped kernel for 50 random splits, to rounding. At every fraction pruned, in both orders, the share of error left along each used
+direction is `(1 − learning_rate × kept_strength)^step_count` to `10⁻¹⁵` and is at least the whole model's. With a learning rate
+that gives `learning_rate × strength = 2.79`, the whole share exceeds the pruned share by up to 49: the condition
+`whole_rate_le_one` matters. Pruning the 60 smallest leaves the residual identical to the whole model's at 21 step counts
+(**measured**: difference `4 × 10⁻¹⁶`). Pruning 60 at random leaves 0.360 of the error after 8 steps, against 0.059 for the whole
+model.
+
+**measured**, from the notebook:
+
+![Error left after 8 steps against the fraction pruned: flat at the whole model's value for the smallest weights up to one half, rising at once for random pruning, and the formula curve lying on the measured one](figures/45-pruning-smallest-against-random.png)
+
+The smallest-first curve lies on the proved formula and stays flat until the 60 weights that the labels never use are gone, then
+rises. Whether magnitude pruning finds such a ticket in a real network is not tested here.
+
+**Travel.** With tight features (kept strength 1, dropped strength 3), the pruned travel is 1.952 and the whole travel is 0.976, so the
+product identity holds to rounding and the ratio is 2. The starting vertical error is 1.952 for both, so the longer travel is not
+from a larger error. With the kept rows of unequal lengths the identity fails by 0.153.
+
+**Forgetting.** One step on the new task changes the old residual by `−learning_rate` times the cross kernel applied to the new
+residual, to `2 × 10⁻¹⁵`, over 100 random cases. With a cross kernel of zero, 100 steps leave the old residual unchanged to
+`7 × 10⁻¹⁶`; with an overlapping new task the old residual changes by 60 percent of its length. After fitting the old task, the old
+error after fitting an overlapping new task is 2.000 against a ceiling of 5.786 (new-task travel 3.800, starting vertical error
+3.901); at right angles it stays at `3 × 10⁻¹⁵`. For 80 descent-fitted cases the change is at most 0.423 of the ceiling. A fit
+that is not the nearest one (the control) broke the ceiling in 164 of 200 cases, by up to 5.317.
+
+**measured**, from the notebook (the ceiling is `‖predict‖` times the travel):
+
+![Error on the old task against steps on the new task: rising to 2 for the overlapping task and flat at zero for the one at right angles, both far below the green ceilings](figures/45-forgetting-against-steps.png)
+
+The ceiling holds but is loose here: the measured change is well under it. Run it with
+`jupyter nbconvert --to notebook --execute --inplace experiments/part7/ch45_pruning_and_forgetting.ipynb`.
+
 ## What is not shown
 
 - **That real networks contain tickets.** This is the hypothesis, an

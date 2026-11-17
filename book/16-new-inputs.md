@@ -43,6 +43,13 @@ very little at a new input. The more spare strength there is, the
 smaller the damage. This is the right-hand side of the double descent
 curve of chapter 10, where the test error comes back down.
 
+**Measured**: the damage the noise does at a new input, against the strength
+of the junk features. With junk in every direction it falls and stays under the
+cap. With the junk taken out of the noise's own direction it stays flat, and
+the cap is passed.
+
+![Damage the noise does at a new input against junk strength, on log axes: measured with junk in every direction, the cap, and a control with no junk along the noise direction that stays flat and rises above the cap](figures/16-noise-damage-and-junk.png)
+
 **The dimple.** Picture the real data lying on a thin sheet inside a big
 space. A model can be correct on the whole sheet and still have a small
 dent just off it, where its answer is anything you like. The training
@@ -58,6 +65,53 @@ lists that under "nobody knows yet". What is proved here is what a fit
 does **given** a fixed kernel. Which kernel a real network ends up with,
 after its features have moved, is the part that would explain
 generalisation, and it is not here.
+
+## Run it yourself
+
+[`ch16_new_inputs.ipynb`](../experiments/part3/ch16_new_inputs.ipynb) runs one
+experiment for each row of the table, on models that are linear in their
+weights. Run it with
+`jupyter nbconvert --to notebook --execute --inplace experiments/part3/ch16_new_inputs.ipynb`.
+It is evidence, not a proof. These are **measured**.
+
+- **Same kernel.** A model with 15 weights and one with 150, equal kernel and
+  test row: their answers at a new input differ by at most `6e-16` over 400
+  steps, and a model with a different kernel parts from them by 0.71.
+- **Bias and variance.** The measured mean squared error matches bias squared
+  plus variance to 0.3 percent over 200 000 noise draws, at 16 floors. From
+  floor 0 to the largest floor, bias squared rises from 0 to `1.0e-2` and
+  variance falls from `2.4e-2` to `1.3e-9`. The lowest error is at an
+  in-between floor, `3.7e-4`.
+- **Benign overfitting.** The nearest fit is exact, and the damage equals
+  overlap over `noise_strength + junk_strength`. It stays under the cap, at
+  most 0.013 of it. Over the last four junk strengths it falls with log-log
+  slope `-0.53`, not `-1`, because the new input's own junk features grow with
+  the junk, and so does the cap. With no junk features at the new input the
+  slope is `-1.00`. With no junk along the noise direction the damage stays at
+  `5.2e-2` and passes the cap by a factor of 4.6.
+- **Pruning.** The real runs follow `(1 - rate * strength) ** steps`. The whole
+  model's share is never above the pruned model's, and equal in the two
+  directions where the dropped weights have no strength. The fit is farther by
+  1.118, 1.265 and 1.732 along three directions, equal to
+  `sqrt((kept + dropped) / kept)`. With `rate * whole_strength = 1.9` the
+  order flips in size: `-0.90` against `-0.52`.
+- **Forgetting.** One step on the new task changes the old errors by the cross
+  kernel formula to `4e-16`. With a zero cross kernel the old errors moved by
+  at most `9e-15`. In the general case they moved 2.98, under the ceiling 6.44.
+- **Dimple.** The loss on the data is 1.5635 at slopes 0.5, 2, 8 and 50. The
+  step off the manifold reaches the label to `2e-16`. At slope 8 the vertical
+  error is 0.990 and the nearest distance 0.122, between the bounds 0.109 and
+  0.124.
+- **Capacity.** With 50 weights, random labels are fitted to `2e-12` or better
+  at up to 50 points, and missed by at least `7.7e-3` at 51 points and `4.8` at
+  80, in 20 seeds. With 50 weights of rank 30, 40 points are missed by at
+  least 2.3.
+- **No free lunch.** Four learners are each right on exactly 0.5000 of the
+  unseen inputs over all 256 labellings. On the nine step labellings the
+  nearest-input learner reaches 0.889.
+
+The cap in the benign overfitting row is loose here: the damage is a small
+fraction of it. The experiment does not show the cap is tight.
 
 ## Check yourself
 

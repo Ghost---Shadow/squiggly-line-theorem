@@ -131,6 +131,12 @@ agree on those, the sums agree term by term. For `layer_count` layers,
 each layer reaches `kernel_width` further, so the window grows by that
 much each time.
 
+**Measured:** one input of a stack of width-3 kernels is raised by 1, and the
+output change is plotted against how far away it was. It is exactly zero
+beyond the window.
+
+![Output change against the distance of the changed input, for 1, 2 and 3 layers of width-3 kernels, with the window the theorem allows drawn at 3, 6 and 9 positions](figures/33-output-change-against-distance.png)
+
 **Stride.** The function `fun input => model (2 * input)` and
 `COMPRESS 2 model` are the same function, by unfolding the definition. So
 everything proved about squeezing applies. In particular `lipschitzWith_stride` is
@@ -150,6 +156,12 @@ Why they find local patterns. By the locality result, a squiggle made by
 the layers is made from a window of the input, and the same kernel makes
 it at every position.
 
+**Measured:** shifting the signal by 5 positions shifts the output of a
+convolution by 5 positions, and a layer whose weights depend on the position
+does not do this.
+
+![Signal and shifted signal, the outputs of a convolution (the shifted output and the output of the shifted signal coincide) and of a position-dependent control layer (they differ)](figures/33-shift-commutes-with-convolution.png)
+
 Why downsampling and upsampling go together in a U-shaped network. A
 stride squeezes and an upsample stretches, and the two undo each other
 exactly. What the proof adds is that the squeeze has a price: each stride
@@ -163,6 +175,37 @@ set by a few kernel weights, and it makes squiggle locally. A stride is a
 squeeze in the exact sense of chapter 7: closer, steeper by the same
 factor, and no better in loss. This is the first of the three answers of
 chapter 14: stacking multiplies slope.
+
+## Run it yourself
+
+The notebook [`ch33_convolution.ipynb`](../experiments/part5/ch33_convolution.ipynb)
+uses a one-dimensional convolution layer on random seeded signals, and a sine
+for stride. It has 8 checks, all passing. These are **measured** numbers: an
+experiment is evidence, not a proof.
+
+- **By hand.** Kernel `1, −2, 1`: the outputs are 0 and 0.4, and the gap
+  equals the bound 0.4.
+- **Slope.** Over 200 random kernels and signals of length 10, 1000 and
+  100 000, the largest output gap over the bound was 0.997, 1.000 and 1.000,
+  never above 1. With the gap lined up with the kernel signs, the kernel
+  `0.5, 0.5, −1` and gap 2 give exactly 4. Control: a layer whose weights are
+  scaled by a number that depends on the position is not a convolution, and
+  its output gap was 1.81, 11.67 and 1001.73 times the bound at the three
+  lengths: the length enters.
+- **Locality.** For 1, 2 and 3 layers of width 3, changing an input beyond
+  3, 6 and 9 positions left the output exactly unchanged, also with a ReLU
+  between the layers. The farthest input that mattered was at 3, 5 and 7
+  positions, inside the window the theorem allows.
+- **Shift.** The largest difference between the output of the shifted signal
+  and the shifted output was 0 for the convolution, and 1.179 for the
+  control (the largest output is 0.872).
+- **Stride.** `sin(3x)` has slope 3.0000, and read at every second position
+  6.0000. An input step of 0.1 moved the output by at most 0.5910 (bound 0.6).
+  A slope of 1.5000 became 6.0000 after two strides. A stride after an
+  upsampling gave back the model, with a difference of 0.
+
+Run it with
+`jupyter nbconvert --to notebook --execute --inplace experiments/part5/ch33_convolution.ipynb`.
 
 ## What is not shown
 

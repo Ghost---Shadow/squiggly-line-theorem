@@ -135,6 +135,14 @@ between the query and the nearest input. That is the slope condition
 used once. The nearest input is no further away than any other, so the
 distance can be swapped for the distance to any training input.
 
+The next figure is **measured** on random truths of known slope limit, with
+the **proved** bound drawn as a line. On the left, the regions are the sets of
+points that share a nearest training input. On the right, every point lies under
+the green line. The dashed grey line is a control with half the slope limit,
+and some points cross it.
+
+![Left, nearest-neighbour regions of 8 training inputs in the plane with a query and its nearest input. Right, copy error against distance to the nearest input, under the line slope limit times distance, with a half-slope control line that some points cross](figures/40-nearest-neighbour-bound.png)
+
 **k-means.** The first half is a sum of squares. Each point's new
 distance is no larger than its old one, so each square is no larger, and
 so the sum is no larger (`sum_sq_reassign_le`). The second half is the
@@ -142,6 +150,13 @@ best-guess fact of chapter 37. The weighted mean is the best single
 guess for a set of points under squared distance
 (`weightedMean_isBest`). With equal shares the weights are one over the
 count, a common factor on both sides, and the factor cancels.
+
+The next figure is **measured**: the mean k-means cost over 200 random point
+sets, half step by half step. The purple curve (assign, then move to the mean)
+never rises. The grey curve moves each centre off the mean by 1 and keeps
+rising and falling.
+
+![Mean k-means cost against half steps for assign-then-move-to-the-mean, which never rises, and for a control that moves each centre off the mean, which zigzags and stays higher](figures/40-kmeans-cost-against-rounds.png)
 
 **Contrastive.** Expand the squared distance between two vectors of
 length one. It is `1 + 1` minus twice their dot product. Solve for the
@@ -177,6 +192,45 @@ nearest-neighbour bound is the slope sandwich used as a method: distance
 to the data, times slope, is the error. The contrastive result adds
 **averages** (chapter 15): a softmax over similarity is a softmax over
 distance, so it is the same average as in chapter 37.
+
+## Run it yourself
+
+[`ch40_neighbours.ipynb`](../experiments/part6/ch40_neighbours.ipynb) checks the
+chapter's claims on small exact models: random sums of sines on the plane with a
+known slope limit, Lloyd's k-means on random points, and random vectors of length
+one. All numbers below are **measured**. An experiment is evidence, not a proof.
+
+- **The worked examples.** The nearest-neighbour error 2 meets the bound 2, the
+  k-means costs are 134, 14, 4, and both softmax shares are 0.731059.
+- **Nearest neighbours.** For 30 random truths and 12000 queries, the copy error
+  was at most the slope limit times the nearest distance every time (the largest
+  error against bound was 0.9456), and at most the slope limit times the distance
+  to every other training input. Control: with half the slope limit, 1020 of
+  12000 queries (8.5%) broke the bound, by up to 1.89 times the halved bound.
+- **More inputs, a smaller bound.** With 10, 40, 160 and 640 training inputs the
+  mean nearest distance was 0.9903, 0.4298, 0.2399 and 0.1202, so each fourfold
+  increase scaled it by 0.434, 0.558 and 0.501. The mean copy error was 1.0421,
+  0.4371, 0.2512 and 0.1300, under the mean bound 4.5500, 1.9746, 1.1022 and
+  0.5522 each time. The bound is loose by a factor of about 4 to 5.
+- **k-means.** Over 5000 random clusters, the mean never cost more than a rival
+  centre (smallest gap `2.76e-05`). Over 200 point sets of 60 points and 5
+  clusters, 24 half steps each, the cost never rose (largest rise 0), and the mean
+  cost went from 525.96 to 42.08. Control: with the centre moved off the mean by
+  1, the cost rose at some half step in 200 of 200 runs, by up to 55.01, and the
+  mean cost only reached 106.28.
+- **Contrastive.** For 500 random queries and 8 random keys of length one, the
+  dot product matched `1 − squared distance / 2` to `7e-16`, and the cosine
+  shares matched the distance shares to `2e-15` at temperatures from 0.05 to 20.
+  At temperature 0.05 the nearest key had the top share in all 500 queries (mean
+  top share 0.868). At temperature 20 the mean top share was 0.130 against
+  `1 / 8 = 0.125`. Control: with key lengths between 0.5 and 2 the shares
+  differed by up to 0.292.
+
+Run it with:
+
+```bash
+jupyter nbconvert --to notebook --execute --inplace experiments/part6/ch40_neighbours.ipynb
+```
 
 ## What is not shown
 

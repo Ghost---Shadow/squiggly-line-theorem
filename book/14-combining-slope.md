@@ -88,6 +88,63 @@ quickly between experts that disagree. Attention is such a gate.
 Squiggle can only come from stacking pieces that are steep or that fold
 (chapter 8). No amount of averaging makes it, and skips only carry it.
 
+## Run it yourself
+
+[`ch14_combining_slope.ipynb`](../experiments/part3/ch14_combining_slope.ipynb)
+checks one thing per rule, on small random networks of `tanh`, sigmoid and
+linear layers, with the steepest slope read off a grid of 6001 inputs. All
+numbers below are **measured**. An experiment is evidence, not a proof.
+
+![Measured steepest slope against the bound of each rule: stacking, averaging, adding a skip. Every point lies on or below the diagonal; the orthogonal linear stacks and the linear branches sit on it, the random networks well below](figures/14-three-ways-to-combine.png)
+
+- **Stacking.** Forty-eight random `tanh` stacks of 1 to 8 layers are never
+  steeper than the product of their layer slope limits; the measured slope is
+  between 0.0056 and 1.00 of the product. Orthogonal linear layers of gain 1.3
+  meet the product exactly (relative gap `3e-16`), so the depth-8 stack has
+  slope 8.16 against 1.3 for one layer: the slopes multiply. Sigmoid layers on
+  orthogonal weights stay below `0.25 ^ depth`, at 0.70 to 1.00 of it. For a
+  depth-3 classifier with `slope_limit` 181.3 (its true steepest slope is 25.1),
+  the smallest input move that flipped it, over 300 inputs, was at least 11.5
+  times `score / slope_limit`.
+- **Averaging.** Over 400 trials of 2 to 6 networks with random shares, the
+  average was never steeper than its steepest member (largest ratio 0.995), and
+  the pointwise maximum of two never steeper than the steeper (largest ratio
+  1.000). Averaged over 7 shifted copies of its input, a network was at most
+  0.946 of its own steepest slope. The control, adding the members instead of
+  averaging them, was steeper than the steepest member in 215 of the 400 trials.
+- **A skip.** One residual layer with a random branch of slope 0.3 had output
+  gap over input gap between 0.933 and 1.093 (allowed 0.7 to 1.3), and with
+  slope 0.9 between 0.720 and 1.217 (allowed 0.1 to 1.9). A branch that is 0.9
+  times the identity reaches both ends, 1.900 and 0.100. In one dimension a
+  branch of slope 0.9 never merged two inputs (smallest difference quotient
+  0.100), while one of slope 1.5 turned (smallest -0.500) and sent 0 and
+  1.2878 to the same output. Stacks of 1 to 100 layers, with budgets 0.5, 1 and
+  2, were never steeper than `(1 + budget / depth) ^ depth` (at most 0.700 of it)
+  or than `e ^ budget` (at most 0.9988 of it); stacks of linear branches meet the
+  bound to `1e-14`. With a hundred branches of slope 0.01 the bound is 2.7048, and
+  the random branches measured 1.004; the same branches without skips are
+  bounded by `1e-200`, and measured at most 0.48 of that bound. The LSTM cell
+  multiplied the gap between two memories by the product of the forget gates,
+  and carried it unchanged with the gates open.
+- **The gate.** With three gentle experts (slope at most 0.17) and a sharp
+  softmax gate, 20 000 pairs of inputs all changed the blend by at most the
+  stated limit (largest ratio 1.000), and the blend's steepest slope was 5.75.
+  With the gate made constant the blend's slope was 0.087, below the
+  experts' 0.167.
+
+In the random networks the bounds are usually far from tight: the skip stacks
+measured between 0.95 and 1.6 where the bound is up to 7.2. That the real slope is that
+much gentler is not proved here.
+
+Not run: convolution, initialisation, temperature, attention, rotated copies of
+the input, and the vanishing-gradient table beyond the product of layers.
+
+Run it with:
+
+```bash
+jupyter nbconvert --to notebook --execute --inplace experiments/part3/ch14_combining_slope.ipynb
+```
+
 ## What is not shown
 
 These are upper limits on slope. A real network is usually far gentler

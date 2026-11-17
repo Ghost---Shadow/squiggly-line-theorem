@@ -134,6 +134,13 @@ and a unit has one kink. So each needs a different unit
 the grid, and the network is allowed an error of one half, so it must go
 up and down at each (`depth_separation`).
 
+**Measured**: the left panel counts the straight pieces of the stack of tent layers
+and of one hidden layer with every kink inside the interval, against neurons. The
+right panel shows the best largest error at the grid points that one hidden layer can reach,
+against its number of kinks, for stacks of two and three tent layers.
+
+![Pieces against neurons for the tent stack and for one hidden layer with the bound units plus one, and the best grid error of one hidden layer against its kinks for two and three tent layers, which stays at one half until every grid point has a kink](figures/32-pieces-against-neurons.png)
+
 **Above.** A ramp is flat, then rises across one piece, then is flat at
 full height. It is two ReLU units: one switches the rise on, one switches
 it off (`EVALUATE_RAMP`). Scale each ramp to match the rise of `model`
@@ -143,6 +150,12 @@ After it, its ramp adds the full rise, so the network sits exactly on
 straight between two values of `model`, and `model` cannot stray far
 from either end, because its slope is at most `slope_limit`. Going
 piece by piece along the interval gives the bound `reluInterp_spec`.
+
+**Measured**: the largest error of the ramp network against the number of pieces,
+for two targets, with the bound of the theorem. The control, `sin(30 x)` judged
+with the wrong slope limit 3, lies above the bound.
+
+![Largest error of the ramp network against the number of pieces on log axes, for sin(3x) and 2|x-0.33| under their bounds, and a control with a wrong slope limit that rises above its bound](figures/32-error-against-pieces.png)
 
 ## What it explains
 
@@ -169,6 +182,48 @@ layer buys a turn. Squiggliness is what parameters buy, and this chapter
 says how the price depends on where they are put: in width, one turn per
 unit; in depth, double the turns per layer. By the theorem of chapter 7 a
 squigglier line starts closer to the data.
+
+## Run it yourself
+
+[`ch32_depth_against_width.ipynb`](../experiments/part5/ch32_depth_against_width.ipynb)
+checks the claims on stacked tent layers and one-hidden-layer ReLU networks.
+All numbers below are **measured**. An experiment is evidence, not a proof.
+
+- **By hand.** Three tent layers give `1/4, 1/2, 1` at `1/8` and `1/2, 1, 0`
+  at `2/8`, and 0, 1, 0, 1, 0, 1, 0, 1, 0 on the nine grid points: 4 peaks from
+  6 neurons. Ten layers, 20 neurons, make 512 peaks on the grid.
+- **One kink per unit.** In 960 random one-hidden-layer networks of 1 to 24
+  units no network had more than `units + 1` pieces, and with every kink placed
+  inside the interval the count `units + 1` was reached at all 24 unit counts.
+  Control: the tent stack has `2 ^ layer_count` pieces from `2 * layer_count`
+  neurons, so from 6 neurons on it beats `units + 1`; at 24 neurons it has 4096
+  pieces against at most 25.
+- **Depth separation.** For the best fit (a linear program over the gains, with
+  free constant and slope), fewer than `2 ^ layer_count` kinks never got below an
+  error of one half, for `layer_count` 1 and 2 (exhaustive over the candidate
+  kink positions described in the notebook) and for 3 (a random then a local search,
+  which cannot prove it: best error found 0.5000 with 7 kinks). Control: one kink
+  at every interior grid point fits exactly, with 3, 7 and 15 kinks for
+  `layer_count` 1, 2 and 3. The theorem is **not tight** in these runs: the fewest
+  kinks found within one half were 3 and 7 for `layer_count` 1 and 2, against
+  the bounds 2 and 4. A straight piece crosses the level one half once, and the
+  grid values alternate around it, so every interior grid point needs a kink.
+- **Closeness.** The ramp network stayed within `2 * slope_limit / piece_count`
+  for 1 to 640 pieces for `sin(3 x)`, `2 |x - 0.33|` and the three-layer tent
+  stack. The largest `error × piece_count / slope_limit` was 0.31, 0.48 and
+  0.50 (the bound allows 2), so the bound is loose by a factor of about four.
+  Control: `sin(30 x)` with the slope limit 3 wrongly assumed reaches 1.62 times
+  the claimed bound.
+- **Check-yourself numbers.** Slope limit 2, 40 pieces, 80 units: error 0.016
+  against 0.1. Slope limit 3, 60 pieces, 120 units: error 0.0003 against 0.1.
+  A Kolmogorov–Arnold node with three sine edges, slope limits 1, 2, 3 and 100
+  pieces: error 0.0002 against 0.12.
+
+To run it:
+
+```bash
+jupyter nbconvert --to notebook --execute --inplace experiments/part5/ch32_depth_against_width.ipynb
+```
 
 ## What is not shown
 

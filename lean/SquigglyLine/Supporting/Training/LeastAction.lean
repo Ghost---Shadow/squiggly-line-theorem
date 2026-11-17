@@ -16,7 +16,14 @@ Through the layers (the polarizer chain):
 Also here: `norm_sub_le_of_fit_along_features` (a fit reached along the
 features is the nearest) and `even_turns_keep_more` (the same, with a length in
 front).
+
+* `prod_cos_le_cos_average_pow` : the same for any number of plates, each
+  turning by at most a quarter turn either way. Together they never keep more
+  than the same number of plates each turning by the average turn.
 -/
+import Mathlib.Analysis.Convex.Jensen
+import Mathlib.Analysis.Convex.SpecificFunctions.Deriv
+import Mathlib.Analysis.MeanInequalities
 import Mathlib.Analysis.SpecialFunctions.Trigonometric.Basic
 import SquigglyLine.Networks.Kernel
 
@@ -174,6 +181,73 @@ theorem even_turns_keep_more
       ≤ cos ((first_turn + second_turn) / 2) ^ 2 :=
     cos_mul_cos_le_cos_half_sq first_turn second_turn
   exact mul_le_mul_of_nonneg_left turns_le_average length_nonneg
+
+open Finset in
+/-- **Equal turns keep the most, for any number of plates.** Each plate turns
+by at most a quarter turn either way. Together the plates never keep more
+than the same number of plates keep when each turns by the average turn. -/
+theorem prod_cos_le_cos_average_pow
+    {Plates : Type*}
+    (plates : Finset Plates)
+    (plates_nonempty : plates.Nonempty)
+    (turn : Plates → ℝ)
+    (turns_within_quarter :
+      ∀ plate ∈ plates, turn plate ∈ Set.Icc (-(PI / 2)) (PI / 2)) :
+    let plate_count     := plates.card
+    let kept_by_turns   := ∏ plate ∈ plates, cos (turn plate)
+    let average_turn    := (∑ plate ∈ plates, turn plate) / plate_count
+    let kept_by_average := cos average_turn ^ plate_count
+    kept_by_turns ≤ kept_by_average := by
+  unfold_named_pieces
+  have count_pos : (0 : ℝ) < plates.card := by
+    exact_mod_cast card_pos.mpr plates_nonempty
+  have cos_nonneg : ∀ plate ∈ plates, 0 ≤ cos (turn plate) :=
+    fun plate plate_in => cos_nonneg_of_mem_Icc
+      (turns_within_quarter plate plate_in)
+  have shares_sum_to_one : ∑ _plate ∈ plates, (plates.card : ℝ)⁻¹ = 1 := by
+    rw [sum_const, nsmul_eq_mul, mul_inv_cancel₀ count_pos.ne']
+  -- The geometric mean of the cosines is at most their arithmetic mean.
+  have geometric_le_arithmetic := geom_mean_le_arith_mean plates
+    (fun _ => (1 : ℝ)) (fun plate => cos (turn plate))
+    (fun _ _ => zero_le_one) (by simpa using count_pos) cos_nonneg
+  simp only [rpow_one, one_mul, sum_const, nsmul_eq_mul, mul_one]
+    at geometric_le_arithmetic
+  -- The cosine is concave on a half turn, so the mean of the cosines is at
+  -- most the cosine of the mean (Jensen's inequality).
+  have mean_cos_le_cos_mean :
+      ∑ plate ∈ plates, (plates.card : ℝ)⁻¹ • cos (turn plate)
+        ≤ cos (∑ plate ∈ plates, (plates.card : ℝ)⁻¹ • turn plate) :=
+    strictConcaveOn_cos_Icc.concaveOn.le_map_sum (t := plates)
+      (w := fun _ => (plates.card : ℝ)⁻¹) (p := turn)
+      (fun _ _ => by positivity) shares_sum_to_one turns_within_quarter
+  have product_nonneg : 0 ≤ ∏ plate ∈ plates, cos (turn plate) :=
+    prod_nonneg cos_nonneg
+  have mean_of_turns :
+      ∑ plate ∈ plates, (plates.card : ℝ)⁻¹ • turn plate
+        = (∑ plate ∈ plates, turn plate) / plates.card := by
+    simp only [smul_eq_mul]
+    rw [← mul_sum, div_eq_inv_mul]
+  have mean_of_cos :
+      ∑ plate ∈ plates, (plates.card : ℝ)⁻¹ • cos (turn plate)
+        = (∑ plate ∈ plates, cos (turn plate)) / plates.card := by
+    simp only [smul_eq_mul]
+    rw [← mul_sum, div_eq_inv_mul]
+  have root_le_cos_average :
+      (∏ plate ∈ plates, cos (turn plate)) ^ ((plates.card : ℝ)⁻¹)
+        ≤ cos ((∑ plate ∈ plates, turn plate) / plates.card) := by
+    rw [← mean_of_turns]
+    refine geometric_le_arithmetic.trans ?_
+    rw [← mean_of_cos]
+    exact mean_cos_le_cos_mean
+  calc ∏ plate ∈ plates, cos (turn plate)
+      = ((∏ plate ∈ plates, cos (turn plate))
+          ^ ((plates.card : ℝ)⁻¹)) ^ plates.card := by
+        rw [rpow_inv_natCast_pow product_nonneg
+          (card_pos.mpr plates_nonempty).ne']
+    _ ≤ cos ((∑ plate ∈ plates, turn plate) / plates.card)
+          ^ plates.card :=
+        pow_le_pow_left₀ (rpow_nonneg product_nonneg _)
+          root_le_cos_average _
 
 end Layers
 

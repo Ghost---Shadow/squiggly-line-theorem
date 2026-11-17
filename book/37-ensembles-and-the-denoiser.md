@@ -151,11 +151,19 @@ best-guess result. The hull statement is `attend_mem_convexHull`.
 members agree, there is nothing to gain, and if they err on different
 sides, the gain is large. The spread is the variance term of chapter 43.
 
+**Measured.** Thirty fitted models, each linear in its weights, are averaged with equal shares. The purple curve is the squared error of the average. The green curve is the average squared error of the same models, which the theorem bounds it by. The black circles are that average error minus the spread, computed apart, and they sit on the purple curve.
+
+![Squared error of an average of models against the number of models, below the average error of the single models, with the average error minus the spread lying on the average's error](figures/37-error-of-an-average.png)
+
 **What a diffusion model aims at.** With Gaussian noise, the weight of an
 example falls with its squared distance from the noisy input, as the score
 above says. That this is the right weight is Bayes' rule (**recalled**, not
 proved here). Given it, the proof says the best possible denoiser is an
 attention head over the training set.
+
+**Measured.** The output of the ideal denoiser for five training examples on a line, against the noisy input, at three noise levels. At noise level 0.3 it steps from one example to the next. At 3 it is a smooth curve that stays between the extreme examples.
+
+![Ideal denoiser output against noisy input at noise levels 0.3, 1 and 3: steps at low noise, a smooth curve at high noise, always between the smallest and largest example](figures/37-ideal-denoiser.png)
 
 The puzzle that follows is in the note. A denoiser that reached its target
 would only return blends of its training examples, and at low noise it
@@ -172,6 +180,33 @@ Between the data points the squiggles disagree and the average cancels
 them. That the ensemble thereby gives back some of the slope its members
 paid for is **argued**. The denoiser's shares are set by nearness
 (chapter 4) to the training set.
+
+## Run it yourself
+
+[`ch37_ensembles_and_the_denoiser.ipynb`](../experiments/part6/ch37_ensembles_and_the_denoiser.ipynb) has 29 checks, all passing. The
+members are 30 ridge fits, linear in their weights, to bootstrap resamples of 40 noisy points. These are measurements, not
+proofs.
+
+- **The split.** In 2000 random cases the error of the blend equals the average error minus the spread to `7e-13`. With shares
+  that sum to 1.5 the two sides differ by up to 915.
+- **The gain.** For 1 to 30 members the blend is never worse than the average error of its members, and the gain equals the
+  spread to `2e-16`. The average error of the 30 members is 0.710, the spread 0.504 and the error of their average 0.206.
+  Control: with shares 1.5 and −0.5 the identity holds but the blend (1.30) is worse than the average error (0.14).
+- **Slope.** The blend of the 30 is no steeper than its steepest member: 10.2 against 26.1. Control: with shares 1.5 and −0.5,
+  619 of 870 pairs give a blend steeper than both members.
+- **Weight averaging.** Averaged weights predict the average of the predictions to `7e-16`, with error 0.206. Control: a fit
+  `(1.3, 0.7)` of a two-layer product and its mirror image both fit exactly, and the midpoint of the weights has error 1.16.
+- **The best guess.** The split holds to `3e-14` over 500 cases, and none of 10000 random points beats the weighted mean. The
+  unweighted mean loses by exactly the formula, 0.356 on average.
+- **The denoiser.** The two worked examples give shares 0.982 and 0.018 with output 0.0719, shares 0.51 and 0.49 with output
+  1.96, and exactly 2 half way. Against 203 other outputs for each of 300 inputs, none has a smaller spread than the ideal
+  denoiser, and each loses by exactly `‖other − denoised‖²`. A denoiser at three times the noise level loses 1.37 on average.
+  The output stayed inside the hull in 3000 cases in one dimension and 300 in the plane. Control: without the division by the
+  sum of the weights, 299 of 300 outputs left the hull.
+- **Bayes' rule (recalled in the chapter).** In a simulation of 4 million draws, the mean clean example at five noisy values
+  agrees with the ideal denoiser to within 1.5 standard errors. The denoiser at three times the noise level is off by up to 487.
+
+Run it with `jupyter nbconvert --to notebook --execute --inplace experiments/part6/ch37_ensembles_and_the_denoiser.ipynb`.
 
 ## What is not shown
 

@@ -165,6 +165,12 @@ overlap, which is `norm_skipPlate_sq`. A repeat of the plates doubles
 the along part each time and leaves the across part alone
 (`inner_iterate_skipPlate`, `iterate_skipPlate_sub_plate`).
 
+**Measured**, the length of light through 30 plates, each axis turned 0.5
+radian from the last: a bare plate loses light, a plate with a bypass never
+does, and a plate with an amplifier holds it at exactly 1.
+
+![Length of the light against the number of plates, for a bare plate falling, a plate with a bypass growing, and a plate with an amplifier flat at 1](figures/31-light-through-plates.png)
+
 **The amplifier.** After a plate the light is the overlap times the axis,
 and its length is the size of the overlap. The amplifier divides by that
 length. If the overlap is positive, what is left is the axis itself. This
@@ -185,6 +191,13 @@ stretches by at most that, raised to the power `layer_count`. The proof
 `e ^ exponent`. A plain stack of layers with slope `exponent /
 layer_count` each would multiply to a power of a number that can be far
 below one.
+
+**Measured**, the largest stretch of a small gap for a stack with slope budget
+2, against the number of layers: skip stacks stay under `e ^ 2`, the same
+branches without skips collapse, and branches 1.5 times over budget pass the
+bound.
+
+![Largest stretch of a small gap against the number of layers, on log axes: skip stacks flat under the bound e squared, a stack without skips falling away, and an over-budget stack above the bound](figures/31-stretch-against-depth.png)
 
 ## What it explains
 
@@ -213,6 +226,41 @@ them stays inside `e ^ exponent`. A fold merges points, as chapter 8
 showed. A skip with a gentle branch cannot, so squiggle has to be bought
 in the branch, where the slope is above one. That is the third answer of
 chapter 14: a skip adds one.
+
+## Run it yourself
+
+[`ch31_skips_and_normalisation.ipynb`](../experiments/part5/ch31_skips_and_normalisation.ipynb)
+checks each statement on plates in two to eight dimensions and on branches
+`slope × tanh(orthogonal matrix × input)`, which have slope at most `slope`.
+Nothing is trained. In 3000 random cases the squared length after a bypass
+plate matched the old length plus `3 × overlap²` to a relative error of
+`2.2e-15`, and the light never got shorter. The hand example came out as
+`(6, 4)`, `(12, 4)`, `(24, 4)`, and as `0.6` then `0.36` without the
+amplifier. Over 40 plates in three dimensions the amplified light had length 1
+and equalled the plate's axis every time. Through 30 plates turned 0.5 radian
+each, the bare length was `1.99e-02`, equal to `cos(0.5)^30`; the bypass length
+was `3.553e+04`; the amplified length was 1. For a residual layer with branch
+slope 0.5, 20 000 random pairs had a gap ratio between 0.564 and 1.467, inside
+`[0.5, 1.5]`; the lower end was not reached. With 2 as the slope budget the
+largest stretch of a skip stack up to 512 layers was 7.360, under
+`e ^ 2 = 7.389`, and it matched `(1 + 2 / layer_count) ^ layer_count`. The
+same branches without skips stretched by `1.53e-05` at 8 layers and fell
+below the smallest number a 64-bit float holds at 512 layers. The memory
+cell's gap after 50 steps equalled the product of the forget gates (0.0065)
+and was unchanged with the gate open.
+
+Each statement has a control that breaks its hypothesis. A bypass axis of
+length 1.5 broke the squared-length identity, with a mean relative error of
+0.69. A branch of slope 2 merged the inputs `1` and `-1/3`. Branches at 1.5
+times the budget reached a stretch of 19.91 at 512 layers, 2.69 times `e ^ 2`.
+A forget gate of 1.1 grew a gap of 1.1 to 129.1 in 50 steps. These are checks
+by measurement, not proofs. The Lean theorems are the proofs. The notebook says
+nothing about batch normalisation, ReLU layers or training, as the next section
+says.
+
+```bash
+jupyter nbconvert --to notebook --execute --inplace experiments/part5/ch31_skips_and_normalisation.ipynb
+```
 
 ## What is not shown
 

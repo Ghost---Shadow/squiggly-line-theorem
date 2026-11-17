@@ -181,6 +181,47 @@ both models. Chapter 10 already said that their trips are equally long
 (`travel_eq_of_kernel_eq`). Together: the same trip, the same arrival
 point as seen from the test point.
 
+## Run it yourself
+
+[`ch42_same_kernel.ipynb`](../experiments/part7/ch42_same_kernel.ipynb) uses
+models linear in their weights. Model A is a Fourier lift (sines and cosines
+of frequencies 1 to 4, 8 weights). Model B has 30 weights and features that
+are a random isometric image of A's, so the kernel and the test row are the
+same, and its start weights are a different object, corrected only so that
+the start errors and the start answers at the 5 test inputs equal A's. All
+numbers below are **measured**. An experiment is evidence, not a proof.
+
+- **One step.** Over 50 random weight vectors, in both models, the change of
+  the test answer equals `learning_rate × test_row · residual` to `3e-15`.
+  The control, with the current answers in place of the errors, misses by up
+  to 0.776.
+- **Every step.** Over 20 001 steps and 5 test inputs, the largest gap
+  between the answers of A and B is `1.1e-15`. The answers did move, by up to
+  0.998, so the agreement is not for lack of change.
+- **Controls.** A model with a different kernel (16 weights, frequencies
+  0.7 to 5.6), started with the same errors and test answers, parts from A by
+  up to 0.561. A model with the same kernel but a different test row (its
+  test features shifted by noise) parts by up to 0.674. Both gaps open within
+  the first 41 steps.
+- **The fit.** At the fit that training heads for, the test answers of A and
+  B differ by `6.7e-16`, and 20 000 steps of descent land on it to `5.6e-16`.
+  The model with the other kernel has a fit that differs from A's by up to
+  0.561.
+
+![The test answers of two models with the same kernel, left, and the gap between model answers against steps, right, for the same kernel and for two controls](figures/42-same-kernel-same-answers.png)
+
+The figure is **measured**. On the left the answers of A (solid) and B
+(dashed) lie on each other at all five test inputs. On the right the gap for
+B stays at rounding level for the whole run, while the gap for the
+different-kernel model (D) and the different-test-row model (E) jumps to
+about 0.5 and stays there.
+
+Run it with:
+
+```bash
+jupyter nbconvert --to notebook --execute --inplace experiments/part7/ch42_same_kernel.ipynb
+```
+
 ## What is not shown
 
 The proofs are for models **linear in their weights**, with a **fixed

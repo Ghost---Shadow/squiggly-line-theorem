@@ -11,11 +11,12 @@ along them, each part multiplied by its own factor:
 * `residual_iterate_eq_sum`          the error after training, as that sum;
 * `norm_sq_residual_iterate_eq_sum`  its squared length, one term per direction.
 
-**The Fourier case.** Take `N` inputs evenly spaced over one period and a lift
-whose kernel is a sum of cosines of the gap between two inputs, with size
-`a k` at frequency `k`, for frequencies up to `K` with `2 * K < N`. Then the
-sampled wave of frequency `m` is one of those directions, with strength
-`N / 2 * a m ^ 2`:
+**The Fourier case.** Take `input_count` inputs evenly spaced over one period
+and a lift whose kernel is a sum of cosines of the gap between two inputs, with
+size `amplitude k` at frequency `k`, for frequencies up to `frequency_count`
+with `2 * frequency_count < input_count`. Then the sampled wave of frequency
+`frequency` is one of those directions, with strength
+`input_count / 2 * amplitude frequency ^ 2`:
 
 * `sum_cos_arith_eq_zero`            a wave sampled at evenly spaced points
                                      over whole turns sums to zero;
@@ -24,14 +25,14 @@ sampled wave of frequency `m` is one of those directions, with strength
 * `sum_gapKernel_mul_wave`           the kernel sum stretches a sampled wave;
 * `PREDICT_ON_EXAMPLES`              a lift on finitely many inputs, as a
                                      linear map from weights to outputs;
+* `predictOnExamples_apply`          its output at one input;
+* `adjoint_predictOnExamples`        its adjoint, as a weighted sum of lifts;
 * `kernel_predictOnExamples_apply`   its kernel, in coordinates;
 * `fourier_direction_is_stretched`   the sampled wave is stretched by
-                                     `N / 2 * a m ^ 2`;
+                                     `input_count / 2 * amplitude frequency ^ 2`;
 * `fourier_spectral_bias`            so its error shrinks by
-                                     `1 - learning_rate * (N / 2 * a m ^ 2)`
-                                     each step.
-
-This file is in typical Mathlib style. It is to be ported (`lean/PORTING.md`).
+                                     `1 - learning_rate * (input_count / 2
+                                     * amplitude frequency ^ 2)` each step.
 -/
 import Mathlib.Analysis.InnerProductSpace.PiL2
 import Mathlib.Analysis.InnerProductSpace.Adjoint
@@ -51,40 +52,70 @@ variable {Weights Outputs : Type*}
   [CompleteSpace Weights]
   [NormedAddCommGroup Outputs] [InnerProductSpace ℝ Outputs]
   [CompleteSpace Outputs]
-  {ι : Type*} [Fintype ι]
+  {Directions : Type*} [Fintype Directions]
 
 /-- **The whole error.** If every vector of an orthonormal basis is stretched
-by the kernel, the error after `t` steps is the sum of its parts along the
-basis, each multiplied by its own factor `(1 - η * strength i) ^ t`. -/
+by the kernel, the error after `step_count` steps is the sum of its parts along
+the basis, each multiplied by its own factor
+`(1 - learning_rate * strength i) ^ step_count`. -/
 theorem residual_iterate_eq_sum
-    (predict : Weights →L[ℝ] Outputs) (labels : Outputs) (η : ℝ)
-    (w₀ : Weights) (b : OrthonormalBasis ι ℝ Outputs) (strength : ι → ℝ)
-    (h : ∀ i, predict (adjoint predict (b i)) = strength i • b i) (t : ℕ) :
-    GET_RESIDUAL (predict : Weights →ₗ[ℝ] Outputs) labels
-        ((TAKE_GRADIENT_STEP predict labels η)^[t] w₀)
-      = ∑ i, ((1 - η * strength i) ^ t
-          * inner ℝ (b i)
-              (GET_RESIDUAL (predict : Weights →ₗ[ℝ] Outputs) labels w₀))
-          • b i := by
-  conv_lhs => rw [← b.sum_repr' (GET_RESIDUAL _ labels _)]
+    (predict : Weights →L[ℝ] Outputs)
+    (labels : Outputs)
+    (learning_rate : ℝ)
+    (start_weights : Weights)
+    (directions : OrthonormalBasis Directions ℝ Outputs)
+    (strength : Directions → ℝ)
+    (directions_are_stretched :
+      ∀ i, predict (adjoint predict (directions i))
+        = strength i • directions i)
+    (step_count : ℕ) :
+    let linear_predict : LinearPredictor Weights Outputs := predict
+    let trained_weights :=
+      (TAKE_GRADIENT_STEP predict labels learning_rate)^[step_count]
+        start_weights
+    let start_error   := GET_RESIDUAL linear_predict labels start_weights
+    let trained_error := GET_RESIDUAL linear_predict labels trained_weights
+    let sum_of_parts  := ∑ i,
+      ((1 - learning_rate * strength i) ^ step_count  -- one factor per step
+        * inner ℝ (directions i) start_error) • directions i
+    trained_error = sum_of_parts := by
+  unfold_named_pieces
+  -- Split the error into its parts along the basis, then shrink each part.
+  conv_lhs => rw [← directions.sum_repr' (GET_RESIDUAL _ labels _)]
   exact Finset.sum_congr rfl fun i _ => by
-    rw [inner_residual_iterate_gradientStep predict labels η w₀ (h i) t]
+    rw [inner_residual_iterate_gradientStep predict labels learning_rate
+      start_weights (directions_are_stretched i) step_count]
 
-/-- **The whole loss.** The squared length of the error after `t` steps is a
-sum with one term per direction, each shrinking on its own clock. -/
+/-- **The whole loss.** The squared length of the error after `step_count`
+steps is a sum with one term per direction, each shrinking on its own clock. -/
 theorem norm_sq_residual_iterate_eq_sum
-    (predict : Weights →L[ℝ] Outputs) (labels : Outputs) (η : ℝ)
-    (w₀ : Weights) (b : OrthonormalBasis ι ℝ Outputs) (strength : ι → ℝ)
-    (h : ∀ i, predict (adjoint predict (b i)) = strength i • b i) (t : ℕ) :
-    ‖GET_RESIDUAL (predict : Weights →ₗ[ℝ] Outputs) labels
-        ((TAKE_GRADIENT_STEP predict labels η)^[t] w₀)‖ ^ 2
-      = ∑ i, ((1 - η * strength i) ^ t) ^ 2
-          * inner ℝ (b i)
-              (GET_RESIDUAL (predict : Weights →ₗ[ℝ] Outputs) labels w₀) ^ 2 := by
-  rw [← b.sum_sq_inner_right]
+    (predict : Weights →L[ℝ] Outputs)
+    (labels : Outputs)
+    (learning_rate : ℝ)
+    (start_weights : Weights)
+    (directions : OrthonormalBasis Directions ℝ Outputs)
+    (strength : Directions → ℝ)
+    (directions_are_stretched :
+      ∀ i, predict (adjoint predict (directions i))
+        = strength i • directions i)
+    (step_count : ℕ) :
+    let linear_predict : LinearPredictor Weights Outputs := predict
+    let trained_weights :=
+      (TAKE_GRADIENT_STEP predict labels learning_rate)^[step_count]
+        start_weights
+    let start_error   := GET_RESIDUAL linear_predict labels start_weights
+    let trained_error := GET_RESIDUAL linear_predict labels trained_weights
+    let squared_loss  := ‖trained_error‖ ^ 2
+    let sum_of_squares := ∑ i,
+      ((1 - learning_rate * strength i) ^ step_count) ^ 2
+        * inner ℝ (directions i) start_error ^ 2
+    squared_loss = sum_of_squares := by
+  unfold_named_pieces
+  -- The squared length is the sum of the squared parts along the basis.
+  rw [← directions.sum_sq_inner_right]
   exact Finset.sum_congr rfl fun i _ => by
-    rw [inner_residual_iterate_gradientStep predict labels η w₀ (h i) t,
-      mul_pow]
+    rw [inner_residual_iterate_gradientStep predict labels learning_rate
+      start_weights (directions_are_stretched i) step_count, mul_pow]
 
 end AllDirections
 
@@ -92,113 +123,226 @@ end AllDirections
 
 open Real Finset ContinuousLinearMap
 
-/-- Waves sampled at evenly spaced points cancel. -/
-theorem sum_cos_arith_eq_zero (N : ℕ) (α θ : ℝ) (p : ℤ)
-    (hθ : sin (θ / 2) ≠ 0) (hN : (N : ℝ) * θ = p * (2 * π)) :
-    ∑ j ∈ range N, cos (α + j * θ) = 0 := by
-  have key : ∀ j : ℕ, 2 * sin (θ / 2) * cos (α + j * θ)
-      = sin (α + ((j + 1 : ℕ) : ℝ) * θ - θ / 2)
-        - sin (α + (j : ℝ) * θ - θ / 2) := by
+/-- Waves sampled at evenly spaced points cancel: if `point_count` steps of
+`angle_step` make a whole number `turn_count` of turns, then the cosines at
+`start_angle + j * angle_step` sum to zero. -/
+theorem sum_cos_arith_eq_zero
+    (point_count : ℕ)
+    (start_angle : ℝ)
+    (angle_step : ℝ)
+    (turn_count : ℤ)
+    (half_step_sin_ne_zero : sin (angle_step / 2) ≠ 0)
+    (whole_turns : point_count * angle_step = turn_count * (2 * PI)) :
+    let angle_at := fun index : ℕ => start_angle + index * angle_step
+    ∑ j ∈ range point_count, cos (angle_at j) = 0 := by
+  unfold_named_pieces
+  beta_reduce
+  -- Multiplying by `2 * sin (angle_step / 2)` turns each cosine into a
+  -- difference of two sines, so the sum telescopes.
+  have cos_to_sine_difference : ∀ j : ℕ,
+      2 * sin (angle_step / 2) * cos (start_angle + j * angle_step)
+      = sin (start_angle + ((j + 1 : ℕ) : ℝ) * angle_step - angle_step / 2)
+        - sin (start_angle + (j : ℝ) * angle_step - angle_step / 2) := by
     intro j
-    have h1 : α + ((j + 1 : ℕ) : ℝ) * θ - θ / 2 = (α + j * θ) + θ / 2 := by
+    have upper_angle :
+        start_angle + ((j + 1 : ℕ) : ℝ) * angle_step - angle_step / 2
+        = (start_angle + j * angle_step) + angle_step / 2 := by
       push_cast; ring
-    have h2 : α + (j : ℝ) * θ - θ / 2 = (α + j * θ) - θ / 2 := by ring
-    rw [h1, h2, sin_add, sin_sub]; ring
-  have tele : 2 * sin (θ / 2) * ∑ j ∈ range N, cos (α + j * θ) = 0 := by
-    rw [mul_sum, sum_congr rfl fun j _ => key j,
-      sum_range_sub (fun j : ℕ => sin (α + (j : ℝ) * θ - θ / 2))]
-    have h : α + (N : ℝ) * θ - θ / 2 = (α - θ / 2) + p * (2 * π) := by
-      rw [hN]; ring
-    rw [h, sin_add_int_mul_two_pi]; simp
-  exact (mul_eq_zero.mp tele).resolve_left (mul_ne_zero two_ne_zero hθ)
+    have lower_angle :
+        start_angle + (j : ℝ) * angle_step - angle_step / 2
+        = (start_angle + j * angle_step) - angle_step / 2 := by ring
+    rw [upper_angle, lower_angle, sin_add, sin_sub]; ring
+  have telescoped :
+      2 * sin (angle_step / 2)
+        * ∑ j ∈ range point_count, cos (start_angle + j * angle_step) = 0 := by
+    rw [mul_sum, sum_congr rfl fun j _ => cos_to_sine_difference j,
+      sum_range_sub (fun j : ℕ =>
+        sin (start_angle + (j : ℝ) * angle_step - angle_step / 2))]
+    have end_angle :
+        start_angle + (point_count : ℝ) * angle_step - angle_step / 2
+        = (start_angle - angle_step / 2) + turn_count * (2 * PI) := by
+      rw [whole_turns]; ring
+    rw [end_angle, sin_add_int_mul_two_pi]; simp
+  exact (mul_eq_zero.mp telescoped).resolve_left
+    (mul_ne_zero two_ne_zero half_step_sin_ne_zero)
 
 /-- Two sampled waves of different frequencies do not overlap; a wave
 overlaps a shifted copy of itself by half the number of samples. -/
-theorem sum_cos_mul_cos (N k m : ℕ) (φ : ℝ) (j : ℕ)
-    (hk : 1 ≤ k) (hm : 1 ≤ m) (hkm : k + m < N) :
-    ∑ i ∈ range N,
-        cos (k * (2 * π * j / N - 2 * π * i / N)) * cos (m * (2 * π * i / N) - φ)
-      = if k = m then N / 2 * cos (m * (2 * π * j / N) - φ) else 0 := by
-  have hN : (0 : ℝ) < N := by exact_mod_cast (by omega : 0 < N)
-  have hN' : (N : ℝ) ≠ 0 := hN.ne'
-  have prod : ∀ A B : ℝ, cos A * cos B = (cos (A + B) + cos (A - B)) / 2 := by
-    intro A B; rw [cos_add, cos_sub]; ring
-  have split : ∀ i : ℕ,
-      cos (k * (2 * π * j / N - 2 * π * i / N)) * cos (m * (2 * π * i / N) - φ)
-        = (cos ((k * (2 * π * j / N) - φ) + i * (2 * π * ((m : ℝ) - k) / N))
-          + cos ((k * (2 * π * j / N) + φ) + i * (-(2 * π * ((k : ℝ) + m) / N)))) / 2 := by
+theorem sum_cos_mul_cos
+    (input_count : ℕ)
+    (first_frequency : ℕ)
+    (second_frequency : ℕ)
+    (phase : ℝ)
+    (input_index : ℕ)
+    (first_frequency_pos : 1 ≤ first_frequency)
+    (second_frequency_pos : 1 ≤ second_frequency)
+    (frequencies_below_count :
+      first_frequency + second_frequency < input_count) :
+    let input_at := fun index : ℕ => 2 * PI * index / input_count
+    let overlap := ∑ i ∈ range input_count,
+      cos (first_frequency * (input_at input_index - input_at i))
+        * cos (second_frequency * input_at i - phase)
+    let expected_overlap : ℝ :=
+      if first_frequency = second_frequency
+      then input_count / 2  -- half the samples, as `cos ^ 2` averages to `1 / 2`
+        * cos (second_frequency * input_at input_index - phase)
+      else 0
+    overlap = expected_overlap := by
+  unfold_named_pieces
+  beta_reduce
+  have count_pos : (0 : ℝ) < input_count := by
+    exact_mod_cast (by omega : 0 < input_count)
+  have count_ne_zero : (input_count : ℝ) ≠ 0 := count_pos.ne'
+  have product_to_sum : ∀ angle other_angle : ℝ,
+      cos angle * cos other_angle
+      = (cos (angle + other_angle) + cos (angle - other_angle)) / 2 := by
+    intro angle other_angle; rw [cos_add, cos_sub]; ring
+  -- Each product of cosines is half a sum of two cosines: one at the
+  -- difference of the frequencies, one at their sum.
+  have split_product : ∀ i : ℕ,
+      cos (first_frequency
+          * (2 * PI * input_index / input_count - 2 * PI * i / input_count))
+        * cos (second_frequency * (2 * PI * i / input_count) - phase)
+      = (cos ((first_frequency * (2 * PI * input_index / input_count) - phase)
+            + i * (2 * PI * ((second_frequency : ℝ) - first_frequency)
+              / input_count))
+        + cos ((first_frequency * (2 * PI * input_index / input_count) + phase)
+            + i * (-(2 * PI * ((first_frequency : ℝ) + second_frequency)
+              / input_count)))) / 2 := by
     intro i
-    have hA : (k * (2 * π * j / N) - φ) + i * (2 * π * ((m : ℝ) - k) / N)
-        = k * (2 * π * j / N - 2 * π * i / N) + (m * (2 * π * i / N) - φ) := by ring
-    have hB : (k * (2 * π * j / N) + φ) + i * (-(2 * π * ((k : ℝ) + m) / N))
-        = k * (2 * π * j / N - 2 * π * i / N) - (m * (2 * π * i / N) - φ) := by ring
-    rw [hA, hB, prod]
-  rw [sum_congr rfl fun i _ => split i, ← sum_div, sum_add_distrib]
+    have difference_angle :
+        (first_frequency * (2 * PI * input_index / input_count) - phase)
+          + i * (2 * PI * ((second_frequency : ℝ) - first_frequency)
+            / input_count)
+        = first_frequency
+            * (2 * PI * input_index / input_count - 2 * PI * i / input_count)
+          + (second_frequency * (2 * PI * i / input_count) - phase) := by
+      ring
+    have sum_angle :
+        (first_frequency * (2 * PI * input_index / input_count) + phase)
+          + i * (-(2 * PI * ((first_frequency : ℝ) + second_frequency)
+            / input_count))
+        = first_frequency
+            * (2 * PI * input_index / input_count - 2 * PI * i / input_count)
+          - (second_frequency * (2 * PI * i / input_count) - phase) := by
+      ring
+    rw [difference_angle, sum_angle, product_to_sum]
+  rw [sum_congr rfl fun i _ => split_product i, ← sum_div, sum_add_distrib]
   -- the sum-frequency part always cancels
-  have second : ∑ i ∈ range N,
-      cos ((k * (2 * π * j / N) + φ) + i * (-(2 * π * ((k : ℝ) + m) / N))) = 0 := by
-    apply sum_cos_arith_eq_zero N _ _ (-((k : ℤ) + m))
-    · have hx : -(2 * π * ((k : ℝ) + m) / N) / 2 = -(π * ((k : ℝ) + m) / N) := by ring
-      rw [hx, sin_neg, neg_ne_zero]
+  have sum_frequency_part_cancels : ∑ i ∈ range input_count,
+      cos ((first_frequency * (2 * PI * input_index / input_count) + phase)
+        + i * (-(2 * PI * ((first_frequency : ℝ) + second_frequency)
+          / input_count))) = 0 := by
+    apply sum_cos_arith_eq_zero input_count _ _
+      (-((first_frequency : ℤ) + second_frequency))
+    · have half_step :
+          -(2 * PI * ((first_frequency : ℝ) + second_frequency) / input_count)
+            / 2
+          = -(PI * ((first_frequency : ℝ) + second_frequency) / input_count) :=
+        by ring
+      rw [half_step, sin_neg, neg_ne_zero]
       apply ne_of_gt
       apply sin_pos_of_pos_of_lt_pi
-      · have : (0 : ℝ) < (k : ℝ) + m := by positivity
+      · have frequencies_pos :
+            (0 : ℝ) < (first_frequency : ℝ) + second_frequency := by
+          positivity
         positivity
       · rw [mul_div_assoc]
-        have hlt : ((k : ℝ) + m) / N < 1 := by
-          rw [div_lt_one hN]; exact_mod_cast hkm
+        have ratio_lt_one :
+            ((first_frequency : ℝ) + second_frequency) / input_count < 1 := by
+          rw [div_lt_one count_pos]; exact_mod_cast frequencies_below_count
         nlinarith [pi_pos]
     · push_cast; field_simp
-  rw [second, add_zero]
-  split_ifs with hkm'
-  · subst hkm'
+  rw [sum_frequency_part_cancels, add_zero]
+  split_ifs with same_frequency
+  · subst same_frequency
     simp only [sub_self, mul_zero, zero_div, add_zero, sum_const,
       card_range, nsmul_eq_mul]
     ring
-  · have first : ∑ i ∈ range N,
-        cos ((k * (2 * π * j / N) - φ) + i * (2 * π * ((m : ℝ) - k) / N)) = 0 := by
-      apply sum_cos_arith_eq_zero N _ _ ((m : ℤ) - k)
-      · have hx : 2 * π * ((m : ℝ) - k) / N / 2 = π * (((m : ℝ) - k) / N) := by ring
-        rw [hx]
-        have hne : ((m : ℝ) - k) / N ≠ 0 := by
-          apply div_ne_zero _ hN'
-          rw [sub_ne_zero]; exact_mod_cast Ne.symm hkm'
-        have hlt : |((m : ℝ) - k) / N| < 1 := by
-          rw [abs_div, abs_of_pos hN, div_lt_one hN, abs_lt]
-          have h1 : (k : ℝ) + m < N := by exact_mod_cast hkm
-          have h2 : (0 : ℝ) ≤ k := by positivity
-          have h3 : (0 : ℝ) ≤ m := by positivity
+  · -- different frequencies: the difference part cancels too
+    have difference_part_cancels : ∑ i ∈ range input_count,
+        cos ((first_frequency * (2 * PI * input_index / input_count) - phase)
+          + i * (2 * PI * ((second_frequency : ℝ) - first_frequency)
+            / input_count)) = 0 := by
+      apply sum_cos_arith_eq_zero input_count _ _
+        ((second_frequency : ℤ) - first_frequency)
+      · have half_step :
+            2 * PI * ((second_frequency : ℝ) - first_frequency) / input_count
+              / 2
+            = PI * (((second_frequency : ℝ) - first_frequency) / input_count) :=
+          by ring
+        rw [half_step]
+        have gap_ne_zero :
+            ((second_frequency : ℝ) - first_frequency) / input_count ≠ 0 := by
+          apply div_ne_zero _ count_ne_zero
+          rw [sub_ne_zero]; exact_mod_cast Ne.symm same_frequency
+        have gap_abs_lt_one :
+            |((second_frequency : ℝ) - first_frequency) / input_count| < 1 := by
+          rw [abs_div, abs_of_pos count_pos, div_lt_one count_pos, abs_lt]
+          have frequencies_lt_count :
+              (first_frequency : ℝ) + second_frequency < input_count := by
+            exact_mod_cast frequencies_below_count
+          have first_nonneg : (0 : ℝ) ≤ first_frequency := by positivity
+          have second_nonneg : (0 : ℝ) ≤ second_frequency := by positivity
           constructor <;> linarith
-        rw [abs_lt] at hlt
-        intro hsin
-        rw [sin_eq_zero_iff_of_lt_of_lt (by nlinarith [pi_pos]) (by nlinarith [pi_pos])]
-          at hsin
-        exact hne ((mul_eq_zero.mp hsin).resolve_left pi_ne_zero)
+        rw [abs_lt] at gap_abs_lt_one
+        intro sin_is_zero
+        rw [sin_eq_zero_iff_of_lt_of_lt (by nlinarith [pi_pos])
+          (by nlinarith [pi_pos])] at sin_is_zero
+        exact gap_ne_zero
+          ((mul_eq_zero.mp sin_is_zero).resolve_left pi_ne_zero)
       · push_cast; field_simp
-    rw [first, zero_div]
+    rw [difference_part_cancels, zero_div]
 
 /-- **The kernel of evenly spaced inputs stretches each sampled wave.** -/
-theorem sum_gapKernel_mul_wave (N K : ℕ) (a : ℕ → ℝ) (m : ℕ) (φ : ℝ) (j : ℕ)
-    (hK : 2 * K < N) (hm1 : 1 ≤ m) (hmK : m ≤ K) :
-    ∑ i ∈ range N,
-        (∑ k ∈ Icc 1 K, a k ^ 2 * cos (k * (2 * π * j / N - 2 * π * i / N)))
-          * cos (m * (2 * π * i / N) - φ)
-      = (N / 2 * a m ^ 2) * cos (m * (2 * π * j / N) - φ) := by
-  have swap : ∑ i ∈ range N,
-        (∑ k ∈ Icc 1 K, a k ^ 2 * cos (k * (2 * π * j / N - 2 * π * i / N)))
-          * cos (m * (2 * π * i / N) - φ)
-      = ∑ k ∈ Icc 1 K, a k ^ 2 * ∑ i ∈ range N,
-          cos (k * (2 * π * j / N - 2 * π * i / N)) * cos (m * (2 * π * i / N) - φ) := by
+theorem sum_gapKernel_mul_wave
+    (input_count : ℕ)
+    (frequency_count : ℕ)
+    (amplitude : ℕ → ℝ)
+    (frequency : ℕ)
+    (phase : ℝ)
+    (input_index : ℕ)
+    (frequencies_below_half_count : 2 * frequency_count < input_count)
+    (frequency_pos : 1 ≤ frequency)
+    (frequency_le_count : frequency ≤ frequency_count) :
+    let input_at := fun index : ℕ => 2 * PI * index / input_count
+    let kernel_sum := ∑ i ∈ range input_count,
+      (∑ k ∈ Icc 1 frequency_count,
+        amplitude k ^ 2 * cos (k * (input_at input_index - input_at i)))
+        * cos (frequency * input_at i - phase)
+    let stretched_wave :=
+      (input_count / 2 * amplitude frequency ^ 2)  -- the strength of the direction
+        * cos (frequency * input_at input_index - phase)
+    kernel_sum = stretched_wave := by
+  unfold_named_pieces
+  beta_reduce
+  -- Swap the sums: for each kernel frequency, a sum of two sampled waves.
+  have swap_sums : ∑ i ∈ range input_count,
+        (∑ k ∈ Icc 1 frequency_count, amplitude k ^ 2
+          * cos (k * (2 * PI * input_index / input_count
+            - 2 * PI * i / input_count)))
+          * cos (frequency * (2 * PI * i / input_count) - phase)
+      = ∑ k ∈ Icc 1 frequency_count, amplitude k ^ 2
+        * ∑ i ∈ range input_count,
+          cos (k * (2 * PI * input_index / input_count
+            - 2 * PI * i / input_count))
+            * cos (frequency * (2 * PI * i / input_count) - phase) := by
     simp_rw [sum_mul, mul_sum]
     rw [sum_comm]
     exact sum_congr rfl fun k _ => sum_congr rfl fun i _ => by ring
-  rw [swap, sum_eq_single m]
-  · simp only [sum_cos_mul_cos N m m φ j hm1 hm1 (by omega), ↓reduceIte]; ring
-  · intro k hk hkm
-    rw [mem_Icc] at hk
-    simp only [sum_cos_mul_cos N k m φ j hk.1 hm1 (by omega), hkm, ↓reduceIte,
+  -- Only the term at the wave's own frequency survives.
+  rw [swap_sums, sum_eq_single frequency]
+  · simp only [sum_cos_mul_cos input_count frequency frequency phase
+      input_index frequency_pos frequency_pos (by omega), ↓reduceIte]
+    ring
+  · intro k k_in_range k_ne_frequency
+    rw [mem_Icc] at k_in_range
+    simp only [sum_cos_mul_cos input_count k frequency phase input_index
+      k_in_range.1 frequency_pos (by omega), k_ne_frequency, ↓reduceIte,
       mul_zero]
-  · intro hm; exact absurd (mem_Icc.mpr ⟨hm1, hmK⟩) hm
+  · intro frequency_not_in_range
+    exact absurd (mem_Icc.mpr ⟨frequency_pos, frequency_le_count⟩)
+      frequency_not_in_range
 
 /-! ### From a lift on finitely many inputs to a predictor -/
 
@@ -209,82 +353,154 @@ variable {Weights : Type*} [NormedAddCommGroup Weights]
 variable {Examples : Type*} [Fintype Examples]
 
 /-- The outputs of a lifted model on a finite list of inputs, as a linear
-map of the weights. -/
-noncomputable def PREDICT_ON_EXAMPLES (lifted : Examples → Weights) :
+map of the weights.
+Python: `lambda weights: [lifted_inputs[e] @ weights for e in examples]`. -/
+noncomputable def PREDICT_ON_EXAMPLES (lifted_inputs : Examples → Weights) :
     Weights →L[ℝ] EuclideanSpace ℝ Examples :=
   (EuclideanSpace.equiv Examples ℝ).symm.toContinuousLinearMap.comp
-    (ContinuousLinearMap.pi fun example_index => innerSL ℝ (lifted example_index))
+    (ContinuousLinearMap.pi fun example_index =>
+      innerSL ℝ (lifted_inputs example_index))
 
 omit [CompleteSpace Weights] [Fintype Examples] in
-theorem predictOnExamples_apply (lifted : Examples → Weights) (w : Weights)
-    (i : Examples) :
-    PREDICT_ON_EXAMPLES lifted w i = inner ℝ (lifted i) w := rfl
+/-- The output at one input is the inner product of its lift with the
+weights. -/
+theorem predictOnExamples_apply
+    (lifted_inputs : Examples → Weights)
+    (weights : Weights)
+    (example_index : Examples) :
+    let predicted := PREDICT_ON_EXAMPLES lifted_inputs weights example_index
+    let inner_product := inner ℝ (lifted_inputs example_index) weights
+    predicted = inner_product := by
+  unfold_named_pieces
+  rfl
 
-theorem adjoint_predictOnExamples (lifted : Examples → Weights)
-    (d : EuclideanSpace ℝ Examples) :
-    adjoint (PREDICT_ON_EXAMPLES lifted) d = ∑ i, d i • lifted i := by
+/-- The adjoint of the predictor sends a vector to the sum of the lifts of the
+inputs, each weighted by the matching entry of the vector. -/
+theorem adjoint_predictOnExamples
+    (lifted_inputs : Examples → Weights)
+    (vector : EuclideanSpace ℝ Examples) :
+    let predict := PREDICT_ON_EXAMPLES lifted_inputs
+    let adjoint_image := adjoint predict vector
+    let weighted_lifts := ∑ i, vector i • lifted_inputs i
+    adjoint_image = weighted_lifts := by
+  unfold_named_pieces
   apply ext_inner_right ℝ
-  intro w
+  intro weights
   rw [adjoint_inner_left, sum_inner, PiLp.inner_apply]
   refine sum_congr rfl fun i _ => ?_
   rw [predictOnExamples_apply, real_inner_smul_left]
   simp [mul_comm]
 
 /-- The kernel, in coordinates: a sum of the lift kernel against the vector. -/
-theorem kernel_predictOnExamples_apply (lifted : Examples → Weights)
-    (d : EuclideanSpace ℝ Examples) (j : Examples) :
-    PREDICT_ON_EXAMPLES lifted (adjoint (PREDICT_ON_EXAMPLES lifted) d) j
-      = ∑ i, inner ℝ (lifted j) (lifted i) * d i := by
+theorem kernel_predictOnExamples_apply
+    (lifted_inputs : Examples → Weights)
+    (vector : EuclideanSpace ℝ Examples)
+    (output_index : Examples) :
+    let predict := PREDICT_ON_EXAMPLES lifted_inputs
+    let kernel_image := predict (adjoint predict vector) output_index
+    let kernel_sum := ∑ i,
+      inner ℝ (lifted_inputs output_index) (lifted_inputs i) * vector i
+    kernel_image = kernel_sum := by
+  unfold_named_pieces
   rw [predictOnExamples_apply, adjoint_predictOnExamples, inner_sum]
   exact sum_congr rfl fun i _ => by rw [real_inner_smul_right]; ring
 
 end Predictor
 
-/-- **The Fourier version.** `N` inputs evenly spaced over one period, and a
-lift whose kernel is a sum of cosines of the gap with sizes `a k`. Then the
-sampled wave of frequency `m` is stretched by `N / 2 * a m ^ 2`. -/
+/-- **The Fourier version.** `input_count` inputs evenly spaced over one
+period, and a lift whose kernel is a sum of cosines of the gap with sizes
+`amplitude k`. Then the sampled wave of frequency `frequency` is stretched by
+`input_count / 2 * amplitude frequency ^ 2`. -/
 theorem fourier_direction_is_stretched
     {Weights : Type*} [NormedAddCommGroup Weights]
     [InnerProductSpace ℝ Weights] [CompleteSpace Weights]
-    (N K : ℕ) (a : ℕ → ℝ) (lifted : Fin N → Weights)
-    (hkernel : ∀ j i : Fin N, inner ℝ (lifted j) (lifted i)
-      = ∑ k ∈ Icc 1 K, a k ^ 2
-          * cos (k * (2 * π * (j : ℕ) / N - 2 * π * (i : ℕ) / N)))
-    (m : ℕ) (φ : ℝ) (hK : 2 * K < N) (hm1 : 1 ≤ m) (hmK : m ≤ K) :
-    let predict := PREDICT_ON_EXAMPLES lifted
-    let wave : EuclideanSpace ℝ (Fin N) :=
-      WithLp.toLp 2 fun i => cos (m * (2 * π * (i : ℕ) / N) - φ)
-    predict (adjoint predict wave) = (N / 2 * a m ^ 2) • wave := by
-  intro predict wave
-  ext j
+    (input_count : ℕ)
+    (frequency_count : ℕ)
+    (amplitude : ℕ → ℝ)
+    (lifted_inputs : Fin input_count → Weights)
+    (kernel_is_cosines :
+      let input_at := fun index : ℕ => 2 * PI * index / input_count
+      ∀ input_index other_index : Fin input_count,
+        inner ℝ (lifted_inputs input_index) (lifted_inputs other_index)
+        = ∑ k ∈ Icc 1 frequency_count, amplitude k ^ 2
+            * cos (k * (input_at input_index - input_at other_index)))
+    (frequency : ℕ)
+    (phase : ℝ)
+    (frequencies_below_half_count : 2 * frequency_count < input_count)
+    (frequency_pos : 1 ≤ frequency)
+    (frequency_le_count : frequency ≤ frequency_count) :
+    let input_at := fun index : ℕ => 2 * PI * index / input_count
+    let predict := PREDICT_ON_EXAMPLES lifted_inputs
+    let wave : EuclideanSpace ℝ (Fin input_count) :=
+      WithLp.toLp 2 fun i => cos (frequency * input_at (i : ℕ) - phase)
+    let kernel_image := predict (adjoint predict wave)
+    let stretched_wave :=
+      (input_count / 2 * amplitude frequency ^ 2) • wave  -- the strength of the direction
+    kernel_image = stretched_wave := by
+  unfold_named_pieces
+  beta_reduce
+  ext input_index
   rw [kernel_predictOnExamples_apply, PiLp.smul_apply, smul_eq_mul]
-  simp only [hkernel, wave]
+  simp only [kernel_is_cosines]
   rw [Fin.sum_univ_eq_sum_range (fun i : ℕ =>
-    (∑ k ∈ Icc 1 K, a k ^ 2 * cos (k * (2 * π * (j : ℕ) / N - 2 * π * i / N)))
-      * cos (m * (2 * π * i / N) - φ)) N]
-  exact sum_gapKernel_mul_wave N K a m φ j hK hm1 hmK
+    (∑ k ∈ Icc 1 frequency_count, amplitude k ^ 2
+      * cos (k * (2 * PI * (input_index : ℕ) / input_count
+        - 2 * PI * i / input_count)))
+      * cos (frequency * (2 * PI * i / input_count) - phase)) input_count]
+  exact sum_gapKernel_mul_wave input_count frequency_count amplitude frequency
+    phase input_index frequencies_below_half_count frequency_pos
+    frequency_le_count
 
 /-- **Spectral bias, the Fourier version.** In the setting of
 `fourier_direction_is_stretched`, the error along the sampled wave of
-frequency `m` is multiplied by `1 - η * (N / 2 * a m ^ 2)` at every step. -/
+frequency `frequency` is multiplied by
+`1 - learning_rate * (input_count / 2 * amplitude frequency ^ 2)` at every
+step. -/
 theorem fourier_spectral_bias
     {Weights : Type*} [NormedAddCommGroup Weights]
     [InnerProductSpace ℝ Weights] [CompleteSpace Weights]
-    (N K : ℕ) (a : ℕ → ℝ) (lifted : Fin N → Weights)
-    (hkernel : ∀ j i : Fin N, inner ℝ (lifted j) (lifted i)
-      = ∑ k ∈ Icc 1 K, a k ^ 2
-          * cos (k * (2 * π * (j : ℕ) / N - 2 * π * (i : ℕ) / N)))
-    (m : ℕ) (φ : ℝ) (hK : 2 * K < N) (hm1 : 1 ≤ m) (hmK : m ≤ K)
-    (labels : EuclideanSpace ℝ (Fin N)) (η : ℝ) (w₀ : Weights) (t : ℕ) :
-    let predict := PREDICT_ON_EXAMPLES lifted
-    let wave : EuclideanSpace ℝ (Fin N) :=
-      WithLp.toLp 2 fun i => cos (m * (2 * π * (i : ℕ) / N) - φ)
-    inner ℝ wave (GET_RESIDUAL (predict : Weights →ₗ[ℝ] _) labels
-        ((TAKE_GRADIENT_STEP predict labels η)^[t] w₀))
-      = (1 - η * (N / 2 * a m ^ 2)) ^ t
-        * inner ℝ wave (GET_RESIDUAL (predict : Weights →ₗ[ℝ] _) labels w₀) := by
-  intro predict wave
-  exact inner_residual_iterate_gradientStep predict labels η w₀
-    (fourier_direction_is_stretched N K a lifted hkernel m φ hK hm1 hmK) t
+    (input_count : ℕ)
+    (frequency_count : ℕ)
+    (amplitude : ℕ → ℝ)
+    (lifted_inputs : Fin input_count → Weights)
+    (kernel_is_cosines :
+      let input_at := fun index : ℕ => 2 * PI * index / input_count
+      ∀ input_index other_index : Fin input_count,
+        inner ℝ (lifted_inputs input_index) (lifted_inputs other_index)
+        = ∑ k ∈ Icc 1 frequency_count, amplitude k ^ 2
+            * cos (k * (input_at input_index - input_at other_index)))
+    (frequency : ℕ)
+    (phase : ℝ)
+    (frequencies_below_half_count : 2 * frequency_count < input_count)
+    (frequency_pos : 1 ≤ frequency)
+    (frequency_le_count : frequency ≤ frequency_count)
+    (labels : EuclideanSpace ℝ (Fin input_count))
+    (learning_rate : ℝ)
+    (start_weights : Weights)
+    (step_count : ℕ) :
+    let input_at := fun index : ℕ => 2 * PI * index / input_count
+    let predict := PREDICT_ON_EXAMPLES lifted_inputs
+    let linear_predict :
+        LinearPredictor Weights (EuclideanSpace ℝ (Fin input_count)) := predict
+    let wave : EuclideanSpace ℝ (Fin input_count) :=
+      WithLp.toLp 2 fun i => cos (frequency * input_at (i : ℕ) - phase)
+    let trained_weights :=
+      (TAKE_GRADIENT_STEP predict labels learning_rate)^[step_count]
+        start_weights
+    let start_error   := inner ℝ wave
+      (GET_RESIDUAL linear_predict labels start_weights)
+    let trained_error := inner ℝ wave
+      (GET_RESIDUAL linear_predict labels trained_weights)
+    let share_left    :=
+      (1 - learning_rate * (input_count / 2 * amplitude frequency ^ 2))
+        ^ step_count  -- one factor per step, the strength is that of the wave
+    trained_error = share_left * start_error := by
+  unfold_named_pieces
+  exact inner_residual_iterate_gradientStep (PREDICT_ON_EXAMPLES lifted_inputs)
+    labels learning_rate start_weights
+    (fourier_direction_is_stretched input_count frequency_count amplitude
+      lifted_inputs kernel_is_cosines frequency phase
+      frequencies_below_half_count frequency_pos frequency_le_count)
+    step_count
 
 end SquigglyLine

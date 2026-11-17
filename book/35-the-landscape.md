@@ -155,6 +155,34 @@ flat sheet. How far a point must be pushed to change its label depends on
 how far apart the class points are, which is the nearness of chapter 4. The
 simplex makes that distance as large as it can be for every pair at once.
 
+## Run it yourself
+
+[`ch35_the_landscape.ipynb`](../experiments/part5/ch35_the_landscape.ipynb) uses a linear model in its weights (fixed
+sine and cosine features, 12 coefficients, 5 data points), the two-weight model, and unit arrows. It is evidence, not
+proof. For the linear model, two exact fits 8.42 apart have a largest error on the line between them of `6e-15`, and
+for 200 random pairs that do not fit, no point on the line is above the worse end. For two weights multiplied, 300
+random pairs of fits agree with `target - hill` to `4e-15`; dropping the hill term (the linear-model answer) misses by up
+to 15.80. The hand example gives output 6.25 and hill `-0.25`, and the mirror gives output 0 at the midpoint.
+
+**Measured**, the loss along the straight line peaks at 0.0625 halfway between `(2, 3)` and `(3, 2)` and at 36 halfway
+to the mirror `(-2, -3)`, and equals the hill squared. The linear model and the curved path `(a, 6 / a)` stay at zero, to
+`4e-29`. The curved path is drawn for contrast; the chapter does not prove it.
+
+![Squared error against the fraction of the way between two fits: the product model's straight line rises to 0.0625 for the swap and 36 for the mirror, on the proved hill squared, while the linear model and the curved path stay at zero](figures/35-hill-along-the-line.png)
+
+For the arrows, a gradient search for unit arrows with the lowest largest overlap, for 2 to 10 classes, never went below
+`-1 / (classes - 1)` and came within `7e-4` of it; the best arrangements add up to a vector of length at most `1.3e-3`,
+the simplex. Arrows of length 1.5 break the hypothesis: for four classes their largest overlap is `-0.750`, below the
+unit limit `-0.333`, by 0.417. This checks the geometry only; no network was trained to collapse.
+
+![Lowest largest overlap against the number of classes: the search for unit arrows sits on the limit, random arrangements above it, and arrows of length 1.5 below it](figures/35-class-overlap-limit.png)
+
+Run it:
+
+```bash
+jupyter nbconvert --to notebook --execute --inplace experiments/part5/ch35_the_landscape.ipynb
+```
+
 ## What is not shown
 
 - **Real networks.** The no-hill result is for models linear in their

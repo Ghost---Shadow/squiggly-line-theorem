@@ -69,6 +69,12 @@ theorem attend_mem_convexHull
 *Read aloud:* whatever the scores are, the output is a blend of the
 values.
 
+Here is **measured** what a head does. Six tokens carry the values
+−2, −0.5, 1, 2.5, 4 and 7, and the scores are random. Every row of shares adds
+to one, and every output sits inside the stretch from −2 to 7.
+
+![Left, a heat map of the shares each of six queries gives the six tokens; right, the six token values on a line with the six outputs, all inside the band from the smallest to the largest value](figures/36-weights-and-outputs.png)
+
 The **convex hull** of some points is every blend of them. For numbers it
 is the stretch from the smallest to the largest. The file also has `attend_mem_of_convex`, for any region with
 no dents, and `iterate_attentionLayer_mem`: through any number of layers,
@@ -101,6 +107,15 @@ theorem abs_iterate_attentionLayer_sub_le
 *Read aloud:* after `layer_count` layers of attention alone, any two
 tokens are at most `(1 − exp(−2 × score_bound))^layer_count` times their
 starting range apart.
+
+The rate is also **measured** against the proved bound. The figure shows
+the largest spread of eight tokens over 300 starts, with scores of exactly
+`score_bound` in size arranged so that each token prefers tokens on its own
+side of the middle, which is the arrangement that resists merging. It
+stays under the proved line for every `score_bound`. The control, scores of
+size 50, breaks the hypothesis and does not merge.
+
+![Spread of the tokens against attention layers for score_bound 0.5, 1 and 3, measured and the proved bound, plus a control with scores of size 50 that does not shrink](figures/36-spread-against-layers.png)
 
 `APPLY_ATTENTION_LAYER` makes every token a query at once, with scores
 that may depend on all the tokens. `f^[layer_count]` means applying `f`
@@ -196,6 +211,31 @@ The second half uses the **kernel** (chapter 10): a token's score is the
 overlap of its features with the query's. It also ties depth to **travel**
 (chapter 9): if each layer is one step of training on the prompt, depth is
 the number of steps. That reading is **argued**, not proved.
+
+## Run it yourself
+
+[`ch36_attention.ipynb`](../experiments/part6/ch36_attention.ipynb) checks the
+chapter on one head with `softmax` shares, in NumPy, and the learning claim on
+a model linear in its weights with the gradient taken by autograd. The hand
+numbers come out as written: 4.25, 5, factor 0.632, 4.425 after one layer,
+0.0713 after ten, and 0.7802 for `score_bound` 3 after 100 layers. In 20,000
+random score vectors every output of the head on values 2, 4 and 9 stayed in
+[2, 9], and 20,000 outputs on six 2-dimensional values stayed inside their
+convex hull. Without the softmax, 0.915 of the outputs left [2, 9]. Through 60
+layers whose scores change with the tokens, 200 starts never left their starting range.
+The rate held at every one of 30 layers, 300 starts, for `score_bound` 0.5, 1
+and 3, with random-sign scores and with the arrangement that resists merging.
+The closest approach was 0.909 of the bound (random signs, `score_bound` 3),
+so the bound is nearly tight there. With scores of size 50 the spread after 30 layers was 5.97, against
+7.4e-06 for the `score_bound` 0.5 bound, so the hypothesis matters. One
+autograd gradient step from zero weights matched `learning_rate` times a head
+of linear attention to `1.1e-16` over 100 queries; with the softmax put back
+the largest gap was 0.41. These are measurements, not proofs: the Lean files
+are the proofs. To run it:
+
+```bash
+jupyter nbconvert --to notebook --execute --inplace experiments/part6/ch36_attention.ipynb
+```
 
 ## What is not shown
 

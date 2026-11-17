@@ -92,6 +92,28 @@ theorem cos_mul_cos_le_cos_half_sq
 *Read aloud:* two turns never keep more than two turns of their
 average. `even_turns_keep_more` is the same with a length in front.
 
+The third statement is for any number of plates.
+
+```lean
+theorem prod_cos_le_cos_average_pow
+    {Plates : Type*}
+    (plates : Finset Plates)
+    (plates_nonempty : plates.Nonempty)
+    (turn : Plates → ℝ)
+    (turns_within_quarter :
+      ∀ plate ∈ plates, turn plate ∈ Set.Icc (-(PI / 2)) (PI / 2)) :
+    let plate_count     := plates.card
+    let kept_by_turns   := ∏ plate ∈ plates, cos (turn plate)
+    let average_turn    := (∑ plate ∈ plates, turn plate) / plate_count
+    let kept_by_average := cos average_turn ^ plate_count
+    kept_by_turns ≤ kept_by_average := by
+```
+
+*Read aloud:* take any number of plates, each turning by at most a
+quarter turn either way. Multiply what each one keeps. The result is at
+most what the same number of plates keep when every one turns by the
+average turn. `∏` is a product over the plates, as `∑` is a sum.
+
 ## Why it is true
 
 **Moving along the features.** After any number of steps, the weights
@@ -119,6 +141,15 @@ The last step is the Cauchy–Schwarz inequality of chapter 3. Divide by
 of their difference and the cosine of their sum. Two turns of the average
 keep `1/2` plus half the cosine of the sum. The two differ only in the
 cosine of the difference, and a cosine is at most 1.
+
+**Any number of plates.** Two facts, one after the other. First, the
+geometric mean of numbers that are not negative is at most their
+ordinary mean. So the `plate_count`-th root of the product of the
+cosines is at most the mean of the cosines. Second, between minus a
+quarter turn and a quarter turn the cosine curve bends downward. So the
+mean of the cosines is at most the cosine of the mean turn. That is
+Jensen's inequality. Put the two together and raise both sides to the
+power `plate_count`.
 
 ## What it explains
 
@@ -182,9 +213,11 @@ with total `2π` and `N = 3`, a random split beat the equal one by 1.125. These 
   This is **open**.
 - **Reaching the fit.** Gradient descent usually approaches a fit
   without landing on it. The statement covers the case where it lands.
-- **More than two plates.** The comparison is for a neighbouring pair.
-  That equal steps are best among `N` plates follows by repeating it,
-  and that last step is argued, not proved. **open**
+- **Turns of more than a quarter turn.** `prod_cos_le_cos_average_pow`
+  needs every plate to turn by at most a quarter turn either way. Past
+  that a plate flips the sign of the light, and the equal split need not
+  be the best. The notebook finds a split that beats it when three
+  plates share a full turn.
 - **That trained layers turn evenly.** That is an observation from the
   literature, not derived here. **open**
 
