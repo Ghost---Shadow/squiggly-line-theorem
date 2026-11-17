@@ -193,11 +193,14 @@ That last link is the note's reading.
 [`ch22_batches_steps_and_budgets.ipynb`](../experiments/part4/ch22_batches_steps_and_budgets.ipynb)
 uses a model linear in its weights for batches, plates run as 2 by 2 matrices
 for steps, and a scan of the loss `param_cost / param_count + data_cost /
-data_count` for the budget. It has 24 checks that can fail. Lines the notebook
-prints as "by construction, cannot fail" (the summed step costs against their
-closed forms, the scaling of both counts, the chapter's own answers) are not
-counted and are not evidence. The hand numbers of the budget example (0.8, 1.0,
-1.0) are **from the formula**, not measured.
+data_count` for the budget. It has 17 checks that can fail. Lines the notebook
+prints as "by construction, cannot fail" or "from the formula" (the summed step
+costs against their closed forms, the small-steps hypothesis on the grid used,
+the scaling of both counts, the chapter's own answers, the hand numbers of the
+budget example and the best loss squared against `4 × param_cost × data_cost /
+budget`) are not counted and are not evidence. The step control and the budget
+scans evaluate the chapter's formula, so they are scans of the formula, not
+runs of a model.
 
 **Batches (measured).** With two random batches of 5 examples on 6 weights, the
 gap between one big step and two small steps matched the correction of
