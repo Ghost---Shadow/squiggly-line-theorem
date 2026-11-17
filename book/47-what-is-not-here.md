@@ -8,9 +8,9 @@
 
 A book of proofs should end by saying where the proofs stop.
 
-This map is **measured** from the text itself: for each chapter 1 to 46 it counts the labels **proved**, **measured**, **argued**, **open** and **recalled**. The counts are of labels in the text, not of theorems.
+This map is **counted from the text**: for each chapter 1 to 46 it counts how often the labels **proved**, **measured**, **argued**, **open** and **recalled** appear. The counts are of labels in the text, not of theorems, and nothing was run or measured to get them.
 
-![Stacked bars, one per chapter 1 to 46, of how often each of the five labels appears, with the seven parts shaded in alternating bands; recalled and open labels dominate and proved labels are rare](figures/47-labels-by-chapter.png)
+![Stacked bars, one per chapter 1 to 46, of how many times each of the five labels appears in that chapter's text, with the seven parts shaded in alternating bands; counts of labels, not of theorems](figures/47-labels-by-chapter.png)
 
 ## The one missing piece
 
@@ -80,7 +80,7 @@ open an issue on the repository.
 
 ## Run it yourself
 
-The notebook counts the five labels in each chapter two ways and checks that the totals agree, then draws the figure above.
+The notebook counts the five labels in each chapter two ways, per line and with one regular expression over all the text, and checks that the totals agree. The totals over chapters 1 to 46 are 7 proved, 54 measured, 24 argued, 53 open and 68 recalled. The check can catch a bug in one of the two counting methods. It cannot catch a wrong idea of what to count, or a label used loosely in the text, because both methods read the same files for the same string.
 
 ```
 jupyter nbconvert --to notebook --execute --inplace experiments/part7/ch47_what_is_not_here.ipynb
