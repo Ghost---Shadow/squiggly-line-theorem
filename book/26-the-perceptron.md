@@ -182,8 +182,9 @@ dimensions was dropped: some of those sets stayed separable.)
 
 ![Perceptron mistakes against (radius over margin) squared on log axes, for 300 separable sets, all below the bound line, and for flipped-label controls, most of them above it](figures/26-mistakes-against-bound.png)
 
-For XOR, a search over 200 000 random flat scores found none that separated,
-and the best got 3 corners of 4 (25 418 of them did). The lift and the fold
+For XOR, none of 200 000 sampled flat lines separated the corners, and the best
+got 3 corners of 4 (25 418 of them did). A sample is not a proof: the proof is
+`not_separatesXor_flat`. The lift and the fold
 separating the four corners is **from the formula** (the notebook prints it as
 by construction, not as evidence), and so are the hand examples (25, 100, 16)
 and the factor of four for halving the margin. The perceptron on the raw
@@ -192,7 +193,10 @@ On the lifted features it converged after 25 mistakes, within the bound of 100
 (radius 2, margin 0.2; **measured**). For no free lunch, an exhaustive count
 over every guess at every input for 3 and 4 inputs (88 cases) found exactly
 half of the labellings agreeing. The mean squared error `prediction² + 1`
-and the smooth-labelling control are by construction.
+and the smooth-labelling control are by construction, and the counts for
+3 and 4 inputs are cases of the exhaustive count. The chapter's argument that a
+squigglier line is no better than a flat one without a slope bound is **not
+tested** by the notebook.
 
 These are measurements, not proofs. Run it with:
 
