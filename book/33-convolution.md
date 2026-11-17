@@ -180,7 +180,7 @@ chapter 14: stacking multiplies slope.
 
 The notebook [`ch33_convolution.ipynb`](../experiments/part5/ch33_convolution.ipynb)
 uses a one-dimensional convolution layer on random seeded signals, and a sine
-for stride. It has 8 checks, all passing. These are **measured** numbers: an
+for stride. It has 8 checks, all passing, and two identities printed as "by construction, cannot fail" that are not evidence. These are **measured** numbers: an
 experiment is evidence, not a proof.
 
 - **By hand.** Kernel `1, −2, 1`: the outputs are 0 and 0.4, and the gap
@@ -201,8 +201,10 @@ experiment is evidence, not a proof.
   control (the largest output is 0.872).
 - **Stride.** `sin(3x)` has slope 3.0000, and read at every second position
   6.0000. An input step of 0.1 moved the output by at most 0.5910 (bound 0.6).
-  A slope of 1.5000 became 6.0000 after two strides. A stride after an
-  upsampling gave back the model, with a difference of 0.
+  A slope of 1.5000 became 6.0000 after two strides. That a stride is the
+  squeeze `COMPRESS 2`, and that a stride after an upsampling gives back the
+  model, are identities of the definitions (difference 0.0e+00, by
+  construction, cannot fail): they are not evidence.
 
 Run it with
 `jupyter nbconvert --to notebook --execute --inplace experiments/part5/ch33_convolution.ipynb`.
