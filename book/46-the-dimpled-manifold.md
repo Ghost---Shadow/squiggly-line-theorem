@@ -54,11 +54,13 @@ The step is along the height only. It does not move along the sheet. And
 the loss at the data point is the same for all three slopes, because the
 height there is 0.
 
-**Measured**, on a real profile and a label 1.2 above it (a cross-section at one
-position): the lines are the function at three slopes, and the blue dots are
-the steps off the sheet that reach the label, at heights 1.2, 0.12 and 0.012.
+**From the formula** (the steps) and **measured** (the nearest distances): a
+cross-section at one position of a real profile with a label 1.2 above it. The
+lines are the function at three slopes, and the blue dots are the steps off the
+sheet that reach the label, at heights 1.2, 0.12 and 0.012, computed from the
+formula `(label − profile) / slope`.
 
-![Output against height off the sheet at slopes 1, 10 and 100: all pass through the same value at height 0, the vertical error is the same, and the dimple that reaches the label moves from height 1.2 to 0.12 to 0.012](figures/46-step-off-the-sheet.png)
+![Output against height off the sheet at slopes 1, 10 and 100, each line crossing the label at the dimple height given by the formula, 1.2, 0.12 and 0.012](figures/46-step-off-the-sheet.png)
 
 ## The statement
 
@@ -168,11 +170,11 @@ nearest sense, and that is what having adversarial examples means. For a
 large slope across the sheet, the two bounds agree up to a constant, so
 the adversarial distance is the vertical error divided by that slope.
 
-**Measured**, for 60 data points at seven slopes: the vertical error (what the
-loss sees) does not change with the slope, and the nearest distance falls
-between the two bounds.
+**Measured**, for 60 data points at seven slopes: the nearest distance (found by a search that does not use the bounds)
+falls between the two bounds, which are from the formula. The vertical error
+is drawn as 1 because the axis is divided by it.
 
-![Distance divided by the vertical error against the slope across the sheet: the vertical error is flat at 1, the nearest distance falls between the lower and upper bounds, which close together for large slopes](figures/46-distance-against-slope.png)
+![Nearest distance divided by the vertical error against the slope across the sheet, as the median and range over 60 points, between the upper and lower bounds, which come close together at large slopes](figures/46-distance-against-slope.png)
 
 Two functions can agree on every real input, have the same loss on every
 data set, and differ without limit in how fragile they are. This also
@@ -192,25 +194,29 @@ point of chapter 5.
 
 [`ch46_the_dimpled_manifold.ipynb`](../experiments/part7/ch46_the_dimpled_manifold.ipynb)
 uses the dimpled function of the theorems, with the profile
-`sin(3 position) + 0.5 sin(position)` (slope limit 3.5), and distances measured
+`sin(3 position) + 0.5 sin(position)` (slope limit 3.5), and distances taken
 as in the Lean file: the larger of the position gap and the height gap, then
 Pythagoras with the label gap. The nearest distance is found by a numerical
-search that does not use the bounds. On 60 data points the squared, absolute and
-Huber losses at height 0 are identical at slopes 0.5, 1, 2, 5, 10, 30 and 100
-(squared total 48.399008); put the same points at height 0.1 and the squared
-loss is 48.40 at slope 0.5 and 6018.34 at slope 100. The step to the dimple
-reaches the label to within `8.9e-16` at 1000 random points, and its length is
-the error over the slope. All 420 pairs of point and slope lie between the two
-bounds. At slope 100 the median vertical error is 0.8013 and the median
-nearest distance is 0.00791; at slope 1 the median nearest distance is 0.2784,
-with the same loss, 35.2 times larger. At slope 100, nearest distance times
-slope over vertical error is between 0.9661 and 0.9984, and the lower bound
-predicts at least 0.9661: the smallest value comes from a point at position
-`-0.005`, where the profile has slope 3.4996, almost its limit, so the lower
-bound is nearly reached. As a control, understating the profile's slope limit
-as 0 puts the nearest distance below the claimed lower bound in all 420 pairs.
-These are checks of one profile by measurement, not proofs. The Lean theorems
-cover any Lipschitz profile.
+search that does not use the bounds, so the checks of it are **measured**.
+All 420 pairs of 60 data points and 7 slopes lie between the two bounds.
+The median vertical error is 0.8013. The median nearest distance is 0.2784 at
+slope 1 and 0.00791 at slope 100, which is 35.2 times smaller with the same
+loss. At slope 100, nearest distance times slope over vertical error is between
+0.9661 and 0.9984; the lower bound allows 0.9661. The smallest value is at
+position −0.0051, where the profile has slope 3.4996, almost its limit, so the
+lower bound is nearly reached. As a control, understating the profile's slope
+limit as 0 puts the nearest distance below the claimed lower bound in all 420
+pairs. Putting the same points at height 0.1 changes the squared loss from
+48.40 at slope 0.5 to 6018.34 at slope 100. The function at the step reaches
+the label to within `8.9e-16` at 1000 random points, and a step of 90 percent
+of the length misses by 10 percent of the error.
+
+Some things the notebook prints are **by construction, cannot fail**, and are
+not evidence: that the loss at height 0 is the same at every slope (squared
+total 48.399008), and that the step moves only in height and has length error
+over slope. The step heights in the first figure are **from the formula**.
+These are checks of one profile, not proofs. The Lean theorems cover any
+Lipschitz profile.
 
 ```
 jupyter nbconvert --to notebook --execute --inplace experiments/part7/ch46_the_dimpled_manifold.ipynb
