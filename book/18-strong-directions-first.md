@@ -203,10 +203,11 @@ In one case the directions can be written down, and they are waves.
 Take `input_count` inputs, evenly spaced over one period. Take a model
 whose kernel depends only on the gap between two inputs and is a sum of
 cosines of that gap, where frequency `k` enters with the square of
-`amplitude k`. The Fourier lift of chapter 11 has such a kernel for one
-frequency (`liftKernel_fourierLift`). Several frequencies side by side
-add their cosines, which is **argued** here. Keep every frequency below
-half the number of inputs.
+`amplitude k`. A Fourier series has such a kernel. Its features are
+`amplitude k × cos(k × input)` and `amplitude k × sin(k × input)` for
+each frequency `k`, and the overlap of the features of two inputs is the
+sum of `amplitude k ² × cos(k × gap)` (`inner_liftByFourierSeries`). Keep
+every frequency below half the number of inputs.
 
 > Then the wave of a given frequency, read off at the inputs, is a
 > direction the kernel only stretches. Its strength is half the number
@@ -254,6 +255,8 @@ So `spectral_bias` applies to the wave, with that strength.
 `fourier_spectral_bias` states the factor: each step multiplies the
 error along the wave by
 `1 − learning_rate × input_count / 2 × amplitude frequency ²`.
+`fourierSeries_direction_is_stretched` is the same statement for the
+Fourier series itself, with nothing assumed about the kernel.
 
 **An example.** Take 8 inputs, amplitude 1 at frequency 1 and amplitude
 0.1 at frequency 3. The strengths are `8 / 2 × 1 = 4` and

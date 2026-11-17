@@ -133,7 +133,7 @@ the guided prediction lies off the stretch between them.
 The guided move is `1 + guidance_strength` times the plain one
 (`guidance_sub`, `norm_guidance_sub`).
 
-The line is **measured**: the position of the guided prediction on the line through the two predictions, 0 for the prediction without the prompt and 1 for the one with it. For a positive strength it is above 1, off the stretch. For strengths from -1 to 0 the weights are both non-negative, an average, and it stays on the stretch.
+The line is **from the formula**: the position of the guided prediction on the line through the two predictions, 0 for the prediction without the prompt and 1 for the one with it. For a positive strength it is above 1, off the stretch. For strengths from -1 to 0 the weights are both non-negative, an average, and it stays on the stretch.
 
 ![Position of the guided prediction on the line through the two predictions against guidance strength, rising above the shaded stretch from 0 to 1 for positive strength, with strengths from -1 to 0 inside it](figures/38-guidance-off-the-stretch.png)
 
@@ -208,19 +208,22 @@ average, and it can leave the region an average must stay in.
 
 ## Run it yourself
 
-[`ch38_mixing.ipynb`](../experiments/part6/ch38_mixing.ipynb) checks each statement on small models with 22 `[PASS]` lines. These are **measured**; an experiment is
-evidence, not a proof. Graph layer: in 300 random graphs on 5 nodes with floor 0.1, every layer through 8 left a spread
-at most `0.5^k` times the range, the worst spread being 0.724 of the bound after a layer; a layer built to be as bad as
-allowed reached the bound exactly (5.0 against 5.0). With zeros in the weights the spread stayed at 10 after 8 layers,
-where the bound would be 0.039. Noising: ten steps at rate 0.1 left signal 0.3487 and noise 0.6513, and the closed form
-matched to 4e-16 for four rates up to 50 steps; a schedule with rates 0.02 and 0.18 alternating left 0.3351, not 0.3487.
-Guidance: in 12 000 cases with positive strength the guided point was never on the stretch (nearest 0.119 away) and
-moved `1 + strength` times the plain step to 3e-15; strengths from -1 to 0 stayed on it. Averaging over shifts gave the same value at every shift of an input
-and a change per distance of at most 1.084, under the model's own constant 2; averaging over scalings, which keep no
-distances, gave 1.831 where the model's constant was 1. A constant baseline changed the average push by at most
-2e-16; a baseline equal to the reward changed it by 0.078. Squared error was least at 34.33 and absolute error at 2
-for the labels 1, 2, 100. The mean square overlap was exact to 3e-16 in 10 dimensions, and 0.00998 against 0.01
-in 100 (standard error 3e-5); with two coordinates made equal it was 1.960 where the formula gives 0.980.
+[`ch38_mixing.ipynb`](../experiments/part6/ch38_mixing.ipynb) checks each statement on small models with 21 `[PASS]` lines. An experiment is
+evidence, not a proof. Numbers marked **measured** came from running a model; **from the formula** means the chapter's own
+formula was evaluated; two checks are by construction and are not evidence. Graph layer (**measured**): in 300 random graphs on 5 nodes with
+floor 0.1, every layer through 8 left a spread at most `0.5^k` times the range, the worst spread being 0.724 of the
+bound after a layer; a layer built to be as bad as allowed reached the bound (5.0000 against 5.0000). With zeros in the
+weights the spread stayed at 10.000 after 8 layers, where the bound would be 0.0391. Noising: the sampled noising
+(**measured**, 400 000 draws) left a signal share of 0.3494 after ten steps at rate 0.1, against 0.9^10 = 0.3487.
+Iterating the step's formula matched the closed form to 4.1e-16 (**from the formula**), and a schedule with rates 0.02
+and 0.18 alternating left 0.3351, not 0.3487 (**from the formula**). Guidance (**from the formula**): in 12 000 cases with positive strength the
+guided point was never on the stretch (nearest 0.119 away); strengths from -1 to 0 stayed on it. That the guided move is
+`1 + strength` times the plain step is by construction. Averaging over shifts (**measured**) gave the same value at every shift
+of an input, and a change per distance of at most 1.084, under the model's own constant 2; averaging over scalings,
+which keep no distances, gave 1.831 where the model's constant was 1. A constant baseline changed the average push by at
+most 2.2e-16; a baseline equal to the reward changed it by 0.078. Squared error was least at 34.33 and absolute error at 2
+for the labels 1, 2, 100. The mean square overlap was exact to 3.0e-16 in 10 dimensions, and 0.00998 against 0.01
+in 100 (standard error 3.1e-05); with two coordinates made equal it was 1.960 where the formula gives 0.980.
 
 ```bash
 jupyter nbconvert --to notebook --execute --inplace experiments/part6/ch38_mixing.ipynb

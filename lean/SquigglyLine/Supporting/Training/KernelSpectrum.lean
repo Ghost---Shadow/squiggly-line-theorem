@@ -33,6 +33,17 @@ with `2 * frequency_count < input_count`. Then the sampled wave of frequency
 * `fourier_spectral_bias`            so its error shrinks by
                                      `1 - learning_rate * (input_count / 2
                                      * amplitude frequency ^ 2)` each step.
+
+A lift with that kernel:
+
+* `LIFT_BY_FOURIER_SERIES`           the features of a Fourier series: for each
+                                     frequency a cosine and a sine, times its
+                                     amplitude;
+* `inner_liftByFourierSeries`        its kernel is the sum of squared
+                                     amplitudes times cosines of the gap;
+* `fourierSeries_direction_is_stretched`
+                                     so the Fourier version holds for it with
+                                     nothing assumed about the kernel.
 -/
 import Mathlib.Analysis.InnerProductSpace.PiL2
 import Mathlib.Analysis.InnerProductSpace.Adjoint
@@ -502,5 +513,84 @@ theorem fourier_spectral_bias
       lifted_inputs kernel_is_cosines frequency phase
       frequencies_below_half_count frequency_pos frequency_le_count)
     step_count
+
+section FourierSeries
+
+open Real Finset ContinuousLinearMap
+
+/-! ### A lift with this kernel: the Fourier series -/
+
+/-- The features of a Fourier series with frequencies `1` to
+`frequency_count`: for each frequency `k`, the pair
+`amplitude k * cos (k * input)` and `amplitude k * sin (k * input)`.
+Python: `[a[k] * cos(k * x) for k in ...] + [a[k] * sin(k * x) for k in ...]`. -/
+noncomputable def LIFT_BY_FOURIER_SERIES
+    (frequency_count : ℕ)
+    (amplitude : ℕ → ℝ)
+    (input : ℝ) :
+    EuclideanSpace ℝ (↥(Icc 1 frequency_count) × Fin 2) :=
+  WithLp.toLp 2 fun feature =>
+    let frequency : ℕ := feature.1
+    if feature.2 = 0
+      then amplitude frequency * cos (frequency * input)   -- the cosine feature
+      else amplitude frequency * sin (frequency * input)   -- the sine feature
+
+/-- **The kernel of a Fourier series sees only the gap.** It is the sum, over
+the frequencies, of the squared amplitude times the cosine of the frequency
+times the gap. -/
+theorem inner_liftByFourierSeries
+    (frequency_count : ℕ)
+    (amplitude : ℕ → ℝ)
+    (input : ℝ)
+    (other_input : ℝ) :
+    let features := LIFT_BY_FOURIER_SERIES frequency_count amplitude
+    let kernel   := inner ℝ (features input) (features other_input)
+    let gap      := input - other_input
+    let sum_of_cosines := ∑ k ∈ Icc 1 frequency_count,
+      amplitude k ^ 2 * cos (k * gap)
+    kernel = sum_of_cosines := by
+  unfold_named_pieces
+  rw [← sum_coe_sort (Icc 1 frequency_count)
+    (fun k => amplitude k ^ 2 * cos (k * (input - other_input)))]
+  simp only [LIFT_BY_FOURIER_SERIES, PiLp.inner_apply, Fintype.sum_prod_type,
+    Fin.sum_univ_two]
+  refine sum_congr rfl fun k _ => ?_
+  simp only [Fin.isValue, ↓reduceIte, one_ne_zero, inner_apply]
+  rw [mul_sub, cos_sub]
+  ring
+
+/-- **The Fourier version, with nothing assumed about the kernel.** For the
+Fourier series on `input_count` evenly spaced inputs, the sampled wave of
+frequency `frequency` is stretched by the kernel, by
+`input_count / 2 * amplitude frequency ^ 2`. -/
+theorem fourierSeries_direction_is_stretched
+    (input_count : ℕ)
+    (frequency_count : ℕ)
+    (amplitude : ℕ → ℝ)
+    (frequency : ℕ)
+    (phase : ℝ)
+    (frequencies_below_half_count : 2 * frequency_count < input_count)
+    (frequency_pos : 1 ≤ frequency)
+    (frequency_le_count : frequency ≤ frequency_count) :
+    let input_at := fun index : ℕ => 2 * PI * index / input_count
+    let lifted_inputs := fun index : Fin input_count =>
+      LIFT_BY_FOURIER_SERIES frequency_count amplitude (input_at index)
+    let predict := PREDICT_ON_EXAMPLES lifted_inputs
+    let wave : EuclideanSpace ℝ (Fin input_count) :=
+      WithLp.toLp 2 fun i => cos (frequency * input_at (i : ℕ) - phase)
+    let kernel_image := predict (adjoint predict wave)
+    let stretched_wave :=
+      (input_count / 2 * amplitude frequency ^ 2) • wave  -- the strength of the direction
+    kernel_image = stretched_wave := by
+  intro input_at lifted_inputs
+  exact fourier_direction_is_stretched input_count frequency_count amplitude
+    lifted_inputs
+    (fun input_index other_index =>
+      inner_liftByFourierSeries frequency_count amplitude
+        (input_at input_index) (input_at other_index))
+    frequency phase frequencies_below_half_count frequency_pos
+    frequency_le_count
+
+end FourierSeries
 
 end SquigglyLine
