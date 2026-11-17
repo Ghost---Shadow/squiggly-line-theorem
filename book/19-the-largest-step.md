@@ -205,11 +205,12 @@ the strongest direction a factor of size 1.25. A schedule of 12 random rates
 matched the product of its factors to `2.6e-16`. Heavy-ball descent at
 `learning_rate × strength = 2 × (1 + momentum)` with momentum 0.5 kept the
 error at 8 and −8, and at 0.9 and 1.1 times that edge it did not (size 0.0008456
-and 1.274e+04 after 20 steps). The mean of 15 single-example steps matched one
-step on the mean gradient to `2.2e-16`, and shares that do not sum to one broke
-it (gap 0.3). The answers below came out as edge 0.04, then −3, 1.8, −1.08, then
-0.2 with 0.6. The notebook has 30 checks that can fail, and one line marked
-"by construction, cannot fail" that is not counted. This is evidence for a
+and 1.274e+04 after 20 steps). The one-step equality for 15 single-example steps is algebra, printed as "by
+construction, cannot fail", and is not counted. Two local steps before
+averaging did differ from two steps on the mean gradient (largest gap 0.148),
+which is where that equality stops. The answers below came out as edge 0.04, then −3, 1.8, −1.08, then
+0.2 with 0.6. The notebook has 29 checks that can fail, and two lines marked "by
+construction, cannot fail" that are not counted. This is evidence for a
 fixed kernel, not a proof, and it does not test the open questions below. Run it
 with `jupyter nbconvert --to notebook --execute --inplace experiments/part4/ch19_the_largest_step.ipynb`.
 
