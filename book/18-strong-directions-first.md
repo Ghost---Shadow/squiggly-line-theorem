@@ -351,11 +351,13 @@ algebra (the notebook prints it as "by construction, cannot fail") and is not co
 check. The upper bound (from the formula) divided by the **measured** share, taken at the step where `step × rate`
 is 0.1, 0.5, 1, 2 and 5, had medians (over the directions that had not yet
 fallen below `1e-6`) of 1.002, 1.037, 1.078, 1.213 and 1.634. The lower bound
-divided by the share had medians 1.000, 0.838, 0, 0, 0; the zeros are from the formula. The largest ratio, 4.07,
-is the strongest direction, whose rate is 0.9. A formula worked out for this
-section, that the log of that ratio is between `step × rate² / 2` and
-`step × rate² / (2 (1 − rate))`, was checked against the measured share at all 1424 points where the
-share was above `1e-6`, and none was outside. So the upper bound is tight when
+divided by the share had medians 1.000, 0.838, 0, 0, 0; the zeros are from the formula. The largest upper-bound-over-share ratios
+in those five groups were 1.022, 4.066, 4.066, 16.530 and 2.299. A formula worked out for this
+section says the log of that ratio is between `step × rate² / 2` and
+`step × rate² / (2 (1 − rate))`. At all 1424 points where the
+share was above `1e-6` none was outside, but that is **from the formula**: the measured
+share already equals `(1 − rate) ^ step`, so this is the series for `−ln(1 − rate)` and not
+independent evidence. So the upper bound is tight when
 `rate` is small and loose when the rate is near 1, and the lower bound is useful only for
 the first clock.
 
@@ -368,7 +370,7 @@ only stretched by the kernel, to within `3e-14`, each with strength
 remove half of the error for `k` from 1 to 7. The same numbers came from the
 cosines, from the sines and from the formula `(1 − rate) ^ step`. For evenly
 spaced inputs that the cosines and sines are only stretched by the kernel is
-proved by `fourier_direction_is_stretched`; the run checks the numbers. The control moves each input by up
+proved by `fourierSeries_direction_is_stretched`; the run measures what that theorem states. The control moves each input by up
 to 0.3 of the spacing. The sampled cosines and sines were then not eigen-directions: the
 gap was between 0.03 and 0.94, and the strengths read off them were off from
 `8 / k²` by a relative error of up to 1.8.
@@ -384,7 +386,7 @@ the strongest direction has `rate` equal to 0.5, 1, 1.5, 2 and 2.5. The error
 along it was `(1 − rate) ^ step` times its start at every step, to within
 `3e-14` (relative to the largest value). For `rate` at most 1 neither bound was
 broken. For `rate` above 1 the sign changed at every one of 30 steps, and
-the upper bound was broken at all 30 steps, since `rate_le_one` does not hold. The size after 30
+the upper bound was broken at all 30 steps, since the hypothesis `rate_le_one` does not hold. The size after 30
 steps was `9e-10` at rate 1.5, 1 at rate 2, and `2e5` at rate 2.5.
 
 To run it:
@@ -393,7 +395,7 @@ To run it:
 jupyter nbconvert --to notebook --execute --inplace experiments/part4/ch18_strong_directions_first.ipynb
 ```
 
-It makes 19 checks and prints the same lines every time.
+It makes 18 checks and prints the same lines every time.
 
 ## What is not shown
 
