@@ -119,7 +119,7 @@ limit is left alone, and `norm_sum_clip_le` says
 travel  ≤  step_count × (|learning_rate| × limit)
 ```
 
-**Measured.** Plain descent, the sign rule and clipped descent on one landscape with a strong direction (strength 100)
+**Run.** Plain descent, the sign rule and clipped descent on one landscape with a strong direction (strength 100)
 and a weak one (strength 0.01), 200 steps each, and the length of one step against the length of the gradient.
 
 ![Left: paths in the plane of a strong and a weak weight for plain descent, the sign rule and clipped descent; right: step length against gradient length for the three rules, with the clipping cap](figures/23-three-step-rules.png)
@@ -183,22 +183,27 @@ steep, and it is also the model that is hardest to round (**argued**).
 ## Run it yourself
 
 [`ch23_adam_and_clipping.ipynb`](../experiments/part4/ch23_adam_and_clipping.ipynb)
-uses one weight at a time with a quadratic loss, and Adam with no memory. The
-sign rule is the sign of the gradient for 10 000 gradients over 12 orders of
-magnitude, and scaling the loss changes no step. A gap of 3 with `learning_rate`
-0.5 closes in 6 steps for strengths 0.01, 1 and 100. Plain descent at strength
-0.01 leaves a gap of 2.91 after 6 steps, and at strength 100 it reaches 4e10.
-To get within the learning rate of zero at strength 0.01, plain descent took
-358 steps and the sign rule 5. Inside Adam, a weight of 4 and a weight of 0.1
-each lose exactly 0.1, and plain descent with an L2 penalty loses 40 times
-more from the large one. AdamW leaves 0.5987 of every weight after 10 steps
-and 0.3585 after 20, which is `0.95` to the power. Clipped gradients were never
-longer than the limit, and travel over 100 steps never exceeded the cap of 20:
-the largest of 200 random sequences travelled 3.37, aligned gradients reached
-20.000, and unclipped sequences travelled up to 1014. These are measurements,
-not proofs. They do not test Adam with memory, and the comparison of
-coordinates with directions is made only on a landscape whose directions are
-the coordinates.
+uses one weight at a time with a quadratic loss, and Adam with no memory.
+Nothing in it is a fit to data or a training run, so "run" below means a step
+rule iterated on a weight, and "from the formula" means one step evaluated.
+From the formula: the Adam step equals the sign of the gradient for 10 000
+gradients over 12 orders of magnitude, and scaling the loss changes no step.
+Run: a gap of 3 with `learning_rate` 0.5 closes in 6 steps for strengths
+0.01, 1 and 100. Plain descent at strength 0.01 leaves a gap of 2.9111 after
+6 steps, and at strength 100 the gap reaches 4.15e+10. To get within the
+learning rate of zero at strength 0.01, plain descent took 358 steps and the
+sign rule 5. Inside Adam, a weight of 4 and a weight of 0.1 each lose 0.1
+in one step (from the formula), while plain descent with an L2 penalty loses
+0.2 from the large one and 0.005 from the small one, a ratio of 40.0 (control,
+from the formula). Run: AdamW leaves 0.5987 of every weight after 10 steps
+and 0.3585 after 20. Run: clipped gradients were never longer than the limit,
+and travel over 100 steps never exceeded the cap of 20. The largest of 200
+random sequences travelled 3.374, aligned gradients reached 20.000000, and
+unclipped sequences travelled up to 1014. Two statements are by construction
+and are not evidence: that every Adam coordinate moves by exactly 1, and that
+AdamW is the shrink then Adam's step. These are checks, not proofs. They do
+not test Adam with memory, and the comparison of coordinates with directions
+is made only on a landscape whose directions are the coordinates.
 
 ## What is not shown
 

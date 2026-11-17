@@ -187,28 +187,31 @@ is the idea of chapter 15.
 ## Run it yourself
 
 [`ch19_the_largest_step.ipynb`](../experiments/part4/ch19_the_largest_step.ipynb)
-runs plain gradient descent on a model that is linear in its weights (sine and
-cosine features, and a square matrix built to have strengths 1, 2, 4 and 9),
-and projects the error on the kernel's eigenvectors. The factor
-`1 − learning_rate × strength` matched along every direction to `4e-16` of the
-start error. The three runs of the hand example gave `8, −4, 2, −1` and
-`8, −8, 8, −8` and `8, −12, 18, −27`; the size 27 is above the promised 20.
-On the Fourier model, with edge `2 / strongest = 0.1158`, the error after 300
-steps was below the start at 0.5, 0.9 and 0.99 times the edge, above it at
-1.01, 1.1 and 1.5 times, and at the edge the error along the strongest
-direction kept its size to 12 digits. At the best step 0.2 for strengths 1 to
-9 the factors were 0.8, 0.6, 0.2 and −0.8, and no rate on a grid of 1000 did
-better than 0.8 in its worst direction (0.8001, at 0.1999). Shrinking the error
-100-fold took 72 steps at 0.05, 21 steps at 0.2, and never happened at 0.25.
-A schedule matched the product of its factors to `3e-16`. Heavy-ball descent
-at `learning_rate × strength = 2 × (1 + momentum)` with momentum 0.5 kept the
-error at 8 and −8 for 20 steps, and at 0.9 and 1.1 times that edge it did not
-(size 0.0008 and 12 740). The mean of 15 single-example steps matched one step
-on the mean gradient to `2e-16`, and shares summing to 1.2 broke it (gap 0.3).
-The three answers below came out as 0.04, −3, 1.8, −1.08, and 0.2 with 0.6. The
-notebook has 31 checks, each able to fail. This is evidence for a fixed
-kernel, not a proof, and it does not test the open questions below. Run it with
-`jupyter nbconvert --to notebook --execute --inplace experiments/part4/ch19_the_largest_step.ipynb`.
+runs plain gradient descent on a model that is linear in its weights (sine
+and cosine features, and a square matrix whose strengths 1, 2, 4 and 9 were
+set by construction, so that kernel is not evidence), and projects the error on
+the kernel's eigenvectors. The factor `1 − learning_rate × strength` matched
+along every direction to `3.7e-16` of the start error. The three runs of the
+hand example gave `8, −4, 2, −1` and `8, −8, 8, −8` and `8, −12, 18, −27`; the
+size 27 is above the promised 20. On the Fourier model, with strengths 1.032 to
+17.278 and edge `2 / strongest = 0.1158`, the error after 300 steps was below
+the start at 0.5, 0.9 and 0.99 times the edge, above it at 1.01, 1.1 and 1.5
+times, and at the edge the error along the strongest direction kept its size to
+12 digits. For strengths 1, 2, 4 and 9, one step at 0.2 gave factors 0.8, 0.6,
+0.2 and −0.8. Of 1000 rates, each tried for one step, none did better than 0.8
+in its worst direction (0.8001, at 0.1999). Shrinking the error 100-fold took 72
+steps at 0.05, 21 steps at 0.2, and never happened at 0.25, where one step gave
+the strongest direction a factor of size 1.25. A schedule of 12 random rates
+matched the product of its factors to `2.6e-16`. Heavy-ball descent at
+`learning_rate × strength = 2 × (1 + momentum)` with momentum 0.5 kept the
+error at 8 and −8, and at 0.9 and 1.1 times that edge it did not (size 0.0008456
+and 1.274e+04 after 20 steps). The mean of 15 single-example steps matched one
+step on the mean gradient to `2.2e-16`, and shares that do not sum to one broke
+it (gap 0.3). The answers below came out as edge 0.04, then −3, 1.8, −1.08, then
+0.2 with 0.6. The notebook has 30 checks that can fail, and one line marked
+"by construction, cannot fail" that is not counted. This is evidence for a
+fixed kernel, not a proof, and it does not test the open questions below. Run it
+with `jupyter nbconvert --to notebook --execute --inplace experiments/part4/ch19_the_largest_step.ipynb`.
 
 ## What is not shown
 

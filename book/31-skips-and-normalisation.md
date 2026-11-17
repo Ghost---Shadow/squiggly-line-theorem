@@ -167,7 +167,7 @@ the along part each time and leaves the across part alone
 
 **Measured**, the length of light through 30 plates, each axis turned 0.5
 radian from the last: a bare plate loses light, a plate with a bypass never
-does, and a plate with an amplifier holds it at exactly 1.
+does, and a plate with an amplifier holds it at 1 by construction.
 
 ![Length of the light against the number of plates, for a bare plate falling, a plate with a bypass growing, and a plate with an amplifier flat at 1](figures/31-light-through-plates.png)
 
@@ -232,15 +232,16 @@ chapter 14: a skip adds one.
 [`ch31_skips_and_normalisation.ipynb`](../experiments/part5/ch31_skips_and_normalisation.ipynb)
 checks each statement on plates in two to eight dimensions and on branches
 `slope × tanh(orthogonal matrix × input)`, which have slope at most `slope`.
-Nothing is trained. In 3000 random cases the squared length after a bypass
+Nothing is trained. In 3000 random (axis, light) pairs the squared length after a bypass
 plate matched the old length plus `3 × overlap²` to a relative error of
 `2.2e-15`, and the light never got shorter. The hand example came out as
 `(6, 4)`, `(12, 4)`, `(24, 4)`, and as `0.6` then `0.36` without the
-amplifier. Over 40 plates in three dimensions the amplified light had length 1
-and equalled the plate's axis every time. Through 30 plates turned 0.5 radian
+amplifier. Over 40 plates in three dimensions the amplified light equalled the plate's
+axis every time. (Its length of 1 is by construction, since the amplifier
+divides by the length, so it is not evidence.) Through 30 plates turned 0.5 radian
 each, the bare length was `1.99e-02`, equal to `cos(0.5)^30`; the bypass length
-was `3.553e+04`; the amplified length was 1. For a residual layer with branch
-slope 0.5, 20 000 random pairs had a gap ratio between 0.564 and 1.467, inside
+was `3.553e+04`. The amplified curve in the figure is flat at 1 by construction. For a residual layer with branch
+slope 0.5, 20 000 random pairs (a third very close together) had a gap ratio between 0.564 and 1.467, inside
 `[0.5, 1.5]`; the lower end was not reached. With 2 as the slope budget the
 largest stretch of a skip stack up to 512 layers was 7.360, under
 `e ^ 2 = 7.389`, and it matched `(1 + 2 / layer_count) ^ layer_count`. The

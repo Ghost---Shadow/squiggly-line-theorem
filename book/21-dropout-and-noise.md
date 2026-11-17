@@ -122,9 +122,9 @@ theorem sum_mul_sq_sub_noisy_eq
 *Read aloud:* noise on the input adds `noise_spread²` times `slope²` to
 the average squared error.
 
-**Measured.** Average squared error against how noisy the training is, for dropout on one example (left) and for noise on the input (right). The points are exact averages over every mask or every noise value, and they lie on the plain loss plus the penalty:
+**Exact enumeration against the formula.** Average squared error against the noise level, for dropout on one example (left) and for noise on the input (right). The points are exact averages over every mask or noise value; the green line is the plain loss plus the penalty, from the formula:
 
-![Average squared error against mask variance (left) and input-noise spread (right): the exact average, the plain loss, and the plain loss plus the penalty, which the exact points lie on](figures/21-penalty-on-average.png)
+![Average squared error against mask variance (left) and input-noise spread (right): the exact averages (points), the plain loss (grey), and the plain loss plus the penalty from the formula (green); the points lie on the green line](figures/21-penalty-on-average.png)
 
 The slope of the line `slope × input` is `slope`, so this is a charge on
 slope, the currency of chapter 3.
@@ -203,8 +203,8 @@ last step is **argued** in the note, not proved here.
 
 [`ch21_dropout_and_noise.ipynb`](../experiments/part4/ch21_dropout_and_noise.ipynb)
 checks these on models linear in their weights, listing every dropout mask
-so that each average is exact. It has 27 checks, and two runs print the same
-ones. The table's 10 and `10 / 9` come out as 10.000000 and 1.111111. Over
+so that each average is exact. It has 25 checks, and two runs print the same
+ones. Two lines are printed as "by construction, cannot fail" and are not counted. The table's 10 and `10 / 9` come out as 10.000000 and 1.111111. Over
 100 random cases (five keep probabilities, eight features) the dropout
 identity holds to a relative gap of `1.0e-15`, and noise on the input to
 `7.0e-16` over 200 cases. Breaking a hypothesis breaks the result: with one
@@ -216,17 +216,17 @@ no nudge lowers it at the weight-decay solution. With feature sizes 1 to 6,
 one decay strength is no longer the minimiser: its loss is 2.8% above that
 of a strength per feature. Lasso gives weight 0 for all 300 weak targets and
 shortens a strong target by the penalty; weight decay never gives 0 there.
-The adversarial score drops by exactly 0.5 and stochastic depth gives 13.
+The adversarial score drops by exactly 0.5 (the worst nudge, evaluated on the score). The stochastic depth mean of 13 is from the formula, not a measurement.
 
 For the slope step that the chapter calls argued, 15 points and 20 sine and cosine
-weights, the fit with dropout at keep probability 0.5 has a weight length of
+weights, the fit trained with dropout (sampled masks, keep probability 0.5) has a weight length of
 0.435 against 3.082 for the fit that matches every label, and a steepest
-slope of 2.884 against 33.689 (a ratio of 0.09). Training on sampled masks
-ends within 0.001 (relative) of the closed-form dropout fit.
+slope of 2.884 against 33.689 (a ratio of 0.09). The closed-form dropout fit, which is from the formula, differs from the
+trained one by 0.001 (relative) and gives the same numbers.
 
-**Measured.** The fit without dropout wiggles through every point; the fit with dropout stays small:
+**Measured.** Two fits to the same 15 points, one trained with sampled dropout masks:
 
-![Two fits to 15 points on sin(x): without dropout (grey) swings between about -7 and 6 to hit every point, with dropout (purple) stays within about 1](figures/21-fit-with-and-without-dropout.png)
+![Two fits to 15 points, with the true sin(x): without dropout (grey) passes through every point and reaches about -7 and 6, trained with dropout (purple) stays between about -1 and 1](figures/21-fit-with-and-without-dropout.png)
 
 The error against the true `sin(x)` is 1.949 without dropout and 0.497
 with it. These are evidence from one seed, not proofs. Mixup and

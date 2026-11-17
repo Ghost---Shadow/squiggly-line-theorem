@@ -68,9 +68,9 @@ lower loss.
 
 `StrictAnti` means "strictly going down as the input goes up".
 
-**Measured.** The loss at one input against the critic's score, with no made data and with a little. Without made data the loss only falls; with made weight 0.01 it turns up after the share's score.
+**From the formula** (evaluated on a score grid, not a trained model). The loss at one input against the critic's score, with no made data and with a little. Without made data the loss only falls; with made weight 0.01 it turns up after the share's score.
 
-![Critic's loss against its score, falling for ever with no made data and with a best score when a little made data is present](figures/27-critic-loss-against-score.png)
+![Critic's loss against its score on a grid from -12 to 12: the curve for no made data keeps falling; the curve for made weight 0.01 has a lowest point](figures/27-critic-loss-against-score.png)
 
 ```lean
 /-- **The players spiral outward.** After `step_count` simultaneous steps the
@@ -158,13 +158,13 @@ chapter 13. A game is not a descent.
 
 ## Run it yourself
 
-The notebook [`ch27_two_players.ipynb`](../experiments/part4/ch27_two_players.ipynb) uses the exact one-input critic loss and the payoff `x × y`, in float64. An experiment is evidence, not a proof; the proofs are in `GanGame.lean`. It prints 17 `[PASS]` lines.
+The notebook [`ch27_two_players.ipynb`](../experiments/part4/ch27_two_players.ipynb) uses the one-input critic loss and the payoff `x × y`, in float64. The first three items below evaluate the chapter's formulas on a grid and are **from the formula**, not measured: they check the algebra and the hand numbers, not a trained critic. The spiral and the control run the game's steps and are **measured**. An experiment is evidence, not a proof; the proofs are in `GanGame.lean`. It prints 17 `[PASS]` lines.
 
-- **Soft label.** Over 200 random weight pairs and scores, the loss equals the total weight times the cross-entropy with the real share, to a relative gap of 1.9e-15.
-- **Best critic.** On a score grid of step 0.001, the best prediction for weights (3, 1) is 0.7501, for (1, 3) is 0.2499, and for (2, 2) it is 0.5000 at score zero. Over the 200 random pairs the largest gap from the real share is 1.2e-4, which is the grid step.
-- **No made data.** The loss falls at every score step on `[-12, 12]`, and its lowest value, 6.1e-6, is at the right edge, where the prediction is below 1 by 6.1e-6. The control, made weight 0.01, has its best score at 4.605, which is `log(100)`.
-- **The spiral.** At rate 0.1 from `(1, 0)` the squared distance goes `1`, `1.01`, `1.0201`, and after 300 steps is 19.7885, the proved `1.01^300`, to a relative gap of 3.4e-15. Over 200 random starts, rates and step counts the largest relative gap from `(1 + learning_rate²)^n` is 9.7e-15, and no step failed to grow. At rate 0.2 the factor is 1.04 and 25 steps give 2.6658.
-- **Control: alternating steps** (not covered by the theorem). The squared distance stays between about 0.95 and 1.05 over 300 steps, peaking at 1.0526, against 19.79 for simultaneous steps. The factor `1 + learning_rate²` does not hold there, so the chapter's "Fixes" bullet is borne out at least for this one game. The 10 percent bound on this control was first set at 1 percent, a guess that the measured peak of 1.05 missed, and the bound was widened.
+- **Soft label (from the formula).** Over 200 random weight pairs and scores, the loss equals the total weight times the cross-entropy with the real share, to a relative gap of 1.9e-15.
+- **Best critic (from the formula).** On a score grid of step 0.001, the best prediction for weights (3, 1) is 0.7501, for (1, 3) is 0.2499, and for (2, 2) it is 0.5000 at score zero. Over the 200 random pairs the largest gap from the real share is 1.2e-4, which is the grid step.
+- **No made data (from the formula).** The loss falls at every score step on `[-12, 12]`, and its lowest value, 6.1e-6, is at the right edge, where the prediction is below 1 by 6.1e-6. The control, made weight 0.01, has its best score at 4.605, which is `log(100)`.
+- **The spiral (measured).** At rate 0.1 from `(1, 0)` the squared distance goes `1`, `1.01`, `1.0201`, and after 300 steps is 19.7885, the proved `1.01^300`, to a relative gap of 3.4e-15. Over 200 random starts, rates and step counts the largest relative gap from `(1 + learning_rate²)^n` is 9.7e-15, and no step failed to grow. At rate 0.2 the factor is 1.04 and 25 steps give 2.6658.
+- **Control: alternating steps (measured)** (not covered by the theorem). The squared distance stays between 0.9524 and 1.0526 over 300 steps, against 19.79 for simultaneous steps. The factor `1 + learning_rate²` does not hold there, so the chapter's "Fixes" bullet is borne out at least for this one game. The 10 percent bound on this control was first set at 1 percent, a guess that the measured peak of 1.05 missed, and the bound was widened.
 
 ```bash
 jupyter nbconvert --to notebook --execute --inplace experiments/part4/ch27_two_players.ipynb

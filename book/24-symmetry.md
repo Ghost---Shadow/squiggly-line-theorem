@@ -114,10 +114,11 @@ a positive number) has a gradient at right angles to the weights. Then
 
 **Measured** on a one-hidden-layer network with an RMSNorm after the hidden
 layer, trained by gradient descent with `learning_rate = 0.1` from long weights.
-The length follows the proved curve, and the same network without the norm
+The dashed curve adds up the measured squared steps, so it is the Pythagoras
+check summed and not a separate test. The same network without the norm
 loses length.
 
-![Length of the weights against gradient steps. The normalised layer rises very slightly and lies on the proved curve; the same network without the norm falls from 20.5 to 15.7.](figures/24-weights-only-grow.png)
+![Length of the weights against gradient steps. The normalised layer rises very slightly and lies on the curve built from its measured steps; the same network without the norm falls from 20.5 to 15.7.](figures/24-weights-only-grow.png)
 
 ```lean
 theorem balance_after_step
@@ -201,11 +202,12 @@ between weights and line.
 
 [`ch24_symmetry.ipynb`](../experiments/part4/ch24_symmetry.ipynb) runs
 `jupyter nbconvert --to notebook --execute --inplace experiments/part4/ch24_symmetry.ipynb`
-and makes 29 checks. On a linear model, rescaling by 0.1 up to 30 kept every
+and makes 24 checks that can fail, and prints four more marked "by construction, cannot fail", which are not evidence. On a linear model, rescaling by 0.1 up to 30 kept every
 output and residual to `2e-16`. The **measured** sharpness times `scale²` and
 the travel over `|scale|` were each the same at all 8 scales to `6e-16`, and the
-travel of gradient descent matched the least-squares travel. The example of the
-chapter came out as 2 then 20, kernel 4 then 0.04, and 16 both times. As a
+travel of gradient descent matched the least-squares travel. The by-hand example
+(travel 2 then 20, kernel 4 then 0.04, and 16 both times) is **from the formula**,
+not measured. As a
 control, rescaling only half the weights by 10 broke both laws: sharpness times
 `scale²` was 52.4 times the old sharpness, and the travel was 0.62 of
 `scale` times the old travel. In the network with an RMSNorm, the cosine between

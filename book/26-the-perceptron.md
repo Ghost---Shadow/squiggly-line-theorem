@@ -180,17 +180,19 @@ dimensions was dropped: some of those sets stayed separable.)
 
 **Measured**: mistakes against the bound, one point per data set.
 
-![Perceptron mistakes against (radius over margin) squared on log axes, for 300 separable sets, which lie below the bound line, and for flipped-label controls, which lie above it](figures/26-mistakes-against-bound.png)
+![Perceptron mistakes against (radius over margin) squared on log axes, for 300 separable sets, all below the bound line, and for flipped-label controls, most of them above it](figures/26-mistakes-against-bound.png)
 
-For XOR, 200 000 random flat scores had equal sums at the two diagonals to
-`7e-15`, none separated, and the best got 3 corners of 4 (25 418 of them).
-The lift and the fold both separated. The perceptron on the raw features made
-7 999 mistakes in 2000 passes and never had a clean pass. On the lifted
-features it converged after 25 mistakes, within the bound of 100
-(radius 2, margin 0.2). For no free lunch, over every guess at every input
-for 3 and 4 inputs (88 cases), exactly half of the labellings agreed. The mean
-squared error was `prediction² + 1` to `9e-16`. If neighbouring inputs must
-share a label, the guess agreed with 1 of 2 labellings, not half.
+For XOR, a search over 200 000 random flat scores found none that separated,
+and the best got 3 corners of 4 (25 418 of them did). The lift and the fold
+separating the four corners is **from the formula** (the notebook prints it as
+by construction, not as evidence), and so are the hand examples (25, 100, 16)
+and the factor of four for halving the margin. The perceptron on the raw
+features made 7 999 mistakes in 2000 passes and never had a clean pass (**measured**).
+On the lifted features it converged after 25 mistakes, within the bound of 100
+(radius 2, margin 0.2; **measured**). For no free lunch, an exhaustive count
+over every guess at every input for 3 and 4 inputs (88 cases) found exactly
+half of the labellings agreeing. The mean squared error `prediction² + 1`
+and the smooth-labelling control are by construction.
 
 These are measurements, not proofs. Run it with:
 
