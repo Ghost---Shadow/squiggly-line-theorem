@@ -202,22 +202,34 @@ between weights and line.
 
 [`ch24_symmetry.ipynb`](../experiments/part4/ch24_symmetry.ipynb) runs
 `jupyter nbconvert --to notebook --execute --inplace experiments/part4/ch24_symmetry.ipynb`
-and makes 24 checks that can fail, and prints four more marked "by construction, cannot fail", which are not evidence. On a linear model, rescaling by 0.1 up to 30 kept every
-output and residual to `2e-16`. The **measured** sharpness times `scale²` and
-the travel over `|scale|` were each the same at all 8 scales to `6e-16`, and the
-travel of gradient descent matched the least-squares travel. The by-hand example
-(travel 2 then 20, kernel 4 then 0.04, and 16 both times) is **from the formula**,
-not measured. As a
+and makes 23 checks that can fail. It prints 9 more lines marked "by construction,
+cannot fail", which are not evidence: the linear rescaling identity and its
+half-rescaling control, the two worked-example kernel lines, RMS equal to 1, the
+summed Pythagoras curve, the hand numbers 7.28 and 6, and equal weights staying
+equal.
+
+On a linear model the **measured** sharpness times `scale²` and the travel over
+`|scale|` were each the same at all 8 scales to `6e-16`, and the travel of gradient
+descent matched the least-squares travel. The by-hand example (travel 2 then 20,
+kernel 4 then 0.04, and 16 both times) is **from the formula**, not measured. As a
 control, rescaling only half the weights by 10 broke both laws: sharpness times
-`scale²` was 52.4 times the old sharpness, and the travel was 0.62 of
-`scale` times the old travel. In the network with an RMSNorm, the cosine between
-gradient and weights was at most `7e-17` over 100 settings, against 0.65 without
-the norm. Over 300 steps the squared length grew by the squared step
-(largest relative gap `7e-10`), and the length went from 20.5310 to 20.5391
-and never fell; without the norm it fell to 15.676. The balance formula held
-to `4e-15` in 1000 random cases and 8 became 7.28 and 6 by hand;
-with weight decay 0.1 it missed by 5% on average. RMSNorm ignored a positive scale and flipped
-under a negative one. These are checks by measurement, not proofs.
+`scale²` was 52.4 times the old sharpness, and the travel was 0.62 of `scale` times
+the old travel. Through a real forward pass of a ReLU network, rescaling kept the
+outputs to `5e-15`, while scaling only the first layer moved them by 144.3.
+
+In the network with an RMSNorm, the cosine between gradient and weights was at most
+`7e-17` over 100 settings, against 0.65 without the norm, and the loss changed by a
+relative 45.968 under a scale of 7 without the norm. Over 300 steps the squared
+length grew by the squared step (largest relative gap `7e-10`), and the length went
+from 20.5310 to 20.5391 and never fell; without the norm it fell to 15.676.
+
+The balance formula held to `4e-15` in 1000 random cases. From weights 3 and 1,
+200 steps of 0.1 took the imbalance from 8.0000 to 7.6788, within `4e-15` of the
+start times the product of the shrink factors. With weight decay 0.1 the formula
+missed by 5% on average. RMSNorm ignored a positive scale and flipped under a
+negative one. Shuffling hidden units kept the function to `2e-15`, and shuffling
+only the first layer changed it by 17.9. These are checks by measurement, not
+proofs.
 
 ## What is not shown
 
