@@ -134,10 +134,11 @@ and a unit has one kink. So each needs a different unit
 the grid, and the network is allowed an error of one half, so it must go
 up and down at each (`depth_separation`).
 
-**Measured**: the left panel counts the straight pieces of the stack of tent layers
-and of one hidden layer with every kink inside the interval, against neurons. The
-right panel shows the best largest error at the grid points that one hidden layer can reach,
-against its number of kinks, for stacks of two and three tent layers.
+The left panel counts the straight pieces of the stack of tent layers (**from the
+formula**: the stack evaluated) and of sampled one-hidden-layer networks with every kink
+inside the interval (**measured**), against neurons. The right panel shows the best
+largest error at the grid points that a fitted one-hidden-layer network can reach
+(**measured**), against its number of kinks, for stacks of two and three tent layers.
 
 ![Pieces against neurons for the tent stack and for one hidden layer with the bound units plus one, and the best grid error of one hidden layer against its kinks for two and three tent layers, which stays at one half until every grid point has a kink](figures/32-pieces-against-neurons.png)
 
@@ -151,7 +152,7 @@ straight between two values of `model`, and `model` cannot stray far
 from either end, because its slope is at most `slope_limit`. Going
 piece by piece along the interval gives the bound `reluInterp_spec`.
 
-**Measured**: the largest error of the ramp network against the number of pieces,
+**From the formula**: the largest error of the ramp network (built by the theorem's recipe, not fitted) against the number of pieces,
 for two targets, with the bound of the theorem. The control, `sin(30 x)` judged
 with the wrong slope limit 3, lies above the bound.
 
@@ -191,9 +192,9 @@ Numbers are **measured** where a network was sampled or fitted, and **from the f
 formula or construction was evaluated. An experiment is evidence, not a proof.
 
 - **By hand** (**from the formula**: the stack evaluated, not trained). Three tent layers give `1/4, 1/2, 1` at `1/8` and `1/2, 1, 0`
-  at `2/8`, and 0, 1, 0, 1, 0, 1, 0, 1, 0 on the nine grid points: 4 peaks.
-  Ten layers make 512 peaks on the grid. The neuron counts, 6 and 20, are by
-  construction and are not checks.
+  at `2/8`, and 0, 1, 0, 1, 0, 1, 0, 1, 0 on the nine grid points. Ten layers
+  alternate the same way on 1025 grid points. The peak counts (4 and 512) and the
+  neuron counts (6 and 20) are by construction and are not checks.
 - **One kink per unit** (**measured**, sampled networks). In 960 random one-hidden-layer networks of 1 to 24
   units no network had more than `units + 1` pieces, and with every kink placed
   inside the interval the count `units + 1` was reached at all 24 unit counts.
@@ -209,7 +210,7 @@ formula or construction was evaluated. An experiment is evidence, not a proof.
   `layer_count` 1, 2 and 3. The theorem is **not tight** in these runs: the fewest
   kinks found within one half were 3 and 7 for `layer_count` 1 and 2, against
   the bounds 2 and 4. A straight piece crosses the level one half once, and the
-  grid values alternate around it, so every interior grid point needs a kink.
+  grid values alternate around it, so every interior grid point needs a kink. This explanation is **argued**, not computed. The fewest kinks found for 4 to 6 kinks come from a coarser candidate grid than those for 0 to 3, so they are the fewest *found*, not proved needed.
 - **Closeness** (the ramp network is built by the theorem's recipe, so it is **from the formula**; the errors are measured on it). It stayed within `2 * slope_limit / piece_count`
   for 1 to 640 pieces for `sin(3 x)`, `2 |x - 0.33|` and the three-layer tent
   stack. The largest `error × piece_count / slope_limit` was 0.31, 0.48 and
