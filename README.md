@@ -1,6 +1,6 @@
 > ⚠️ **Disclaimer.** Although the proofs themselves are machine-checked by Lean, what is being proved is subject to human/LLM mistakes. [Read the full disclaimer](DISCLAIMER.md).
 
-# The Squiggly Line Theorem
+# The Squiggly Line Theorem (Early Access)
 
 **A squigglier curve passes closer to the data. It is steeper by the same
 factor. And the loss at the start cannot tell the difference.** What the
