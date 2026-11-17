@@ -60,7 +60,7 @@ term is `±1 / 4`, so the variance is `1 / 4² = 0.0625`. The bias grows
 down the table and the variance shrinks. Their sum falls and then rises.
 That is the old U-shaped curve, with the floor as its dial.
 
-**Measured** over 40 000 redraws of the noise, the points sit on the formula curves, and the measured error sits on the sum of bias squared and variance:
+**Measured** over 40 000 redraws of the noise, the points sit on the formula curves. The right panel compares the measured error at floor 1 with bias squared plus variance from the formulas (0.503 against 0.500), and shows the same comparison failing when the noise part has mean 0.5 (0.250 against 0.750):
 
 ![Squared bias, variance and measured error against the floor, formula curves with measured points on top, and a control where the noise has mean 1 beside the zero-mean case](figures/43-bias-plus-variance.png)
 
@@ -186,18 +186,23 @@ An experiment is evidence, not a proof.
   evidence. The measured bias below is the test.
 - **The sum.** At 25 floors from 0 to 6, with 40 000 noise draws each, the
   measured bias, variance and mean squared error stay within 0.10, 1.57 and 1.58
-  standard errors of the formulas.
+  standard errors of the formulas. The same noise draws serve all 25 floors, so
+  these 25 comparisons are correlated, not independent.
 - **The table.** Fitted, the table rows are: floor 0, bias `−0.0005`, variance
   `1.0112`, error `1.0112`. Floor 1: `−0.5003`, `0.2528`, `0.5031`. Floor 3:
   `−1.0001`, `0.0632`, `1.0635`. All are within 4 standard errors of the
   values the formulas give in the table above (from the formula, not measured).
 - **The U.** The measured error is 1.011 at floor 0, 0.490 at its minimum, and
   1.799 at floor 6. The measured minimum is at floor 0.75 on the grid, and the
-  formulas put it at 0.791.
+  formulas put it at 0.791. The notebook also checks that the measured squared
+  bias does not fall and the measured variance does not rise as the floor
+  rises, up to 4 standard errors of slack, and both hold.
 - **Control.** With noise of mean 1 along the noise direction, the noise part has
-  measured mean 0.5014 (0.5000 from the formulas). The error is 0.2495 while
-  bias squared plus the mean square of the noise part is 0.7509. The gap
-  `−0.5014` is the cross term `2 × bias × mean`, `−0.5000` from the formulas.
+  measured mean 0.5014 (0.5000 from the formulas), and the measured error is
+  0.2495 against 0.2500 from `(bias + m)^2 + variance`. The chapter's sum,
+  bias squared plus the mean square of the noise part, is 0.7509. That the gap
+  `−0.5014` equals `2 × bias × measured mean` is algebra, by construction, and is
+  not evidence.
 
 The noise is laid along the single noise direction, as the chapter assumes.
 Run it with
