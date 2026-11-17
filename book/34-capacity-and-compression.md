@@ -99,11 +99,12 @@ of them.
 `Fintype.card Settings` is how many settings of the weights exist.
 `YesNoLabelling chosen_inputs` is one yes or no for each chosen input.
 
-**Measured**: the most inputs that get every yes-or-no labelling, against the
-bits that write the weights. A lookup network sits on the ceiling. A
-threshold network with weights on a grid sits below it.
+**Measured** for the threshold networks: the most inputs that get every
+yes-or-no labelling, against the bits that write the weights. They sit below
+the ceiling. The lookup network sits on it by its construction, so those
+points only show where the ceiling is.
 
-![Most inputs given every yes-or-no labelling against bits, with the ceiling inputs equal to bits as a dashed line, lookup networks on it and threshold networks below it](figures/34-inputs-memorised-against-bits.png)
+![Most inputs given every yes-or-no labelling against bits, with the ceiling inputs equal to bits as a dashed line, lookup networks on it by construction and measured threshold networks below it](figures/34-inputs-memorised-against-bits.png)
 
 The third count is about places. In the repository a layer is a function
 from places to places, and the theorem `bottleneck` says that for a flock
@@ -130,7 +131,7 @@ is at most the number of inputs.
 labels, after each layer. It is 0 at every layer for a network that is right.
 For labels that have nothing to do with the network, the wall is crossed.
 
-![Share of flocks with fewer places than labels against the number of layers run, flat at zero for a right network and rising to about 0.1 for labels unrelated to the network](figures/34-places-through-layers.png)
+![Share of flocks with fewer places than labels against the number of layers run, flat at zero for a right network and rising to 0.0975 after 30 layers for labels unrelated to the network](figures/34-places-through-layers.png)
 
 ## Why it is true
 
@@ -205,11 +206,13 @@ random label sets fitted exactly was 1 for every data count up to the weight
 count and 0 for every data count after it, for 9, 21 and 33 weights. At one
 data point too many the smallest relative residual was 0.017, 0.001 and
 0.002. The control, 21 weights of rank 11, fitted everything up to 11 points
-and nothing at 12. For networks with weights on a finite grid (19 networks of
-2 to 12 bits), the most inputs memorised was never above the bit count, and
-the threshold networks stayed below it. A lookup network reached the bit
-count exactly for 2 to 12 bits and never one more. The control, one real
-weight in `sin(weight * input)`, memorised all 256 labellings of 8 inputs.
+and nothing at 12. For networks with weights on a finite grid (19 threshold networks of
+2 to 12 bits), the most inputs memorised was at most one more than the
+dimension, and below the bit count for most. (That it never exceeds the bit
+count is forced for these networks, and the lookup network reaches the bit
+count by construction: both are printed as "by construction, cannot fail"
+and are not evidence.) The control, one real weight in
+`sin(weight * input)`, memorised all 256 labellings of 8 inputs.
 For 400 random stacks of 30 layers on 40 states, with a flock of 12 and 2
 labels, the number of places stayed between the label count and 12 at every
 layer, never went up, and was equal to the label count in 965 prefixes, in
@@ -220,10 +223,11 @@ each output between 0 and 1, for 1 to 8 folds, and never more. A triple
 zigzag sent `3 ^ fold_count`, 729 at 6 folds against 64. A score table of
 `hidden_size` hidden numbers had rank `min(hidden_size, 25)` in 30 sizes.
 The best approximation of a random full-rank table had relative error 0.133
-at `hidden_size` 19 and 1.8e-15 at 25. A gated blend of 5 experts in 20 000
-cases never exceeded its limit (largest ratio 0.964), and without the gate
-term the bound failed in 6746. Log-loss was never below the entropy, and a
-model adding to 1.5 went below it in 4553 of 20 000 cases. These are
+at `hidden_size` 19. A gated blend of 5 experts in 20 000 cases, with
+outputs clipped to the interval of the hypothesis, never exceeded its limit
+(largest ratio 0.948), and without the gate term the bound failed in 6737. Log-loss was never below the entropy, and a
+model adding to 1.5 went below it in 4553 of 20 000 cases. The share of flocks below the label
+count after 30 layers was 0 for a right network and 0.0975 for unrelated labels. These are
 measurements, not proofs: they check small cases, not the theorems. Run it
 with
 

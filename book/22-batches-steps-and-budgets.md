@@ -191,51 +191,56 @@ That last link is the note's reading.
 ## Run it yourself
 
 [`ch22_batches_steps_and_budgets.ipynb`](../experiments/part4/ch22_batches_steps_and_budgets.ipynb)
-uses a model linear in its weights for batches, the polarizer for steps, and the
-loss `param_cost / param_count + data_cost / data_count` for the budget. It has
-30 checks. The worked numbers all come out as written (0.39, 0.4, 0.01; 0.8,
-1.0, 1.0; the answers to the questions).
+uses a model linear in its weights for batches, plates run as 2 by 2 matrices
+for steps, and a scan of the loss `param_cost / param_count + data_cost /
+data_count` for the budget. It has 24 checks that can fail. Lines the notebook
+prints as "by construction, cannot fail" (the summed step costs against their
+closed forms, the scaling of both counts, the chapter's own answers) are not
+counted and are not evidence. The hand numbers of the budget example (0.8, 1.0,
+1.0) are **from the formula**, not measured.
 
-**Batches.** With two random batches of 5 examples on 6 weights, the gap between
-one big step and two small steps matched the correction of
-`gradientStep_two_batches` to a relative `9e-13` at eight learning rates from
+**Batches (measured).** With two random batches of 5 examples on 6 weights, the
+gap between one big step and two small steps matched the correction of
+`gradientStep_two_batches` to a relative `9.1e-13` at eight learning rates from
 0.001 to 0.1. The fitted slope of gap against learning rate on log axes was
-2.000000. The linear scaling rule matched to `3e-15` at three learning rates.
-When the two batches share no weights the gap was `3e-16`. The control is a
-`tanh` model, which is not linear in its weights: the formula missed its gap by
-a relative 2.0, so the hypothesis is needed.
+2.000000. The linear scaling rule matched to `2.6e-15` at three learning rates.
+When the two batches are built on disjoint weights the gap was `3.1e-16`. The
+control is a `tanh` model, which is not linear in its weights: the formula
+missed its gap by a relative 2.02 to 2.03, so the hypothesis is needed.
 
-**Steps.** For a polarizer turning a quarter of a turn in `step_count` plates,
-the share kept was at least `1 − distance² / (2 × step_count)` at every count
-from 2 to 4096, with a smallest slack of `5e-8`. At 4096 plates it keeps
-0.9997. A step whose cost is in proportion to its size keeps 0.2912 at 4096
-steps, no better than at a few.
+**Steps (measured, plates run).** For light sent through plates turning a
+quarter of a turn in `step_count` plates, the share kept was at least
+`1 − distance² / (2 × step_count)` at every count from 2 to 4096, with a
+smallest slack of `4.53e-08`. At 4096 plates it keeps 0.9997. The control, a
+step whose cost is in proportion to its size, is **from the formula**, not a
+run: it keeps 0.2912 at 4096 steps.
 
-**Budget.** For budgets 100, 400 and 10 000 the best of 20 001 scanned splits
-was the balanced one (20, 40 and 200 parameters), with parameters per datum
-4.0000 each time, and the best loss fell with a fitted power of −0.50000 of the
-budget. The control uses the unequal powers 0.34 and 0.28: the equal-terms split
-then lost between 9.9 and 13.4 percent more than the best, so the proof does
-not carry over.
+**Budget (a scan of the formula).** For budgets 100, 400 and 10 000 the best of
+20 001 scanned splits was the balanced one (20, 40 and 200 parameters), with
+parameters per datum 4.0000 each time, and the best loss fell with a fitted
+power of −0.50000 of the budget. The control uses the unequal powers 0.34 and
+0.28: the equal-terms split then lost between 9.9 and 13.4 percent more than
+the best, so the proof does not carry over.
 
-These are measurements, not proofs. Nothing here tests why a real loss has this
+These are evidence, not proofs. Nothing here tests why a real loss has this
 form, or whether diffusion has square-law steps.
 
-![Size of one big step minus two small steps against the learning rate, on log axes: the linear model lies on the predicted line of slope 2, the tanh model does not](figures/22-gap-against-learning-rate.png)
+![Size of one big step minus two small steps against the learning rate, on log axes: the linear model lies on the line of slope 2, the tanh model lies below it](figures/22-gap-against-learning-rate.png)
 
-The picture above is **measured** against the **proved** line: the purple dots
-sit on the green line `learning_rate²` times the cross term, and the grey squares
-(the control) do not.
+The purple dots are **measured** gaps; they sit on the green line, which is
+`learning_rate²` times the cross term evaluated at learning rate 1. The grey
+squares (the control) lie below it.
 
-![Share of amplitude lost against the number of steps: the polarizer follows the proved bound, a cost in proportion to the step does not fall](figures/22-steps-lost-against-count.png)
+![Share of amplitude lost against the number of steps: the plates run follow the green bound, the formula for a cost in proportion to the step levels off](figures/22-steps-lost-against-count.png)
 
-**Measured**: the polarizer's loss follows the green bound `1 / step_count`,
-and the grey control levels off.
+The purple dots are **measured** (plates run) and follow the green bound
+`cost_rate × distance² / step_count`. The grey squares are **from the formula**
+and level off.
 
-![Loss above the floor against the parameter count at a fixed budget, with its two terms crossing at the balanced split](figures/22-budget-minimum.png)
+![Loss above the floor against the parameter count at a fixed budget, from the formula, with its two terms crossing at 20 parameters](figures/22-budget-minimum.png)
 
-**Proved** and checked: the minimum sits where the two terms cross, at 20
-parameters.
+This curve is **from the formula**; its minimum sits where the two terms cross,
+at 20 parameters.
 
 Run it with:
 

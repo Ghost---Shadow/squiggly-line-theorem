@@ -169,13 +169,14 @@ a squigglier line, and the habits above are what hold it back.
 
 **Measured**, on 40 separable points in the plane: the boundary after 10 and after 100 000 steps with the final margin, and the norm of the weights (the slope of the score) against steps, for sure labels, soft labels and one flipped label.
 
-![Left: two separable classes with the boundary after 10 and 100 000 steps and the final margin. Right: weight norm against steps, growing for labels 0 and 1, flat for labels 0.1 and 0.9, flat for one flipped label](figures/25-confidence-and-margin.png)
+![Left: two separable classes with the boundary after 10 and 100 000 steps and the final margin. Right: weight norm against steps, growing for labels 0 and 1, flat for labels 0.1 and 0.9, and growing to 10 000 steps then nearly flat for one flipped label](figures/25-confidence-and-margin.png)
 
 ## Run it yourself
 
 [`ch25_classification.ipynb`](../experiments/part4/ch25_classification.ipynb) uses small exact models: softmax scores on
-2 to 6 classes, and a model linear in its weights (12 examples, 30 weights, a sigmoid on each output). It makes 26
-checks and two figures. These are checks by measurement, not proofs.
+2 to 6 classes, and a model linear in its weights (12 examples, 30 weights, a sigmoid on each output). It makes 20
+checks that can fail, two figures, and some numbers printed as "from the formula" or "by construction, cannot fail", which
+are not evidence. The checks are measurements, not proofs.
 
 - **The push.** In 300 random cases the finite-difference rate of the loss and the sum of (share minus label) times
   direction differ by at most `1.2e-9`. The wrong rules differ by up to 2.45 (shares alone) and 20.48 (score minus label).
@@ -183,19 +184,22 @@ checks and two figures. These are checks by measurement, not proofs.
   identity in place of the kernel the gap is at least 0.144. A model with a rotated weight space has the same kernel
   and, after 500 steps, the same outputs to `8.9e-15`, with weights `11.6` apart; a model with a different kernel is `2.4`
   away. Training reaches the nearest weights that give its outputs, to `2.1e-14`.
-- **No best score.** The loss for "yes" is 0.693, 0.127, 0.018 at scores 0, 2, 4, and 0.0000454 at 10. On a grid to 12
-  it falls at every step and its lowest point is the edge (loss `6.1e-6`); on a grid to 20 the lowest point moves to the
-  new edge. For the label 0.9 the best score is 2.197, which is `ln 9`; for 0.8 it is 1.386, which is `ln 4`; both stay
-  put when the grid is widened.
-- **Policy gradient.** The log share equals minus the cross-entropy to `1.8e-15`, and the expected-reward rate matches
-  share times reward times push to `1.7e-10`. Without the share weight the median gap is 0.709.
+- **No best score.** From the formula, not a run: the loss for "yes" is 0.693, 0.127, 0.018 at scores 0, 2, 4, and
+  0.000045 at 10; on a grid to 12 it falls at every step and its lowest point is the edge (loss `6.14e-6`), and on a grid to
+  20 the lowest point moves to the new edge; the best grid score for the label 0.9 is 2.197, which is `ln 9`, and for 0.8 it
+  is 1.386, which is `ln 4`. Measured, by training one score with gradient descent for 5 000 steps: the label 0.9 settles at
+  2.197225 (`ln 9` is 2.197225) and the label 0.8 at 1.386294 (`ln 4` is 1.386294). With the label 1 the trained score is
+  6.207, 8.516 and 10.820 at 1 000, 10 000 and 100 000 steps, still rising, with losses `2.01e-3`, `2.00e-4` and `2.00e-5`.
+- **Policy gradient.** The expected-reward rate matches share times reward times push to `1.7e-10` (a finite difference
+  on sampled policies). Without the share weight the median gap is 0.709. That the log share equals minus the
+  cross-entropy is by construction, cannot fail: both sides are the same logarithm of a sum of exponentials, so it is not evidence.
 - **No hill.** For the linear model the loss between two settings never rose above the larger end (the largest rise was
   `-0.02`, a fall). For a model not linear in its weights, a sine of frequency times input plus phase, a hill of 1.218
   appeared.
 - **More confidence.** On the separable data the weight norm was 2.16, 4.67, 8.06, 11.91, 15.96 at 10, 100, 1 000,
-  10 000 and 100 000 steps, the smallest margin 0.96 to 8.16, and the loss 0.114 to `3.3e-5`, never zero. With the labels
-  0.9 and 0.1 the norm at 100 000 steps is 1.0000 times that at 10 000. With one label flipped it is 1.0187 times; the
-  loss there flattens more slowly, so this test uses 5% (first set at 1%, which it missed). The separable ratio is 1.34.
+  10 000 and 100 000 steps, the smallest margin 0.9584 to 8.1556, and the loss `1.138e-1` to `3.251e-5`, never zero. With the labels
+  0.9 and 0.1 the norm at 100 000 steps is 1.0000 times that at 10 000. With one label flipped it is 1.0187 times, tested at 5% (first set at 1%, which it missed because the loss flattens more
+  slowly there). The separable ratio is 1.3404.
 
 The final direction of the weights (the widest margin) and the speed under cross-entropy are not checked.
 

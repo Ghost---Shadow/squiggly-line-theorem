@@ -179,17 +179,22 @@ was never above the product, and neither was the largest ratio over 3000 pairs
 of inputs. The largest ratio of gradient norm to product was 0.54 (**measured**).
 Its median fell from 0.51 at one layer to 0.001 at eight, so the bound is far
 from reached by a random network (the gradient norms are a sample, a lower
-bound on the true steepest slope). With identity layers on positive inputs the
-bound is reached exactly (ratio 1.000). With a slope-2 activation and the old
-product still claimed, the measured slope is 16 times the claim, so the
-hypothesis cannot be dropped. For flips, 100 flips found by a gradient attack
-and random directions were all at least `score / bound` away, by a factor of
-2.4 to 163 (median 11); in the slope-2 control they came at 0.07 of the claimed
-limit. For the linear nudge, the sign nudge moved the score by exactly nudge
-times the sum of sizes (0.7602 for 100 random weights), the best of 20 000
-random nudges reached 0.31 of that, and the best corner of the box in 12
-dimensions reached it exactly. These are measurements of random networks, not
-a proof; the proofs are in `NetworkSlope.lean`. Run it with
+bound on the true steepest slope). As controls, 12 identity-weight networks
+(depths 2 to 5, three readouts each) on positive inputs reach the bound to
+1e-16, and the same 12 with a slope-2 activation, the old product still
+claimed, have a measured slope 4 to 32 times the claim. That family is one
+kind of network, so this shows the hypothesis matters, not that it fails for
+every network. For flips, 100 starts were tried and a gradient attack with
+random directions found a flip for all 100; each was at least `score / bound`
+away, by a factor of 2.4 to 163 (median 11). The attack is weak and finds
+only some flips, so this check has low power. In the slope-2 control, 36
+flips from 36 starts came at 0.04 to 0.35 of the claimed limit. For the
+linear nudge, the arithmetic of the examples and the value of the sign nudge
+are identities of the formula and are **not** evidence. The evidence is two
+searches: the best of 20 000 random nudges in 100 dimensions reached 0.31 of
+the bound, and over all 4096 corners of the box in 12 dimensions none passed
+it. These are measurements of random networks, not a proof; the proofs are in
+`NetworkSlope.lean`. Run it with
 `jupyter nbconvert --to notebook --execute --inplace experiments/part5/ch28_the_slope_of_a_network.ipynb`.
 
 ## What is not shown

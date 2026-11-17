@@ -198,11 +198,11 @@ layer, and the **fold** of chapter 8, which costs half the squared size.
 ## Run it yourself
 
 [`ch30_signals_through_depth.ipynb`](../experiments/part5/ch30_signals_through_depth.ipynb)
-checks the claims with 27 checks, most claims with a control. The bounds
+checks the claims with 24 checks, most with a control. Two identities (the fold's `relu(x)^2 + relu(-x)^2 = x^2` and the arithmetic of `he_gain`) are printed as true by construction and not counted. The bounds
 `gain ^ layers <= exp(-layers (1 - gain))` and
 `gain ^ layers >= 1 + layers (gain − 1)` held for 101 gains each and depths
-up to 300; at gain 0.9 and 50 layers the signal is 0.0052 against the
-bound 0.0067. A plate never lengthened random light in 1000 trials, and
+up to 300 (**from the formula**, not measured); at gain 0.9 and 50 layers the signal is 0.0052 against the
+bound 0.0067, both from the formula. A plate never lengthened random light in 1000 trials, and
 plates with a fixed turn of 0.3 left exactly `cos(turn) ^ layers`, 0.0104 after 100
 plates against the bound 0.0115. The gradient read through reversed plates
 agreed with the forward reading to `1e-17`, while the same order did not
@@ -215,7 +215,7 @@ against the predicted −0.105, 0 and +0.095. For the gradient sent back the
 slopes were −0.110, −0.006 and +0.094, so the factor-of-half mask of the
 backward pass, not modelled above, behaved the same way in this network.
 He's variance left the size at 0.83 after 50 layers, where gain one
-predicts 1. Ten sigmoid layers had largest slope 3.9e−07 against the limit
+predicts 1. Ten sigmoid layers had largest slope (by finite differences of the stack) 3.9e−07 against the limit
 9.5e−07, and a stack of `tanh` layers reached slope 1. These are measurements, not
 proofs; the Lean theorems cover the statements above.
 

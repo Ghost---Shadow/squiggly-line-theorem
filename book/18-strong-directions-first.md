@@ -336,20 +336,22 @@ size and a straight line is 0.38, against `3e-12` for an eigen-direction.
 
 ![Share of the start error left against gradient steps for five directions of a linear model, each between its two bounds](figures/18-two-bounds.png)
 
-The figure is **measured**. Each direction has its own slope. The three
-strongest are below `1e-4` of their start within about 50 steps, while the
-weakest shown (clock 336 steps) is still above 0.3 at step 400. The dots mark one clock of each.
+The solid curves are **measured**; the dashed bounds are **from the formula**.
+Each direction has its own slope. The measured share first fell below `1e-4` at step 4, 30, 48 and
+178 for the four strongest directions shown, while the weakest shown
+(clock 335.6 steps) was still at 0.303 at step 400. The dots mark one clock of each.
 
 **Where the bounds are tight, and where the lower one is empty.** In the same
 run, 2685 points of (direction, step) have `step × rate` at least 1. At every
-one of them the lower bound is not positive, so it says nothing there. The
-upper bound divided by the true share, taken at the step where `step × rate`
+one of them the lower bound is not positive, so it says nothing there; that is
+algebra (the notebook prints it as "by construction, cannot fail") and is not counted as a
+check. The upper bound (from the formula) divided by the **measured** share, taken at the step where `step × rate`
 is 0.1, 0.5, 1, 2 and 5, had medians (over the directions that had not yet
 fallen below `1e-6`) of 1.002, 1.037, 1.078, 1.213 and 1.634. The lower bound
-divided by the share had medians 1.000, 0.838, 0, 0, 0. The largest ratio, 4.07,
+divided by the share had medians 1.000, 0.838, 0, 0, 0; the zeros are from the formula. The largest ratio, 4.07,
 is the strongest direction, whose rate is 0.9. A formula worked out for this
 section, that the log of that ratio is between `step × rate² / 2` and
-`step × rate² / (2 (1 − rate))`, was checked at all 1424 points where the
+`step × rate² / (2 (1 − rate))`, was checked against the measured share at all 1424 points where the
 share was above `1e-6`, and none was outside. So the upper bound is tight when
 `rate` is small and loose when the rate is near 1, and the lower bound is useful only for
 the first clock.
@@ -361,14 +363,16 @@ only stretched by the kernel, to within `3e-14`, each with strength
 `(number_of_inputs / 2) × amplitude²`, which is `8 / k²`, to within a relative
 `2e-15`. Gradient descent then needed 1, 3, 7, 12, 19, 28 and 38 steps to
 remove half of the error for `k` from 1 to 7. The same numbers came from the
-cosines, from the sines and from the exact factor. The control moves each input by up
+cosines, from the sines and from the formula `(1 − rate) ^ step`. For evenly
+spaced inputs that the cosines and sines are only stretched by the kernel is
+proved by `fourier_direction_is_stretched`; the run checks the numbers. The control moves each input by up
 to 0.3 of the spacing. The sampled cosines and sines were then not eigen-directions: the
 gap was between 0.03 and 0.94, and the strengths read off them were off from
-`8 / k²` by up to 1.8 times `8 / k²`.
+`8 / k²` by a relative error of up to 1.8.
 
-![Strength of each frequency of the Fourier model, and the number of steps to half the error, for evenly and unevenly spaced inputs](figures/18-fourier-order.png)
+![Left: strength of the kernel along the cosine of each frequency, for evenly and unevenly spaced inputs, against the formula. Right: steps until half the error is gone, measured on evenly spaced inputs, against the formula](figures/18-fourier-order.png)
 
-The figure is **measured**. The order in which frequencies are learned here
+The points are **measured** and the lines are **from the formula**. The order in which frequencies are learned here
 follows the strengths, which come from the choice `amplitude = 1 / k`; the
 experiment does not show that real networks choose such sizes.
 
@@ -386,7 +390,7 @@ To run it:
 jupyter nbconvert --to notebook --execute --inplace experiments/part4/ch18_strong_directions_first.ipynb
 ```
 
-It makes 20 checks and prints the same lines every time.
+It makes 19 checks and prints the same lines every time.
 
 ## What is not shown
 
