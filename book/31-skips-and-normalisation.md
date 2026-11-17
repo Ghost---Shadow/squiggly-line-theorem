@@ -230,34 +230,35 @@ chapter 14: a skip adds one.
 ## Run it yourself
 
 [`ch31_skips_and_normalisation.ipynb`](../experiments/part5/ch31_skips_and_normalisation.ipynb)
-checks each statement on plates in two to eight dimensions and on branches
+runs plates in two to eight dimensions and branches
 `slope × tanh(orthogonal matrix × input)`, which have slope at most `slope`.
-Nothing is trained. In 3000 random (axis, light) pairs the squared length after a bypass
-plate matched the old length plus `3 × overlap²` to a relative error of
-`2.2e-15`, and the light never got shorter. The hand example came out as
-`(6, 4)`, `(12, 4)`, `(24, 4)`, and as `0.6` then `0.36` without the
-amplifier. Over 40 plates in three dimensions the amplified light equalled the plate's
-axis every time. (Its length of 1 is by construction, since the amplifier
-divides by the length, so it is not evidence.) Through 30 plates turned 0.5 radian
-each, the bare length was `1.99e-02`, equal to `cos(0.5)^30`; the bypass length
-was `3.553e+04`. The amplified curve in the figure is flat at 1 by construction. For a residual layer with branch
-slope 0.5, 20 000 random pairs (a third very close together) had a gap ratio between 0.564 and 1.467, inside
-`[0.5, 1.5]`; the lower end was not reached. With 2 as the slope budget the
-largest stretch of a skip stack up to 512 layers was 7.360, under
-`e ^ 2 = 7.389`, and it matched `(1 + 2 / layer_count) ^ layer_count`. The
-same branches without skips stretched by `1.53e-05` at 8 layers and fell
-below the smallest number a 64-bit float holds at 512 layers. The memory
-cell's gap after 50 steps equalled the product of the forget gates (0.0065)
-and was unchanged with the gate open.
+Nothing is trained. Several lines of the notebook are printed as "by
+construction, cannot fail" and are not evidence: the squared-length identity
+for the bypass (worst relative error `2.2e-15` over 3000 random (axis, light)
+pairs), the hand arithmetic `(6, 4)`, `(12, 4)`, `(24, 4)`, the amplifier's
+length of 1, and the two memory-cell identities. The checks that could fail
+are these. Over 40 plates in three dimensions the amplified light equalled the
+plate's axis every time (worst error `2.5e-16`). Through 30 plates turned 0.5
+radian each, the bare length was `1.99e-02`, equal to `cos(0.5)^30`, and the
+bypass length was `3.553e+04`, never lower than the step before. For a
+residual layer with branch slope 0.5, 20 000 random pairs (a third very close
+together) had a gap ratio between 0.564 and 1.467, inside `[0.5, 1.5]`: the
+ratio came within 0.064 of the lower bound and 0.033 of the upper bound, and
+reached neither. With 2 as the slope budget the largest stretch of a skip stack
+up to 512 layers was 7.360, under `e ^ 2 = 7.389`, and it matched
+`(1 + 2 / layer_count) ^ layer_count`, which is the per-layer product from the
+formula. The same branches without skips stretched by `1.53e-05` at 8 layers
+and `4.68e-97` at 64 layers; deeper stacks underflow to 0 in 64-bit floats and
+are not used.
 
-Each statement has a control that breaks its hypothesis. A bypass axis of
-length 1.5 broke the squared-length identity, with a mean relative error of
-0.69. A branch of slope 2 merged the inputs `1` and `-1/3`. Branches at 1.5
-times the budget reached a stretch of 19.91 at 512 layers, 2.69 times `e ^ 2`.
-A forget gate of 1.1 grew a gap of 1.1 to 129.1 in 50 steps. These are checks
-by measurement, not proofs. The Lean theorems are the proofs. The notebook says
-nothing about batch normalisation, ReLU layers or training, as the next section
-says.
+Controls break the hypothesis. A bypass axis of length 1.5 broke the
+squared-length identity, with a mean relative error of 0.69. A branch of slope
+2 gave a smallest gap ratio of 0.0004 over 20 000 random pairs, far below 0.5.
+Branches at 1.5 times the budget reached a stretch of 19.91 at 512 layers, 2.69
+times `e ^ 2`. A forget gate of 1.1 grew a gap of 1.1 to 129.1 in 50 steps.
+These are checks by measurement, not proofs. The Lean theorems are the proofs.
+The notebook says nothing about batch normalisation, ReLU layers or training,
+as the next section says.
 
 ```bash
 jupyter nbconvert --to notebook --execute --inplace experiments/part5/ch31_skips_and_normalisation.ipynb
