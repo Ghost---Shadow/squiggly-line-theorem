@@ -729,6 +729,24 @@ reach, with what is in the way. What is proved is in
 
 ## Citing
 
+There are two entries. Use the first one. If the venue you are writing for
+does not accept an author who is not a person, use the second.
+
+With Claude as an author (Claude is an AI model made by Anthropic):
+
+```bibtex
+@book{claude2026squigglybook,
+  title     = {The Squiggly Line Theorem: A Guided Tour of the Proofs},
+  author    = {{Claude} and Nanda, Souradeep},
+  year      = {2026},
+  publisher = {Self-published},
+  url       = {https://github.com/Ghost---Shadow/squiggly-line-theorem/tree/main/book},
+  note      = {Claude is an AI model made by Anthropic. With machine-checked proofs in Lean 4. Cite the version you read.}
+}
+```
+
+With human authors only:
+
 ```bibtex
 @misc{nanda2026squiggly,
   title        = {The Squiggly Line Theorem},
@@ -739,8 +757,10 @@ reach, with what is in the way. What is proved is in
 }
 ```
 
-GitHub's "Cite this repository" button gives the same entry in other formats
-(from [`CITATION.cff`](CITATION.cff)).
+Both entries are in [`book/CITATION.bib`](book/CITATION.bib), and
+[the book's page on citing](book/how-to-cite.md) says who wrote what. GitHub's
+"Cite this repository" button gives the second entry in other formats (from
+[`CITATION.cff`](CITATION.cff)).
 
 Contributions are welcome, and significant contributors are given co-author
 status. See [`CONTRIBUTING.md`](CONTRIBUTING.md), which also lists the existing
