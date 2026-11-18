@@ -318,6 +318,67 @@ counts as failed if it fails on two of three seeds.
 - **Q5, error in the angles.** Random error of 5° (standard deviation) on
   every angle costs the free stack less than 0.02.
 
+## A plate that can be made: what the run gave (19 Nov 2026)
+
+All **measured**, three seeds, the 10,000 test digits. The numbers are
+printed in
+[`plates_that_can_be_made.ipynb`](../../experiments/optics/plates_that_can_be_made.ipynb)
+and the runs are in
+[`run_fabrication.py`](../../experiments/optics/run_fabrication.py). Two of
+the five predictions failed.
+
+| what was done to the plates | one plate between crossed polarizers | three polarizer plates |
+|---|---|---|
+| nothing (free angles) | 0.877 to 0.881 | 0.974 to 0.976 |
+| rounded to 4 angles after training | 0.840 to 0.856 | 0.938 to 0.961 |
+| rounded to 8 angles after training | not run | 0.972 to 0.973 |
+| trained with rounding to 4 angles | 0.712 | 0.966 to 0.967 |
+| rounded to 45° and 135° after training | 0.760 to 0.826 | not run |
+| trained with rounding to 45° and 135° | 0.089 to 0.100 | not run |
+| free, with 5° of error on every angle | 0.873 to 0.875 | 0.973 to 0.974 |
+| free, with 10° of error on every angle | 0.855 to 0.858 | 0.967 to 0.968 |
+| free, plates moved 1 pixel | 0.715 to 0.775 | 0.943 to 0.959 |
+| free, plates moved 2 pixels | 0.693 to 0.729 | 0.673 to 0.820 |
+| trained with random shifts, not moved | not run | 0.959 to 0.960 |
+| trained with random shifts, moved 2 pixels | not run | 0.940 to 0.947 |
+| trained with random shifts, moved 4 pixels | not run | 0.801 to 0.823 |
+
+![Left: test accuracy against the number of angle levels, for plates rounded after training and plates trained with the rounding. The three-plate stack stays above 0.93 at four levels either way. Right: test accuracy against the sideways shift of plates 2 and 3. The free stack falls to about 0.74 at 2 pixels; the stack trained with random shifts stays at 0.94.](../../graphs/optics_fabrication.png)
+
+- **Q1 failed on all three seeds.** Trained with the angles rounded to 45°
+  and 135°, the plate stayed at chance. The cause is in the training, not in
+  the plate. The slope of the mask `½ sin 2θ` is `cos 2θ`, which is exactly
+  zero at 45° and at 135°. The slope was taken at the rounded angle, so every
+  slope was zero and no angle ever moved. So this run does not say whether
+  two angles are enough. What it does say: rounding the free plate to those
+  two angles after training loses 0.05 to 0.12, more than the 0.02 predicted.
+  The same zero slope explains why the plate trained with four levels (0.712)
+  is worse than the free plate rounded to four (0.84 to 0.86).
+- **Q2 held.** Rounding the single plate to four angles after training lost
+  0.022 to 0.038; the line was 0.05.
+- **Q3 failed on all three seeds.** I predicted that rounding the stack to
+  four angles after training would lose more than 0.10. It lost 0.015 to
+  0.037. The other half held: trained with the rounding, the four-angle
+  stack reached 0.966 to 0.967 (the line was 0.94). The stack is much more
+  forgiving of coarse angles than I expected.
+- **Q4 held, with one seed against it.** Moved 2 pixels, the free stack lost
+  0.30, 0.16 and 0.25; the line was 0.20, so one seed fell short. The stack
+  trained with random shifts lost 0.012 to 0.020 at 2 pixels, and cost 0.015
+  to 0.016 when nothing was moved.
+- **Q5 held.** Error of 5° on every angle cost the free stack less than
+  0.002.
+
+**What this says about making one.** Four angle levels are enough for the
+stack: 0.966 against 0.975 with free angles. Error of a few degrees in the
+angles hardly matters. Position matters most: a plate that is 2 pixels off,
+4 wavelengths, costs the free stack about a quarter of its accuracy, and
+training with random shifts brings that down to about 0.015. The four-level
+plates of one run are saved as images in
+[`experiments/optics/results/`](../../experiments/optics/results), with a
+note on how to read them.
+
+Not run: four levels, shifts and angle error together in one training.
+
 ## What is not shown
 
 - Nothing here is built. It is a simulation of an idealised plate: no
@@ -326,8 +387,8 @@ counts as failed if it fails on two of three seeds.
 - With an ordinary lamp or a phone screen the light is not coherent.
   Brightness adds instead of size, the signs are gone, and the device is
   weaker. Not simulated here.
-- Plates that can be made. The trained angles here are free, exact and
-  perfectly lined up. Training with a few angle levels, angle noise and
-  shifted plates (step 5 of the training) has not been run.
+- A plate that could be made was simulated one fault at a time (few angle
+  levels, error in the angles, shifted plates), not with all of them at
+  once. Gaps of the wrong length and tilted plates were not tried.
 - The statements marked **derived** are not in Lean. Lean has what one
   point of a plate does. It has no gap, so nothing about light that travels.

@@ -162,6 +162,17 @@ to meet, and it needs room to spread. And the price is light. The three
 plates put less than 1% of the light into the ten marks. A plate made of
 polarizers computes by throwing light away.
 
+**Could such a plate be made?** A made plate has a few angle levels, not
+any angle, and it sits a little off. Both were tried in the simulation
+(**measured**, three runs each). With only four angles (0°, 45°, 90°, 135°)
+and trained that way, the three plates read 96.6%, against 97.5% with free
+angles. An error of 5° in every angle costs almost nothing. Position is
+the hard part: moving the second and third plates sideways by 2 pixels
+(4 wavelengths) drops the reading to between 67% and 82%. A stack that was
+trained with the plates shaken a little at every step reads 94% at the
+same shift. Two of my five predictions for these runs were wrong, and the
+note says which.
+
 ## How the plate is trained
 
 The training happens in a computer, on a simulation of the light. When it

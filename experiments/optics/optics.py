@@ -167,6 +167,46 @@ def split_validation(train_images, train_labels, validation_count=5000, split_se
 
 
 # ----------------------------------------------------------------------------------------------
+# Plates that can be made: rounding, angle error, shifts (round 2; none of this runs unless it is switched on)
+# ----------------------------------------------------------------------------------------------
+def get_levels(count=None, degrees=None):
+    """Allowed axis angles in radians, inside [0, pi): `count` evenly spaced levels from 0, or the listed degrees."""
+    if degrees is None:
+        degrees = [180.0 * index / count for index in range(count)]
+    return torch.tensor([math.radians(value) for value in degrees], dtype=REAL)
+
+
+def get_level_index(angles, levels):
+    """Index of the nearest allowed angle, the distance measured round the half-turn (a plate axis at t and t + pi is the same plate)."""
+    wrapped = torch.remainder(angles, math.pi).unsqueeze(-1)
+    distance = (wrapped - levels.to(angles.device)).abs()
+    distance = torch.minimum(distance, math.pi - distance)
+    return distance.argmin(dim=-1)
+
+
+def round_to_levels(angles, levels):
+    """
+    Forward: the nearest allowed angle. Backward: the gradient of the unrounded angle (straight-through).
+    """
+    rounded = levels.to(angles.device)[get_level_index(angles, levels)]
+    return angles + (rounded - angles).detach()
+
+
+def shift_grid(table, shift_rows, shift_columns):
+    """Move a (.., H, W) table by whole pixels, filling with zeros at the edge (no wrap-around)."""
+    out = torch.zeros_like(table)
+    height, width = table.shape[-2:]
+    if abs(shift_rows) >= height or abs(shift_columns) >= width:
+        return out
+    source_rows = slice(max(0, -shift_rows), height - max(0, shift_rows))
+    target_rows = slice(max(0, shift_rows), height - max(0, -shift_rows))
+    source_columns = slice(max(0, -shift_columns), width - max(0, shift_columns))
+    target_columns = slice(max(0, shift_columns), width - max(0, -shift_columns))
+    out[..., target_rows, target_columns] = table[..., source_rows, source_columns]
+    return out
+
+
+# ----------------------------------------------------------------------------------------------
 # The device
 # ----------------------------------------------------------------------------------------------
 # kind -> (light, number of plates, analyzer, gap multiplier, plate type, trained)
@@ -217,7 +257,23 @@ class Device(torch.nn.Module):
         self.register_buffer("window_masks", get_window_masks(aperture_pixels), persistent=False)
         self.register_buffer("transfer", get_transfer_function(grid_pixels, self.gap, pixel), persistent=False)
         self.start = start
+        self.levels = None      # round every plate to these angles (set_levels)
+        self.noise = None       # added to every rounded angle (set_noise)
+        self.shifts = None      # one (rows, columns) pixel shift per plate (set by the caller)
         self.to(device)
+
+    def set_levels(self, levels):
+        """`levels`: a tensor of allowed angles in radians, or None for free angles."""
+        self.levels = None if levels is None else levels.to(self.aperture_mask.device)
+
+    def set_noise(self, standard_deviation_degrees, generator=None):
+        """Gaussian error on every angle (degrees); None or 0 switches it off."""
+        if not standard_deviation_degrees:
+            self.noise = None
+            return
+        scale = math.radians(standard_deviation_degrees)
+        self.noise = [torch.randn(table.shape, generator=generator, dtype=REAL).to(table.device) * scale
+                      for table in self.plates]
 
     # -- light in -------------------------------------------------------------------------------
     def make_input(self, digits):
@@ -248,12 +304,20 @@ class Device(torch.nn.Module):
         light_in = (field.abs() ** 2).sum(dim=(1, 2, 3))
         plate_count = len(self.plates)
         for index, table in enumerate(self.plates):
+            if self.levels is not None:
+                table = round_to_levels(table, self.levels)
+            if self.noise is not None:
+                table = table + self.noise[index]
             angles = self.embed(table)
+            mask = self.aperture_mask
+            if self.shifts is not None:
+                angles = shift_grid(angles, *self.shifts[index])
+                mask = shift_grid(mask, *self.shifts[index])
             if self.config["plate"] == "polarizer":
                 field = apply_polarizer_plate(field, angles)
             else:
                 field = apply_phase_plate(field, angles)
-            field = apply_aperture(field, self.aperture_mask)
+            field = apply_aperture(field, mask)
             if index == plate_count - 1 and self.config["analyzer"] is not None:
                 analyzer = self.config["analyzer"]
                 if analyzer == "vertical":
@@ -301,15 +365,21 @@ def get_loss(window_sums, light_in, labels, temperature, light_weight):
 
 
 def train_device(kind, seed, train_images, train_labels, epochs, batch_size=100, learning_rate=0.05,
-                 temperature=30.0, light_weight=1.0, device="cpu", design_gap=None, log=None):
+                 temperature=30.0, light_weight=1.0, device="cpu", design_gap=None, log=None,
+                 levels=None, shift_range=0):
     """
     Train one device with Adam and a cosine decay of the learning rate to zero.
     `kind` is a key of KINDS, or "pixels_linear". Returns the model and a list of per-epoch dicts.
+    `levels` (a tensor of angles) puts the rounding in the forward pass; `shift_range` = r moves every plate by a fresh
+    random whole number of pixels in [-r, r], in rows and in columns, at every step. Both are off by default.
     """
     if kind == "pixels_linear":
         model = PixelsLinear(seed, device)
     else:
         model = Device(kind, seed, design_gap=design_gap, device=device)
+    if levels is not None:
+        model.set_levels(levels)
+    shift_generator = torch.Generator().manual_seed(2000 + seed)
     parameters = [p for p in model.parameters() if p.requires_grad]
     optimizer = torch.optim.Adam(parameters, lr=learning_rate)
     steps_per_epoch = train_images.shape[0] // batch_size
@@ -325,6 +395,9 @@ def train_device(kind, seed, train_images, train_labels, epochs, batch_size=100,
         for step in range(steps_per_epoch):
             chosen = order[step * batch_size:(step + 1) * batch_size]
             images, labels = train_images[chosen], train_labels[chosen]
+            if shift_range > 0:
+                draws = torch.randint(-shift_range, shift_range + 1, (len(model.plates), 2), generator=shift_generator)
+                model.shifts = [(int(row), int(column)) for row, column in draws]
             if kind == "pixels_linear":
                 loss = functional.cross_entropy(model(images), labels)
                 delivered = torch.zeros(())
@@ -343,6 +416,8 @@ def train_device(kind, seed, train_images, train_labels, epochs, batch_size=100,
         if log is not None:
             log(f"  {kind} seed {seed} epoch {epoch}: loss {record['loss']:.4f} "
                 f"delivered(train) {record['delivered']:.4f} {record['seconds']:.1f}s")
+    if shift_range > 0:
+        model.shifts = None
     return model, history
 
 
