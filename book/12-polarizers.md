@@ -94,6 +94,60 @@ outer chain is the one-factor rule of chapter 10: after `step_count`
 steps the error is `(1 − learning_rate × squared_length) ^ step_count`
 times what it was (`HAS_TIGHT_FEATURES.residual_iterate_gradientStep`).
 
+## A plate you can train
+
+Go back to the three plates: horizontal, 45°, vertical. Now let the middle
+plate have a different angle at every point, like a picture drawn in angles.
+At a point where its angle is 0° or 90° nothing gets through the three
+plates. At 45° the most gets through. In between, the angle sets how much:
+
+```lean
+theorem plate_between_crossed_polarizers
+    (amplitude : ℝ)
+    (axis_angle : ℝ) :
+    let incoming_light := MAKE_LIGHT amplitude 0             -- pointing across
+    let after_plate    := PASS_THROUGH_POLARIZER axis_angle incoming_light
+    let vertical_axis  := PI / 2                             -- 90°: at right angles to the light that came in
+    let outgoing_light := PASS_THROUGH_POLARIZER vertical_axis after_plate
+    let mask_value     := sin (2 * axis_angle) / 2           -- between -1/2 and 1/2, set by the angle of the plate
+    let expected_light : LightArrow := (0, amplitude * mask_value)
+    outgoing_light = expected_light := by
+```
+
+Read aloud: *horizontal light of strength `amplitude` goes through a plate
+at `axis_angle` and then through a vertical plate. What comes out points up
+and has `sin(2 × axis_angle) / 2` of the strength.* At 45° that is one half,
+the three-polarizer experiment again. At 135° it is minus one half: the same
+brightness, with the wave turned upside down. Light from a 45° point and a
+135° point cancels where the two meet.
+
+So the three plates are a **mask**: a number between `−½` and `½` at every
+point, set by the angle there, which multiplies the light. A mask with fine
+stripes bends light, as a diffraction grating does. The angle at each point
+is a weight, and the weights can be trained: write the plates and the travel
+of the light as a program, and run gradient descent on the angles.
+
+This was done in a simulation
+([`docs/networks/polarizer-classifier.md`](../docs/networks/polarizer-classifier.md)).
+A handwritten digit is the shape of the light. Behind the plates the light
+travels to a screen with ten marks, and the brightest mark is the answer.
+**Measured**, on the 10,000 MNIST test digits, mean of three runs:
+
+| what the light passes | digits read correctly |
+|---|---|
+| one trained plate between crossed polarizers | 87.9% |
+| three trained plates with gaps between them | 97.5% |
+| the same three plates, never trained | 9.1% |
+
+![Top: the trained angle map of one plate, for crossed linear polarizers on the left. Under the digit it is made of two angles, near 45 and 135 degrees. Bottom: the screen for one digit, with ten windows drawn and the correct one marked and brightest.](../graphs/optics_plate.png)
+
+Two things the simulation showed are worth keeping. The gap between the
+plates matters as much as the plates: with gaps twenty times shorter the
+same stack read 79.7%, because light from different parts of the digit has
+to meet, and it needs room to spread. And the price is light. The three
+plates put less than 1% of the light into the ten marks. A plate made of
+polarizers computes by throwing light away.
+
 ## Run it yourself
 
 [`ch12_polarizers.ipynb`](../experiments/part2/ch12_polarizers.ipynb) checks the
@@ -136,6 +190,11 @@ real polarizers is one linear map, so it is a network with no activation
 function, and nothing has been built. The
 [README](../README.md#a-network-made-of-polarizers) says what is missing.
 
+The trained plate is a simulation of ideal plates and light of one colour
+from one source. The only step that is not linear is the screen, which reads
+brightness, the square of the light. The theorem above is about one point of
+the plate. Nothing about light that travels is in Lean.
+
 ## Check yourself
 
 1. Light passes a plate turned 60° from it. How much of its strength is
@@ -144,9 +203,14 @@ function, and nothing has been built. The
    theorem promise for 2 plates, and is it consistent?
 3. Two inputs give the same values after layer 3 of a network. Can layer
    7 tell them apart?
+4. The middle plate of three is at 30° at one point and at 150° at
+   another. How much of the strength leaves the three plates at each
+   point, and what happens where light from the two points meets?
 
 **Answers.** (1) `cos(60°)`, one half. (2) At least `1 − PI² / 16`,
 about 0.38. One half is more than that, so yes. (3) No, unless a skip
 connection carries something round layers 3 to 7. Chapter 14.
+(4) `sin(60°) / 2`, about 0.43, at the first, and `sin(300°) / 2`, about
+−0.43, at the second. Equal strength and opposite sign, so they cancel.
 
 Previous: [11. The lift](11-the-lift.md) · Next: [13. One factor, again and again](13-one-factor.md)
