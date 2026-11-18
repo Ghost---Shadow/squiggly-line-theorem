@@ -377,7 +377,24 @@ plates of one run are saved as images in
 [`experiments/optics/results/`](../../experiments/optics/results), with a
 note on how to read them.
 
-Not run: four levels, shifts and angle error together in one training.
+## Two more runs: predictions, written before the run (19 Nov 2026)
+
+Written after the results above and before either run below. Each is judged
+per seed and counts as failed if it fails on two of three seeds.
+
+- **R1, two angles with a slope that can move.** Q1 never moved because the
+  slope was taken at the rounded angle, where it is zero. Train the plate
+  between crossed polarizers again with the light computed from the rounded
+  angle (45° or 135°) and the slope taken at the unrounded angle. Prediction:
+  test accuracy of at least 0.83, which is above every seed of the free plate
+  rounded to two angles after training (0.760 to 0.826). The free plate is at
+  0.877 to 0.881.
+- **R2, every fault at once.** Train the three-plate stack with rounding to
+  four angles and a random shift of each plate of up to 2 pixels at every
+  step. Test it with the four angles, the second and third plates moved 2
+  pixels, and 5° of error on every angle, all together. Prediction: test
+  accuracy of at least 0.92.
+
 
 ## What is not shown
 
