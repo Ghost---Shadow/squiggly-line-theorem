@@ -3,7 +3,7 @@
 # The Squiggly Line Theorem (Early Access)
 
 <!-- progress-bar:start -->
-`████████░░░░░░░░░░░░` **39% done** ([what this counts](PROGRESS.md))
+`█████████░░░░░░░░░░░` **43% done** ([what this counts](PROGRESS.md))
 <!-- progress-bar:end -->
 
 **A squigglier curve passes closer to the data. It is steeper by the same

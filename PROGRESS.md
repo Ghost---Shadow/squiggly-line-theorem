@@ -43,5 +43,5 @@ plan are not counted. To change the bar, tick an item here and run
 
 - [x] A PDF built on every push, and a web edition
 - [x] A draft of the paper
-- [ ] Lean highlighting on the website, built and looked at
+- [x] Lean highlighting on the website, built and looked at
 - [ ] Lean code blocks in `docs/` checked against the sources
