@@ -51,6 +51,7 @@ In `SquigglyLine/Networks/`.
 | `Bridge`          | `L` folds are one Fourier term of frequency `2 ^ L`                   |
 | `Polarizer`       | ReLU is a projection; a turn keeps `cos θ`; small turns survive       |
 | `ThreePolarizers` | Malus's law, the plate chain, and more plates arriving closer         |
+| `TrainedPlate`    | a plate with a chosen angle is a mask, and a phase plate for circular light |
 | `MarkovChains`    | merged stays merged; the photon's chain; training with tight features |
 | `LinearModel`     | parameter space: a budget of movement buys `ε / d` of the loss        |
 | `ExchangeRate`    | tight features: `travel = ‖residual‖ / √c`                            |
@@ -162,6 +163,7 @@ import SquigglyLine.Networks.TentCloser
 import SquigglyLine.Networks.Bridge
 import SquigglyLine.Networks.Polarizer
 import SquigglyLine.Networks.ThreePolarizers
+import SquigglyLine.Networks.TrainedPlate
 import SquigglyLine.Networks.MarkovChains
 import SquigglyLine.Networks.LinearModel
 import SquigglyLine.Networks.ExchangeRate

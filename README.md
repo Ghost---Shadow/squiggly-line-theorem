@@ -614,6 +614,16 @@ built from printed diffracting plates and from meshes of interferometers
 of a weight as the angle of a plate, with the loss worked out. I have not
 checked whether that reading is in the literature.
 
+**Simulated (18 Nov 2026).** Let the middle plate of the three-polarizer
+experiment have its own angle at every point, train the angles, and let the
+light travel to a screen with ten marks. In a simulation, three such plates
+read handwritten digits with 97.5% accuracy on the MNIST test set, the same
+as three lossless phase plates, on about a tenth of the light. One point of
+such a plate is proved in
+[`TrainedPlate`](lean/SquigglyLine/Networks/TrainedPlate.lean); the rest is
+in [`docs/networks/polarizer-classifier.md`](docs/networks/polarizer-classifier.md).
+Nothing is built.
+
 More in [`docs/networks/wind-tunnel-and-polarizers.md`](docs/networks/wind-tunnel-and-polarizers.md)
 and [`docs/networks/three-polarizers.md`](docs/networks/three-polarizers.md). The open question
 is item 18 of [`docs/wishlist.md`](docs/wishlist.md#open-problems): what can a

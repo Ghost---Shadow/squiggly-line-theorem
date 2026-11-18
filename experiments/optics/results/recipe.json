@@ -1,0 +1,158 @@
+{
+  "chosen": {
+    "learning_rate": 0.1,
+    "temperature": 100.0,
+    "light_weight": 1.0
+  },
+  "candidates": [
+    {
+      "learning_rate": 0.02,
+      "temperature": 10.0,
+      "light_weight": 1.0,
+      "validation_accuracy": 0.862,
+      "delivered": 0.0017085793912410736,
+      "seconds": 27.242866039276123
+    },
+    {
+      "learning_rate": 0.02,
+      "temperature": 10.0,
+      "light_weight": 5.0,
+      "validation_accuracy": 0.8606,
+      "delivered": 0.0020331539690494537,
+      "seconds": 28.101296424865723
+    },
+    {
+      "learning_rate": 0.02,
+      "temperature": 30.0,
+      "light_weight": 1.0,
+      "validation_accuracy": 0.9024,
+      "delivered": 0.0024200568079948423,
+      "seconds": 26.758050441741943
+    },
+    {
+      "learning_rate": 0.02,
+      "temperature": 30.0,
+      "light_weight": 5.0,
+      "validation_accuracy": 0.9018,
+      "delivered": 0.002707951021194458,
+      "seconds": 26.33763337135315
+    },
+    {
+      "learning_rate": 0.02,
+      "temperature": 100.0,
+      "light_weight": 1.0,
+      "validation_accuracy": 0.9046,
+      "delivered": 0.0040497662544250485,
+      "seconds": 26.869117259979248
+    },
+    {
+      "learning_rate": 0.02,
+      "temperature": 100.0,
+      "light_weight": 5.0,
+      "validation_accuracy": 0.9038,
+      "delivered": 0.004257706665992737,
+      "seconds": 30.547834873199463
+    },
+    {
+      "learning_rate": 0.05,
+      "temperature": 10.0,
+      "light_weight": 1.0,
+      "validation_accuracy": 0.8928,
+      "delivered": 0.0014927381336688995,
+      "seconds": 31.501246213912964
+    },
+    {
+      "learning_rate": 0.05,
+      "temperature": 10.0,
+      "light_weight": 5.0,
+      "validation_accuracy": 0.8926,
+      "delivered": 0.001868662655353546,
+      "seconds": 34.247480392456055
+    },
+    {
+      "learning_rate": 0.05,
+      "temperature": 30.0,
+      "light_weight": 1.0,
+      "validation_accuracy": 0.9336,
+      "delivered": 0.0023324828743934633,
+      "seconds": 34.00644898414612
+    },
+    {
+      "learning_rate": 0.05,
+      "temperature": 30.0,
+      "light_weight": 5.0,
+      "validation_accuracy": 0.9324,
+      "delivered": 0.002950246214866638,
+      "seconds": 32.98044490814209
+    },
+    {
+      "learning_rate": 0.05,
+      "temperature": 100.0,
+      "light_weight": 1.0,
+      "validation_accuracy": 0.9358,
+      "delivered": 0.0045541818141937255,
+      "seconds": 34.38113737106323
+    },
+    {
+      "learning_rate": 0.05,
+      "temperature": 100.0,
+      "light_weight": 5.0,
+      "validation_accuracy": 0.9356,
+      "delivered": 0.005325170612335205,
+      "seconds": 34.32547974586487
+    },
+    {
+      "learning_rate": 0.1,
+      "temperature": 10.0,
+      "light_weight": 1.0,
+      "validation_accuracy": 0.902,
+      "delivered": 0.0015646594762802125,
+      "seconds": 29.987734079360962
+    },
+    {
+      "learning_rate": 0.1,
+      "temperature": 10.0,
+      "light_weight": 5.0,
+      "validation_accuracy": 0.9028,
+      "delivered": 0.0018815765380859376,
+      "seconds": 29.197842121124268
+    },
+    {
+      "learning_rate": 0.1,
+      "temperature": 30.0,
+      "light_weight": 1.0,
+      "validation_accuracy": 0.9386,
+      "delivered": 0.003109551274776459,
+      "seconds": 30.114967107772827
+    },
+    {
+      "learning_rate": 0.1,
+      "temperature": 30.0,
+      "light_weight": 5.0,
+      "validation_accuracy": 0.9376,
+      "delivered": 0.004345744967460632,
+      "seconds": 33.10184574127197
+    },
+    {
+      "learning_rate": 0.1,
+      "temperature": 100.0,
+      "light_weight": 1.0,
+      "validation_accuracy": 0.9484,
+      "delivered": 0.005312852382659912,
+      "seconds": 33.25523519515991
+    },
+    {
+      "learning_rate": 0.1,
+      "temperature": 100.0,
+      "light_weight": 5.0,
+      "validation_accuracy": 0.9476,
+      "delivered": 0.007189049696922302,
+      "seconds": 33.95136499404907
+    }
+  ],
+  "tune_digits": 25000,
+  "tune_epochs": 1,
+  "validation_digits": 5000,
+  "kind": "pol_stack3",
+  "seed": 0
+}
