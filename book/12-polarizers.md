@@ -139,6 +139,20 @@ travels to a screen with ten marks, and the brightest mark is the answer.
 | three trained plates with gaps between them | 97.5% |
 | the same three plates, never trained | 9.1% |
 
+Here are the three trained plates at work on the first test image of each
+digit from 0 to 9. On the left is the light going in. On the right is the
+light on the screen, with the ten windows drawn and the brightest one
+outlined. Nine of the ten are read correctly. The 5 is read as a 6
+(**measured**).
+
+<img src="figures/12-optical-digits.gif" alt="An animation that loops over the digits 0 to 9. For each digit the left panel shows the digit as light going in and the right panel shows the light on the screen, with the brightest of the ten windows outlined.">
+
+![The first test image of each digit from 0 to 9, each beside the light it makes on the screen. The brightest window is outlined in green. It is the correct window for nine of the ten. For the 5 it is window 6.](figures/12-optical-digits.png)
+
+The picture above is all ten at once. [The animation](figures/12-optical-digits.gif)
+steps through them one at a time, and is made by
+[`make_digit_animation.py`](../experiments/optics/make_digit_animation.py).
+
 ![Top: the trained angle map of one plate, for crossed linear polarizers on the left. Under the digit it is made of two angles, near 45 and 135 degrees. Bottom: the screen for one digit, with ten windows drawn and the correct one marked and brightest.](../graphs/optics_plate.png)
 
 Two things the simulation showed are worth keeping. The gap between the
