@@ -426,6 +426,38 @@ angle error costs about 0.004. And being trained for shifts has its own
 price: with nothing moved, this stack is at 0.94 where the four-angle stack
 trained without shifts was at 0.966.
 
+## An ordinary lamp: predictions, written before the run (19 Nov 2026)
+
+Everything above assumes light from one source, such as a laser, where the
+waves from different parts of the digit add with their signs and can cancel.
+A lamp or a phone screen is different: each point of the digit glows on its
+own, and on the screen **brightness adds**, not strength.
+
+**Derived.** Let `B(y; x)` be the brightness that a single glowing point `x`
+of the digit gives at the screen point `y`. With a lamp, the brightness at
+`y` is the sum over `x` of `(strength of the digit at x)² × B(y; x)`. So the
+score of window `j` is
+
+```
+score_j = Σ over digit points x of  W[j, x] × (strength at x)²
+```
+
+with `W[j, x]` the sum of `B(y; x)` over the window, which is never
+negative. The device is then a plain **linear** classifier on the squared
+pixels, with weights that cannot be negative. The degree-two lift is gone,
+and so is cancelling.
+
+Written before any run with such light. Judged per seed; failed if it fails
+on two of three seeds.
+
+- **S1, the lamp is weaker than a linear classifier.** The three-plate
+  stack trained for lamp light stays below the plain linear classifier on
+  the pixels (0.916), whose weights may be negative.
+- **S2, and still useful.** It reaches at least 0.60.
+- **S3, a plate trained for a laser does not work under a lamp.** The free
+  three-plate stack from the first run, tested with lamp light, reads less
+  than half of the digits.
+
 ## What is not shown
 
 - Nothing here is built. It is a simulation of an idealised plate: no
