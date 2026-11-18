@@ -2,6 +2,60 @@
 
 # The Squiggly Line Theorem (Early Access)
 
+<!-- progress-bar:start -->
+`████████░░░░░░░░░░░░` **39% done** (8 items done, 2 part done, 13 to do)
+<!-- progress-bar:end -->
+
+<details>
+<summary>What the bar counts</summary>
+
+The bar is the share of the items below that are done. Each item counts the
+same, so the number is rough. An item with a count, such as (16 of 34), counts
+for that fraction. The list is what the first full edition needs: what stands
+today, and the work planned for the existing book in
+[the current plan](book/proposals/proposal-20261117.md). New projects in that
+plan are not counted. To change the bar, tick an item and run
+[`scripts/readme_progress.py`](scripts/readme_progress.py).
+
+<!-- progress-list:start -->
+**Proofs**
+
+- [x] The squiggly line theorem, checked by Lean and rebuilt on every push
+- [x] Every Lean statement quoted in the book matches the sources
+- [x] Chapter 18: strong directions first for any kernel, and the Fourier version
+- [ ] Chapter 17: the two open items about plates (1 of 2)
+- [ ] Chapter 5: a proof that standard initialisation gives the same loss at every width
+- [ ] Theorem names in the same style as the rest of the code
+- [ ] Long proof steps split into named lines, and long repeated steps made lemmas
+
+**Book**
+
+- [x] All 47 chapters written
+- [x] At least one figure in chapters 1 and 3 to 47
+- [ ] Every "recalled" claim checked against its paper
+- [ ] A "Preliminaries" section at the start of every chapter
+- [ ] Under each open item, what stood in the way of a proof
+- [ ] Units for the numbers in the worked examples
+- [ ] One shared BibTeX file for the book and the paper
+- [ ] The planned edits to chapters 2, 6, 7, 8, 17, 18 and 19
+- [ ] The places where a measurement and a chapter differ, read and settled
+
+**Experiments**
+
+- [x] A notebook for chapters 1 and 3 to 47
+- [ ] The notebooks of chapters 14 to 47 read by a second reader (16 of 34)
+- [ ] A test of whether the theory can guess hyperparameters
+
+**Publishing**
+
+- [x] A PDF built on every push, and a web edition
+- [x] A draft of the paper
+- [ ] Lean highlighting on the website, built and looked at
+- [ ] Lean code blocks in `docs/` checked against the sources
+<!-- progress-list:end -->
+
+</details>
+
 **A squigglier curve passes closer to the data. It is steeper by the same
 factor. And the loss at the start cannot tell the difference.** What the
 nearness buys is a short distance to move, not a head start.
