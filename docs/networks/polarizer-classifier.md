@@ -396,6 +396,36 @@ per seed and counts as failed if it fails on two of three seeds.
   accuracy of at least 0.92.
 
 
+## Two more runs: what they gave (19 Nov 2026)
+
+**Measured**, three seeds, the 10,000 test digits, printed in the last
+section of
+[`plates_that_can_be_made.ipynb`](../../experiments/optics/plates_that_can_be_made.ipynb).
+The runs are in
+[`run_made_plate.py`](../../experiments/optics/run_made_plate.py).
+
+- **R1 held on all three seeds, barely on one.** With the slope taken at the
+  unrounded angle, the plate of two angles trains: 0.831, 0.856 and 0.837.
+  The line was 0.83. The free plate is at 0.877 to 0.881, so two angles cost
+  0.02 to 0.05. That is more than the 0.02 that Q1 claimed, so Q1 would have
+  failed with this training as well.
+- **R2 failed on all three seeds, by a little.** With four angles, plates 2
+  and 3 moved 2 pixels and 5° of error on every angle, the stack trained for
+  all of that read 0.915, 0.912 and 0.915. The line was 0.92.
+
+| the stack trained with four angles and random shifts | test accuracy, three seeds |
+|---|---|
+| four angles, nothing else | 0.939, 0.943, 0.942 |
+| and plates 2 and 3 moved 2 pixels | 0.917, 0.915, 0.918 |
+| and 5° of error on every angle (not moved) | 0.937, 0.939, 0.938 |
+| moved and with the error, together | 0.915, 0.912, 0.915 |
+
+So a stack with every fault tried here still reads about 91% of the digits,
+against 97.5% for the ideal one. The shift costs the most, about 0.024. The
+angle error costs about 0.004. And being trained for shifts has its own
+price: with nothing moved, this stack is at 0.94 where the four-angle stack
+trained without shifts was at 0.966.
+
 ## What is not shown
 
 - Nothing here is built. It is a simulation of an idealised plate: no
@@ -404,8 +434,8 @@ per seed and counts as failed if it fails on two of three seeds.
 - With an ordinary lamp or a phone screen the light is not coherent.
   Brightness adds instead of size, the signs are gone, and the device is
   weaker. Not simulated here.
-- A plate that could be made was simulated one fault at a time (few angle
-  levels, error in the angles, shifted plates), not with all of them at
-  once. Gaps of the wrong length and tilted plates were not tried.
+- The faults of a made plate that were simulated are few angle levels,
+  error in the angles and plates moved sideways. Gaps of the wrong length,
+  tilted plates and light of more than one colour were not tried.
 - The statements marked **derived** are not in Lean. Lean has what one
   point of a plate does. It has no gap, so nothing about light that travels.

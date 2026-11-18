@@ -260,6 +260,7 @@ class Device(torch.nn.Module):
         self.levels = None      # round every plate to these angles (set_levels)
         self.noise = None       # added to every rounded angle (set_noise)
         self.shifts = None      # one (rows, columns) pixel shift per plate (set by the caller)
+        self.slope_at_unrounded = False   # round 3: in training, light from the rounded angle, slope at the unrounded one
         self.to(device)
 
     def set_levels(self, levels):
@@ -304,7 +305,11 @@ class Device(torch.nn.Module):
         light_in = (field.abs() ** 2).sum(dim=(1, 2, 3))
         plate_count = len(self.plates)
         for index, table in enumerate(self.plates):
-            if self.levels is not None:
+            exact_slope = self.levels is not None and self.slope_at_unrounded and self.training
+            if exact_slope:
+                free_table = table
+                table = self.levels[get_level_index(table.detach(), self.levels)]     # the rounded angle, no gradient
+            elif self.levels is not None:
                 table = round_to_levels(table, self.levels)
             if self.noise is not None:
                 table = table + self.noise[index]
@@ -313,7 +318,15 @@ class Device(torch.nn.Module):
             if self.shifts is not None:
                 angles = shift_grid(angles, *self.shifts[index])
                 mask = shift_grid(mask, *self.shifts[index])
-            if self.config["plate"] == "polarizer":
+            if exact_slope:
+                # field_out = plate(field, theta) + (plate(field, round(theta)) - plate(field, theta)).detach()
+                free_angles = self.embed(free_table)
+                if self.shifts is not None:
+                    free_angles = shift_grid(free_angles, *self.shifts[index])
+                out_free = apply_polarizer_plate(field, free_angles)
+                out_rounded = apply_polarizer_plate(field, angles)
+                field = out_free + (out_rounded - out_free).detach()
+            elif self.config["plate"] == "polarizer":
                 field = apply_polarizer_plate(field, angles)
             else:
                 field = apply_phase_plate(field, angles)
@@ -366,12 +379,13 @@ def get_loss(window_sums, light_in, labels, temperature, light_weight):
 
 def train_device(kind, seed, train_images, train_labels, epochs, batch_size=100, learning_rate=0.05,
                  temperature=30.0, light_weight=1.0, device="cpu", design_gap=None, log=None,
-                 levels=None, shift_range=0):
+                 levels=None, shift_range=0, slope_at_unrounded=False):
     """
     Train one device with Adam and a cosine decay of the learning rate to zero.
     `kind` is a key of KINDS, or "pixels_linear". Returns the model and a list of per-epoch dicts.
     `levels` (a tensor of angles) puts the rounding in the forward pass; `shift_range` = r moves every plate by a fresh
-    random whole number of pixels in [-r, r], in rows and in columns, at every step. Both are off by default.
+    random whole number of pixels in [-r, r], in rows and in columns, at every step. `slope_at_unrounded` (needs `levels`)
+    computes the plate's output from the rounded angle and takes its slope at the unrounded angle. All are off by default.
     """
     if kind == "pixels_linear":
         model = PixelsLinear(seed, device)
@@ -379,6 +393,7 @@ def train_device(kind, seed, train_images, train_labels, epochs, batch_size=100,
         model = Device(kind, seed, design_gap=design_gap, device=device)
     if levels is not None:
         model.set_levels(levels)
+        model.slope_at_unrounded = slope_at_unrounded
     shift_generator = torch.Generator().manual_seed(2000 + seed)
     parameters = [p for p in model.parameters() if p.requires_grad]
     optimizer = torch.optim.Adam(parameters, lr=learning_rate)

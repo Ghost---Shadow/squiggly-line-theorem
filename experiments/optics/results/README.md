@@ -21,3 +21,10 @@ Round 2 (`run_fabrication.py`)
   order the light meets them), 8-bit grey, 96 x 96 pixels. **Pixel value = level index x 60**: 0, 60, 120, 180 mean the
   axis angle 0, 45, 90, 135 degrees, so `angle in degrees = pixel value / 60 x 45`. Row 0 is the top row of the plate as
   the light meets it; column 0 is the left.
+
+Round 3 (`run_made_plate.py`)
+- `made_plate.json`: every number of round 3, per seed: R1 (`linear3` at 45 and 135 degrees, slope at the unrounded angle) and R2
+  (`pol_stack3`, four levels and random shifts in training; evaluated (a) rounded, (b) plates 2 and 3 moved 2 px, (c) 5 degrees of
+  angle error, (d) both).
+- `made_slope_ste2_linear3_seed<k>.npy`, `made_shift_ste4_pol_stack3_seed<k>.npy`: the trained parameters before rounding, as for the
+  `fab_*` files. The made plate is the rounded table (nearest of 45 and 135 degrees, or of 0, 45, 90, 135 degrees, modulo 180).

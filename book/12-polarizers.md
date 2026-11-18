@@ -170,8 +170,9 @@ angles. An error of 5° in every angle costs almost nothing. Position is
 the hard part: moving the second and third plates sideways by 2 pixels
 (4 wavelengths) drops the reading to between 67% and 82%. A stack that was
 trained with the plates shaken a little at every step reads 94% at the
-same shift. Two of my five predictions for these runs were wrong, and the
-note says which.
+same shift. With all three faults at once (four angles, plates 2 pixels
+off, 5° of error) a stack trained for them reads about 91%. Three of my
+seven predictions for these runs were wrong, and the note says which.
 
 ## How the plate is trained
 
