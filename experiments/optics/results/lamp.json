@@ -1,0 +1,262 @@
+{
+  "settings": {
+    "epochs": 4,
+    "recipe": {
+      "learning_rate": 0.1,
+      "temperature": 100.0,
+      "light_weight": 1.0
+    },
+    "seeds": [
+      0,
+      1,
+      2
+    ],
+    "design_gap": 635.7357941786825,
+    "monte_carlo": {
+      "digits": 200,
+      "draws": 256,
+      "tolerance_standard_errors": 5.0
+    }
+  },
+  "torch_version": "2.6.0+cu124",
+  "device": "cuda",
+  "runs": {
+    "0": {
+      "laser_trained_pol_stack3_under_lamp": {
+        "accuracy": 0.0974,
+        "delivered": 0.0017294289651285425,
+        "correct_share": 0.007922185489745825
+      },
+      "laser_trained_linear3_under_lamp": {
+        "accuracy": 0.0883,
+        "delivered": 0.012073260160825189,
+        "correct_share": 0.005558730341856087
+      },
+      "lamp_trained_pol_stack3": {
+        "accuracy": 0.8140000000000001,
+        "delivered": 0.0009165836136043181,
+        "correct_share": 0.009772397798934795,
+        "history": [
+          {
+            "epoch": 0,
+            "loss": 1.870345791686665,
+            "delivered": 0.0011580021579919214,
+            "seconds": 58.13701796531677
+          },
+          {
+            "epoch": 1,
+            "loss": 1.5438892364501953,
+            "delivered": 0.0010838497808965091,
+            "seconds": 57.31185841560364
+          },
+          {
+            "epoch": 2,
+            "loss": 1.2460220304402438,
+            "delivered": 0.0010105356534900651,
+            "seconds": 58.68872022628784
+          },
+          {
+            "epoch": 3,
+            "loss": 1.0648211546377702,
+            "delivered": 0.0009377069633708081,
+            "seconds": 62.38588619232178
+          }
+        ],
+        "min_W": 1.032397257960671e-12
+      },
+      "lamp_trained_linear3": {
+        "accuracy": 0.0883,
+        "delivered": 0.012723894834117754,
+        "correct_share": 0.0055580861954874425,
+        "history": [
+          {
+            "epoch": 0,
+            "loss": 7.328140793713656,
+            "delivered": 0.011440481543540954,
+            "seconds": 23.16414499282837
+          },
+          {
+            "epoch": 1,
+            "loss": 7.373608428781683,
+            "delivered": 0.012779317786070433,
+            "seconds": 23.29035758972168
+          },
+          {
+            "epoch": 2,
+            "loss": 7.329279230291193,
+            "delivered": 0.013042230580679395,
+            "seconds": 23.53801417350769
+          },
+          {
+            "epoch": 3,
+            "loss": 7.2848764341527765,
+            "delivered": 0.012766835738650777,
+            "seconds": 25.57992720603943
+          }
+        ],
+        "min_W": 1.1235199437464871e-09
+      }
+    },
+    "1": {
+      "laser_trained_pol_stack3_under_lamp": {
+        "accuracy": 0.0608,
+        "delivered": 0.0017368321034511604,
+        "correct_share": 0.007935301879954353
+      },
+      "laser_trained_linear3_under_lamp": {
+        "accuracy": 0.09000000000000001,
+        "delivered": 0.012077342726820098,
+        "correct_share": 0.005558756728561072
+      },
+      "lamp_trained_pol_stack3": {
+        "accuracy": 0.8137000000000001,
+        "delivered": 0.0008266838368392119,
+        "correct_share": 0.009829601612132166,
+        "history": [
+          {
+            "epoch": 0,
+            "loss": 1.885244237726385,
+            "delivered": 0.0011420361673332411,
+            "seconds": 64.58578777313232
+          },
+          {
+            "epoch": 1,
+            "loss": 1.508196916363456,
+            "delivered": 0.0010386144593146375,
+            "seconds": 64.15632343292236
+          },
+          {
+            "epoch": 2,
+            "loss": 1.2203260616822675,
+            "delivered": 0.0009249515809245746,
+            "seconds": 64.8063452243805
+          },
+          {
+            "epoch": 3,
+            "loss": 1.044521355195479,
+            "delivered": 0.0008455708482175727,
+            "seconds": 64.65534543991089
+          }
+        ],
+        "min_W": 3.2639830508524037e-12
+      },
+      "lamp_trained_linear3": {
+        "accuracy": 0.0944,
+        "delivered": 0.012730820642836734,
+        "correct_share": 0.005558455379418244,
+        "history": [
+          {
+            "epoch": 0,
+            "loss": 7.320931763215499,
+            "delivered": 0.011437341712245887,
+            "seconds": 24.604650497436523
+          },
+          {
+            "epoch": 1,
+            "loss": 7.333620612404563,
+            "delivered": 0.012824220552363179,
+            "seconds": 26.620316982269287
+          },
+          {
+            "epoch": 2,
+            "loss": 7.344095118262551,
+            "delivered": 0.013039770144969225,
+            "seconds": 23.39906120300293
+          },
+          {
+            "epoch": 3,
+            "loss": 7.289845986799761,
+            "delivered": 0.01278092310340567,
+            "seconds": 25.840521574020386
+          }
+        ],
+        "min_W": 8.498632908526815e-10
+      }
+    },
+    "2": {
+      "laser_trained_pol_stack3_under_lamp": {
+        "accuracy": 0.09960000000000001,
+        "delivered": 0.0018675414361505845,
+        "correct_share": 0.008019822832520975
+      },
+      "laser_trained_linear3_under_lamp": {
+        "accuracy": 0.0862,
+        "delivered": 0.01215296971120189,
+        "correct_share": 0.005559039454598734
+      },
+      "lamp_trained_pol_stack3": {
+        "accuracy": 0.8190000000000001,
+        "delivered": 0.0007996101512007155,
+        "correct_share": 0.009517801798319871,
+        "history": [
+          {
+            "epoch": 0,
+            "loss": 1.8717650849168952,
+            "delivered": 0.0011210137963379649,
+            "seconds": 67.18899369239807
+          },
+          {
+            "epoch": 1,
+            "loss": 1.5008946347236634,
+            "delivered": 0.0010146959047679874,
+            "seconds": 67.62652087211609
+          },
+          {
+            "epoch": 2,
+            "loss": 1.2183574798974124,
+            "delivered": 0.0009044611274095422,
+            "seconds": 67.95244455337524
+          },
+          {
+            "epoch": 3,
+            "loss": 1.0362628786130386,
+            "delivered": 0.0008185472744728692,
+            "seconds": 67.83895063400269
+          }
+        ],
+        "min_W": 1.3825976821757457e-11
+      },
+      "lamp_trained_linear3": {
+        "accuracy": 0.0893,
+        "delivered": 0.012817053741371749,
+        "correct_share": 0.005558307145973381,
+        "history": [
+          {
+            "epoch": 0,
+            "loss": 7.353520471399481,
+            "delivered": 0.011393880596045743,
+            "seconds": 23.789793729782104
+          },
+          {
+            "epoch": 1,
+            "loss": 7.383139709992842,
+            "delivered": 0.012893777381290088,
+            "seconds": 26.870659589767456
+          },
+          {
+            "epoch": 2,
+            "loss": 7.3357281104001135,
+            "delivered": 0.013174585462971167,
+            "seconds": 24.837217092514038
+          },
+          {
+            "epoch": 3,
+            "loss": 7.333895724903454,
+            "delivered": 0.012860371954739094,
+            "seconds": 24.356335163116455
+          }
+        ],
+        "min_W": 5.496613830757724e-09
+      }
+    }
+  },
+  "wall_seconds": 1098.9075679779053,
+  "monte_carlo_check": {
+    "entries": 2000,
+    "entries_outside": 0,
+    "largest_deviation_in_standard_errors": 3.1100666080848334,
+    "mean_deviation_in_standard_errors": 0.7923224407494862,
+    "relative_difference_of_total": 0.0005750640403345353,
+    "passed": true
+  }
+}

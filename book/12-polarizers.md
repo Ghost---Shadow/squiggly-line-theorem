@@ -174,6 +174,14 @@ same shift. With all three faults at once (four angles, plates 2 pixels
 off, 5° of error) a stack trained for them reads about 91%. Three of my
 seven predictions for these runs were wrong, and the note says which.
 
+**Does it need a laser?** Yes. Everything above is for light from one
+source, where waves from different parts of the digit can cancel. Under an
+ordinary lamp each point of the digit glows on its own and brightness adds.
+The device is then a plain linear classifier whose weights cannot be
+negative (**derived** in the note). **Measured**: three plates trained for a
+lamp read 81%, a single plate reads no better than chance, and plates
+trained for a laser read at chance under a lamp.
+
 ## How the plate is trained
 
 The training happens in a computer, on a simulation of the light. When it

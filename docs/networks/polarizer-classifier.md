@@ -458,14 +458,55 @@ on two of three seeds.
   three-plate stack from the first run, tested with lamp light, reads less
   than half of the digits.
 
+## An ordinary lamp: what the run gave (19 Nov 2026)
+
+**Measured**, three seeds, the 10,000 test digits, printed in the section
+"An ordinary lamp" of
+[`plates_that_can_be_made.ipynb`](../../experiments/optics/plates_that_can_be_made.ipynb).
+The runs are in [`run_lamp.py`](../../experiments/optics/run_lamp.py). The
+lamp was simulated exactly, one glowing point at a time, and the training
+used random phases, whose average is the same thing (**checked**: the two
+agreed within the scatter of 256 draws).
+
+| device and light | test accuracy, three seeds |
+|---|---|
+| three plates trained for a lamp, under a lamp | 0.814, 0.814, 0.819 |
+| three plates trained for a laser, under a laser | 0.974, 0.976, 0.975 |
+| three plates trained for a laser, under a lamp | 0.097, 0.061, 0.100 |
+| one plate trained for a lamp, under a lamp | 0.088, 0.094, 0.089 |
+| a plain linear classifier on the pixels | 0.916, 0.915, 0.917 |
+
+- **S1 held.** Under a lamp the trained stack reads 0.81 to 0.82, below the
+  plain linear classifier.
+- **S2 held.** It is well above 0.60.
+- **S3 held.** A stack trained for a laser reads at chance under a lamp.
+
+**Not predicted: one plate does nothing under a lamp.** The single plate
+between crossed polarizers, trained for a lamp, stayed at chance. Here is
+why (**derived** after the run). A glowing point `x` of the digit passes the
+plate at one point only, so the plate can do one thing to it: dim it, by
+`¼ sin² 2θ(x)`. After that its light spreads across the gap in a pattern
+that does not depend on the plate. So `W[j, x]` is a dimming factor times a
+table fixed by the geometry. The plate cannot send the light of one point
+toward one window. In the stack, the light of one point reaches the second
+plate already spread over many pixels, and it is still one wave, so the
+second and third plates can bend it. With a lamp, the first plate is spent
+and the steering starts at the second.
+
+**The light.** The lamp-trained stack puts 0.08% of the light into the
+windows, a tenth of what the laser stack does.
+
+So a laser, or other light from one small source, is part of the device. A
+lamp costs 16 points of accuracy with three plates, and a plate designed for
+one kind of light is useless under the other.
+
 ## What is not shown
 
 - Nothing here is built. It is a simulation of an idealised plate: no
   reflections, no thickness, perfect polarizers, light of one colour from one
   source.
-- With an ordinary lamp or a phone screen the light is not coherent.
-  Brightness adds instead of size, the signs are gone, and the device is
-  weaker. Not simulated here.
+- The lamp simulated here is fully incoherent and of one colour. Real
+  lamps are in between a laser and that, and have many colours.
 - The faults of a made plate that were simulated are few angle levels,
   error in the angles and plates moved sideways. Gaps of the wrong length,
   tilted plates and light of more than one colour were not tried.

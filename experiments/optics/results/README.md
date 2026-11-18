@@ -28,3 +28,9 @@ Round 3 (`run_made_plate.py`)
   angle error, (d) both).
 - `made_slope_ste2_linear3_seed<k>.npy`, `made_shift_ste4_pol_stack3_seed<k>.npy`: the trained parameters before rounding, as for the
   `fab_*` files. The made plate is the rounded table (nearest of 45 and 135 degrees, or of 0, 45, 90, 135 degrees, modulo 180).
+
+Round 4 (`run_lamp.py`)
+- `lamp.json`: ordinary-lamp numbers per seed: the stack and the single plate trained with random input phases and evaluated exactly under
+  the lamp (accuracy, `delivered`, `correct_share`, smallest entry of the table `W`); the round-2 free plates evaluated under the lamp; the
+  Monte Carlo check (exact table against the mean of 256 random-phase draws, 200 digits).
+- `lamp_pol_stack3_seed<k>.npy`, `lamp_linear3_seed<k>.npy`: the trained parameters (free angles, no rounding), shape (plates, 96, 96), radians.

@@ -261,6 +261,7 @@ class Device(torch.nn.Module):
         self.noise = None       # added to every rounded angle (set_noise)
         self.shifts = None      # one (rows, columns) pixel shift per plate (set by the caller)
         self.slope_at_unrounded = False   # round 3: in training, light from the rounded angle, slope at the unrounded one
+        self.random_phase = False         # round 4: in training, an independent random phase at every pixel of the input
         self.to(device)
 
     def set_levels(self, levels):
@@ -303,6 +304,17 @@ class Device(torch.nn.Module):
         """Brightness on the screen plane, (batch, G, G), and the light that left the digit, (batch,)."""
         field = self.make_input(digits)
         light_in = (field.abs() ** 2).sum(dim=(1, 2, 3))
+        if self.random_phase and self.training:
+            # Lamp light (round 4). Every pixel of the digit gets an independent random phase exp(i phi), phi uniform in
+            # [0, 2 pi), fresh for every digit at every call. The screen field is sum_x exp(i phi_x) a_x f_x(y), and the expected
+            # brightness is sum_x a_x^2 |f_x(y)|^2 because the cross terms average to zero: exactly the brightness of a lamp,
+            # where every pixel glows on its own and brightness adds. (A single draw is speckled; only the mean is the lamp.)
+            phase = torch.rand(field.shape[0], 1, self.grid_pixels, self.grid_pixels, device=field.device, dtype=REAL) * (2.0 * math.pi)
+            field = field * torch.polar(torch.ones_like(phase), phase)
+        return self.run_field(field), light_in
+
+    def run_field(self, field):
+        """The light from the digit plane to the screen plane; brightness (batch, G, G)."""
         plate_count = len(self.plates)
         for index, table in enumerate(self.plates):
             exact_slope = self.levels is not None and self.slope_at_unrounded and self.training
@@ -338,7 +350,31 @@ class Device(torch.nn.Module):
                 else:
                     field = apply_circular_analyzer(field, analyzer)
             field = propagate(field, self.gap, self.pixel, self.transfer)
-        return (field.abs() ** 2).sum(dim=1), light_in
+        return (field.abs() ** 2).sum(dim=1)
+
+    @torch.no_grad()
+    def get_lamp_table(self, chunk=100):
+        """
+        Exact lamp-light table (round 4). One glowing pixel of unit strength at each of the 56 x 56 grid pixels under the digit,
+        light horizontally polarized, one forward pass each. Returns (W, T): W[j, x] = light in window j from pixel x, and
+        T[x] = all the light that reaches the screen plane from pixel x. Both are sums of brightness, so never negative.
+        With a lamp the score of window j is sum_x W[j, x] strength(x)^2.
+        """
+        assert self.config["light"] == "linear" and self.config["plate"] == "polarizer"
+        self.eval()
+        low = (self.grid_pixels - DIGIT_PIXELS) // 2
+        device = self.aperture_mask.device
+        columns = []
+        totals = []
+        for start in range(0, DIGIT_PIXELS ** 2, chunk):
+            index = torch.arange(start, min(start + chunk, DIGIT_PIXELS ** 2), device=device)
+            size = torch.zeros(index.shape[0], self.grid_pixels, self.grid_pixels, dtype=COMPLEX, device=device)
+            size[torch.arange(index.shape[0], device=device), low + index // DIGIT_PIXELS, low + index % DIGIT_PIXELS] = 1.0
+            screen = self.run_field(torch.stack([size, torch.zeros_like(size)], dim=1))
+            crop = screen[:, self.start:self.start + self.aperture_pixels, self.start:self.start + self.aperture_pixels]
+            columns.append(crop.reshape(crop.shape[0], -1) @ self.window_masks)
+            totals.append(screen.sum(dim=(1, 2)))
+        return torch.cat(columns).T.contiguous(), torch.cat(totals)
 
     def forward(self, digits):
         """(window sums (batch, 10), light into the screen plane (batch,), light that left the digit (batch,))"""
@@ -379,18 +415,20 @@ def get_loss(window_sums, light_in, labels, temperature, light_weight):
 
 def train_device(kind, seed, train_images, train_labels, epochs, batch_size=100, learning_rate=0.05,
                  temperature=30.0, light_weight=1.0, device="cpu", design_gap=None, log=None,
-                 levels=None, shift_range=0, slope_at_unrounded=False):
+                 levels=None, shift_range=0, slope_at_unrounded=False, random_phase=False):
     """
     Train one device with Adam and a cosine decay of the learning rate to zero.
     `kind` is a key of KINDS, or "pixels_linear". Returns the model and a list of per-epoch dicts.
     `levels` (a tensor of angles) puts the rounding in the forward pass; `shift_range` = r moves every plate by a fresh
     random whole number of pixels in [-r, r], in rows and in columns, at every step. `slope_at_unrounded` (needs `levels`)
-    computes the plate's output from the rounded angle and takes its slope at the unrounded angle. All are off by default.
+    computes the plate's output from the rounded angle and takes its slope at the unrounded angle. `random_phase` gives the input an independent random phase at every pixel at every step (lamp light). All are off by default.
     """
     if kind == "pixels_linear":
         model = PixelsLinear(seed, device)
     else:
         model = Device(kind, seed, design_gap=design_gap, device=device)
+    if random_phase:
+        model.random_phase = True
     if levels is not None:
         model.set_levels(levels)
         model.slope_at_unrounded = slope_at_unrounded
@@ -467,6 +505,26 @@ def evaluate(model, images, labels, batch_size=250, scale=1.0, return_prediction
     if return_predictions:
         result["predictions"] = torch.cat(predictions).cpu()
     return result
+
+
+@torch.no_grad()
+def evaluate_lamp(model, images, labels, table=None):
+    """
+    Exact lamp-light evaluation: score_j = sum_x W[j, x] strength(x)^2, with the strength of every grid pixel under the
+    digit taken from the digit as in make_input. Returns accuracy, delivered (light in the ten windows / light leaving the
+    digit, averaged over the digits), correct_share (light in the correct window / all light on the screen plane).
+    """
+    window_table, total_table = table if table is not None else model.get_lamp_table()
+    strength = images.repeat_interleave(2, dim=1).repeat_interleave(2, dim=2).reshape(images.shape[0], -1).to(window_table.device)
+    squared = (strength ** 2).double()
+    scores = squared @ window_table.double().T
+    screen_light = squared @ total_table.double()
+    light_in = squared.sum(dim=1)
+    predictions = scores.argmax(dim=1)
+    target = labels.to(scores.device)
+    return dict(accuracy=float((predictions == target).double().mean()),
+                delivered=float((scores.sum(dim=1) / light_in).mean()),
+                correct_share=float((scores.gather(1, target.unsqueeze(1)).squeeze(1) / screen_light).mean()))
 
 
 def get_angle_map(model, plate_index=0):
