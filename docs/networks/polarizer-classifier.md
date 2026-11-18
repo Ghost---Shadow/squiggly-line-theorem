@@ -287,6 +287,33 @@ edge of the values tried, so a better one may exist.
 
 ![The brightness on the screen behind the turning plate. With linear light there is a spot straight on and one on each side. With circular light and the analyzer there is one spot, on one side.](../../graphs/optics_grating_orders.png)
 
+## A plate that can be made: predictions, written before the run (19 Nov 2026)
+
+The trained angles above are free, exact and perfectly lined up. A made
+plate has a few angle levels, some error in every angle, and plates that sit
+a little off. These predictions were written after the results above and
+before any run with rounding, noise or shifts. "The free plate" is the
+device as trained above, same seed. Each prediction is judged per seed and
+counts as failed if it fails on two of three seeds.
+
+- **Q1, two angles are enough for the plate between crossed polarizers.**
+  Trained with the angles rounded to 45° and 135° in the forward pass, it is
+  within 0.02 of the free plate's test accuracy. (This comes from the
+  picture of the trained plate, which is mostly those two angles.)
+- **Q2, rounding that plate after training.** Rounding the free plate's
+  angles to 0°, 45°, 90°, 135° with no retraining loses less than 0.05.
+- **Q3, the stack needs the rounding in the training.** For three polarizer
+  plates, rounding the free angles to four levels after training loses more
+  than 0.10. Trained with the rounding in the forward pass, the four-level
+  stack reaches at least 0.94.
+- **Q4, plates that sit off.** The free stack loses more than 0.20 when its
+  second and third plates are each moved 2 pixels sideways. A stack trained
+  with a fresh random shift of up to 2 pixels on each plate at every step
+  loses less than 0.05 at that shift, and is within 0.03 of the free stack
+  when nothing is shifted.
+- **Q5, error in the angles.** Random error of 5° (standard deviation) on
+  every angle costs the free stack less than 0.02.
+
 ## What is not shown
 
 - Nothing here is built. It is a simulation of an idealised plate: no
