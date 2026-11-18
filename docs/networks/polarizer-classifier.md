@@ -188,6 +188,10 @@ descent through the model above, done in torch.
    angles; and a small sideways shift of each plate at every step.
 6. **Out.** Each plate is saved as an image of angles.
 
+The numbers used in the runs, the encoding of the digit and of the answer,
+a loss worked by hand and the slope at one plate pixel are in
+[chapter 12 of the book](../../book/12-polarizers.md#how-the-plate-is-trained).
+
 ## Predictions, written before the run (18 Nov 2026)
 
 A prototype on 15 Nov 2026 (5000 digits, one seed, not kept) gave 0.86 for

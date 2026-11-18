@@ -148,6 +148,105 @@ to meet, and it needs room to spread. And the price is light. The three
 plates put less than 1% of the light into the ten marks. A plate made of
 polarizers computes by throwing light away.
 
+## How the plate is trained
+
+The training happens in a computer, on a simulation of the light. When it
+is done the angles are fixed, and a plate made with those angles would do
+the same job with no computer. Here is every part of it. The code is
+[`experiments/optics/optics.py`](../experiments/optics/optics.py).
+
+**The input is the digit, as light.** A digit is a picture of 28 × 28
+pixels, each a number from 0 (black) to 1 (white). That number is the
+**strength** of the light at that point: black is no light and white is
+full light. All of it vibrates horizontally, as if it had passed a
+horizontal polarizer. The picture is not turned into a list. A pixel on
+the left of the digit is light on the left of the plate. Each digit pixel
+covers 2 × 2 plate pixels, so the digit is 56 plate pixels wide, in the
+middle of a plate 96 pixels wide. A plate pixel is 2 wavelengths wide.
+
+**The weights are the angles.** Each plate has one angle per pixel:
+96 × 96 = 9,216 angles. Three plates have 27,648. They start as random
+angles between 0° and 180°. There is nothing else to train.
+
+**The output is ten patches of brightness.** The light leaves the last
+plate and travels 636 wavelengths to a screen. The screen reads
+brightness, the square of the strength, at every point. Ten square
+windows are marked on it, 12 pixels wide, in three rows:
+
+```
+ 0   1   2
+3   4   5   6
+ 7   8   9
+```
+
+Add up the brightness inside each window. That gives ten numbers, and the
+largest is the answer. Light that lands between the windows counts for
+nothing.
+
+**The loss.** It has two parts.
+
+```python
+shares    = window_sums / window_sums.sum()         # ten numbers that add up to 1
+scores    = 100 * shares                            # the temperature
+mistake   = cross_entropy(scores, correct_digit)    # small when the correct window has the largest share
+delivered = window_sums.sum() / light_from_digit    # how much of the light reached any window
+loss      = mistake - delivered
+```
+
+The first part is the usual loss for choosing one of ten (chapter 25):
+turn the ten scores into ten chances with softmax, and take minus the
+logarithm of the chance given to the correct digit. The shares are divided
+by their total first, so a brighter lamp changes nothing. They are
+multiplied by 100 because shares differ by only a few hundredths, and
+softmax barely reacts to differences that small.
+
+An example by hand. Say the correct window holds 0.12 of the light in the
+windows and the other nine hold the rest equally, 0.098 each. The scores
+are 12 and 9.8. The chance softmax gives the correct digit is
+`1 / (1 + 9 × exp(9.8 − 12))`, about 0.51, and the loss is `−ln(0.51)`,
+about 0.68. Move the correct share up to 0.20 and the chance is 0.9999.
+So the plate does not need to put most of the light in the correct
+window. It needs that window to be a little ahead.
+
+The second part rewards light in the windows. Without it a plate can be
+right and nearly dark.
+
+**The step.** Every operation between the angles and the loss has a
+slope: the shadow on an axis (`cos` and `sin` of the angle), the travel
+across the gap (a fixed linear map), the square, the sums, the division
+and the softmax. So the computer can work out, for every one of the
+angles, how the loss changes when that angle changes a little. This is
+backpropagation, the same as for any network. The slope is carried
+backwards through the gaps, from the screen to the plates.
+
+For one plate between crossed polarizers the slope at one plate pixel is
+a product of three things (**derived**, by the chain rule; on a small
+made-up example it agreed with the computer's own slopes):
+
+```
+slope of the loss in θ  =  (strength of the digit's light at that pixel)
+                         × cos(2θ)
+                         × (how much the loss wants more light from that pixel at the screen)
+```
+
+`cos(2θ)` is how fast the mask value `sin(2θ)/2` changes with the angle.
+The first factor explains something **measured**: plate pixels that no
+digit lights have slope zero, so they never move. Outside the digit the
+trained plate still has its random starting angles.
+
+Then each angle takes a step downhill:
+
+```python
+angle = angle - step_size * slope
+```
+
+The runs here used Adam (chapter 23), which divides each angle's step by
+the usual size of its recent slopes. The other numbers: 100 digits per
+step, 550 steps to pass once over 55,000 training digits, 4 passes, so
+2,200 steps. The step size starts at 0.1 radians, about 6°, and falls
+smoothly to zero by the last step. The step size, the 100 and the weight
+of the light term were chosen once on 5,000 held-out digits.
+
 ## Run it yourself
 
 [`ch12_polarizers.ipynb`](../experiments/part2/ch12_polarizers.ipynb) checks the
