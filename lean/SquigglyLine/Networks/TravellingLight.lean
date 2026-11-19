@@ -96,6 +96,7 @@ theorem wave_keeps_its_direction
   have shifted_wave_is_scaled_wave :
       SHIFT_BY_ONE_POINT (MAKE_WAVE step) = step • MAKE_WAVE step := by
     funext point
+    -- At each point: `step ^ (point + 1)` is `step * step ^ point`.
     simp only [SHIFT_BY_ONE_POINT, MAKE_WAVE, Pi.smul_apply, smul_eq_mul]
     rw [zpow_add_one₀ step_ne_zero, mul_comm]
   -- So what arrives has the same property: each point is `step` times the
@@ -105,9 +106,13 @@ theorem wave_keeps_its_direction
         gap (MAKE_WAVE step) (point + 1)
           = step * gap (MAKE_WAVE step) point := by
     intro point
+    -- Moving the wave before the gap or after it gives the same light.
     have moved_before_or_after :=
       congrFun (gap_is_same_at_every_place (MAKE_WAVE step)) point
+    -- Moved before the gap, the wave is `step` times the wave, and a gap is
+    -- linear, so `step` comes out of the gap.
     rw [shifted_wave_is_scaled_wave, map_smul] at moved_before_or_after
+    -- Read both sides at `point`.
     simp only [SHIFT_BY_ONE_POINT, Pi.smul_apply, smul_eq_mul]
       at moved_before_or_after
     exact moved_before_or_after.symm
@@ -118,20 +123,27 @@ theorem wave_keeps_its_direction
           = step ^ point * gap (MAKE_WAVE step) 0 := by
     intro point
     refine Int.induction_on point ?_ ?_ ?_
-    · simp
-    · intro steps_right holds_before
+    · -- At point 0 the claim is `x = 1 * x`.
+      simp
+    · -- One more point to the right: multiply by `step` once more.
+      intro steps_right holds_before
       rw [next_point_is_step_times, holds_before,
         zpow_add_one₀ step_ne_zero]
       ring
-    · intro steps_left holds_before
+    · -- One more point to the left: the point after it is the one we know,
+      -- and the point after is `step` times it, so divide by `step`.
+      intro steps_left holds_before
       have one_step_back := next_point_is_step_times (-(steps_left : ℤ) - 1)
       rw [sub_add_cancel, holds_before] at one_step_back
       have undo_one_step :
           gap (MAKE_WAVE step) (-(steps_left : ℤ) - 1)
-            = step⁻¹ * (step * gap (MAKE_WAVE step) (-(steps_left : ℤ) - 1)) := by
+            = step⁻¹ * (step
+                * gap (MAKE_WAVE step) (-(steps_left : ℤ) - 1)) := by
         rw [← mul_assoc, inv_mul_cancel₀ step_ne_zero, one_mul]
       rw [undo_one_step, ← one_step_back, zpow_sub_one₀ step_ne_zero]
       ring
+  -- Compare the two lights at every point: both are `step ^ point` times
+  -- what arrives at point 0.
   funext point
   rw [every_point_from_point_zero point]
   simp only [Pi.smul_apply, smul_eq_mul, MAKE_WAVE]
@@ -157,15 +169,21 @@ theorem beams_stay_beams
         (strength beam * gap_factor beam) • MAKE_WAVE (step beam)
     light_after = same_beams_rescaled := by
   unfold_named_pieces
+  -- A gap is linear, so it can be applied to each beam separately.
   rw [map_sum]
+  -- Then it is enough to compare one beam at a time.
   refine Finset.sum_congr rfl fun beam _ => ?_
+  -- Each wave crosses the gap as itself times one number.
   have beam_is_kept :
       gap (MAKE_WAVE (step beam))
         = gap (MAKE_WAVE (step beam)) 0 • MAKE_WAVE (step beam) :=
     wave_keeps_its_direction gap gap_is_same_at_every_place
       (step beam) (steps_ne_zero beam)
+  -- The strength of the beam also comes out of the gap.
   rw [map_smul]
+  -- Replace the wave that crossed the gap by the kept wave.
   conv_lhs => rw [beam_is_kept]
+  -- Two numbers in a row multiply into one.
   rw [smul_smul]
 
 /-! ## The screen -/
@@ -194,8 +212,12 @@ theorem brighter_lamp_scales_every_window
       GET_LIGHT_IN_WINDOW window (travel brighter_picture)
     light_after = lamp_factor ^ 2 * light_before := by       -- brightness is the square of the size
   unfold_named_pieces
+  -- Travel is linear, so the factor comes out of the light at each point.
+  -- The brightness of a product is the product of the brightnesses, and a
+  -- real factor `r` has brightness `r * r`. Move the factor into the sum.
   simp only [GET_LIGHT_IN_WINDOW, map_smul, Pi.smul_apply, smul_eq_mul,
     Complex.normSq_mul, Complex.normSq_ofReal, Finset.mul_sum]
+  -- Each point of the window: `r * r * x = r ^ 2 * x`.
   refine Finset.sum_congr rfl fun point _ => ?_
   ring
 
@@ -218,12 +240,14 @@ theorem brighter_lamp_keeps_the_brightest_window
       GET_LIGHT_IN_WINDOW other_window (travel brighter_picture)
     light_in_other_window ≤ light_in_window := by
   unfold_named_pieces
+  -- Each window holds `lamp_factor ^ 2` times what it held before.
   have scaled_window :=
     brighter_lamp_scales_every_window travel window picture lamp_factor
   have scaled_other_window :=
     brighter_lamp_scales_every_window travel other_window picture lamp_factor
   simp only at scaled_window scaled_other_window
   rw [scaled_window, scaled_other_window]
+  -- Multiplying both sides of the old inequality by a square keeps it.
   exact mul_le_mul_of_nonneg_left window_is_brighter (sq_nonneg lamp_factor)
 
 /-! ## An ordinary lamp and one plate -/
@@ -255,10 +279,14 @@ theorem one_plate_only_dims_a_glowing_point
         = mask source • (Pi.single source 1 : Pixels → ℂ) := by
     funext pixel
     by_cases is_source : pixel = source
-    · subst is_source
+    · -- At the glowing point both sides are `mask source`.
+      subst is_source
       simp
-    · simp [is_source]
+    · -- Elsewhere there is no light, and both sides are 0.
+      simp [is_source]
   rw [plate_only_scales]
+  -- Now the same steps as for a brighter lamp, with the complex factor
+  -- `mask source`, whose brightness is `dimming`.
   simp only [GET_LIGHT_IN_WINDOW, map_smul, Pi.smul_apply, smul_eq_mul,
     Complex.normSq_mul, Finset.mul_sum]
 
@@ -283,11 +311,13 @@ theorem one_plate_cannot_steer_a_glowing_point
     with_plate * other_without_plate
       = other_with_plate * without_plate := by                -- the same split, written without dividing
   unfold_named_pieces
+  -- In each window the plate multiplies the light by the same `dimming`.
   have dimmed := one_plate_only_dims_a_glowing_point travel window mask source
   have other_dimmed :=
     one_plate_only_dims_a_glowing_point travel other_window mask source
   simp only at dimmed other_dimmed
   rw [dimmed, other_dimmed]
+  -- Both sides are `dimming * without * other_without`.
   ring
 
 end SquigglyLine

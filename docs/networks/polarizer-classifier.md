@@ -125,7 +125,9 @@ place. That is enough for this (**proved**, `wave_keeps_its_direction`,
 `beams_stay_beams`): a wave that enters a gap leaves as the same wave,
 multiplied by one number. So the three waves that the turning plate makes
 are still those three waves at the screen, and no gap creates a new
-direction. Only a plate can.
+direction. Only a plate can. Chapter 12 of the book has this with the
+Lean statement:
+[What a gap can and cannot do](../../book/12-polarizers.md#what-a-gap-can-and-cannot-do).
 
 So the angle is the weight, and **the slope of the angle steers the light**:
 

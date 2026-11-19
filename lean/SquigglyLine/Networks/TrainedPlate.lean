@@ -56,7 +56,9 @@ theorem plate_on_horizontal_light
       (amplitude * across_part, amplitude * up_part)
     outgoing_light = expected_light := by
   unfold_named_pieces
-  -- Write the shadow out, then use the double-angle formulas.
+  -- Write the shadow out in coordinates. With the angle of the light 0,
+  -- the double-angle formulas turn `cos θ ^ 2` and `cos θ * sin θ` into the
+  -- two parts named above, and `ring` checks the rest.
   ext <;>
     simp only [PASS_THROUGH_POLARIZER, MAKE_LIGHT, cos_zero, sin_zero,
       cos_two_mul, sin_two_mul] <;>
@@ -77,8 +79,10 @@ theorem plate_between_crossed_polarizers
     let expected_light : LightArrow := (0, amplitude * mask_value)
     outgoing_light = expected_light := by
   unfold_named_pieces
-  -- The vertical plate keeps the up part of the light and nothing else.
+  -- First plate: use what it does to horizontal light.
   rw [plate_on_horizontal_light]
+  -- The vertical plate keeps the up part of the light and nothing else:
+  -- `cos (PI / 2) = 0` and `sin (PI / 2) = 1`.
   ext <;>
     simp only [PASS_THROUGH_POLARIZER, cos_pi_div_two, sin_pi_div_two] <;>
     ring
@@ -103,7 +107,8 @@ noncomputable def PASS_COMPLEX_LIGHT_THROUGH_POLARIZER
     (light : ComplexLight) : ComplexLight :=
   let shadow_length : ℂ :=
     light.1 * (cos axis_angle : ℝ) + light.2 * (sin axis_angle : ℝ)   -- the dot product of the light with the axis direction
-  (shadow_length * (cos axis_angle : ℝ), shadow_length * (sin axis_angle : ℝ))
+  (shadow_length * (cos axis_angle : ℝ),
+   shadow_length * (sin axis_angle : ℝ))
 
 /-- Circular light: the up part is the across part a quarter wave late.
 Python: `(1, 1j)`. -/
@@ -128,25 +133,34 @@ theorem plate_on_circular_light
       (1 / 2 * phase_shift) • RIGHT_CIRCULAR_LIGHT
     outgoing_light = unchanged_half + shifted_half := by
   unfold_named_pieces
-  -- `exp(2θi) = cos(2θ) + sin(2θ) i`, then the double-angle formulas.
+  -- The phase shift written with real parts: `exp(2θi) = cos(2θ) + sin(2θ) i`,
+  -- then the double-angle formulas in terms of `cos θ` and `sin θ`.
   have exp_as_cos_sin :
       Complex.exp (2 * axis_angle * Complex.I)
         = (2 * (cos axis_angle : ℝ) ^ 2 - 1)
-          + 2 * (sin axis_angle : ℝ) * (cos axis_angle : ℝ) * Complex.I := by
+          + 2 * (sin axis_angle : ℝ) * (cos axis_angle : ℝ)
+            * Complex.I := by
+    -- Put the angle in the form `(real number) * i`.
     rw [show (2 * axis_angle * Complex.I : ℂ)
           = ((2 * axis_angle : ℝ) : ℂ) * Complex.I by push_cast; ring,
+      -- `exp (x * i) = cos x + sin x * i`, with `cos` and `sin` of a real.
       Complex.exp_mul_I, ← Complex.ofReal_cos, ← Complex.ofReal_sin,
       cos_two_mul, sin_two_mul]
     push_cast
     ring
+  -- The one fact about the angle that is used: `sin θ ^ 2 + cos θ ^ 2 = 1`.
   have sin_sq_add_cos_sq_complex :
-      ((sin axis_angle : ℝ) : ℂ) ^ 2 + ((cos axis_angle : ℝ) : ℂ) ^ 2 = 1 := by
+      ((sin axis_angle : ℝ) : ℂ) ^ 2
+        + ((cos axis_angle : ℝ) : ℂ) ^ 2 = 1 := by
     exact_mod_cast sin_sq_add_cos_sq axis_angle
   ext
-  · simp only [PASS_COMPLEX_LIGHT_THROUGH_POLARIZER, Prod.fst_add,
+  · -- The across part: both sides are polynomials in `cos θ` and `sin θ`.
+    simp only [PASS_COMPLEX_LIGHT_THROUGH_POLARIZER, Prod.fst_add,
       Prod.smul_fst, smul_eq_mul, exp_as_cos_sin]
     ring
-  · simp only [PASS_COMPLEX_LIGHT_THROUGH_POLARIZER, Prod.snd_add,
+  · -- The up part: equal once `sin θ ^ 2 + cos θ ^ 2 = 1` is used, and
+    -- `I * I = -1`.
+    simp only [PASS_COMPLEX_LIGHT_THROUGH_POLARIZER, Prod.snd_add,
       Prod.smul_snd, smul_eq_mul, exp_as_cos_sin]
     linear_combination
       (Complex.I : ℂ) * sin_sq_add_cos_sq_complex

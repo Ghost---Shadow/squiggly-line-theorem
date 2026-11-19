@@ -281,6 +281,68 @@ step, 550 steps to pass once over 55,000 training digits, 4 passes, so
 smoothly to zero by the last step. The step size, the 100 and the weight
 of the light term were chosen once on 5,000 held-out digits.
 
+## What a gap can and cannot do
+
+Between the plates and the screen the light crosses a gap. The simulation
+uses one particular rule for that. But some things are true for **any** gap,
+as long as it has two properties:
+
+- It is **linear**: the light from two sources is the sum of their lights.
+- It is **the same at every place**: move the light one point sideways, and
+  what arrives moves one point sideways.
+
+These are proved in
+[`TravellingLight.lean`](../lean/SquigglyLine/Networks/TravellingLight.lean).
+
+**A wave stays the same wave.** Light that leaves a plate in one direction
+is a wave across the plate: each point is the point before it, times one
+fixed number, called `step` below. A different `step` is a different
+direction.
+
+```lean
+theorem wave_keeps_its_direction
+    (gap : LightOnLine →ₗ[ℂ] LightOnLine)
+    (gap_is_same_at_every_place : IS_SAME_AT_EVERY_PLACE gap)
+    (step : ℂ)
+    (step_ne_zero : step ≠ 0) :
+    let wave           := MAKE_WAVE step
+    let wave_after_gap := gap wave
+    let gap_factor     := wave_after_gap 0                   -- what arrives at point 0 sets the factor for every point
+    wave_after_gap = gap_factor • wave := by
+```
+
+Read aloud: *send a wave across a gap that is the same at every place. What
+arrives is the same wave, multiplied by one number.* The number can make the
+wave fainter or shift it. It cannot turn it into a different wave.
+
+Light made of several waves is handled one wave at a time, because the gap
+is linear (`beams_stay_beams`). So **a gap never creates a new direction.
+Only a plate can.** The plate with a steadily turning axis makes three
+waves, straight on and one to each side, and at the screen they are still
+those three. This is why the plates do the steering and the gaps only give
+the light room to get there.
+
+**A brighter lamp changes no answer.** Whatever the plates and gaps are, a
+lamp `lamp_factor` times stronger puts `lamp_factor ^ 2` times the light in
+every window (`brighter_lamp_scales_every_window`). All ten windows grow by
+the same factor, so the brightest one stays the brightest
+(`brighter_lamp_keeps_the_brightest_window`).
+
+**Under an ordinary lamp, one plate cannot steer.** With a lamp, each point
+of the digit glows on its own. Its light meets the plate at one point only,
+so the plate can do one thing to it: dim it. In every window the light of
+that point changes by the same factor (`one_plate_only_dims_a_glowing_point`),
+so the way it is split between two windows is the same with the plate as
+without it (`one_plate_cannot_steer_a_glowing_point`). That is why the
+single plate read no better than chance under a lamp. Three plates can
+steer, because the light of one point reaches the second plate already
+spread over many pixels, and it is still one wave there.
+
+**What is not proved.** The gap of the simulation itself. So the angle a
+grating bends light by, the shares of light in each beam and the length of
+gap that is needed are worked out by hand and checked against the
+simulation, and are not in Lean.
+
 ## Run it yourself
 
 [`ch12_polarizers.ipynb`](../experiments/part2/ch12_polarizers.ipynb) checks the
@@ -326,13 +388,10 @@ function, and nothing has been built. The
 The trained plate is a simulation of ideal plates and light of one colour
 from one source. The only step that is not linear is the screen, which reads
 brightness, the square of the light. The theorem above is about one point of
-the plate. For light that travels, Lean has three facts that hold for any
-gap that is linear and the same at every place
-([`TravellingLight.lean`](../lean/SquigglyLine/Networks/TravellingLight.lean)):
-a wave crosses a gap and stays the same wave, a brighter lamp changes no
-answer, and under an ordinary lamp one plate can only dim a point of the
-picture and cannot steer its light. The gap of the simulation itself, and
-so every measured number here, is not in Lean.
+the plate. For light that travels, Lean has the facts in
+[What a gap can and cannot do](#what-a-gap-can-and-cannot-do), which hold
+for any gap. The gap of the simulation itself, and so every measured number
+here, is not in Lean.
 
 ## Check yourself
 
