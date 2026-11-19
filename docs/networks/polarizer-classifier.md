@@ -1,7 +1,8 @@
 # A trained plate between two polarizers
 
 **Code:** [`experiments/optics/`](../../experiments/optics). **Proofs:**
-[`TrainedPlate.lean`](../../lean/SquigglyLine/Networks/TrainedPlate.lean).
+[`TrainedPlate.lean`](../../lean/SquigglyLine/Networks/TrainedPlate.lean),
+[`TravellingLight.lean`](../../lean/SquigglyLine/Networks/TravellingLight.lean).
 **Builds on:**
 [three polarizers](three-polarizers.md) and
 [chapter 12 of the book](../../book/12-polarizers.md).
@@ -119,6 +120,13 @@ opposite-handed light, with a circular analyzer, and the plate is a pure
 | straight on, handedness kept (the analyzer removes it) | 1/4 |
 | absorbed by the plate | 1/2 |
 
+**The beams stay beams.** A gap is linear, and it is the same at every
+place. That is enough for this (**proved**, `wave_keeps_its_direction`,
+`beams_stay_beams`): a wave that enters a gap leaves as the same wave,
+multiplied by one number. So the three waves that the turning plate makes
+are still those three waves at the screen, and no gap creates a new
+direction. Only a plate can.
+
 So the angle is the weight, and **the slope of the angle steers the light**:
 
 ```
@@ -160,7 +168,9 @@ with `Q_j` symmetric and never negative. Three things follow.
    constrained weights. No plate count changes that: more plates only change
    which `T` can be reached.
 2. **A brighter lamp changes nothing.** `score_j(c x) = c² score_j(x)` for
-   every `j`, so the largest window stays the largest.
+   every `j`, so the largest window stays the largest. (**proved**, for any
+   linear plates and gaps: `brighter_lamp_scales_every_window`,
+   `brighter_lamp_keeps_the_brightest_window`.)
 3. **No gap, no mixing.** With no gap the plates act on each point alone, so
    the light at a screen point depends on one pixel only. With the windows
    beside the digit the screen stays dark. The gap is what lets pixels meet.
@@ -483,7 +493,9 @@ agreed within the scatter of 256 draws).
 
 **Not predicted: one plate does nothing under a lamp.** The single plate
 between crossed polarizers, trained for a lamp, stayed at chance. Here is
-why (**derived** after the run). A glowing point `x` of the digit passes the
+why (worked out after the run, and then **proved**:
+`one_plate_only_dims_a_glowing_point`,
+`one_plate_cannot_steer_a_glowing_point`). A glowing point `x` of the digit passes the
 plate at one point only, so the plate can do one thing to it: dim it, by
 `¼ sin² 2θ(x)`. After that its light spreads across the gap in a pattern
 that does not depend on the plate. So `W[j, x]` is a dimming factor times a
@@ -511,4 +523,7 @@ one kind of light is useless under the other.
   error in the angles and plates moved sideways. Gaps of the wrong length,
   tilted plates and light of more than one colour were not tried.
 - The statements marked **derived** are not in Lean. Lean has what one
-  point of a plate does. It has no gap, so nothing about light that travels.
+  point of a plate does, and what any gap does that is linear and the same
+  at every place. It does not have the gap of the simulation itself (the
+  angular-spectrum rule), so the grating rule `sin φ = λ/Λ`, the shares in
+  the two tables and the size of the gap are not proved.

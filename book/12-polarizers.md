@@ -326,7 +326,13 @@ function, and nothing has been built. The
 The trained plate is a simulation of ideal plates and light of one colour
 from one source. The only step that is not linear is the screen, which reads
 brightness, the square of the light. The theorem above is about one point of
-the plate. Nothing about light that travels is in Lean.
+the plate. For light that travels, Lean has three facts that hold for any
+gap that is linear and the same at every place
+([`TravellingLight.lean`](../lean/SquigglyLine/Networks/TravellingLight.lean)):
+a wave crosses a gap and stays the same wave, a brighter lamp changes no
+answer, and under an ordinary lamp one plate can only dim a point of the
+picture and cannot steer its light. The gap of the simulation itself, and
+so every measured number here, is not in Lean.
 
 ## Check yourself
 

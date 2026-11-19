@@ -544,6 +544,7 @@ checks that each restyled statement says what its original said.
 | [`Bridge`](lean/SquigglyLine/Networks/Bridge.lean) | one fold doubles a frequency, so `L` folds seen through a fixed lens are one Fourier term of frequency `2^L` |
 | [`Polarizer`](lean/SquigglyLine/Networks/Polarizer.lean), [`ThreePolarizers`](lean/SquigglyLine/Networks/ThreePolarizers.lean) | ReLU sends a point to the nearest point of the positive quadrant; Malus's law; a quarter turn in `N` plates delivers at least `1 − π²/(8N)` |
 | [`TrainedPlate`](lean/SquigglyLine/Networks/TrainedPlate.lean) | a plate at angle `θ` between crossed polarizers passes `sin(2θ)/2`; on circular light it passes half unchanged and half with the phase `2θ` |
+| [`TravellingLight`](lean/SquigglyLine/Networks/TravellingLight.lean) | a gap that is linear and the same at every place keeps each wave, so beams stay beams; a brighter lamp changes no answer; under an ordinary lamp one plate cannot steer light |
 | [`MarkovChains`](lean/SquigglyLine/Networks/MarkovChains.lean) | through the layers: merged stays merged, dead stays dead; through training with orthogonal features: the error after `t` steps is `(1 − η·c)ᵗ` times the start |
 | [`LinearModel`](lean/SquigglyLine/Networks/LinearModel.lean), [`ExchangeRate`](lean/SquigglyLine/Networks/ExchangeRate.lean) | on the straight path to a fit the error shrinks in proportion; adding parameters never moves the nearest fit away; with orthogonal features the travel is `‖residual‖ / √c` |
 | [`Kernel`](lean/SquigglyLine/Networks/Kernel.lean) | a gradient step sends the error `r` to `r − η·K·r`; two models with the same kernel have the same training path and the same travel |
@@ -621,7 +622,9 @@ light travel to a screen with ten marks. In a simulation, three such plates
 read handwritten digits with 97.5% accuracy on the MNIST test set, the same
 as three lossless phase plates, on about a tenth of the light. One point of
 such a plate is proved in
-[`TrainedPlate`](lean/SquigglyLine/Networks/TrainedPlate.lean); the rest is
+[`TrainedPlate`](lean/SquigglyLine/Networks/TrainedPlate.lean), and what a
+gap can and cannot do in
+[`TravellingLight`](lean/SquigglyLine/Networks/TravellingLight.lean); the rest is
 in [`docs/networks/polarizer-classifier.md`](docs/networks/polarizer-classifier.md).
 Nothing is built.
 
