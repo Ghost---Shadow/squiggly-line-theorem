@@ -322,7 +322,7 @@ waves from horizontal light: one half straight on, a quarter to one side
 and a quarter to the other (`turning_plate_makes_three_waves`). From
 circular light it makes a single wave, to one side only
 (`turning_plate_makes_one_wave_of_circular_light`). At the screen they are
-still those waves. This is why the plates do the steering and the gaps only
+still those waves (`three_waves_arrive_as_three_waves`). This is why the plates do the steering and the gaps only
 give the light room to get there.
 
 **Can a plate send several rays to the same spot?** Yes, and that is how

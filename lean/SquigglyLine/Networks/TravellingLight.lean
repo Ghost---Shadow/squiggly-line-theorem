@@ -19,6 +19,8 @@ simulation in `experiments/optics/optics.py` has both properties.
   the waves. A plate whose axis turns steadily makes three waves from
   horizontal light (straight on and one to each side) and a single wave
   from circular light.
+* `three_waves_arrive_as_three_waves`: and after any gap that is the same
+  at every place, the light of the turning plate is still those three waves.
 * `brighter_lamp_scales_every_window`,
   `brighter_lamp_keeps_the_brightest_window`: whatever the plates and gaps
   are, a lamp `lamp_factor` times stronger puts `lamp_factor ^ 2` times the
@@ -271,6 +273,48 @@ theorem turning_plate_makes_one_wave_of_circular_light
   congr 1
   push_cast
   ring
+
+/-- **The three waves arrive as three waves.** The light behind a turning
+plate crosses any gap that is the same at every place, and what arrives is
+the same three waves, each multiplied by its own number. The plate made the
+three directions and the gap adds none. -/
+theorem three_waves_arrive_as_three_waves
+    (gap : LightOnLine →ₗ[ℂ] LightOnLine)
+    (gap_is_same_at_every_place : IS_SAME_AT_EVERY_PLACE gap)
+    (period : ℝ) :
+    let step := GET_GRATING_STEP period
+    let light_behind_plate : LightOnLine :=                  -- from `turning_plate_makes_three_waves`
+      (1 / 2 : ℂ) • MAKE_WAVE 1
+        + (1 / 4 : ℂ) • MAKE_WAVE step
+        + (1 / 4 : ℂ) • MAKE_WAVE step⁻¹
+    let light_on_screen   := gap light_behind_plate
+    let straight_factor   := gap (MAKE_WAVE 1) 0             -- one number per wave, from `wave_keeps_its_direction`
+    let side_factor       := gap (MAKE_WAVE step) 0
+    let other_side_factor := gap (MAKE_WAVE step⁻¹) 0
+    let same_three_waves : LightOnLine :=
+      (1 / 2 * straight_factor) • MAKE_WAVE 1
+        + (1 / 4 * side_factor) • MAKE_WAVE step
+        + (1 / 4 * other_side_factor) • MAKE_WAVE step⁻¹
+    light_on_screen = same_three_waves := by
+  unfold_named_pieces
+  -- The step of a wave is never zero.
+  have step_ne_zero : GET_GRATING_STEP period ≠ 0 := by
+    rw [GET_GRATING_STEP]
+    exact Complex.exp_ne_zero _
+  -- Each of the three waves crosses the gap and stays itself.
+  have straight_is_kept :=
+    wave_keeps_its_direction gap gap_is_same_at_every_place 1 one_ne_zero
+  have side_is_kept :=
+    wave_keeps_its_direction gap gap_is_same_at_every_place
+      (GET_GRATING_STEP period) step_ne_zero
+  have other_side_is_kept :=
+    wave_keeps_its_direction gap gap_is_same_at_every_place
+      (GET_GRATING_STEP period)⁻¹ (inv_ne_zero step_ne_zero)
+  simp only at straight_is_kept side_is_kept other_side_is_kept
+  -- The gap is linear, so it acts on the three waves one at a time.
+  rw [map_add, map_add, map_smul, map_smul, map_smul]
+  conv_lhs => rw [straight_is_kept, side_is_kept, other_side_is_kept]
+  simp only [smul_smul]
 
 /-! ## The screen -/
 

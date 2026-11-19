@@ -123,9 +123,12 @@ opposite-handed light, with a circular analyzer, and the plate is a pure
 **The beams stay beams.** A gap is linear, and it is the same at every
 place. That is enough for this (**proved**, `wave_keeps_its_direction`,
 `beams_stay_beams`): a wave that enters a gap leaves as the same wave,
-multiplied by one number. So the three waves that the turning plate makes
-are still those three waves at the screen, and no gap creates a new
-direction. Only a plate can. Chapter 12 of the book has this with the
+multiplied by one number. The turning plate makes exactly three waves from
+horizontal light and one from circular light (**proved**,
+`turning_plate_makes_three_waves`,
+`turning_plate_makes_one_wave_of_circular_light`), and they are still those
+waves at the screen (**proved**, `three_waves_arrive_as_three_waves`). No
+gap creates a new direction. Only a plate can. Chapter 12 of the book has this with the
 Lean statement:
 [What a gap can and cannot do](../../book/12-polarizers.md#what-a-gap-can-and-cannot-do).
 
