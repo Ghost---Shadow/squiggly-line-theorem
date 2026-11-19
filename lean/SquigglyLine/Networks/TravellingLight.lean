@@ -40,6 +40,9 @@ simulation in `experiments/optics/optics.py` has both properties.
 | `GET_GRATING_STEP`       | the step of the wave a turning plate makes       |
 | `GET_LIGHT_IN_WINDOW`    | the brightness added up over a window            |
 
+What is planned and not done is listed at the end of the file, under
+"To do".
+
 How to read the notation:
 
 * `A →ₗ[ℂ] B` is a linear map from `A` to `B`. Python: a matrix.
@@ -449,5 +452,58 @@ theorem one_plate_cannot_steer_a_glowing_point
   rw [dimmed, other_dimmed]
   -- Both sides are `dimming * without * other_without`.
   ring
+
+/-! ## To do
+
+Written on 19 Nov 2026. These were planned and not done, because the usage
+limit of the week was nearly reached and each needs more than one attempt.
+None of them is proved anywhere in this project yet. In rough order of
+value for `docs/networks/polarizer-classifier.md`:
+
+1. **The second pass.** `turning_plate_makes_three_waves`,
+   `turning_plate_makes_one_wave_of_circular_light` and
+   `three_waves_arrive_as_three_waves` were written straight into this file
+   and have not had the port and second pass of `lean/PORTING.md`.
+2. **The up part.** `plate_on_horizontal_light` also gives an up part,
+   `sin(2θ)/2`. Show that across a turning plate it is two waves, to the two
+   sides, with no wave straight on. With the across part that gives the
+   whole light behind the plate.
+3. **The shares of light.** For a gap that loses no light (each
+   `gap_factor` has length 1), show the brightness of the waves is 1/4
+   straight on and 1/8 to each side of what came in, and 1/2 is absorbed.
+   The note has these as derived and checked. It needs a definition of the
+   brightness of a wave, per point of the line.
+4. **Circular light, whole statement.** Join `plate_on_circular_light`, a
+   circular analyzer and `turning_plate_makes_one_wave_of_circular_light`:
+   behind the analyzer there is one wave, with 1/4 of the brightness.
+5. **A lamp gives a linear classifier.** Define lamp light (each point
+   glows on its own, brightness adds) and show the light in a window is a
+   sum over the points of `weight × strength ^ 2` with every weight at least
+   zero. `one_plate_only_dims_a_glowing_point` is the one-plate case of the
+   weights.
+6. **Scores are sums of squares.** For light from one source, the light in
+   a window is a sum of squares of linear readings of the picture, at most
+   four per screen point. `GET_LIGHT_IN_WINDOW` is already that sum; the
+   count of readings is not stated.
+7. **No gap, no mixing.** With no gap, plates act on each point alone, so
+   the light at a screen point depends on one point of the picture.
+8. **Light is never gained.** For plates (each a projection) and a gap that
+   gains no light, the light on the screen is at most the light of the
+   picture.
+9. **The gap of the simulation.** Everything above holds for any gap. The
+   simulation uses one: the wave with `step = exp(i k)` is multiplied by
+   `exp(2 PI i d √(1 − f²))`, with `f` its spatial frequency. Define it,
+   show it is linear, the same at every place and loses no light, and then
+   the grating rule `sin φ = λ/Λ` and the length of gap that a sideways
+   move needs. This is the large one.
+10. **The pixel limit.** An angle that changes by less than a quarter turn
+    per pixel bends light by at most `sin φ = λ / (2 × pixel)`.
+11. **Two directions.** This file has light along a line. The plates are
+    surfaces, so the points should be pairs. The proofs should go through
+    with a shift in each direction.
+12. **A line that closes on itself.** The simulation works on a grid that
+    wraps around. `wave_keeps_its_direction` on `ZMod point_count` is the
+    statement that matches the code exactly.
+-/
 
 end SquigglyLine

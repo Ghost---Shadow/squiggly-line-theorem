@@ -349,10 +349,27 @@ single plate read no better than chance under a lamp. Three plates can
 steer, because the light of one point reaches the second plate already
 spread over many pixels, and it is still one wave there.
 
+**Everything in the file.**
+
+| theorem | what it says |
+|---|---|
+| `wave_keeps_its_direction` | a wave crosses a gap and stays the same wave |
+| `beams_stay_beams` | light made of several waves arrives as the same waves |
+| `turning_plate_makes_three_waves` | a turning plate makes three waves from horizontal light: 1/2 straight on, 1/4 to each side |
+| `turning_plate_makes_one_wave_of_circular_light` | from circular light it makes one wave, to one side |
+| `three_waves_arrive_as_three_waves` | behind any gap, the turning plate's light is still those three waves |
+| `brighter_lamp_scales_every_window` | a lamp `c` times stronger puts `c²` times the light in every window |
+| `brighter_lamp_keeps_the_brightest_window` | so the brightest window stays the brightest |
+| `one_plate_only_dims_a_glowing_point` | under a lamp, one plate changes a point's light by one factor, the same in every window |
+| `one_plate_cannot_steer_a_glowing_point` | so it cannot move that light from one window to another |
+
 **What is not proved.** The gap of the simulation itself. So the angle a
 grating bends light by, the shares of light in each beam and the length of
 gap that is needed are worked out by hand and checked against the
-simulation, and are not in Lean.
+simulation, and are not in Lean. Also not in Lean: the up part of the
+light behind a turning plate, that a lamp turns the device into a plain
+linear classifier, and plates as surfaces (the file has light along a line).
+The file ends with the list of what is planned, under "To do".
 
 ## Run it yourself
 
