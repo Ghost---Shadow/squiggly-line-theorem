@@ -145,7 +145,7 @@ light on the screen, with the ten windows drawn and the brightest one
 outlined. Nine of the ten are read correctly. The 5 is read as a 6
 (**measured**).
 
-<img src="figures/12-optical-digits.gif" alt="An animation that loops over the digits 0 to 9. For each digit the left panel shows the digit as light going in and the right panel shows the light on the screen, with the brightest of the ten windows outlined.">
+<p><img src="figures/12-optical-digits.gif" alt="An animation that loops over the digits 0 to 9. For each digit the left panel shows the digit as light going in and the right panel shows the light on the screen, with the brightest of the ten windows outlined."></p>
 
 ![The first test image of each digit from 0 to 9, each beside the light it makes on the screen. The brightest window is outlined in green. It is the correct window for nine of the ten. For the 5 it is window 6.](figures/12-optical-digits.png)
 
