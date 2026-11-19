@@ -14,6 +14,11 @@ simulation in `experiments/optics/optics.py` has both properties.
 * `beams_stay_beams`: so light made of several waves leaves as the same
   waves, each multiplied by its own number. The beams that a plate makes
   stay beams.
+* `turning_plate_makes_three_waves`,
+  `turning_plate_makes_one_wave_of_circular_light`: a plate is what makes
+  the waves. A plate whose axis turns steadily makes three waves from
+  horizontal light (straight on and one to each side) and a single wave
+  from circular light.
 * `brighter_lamp_scales_every_window`,
   `brighter_lamp_keeps_the_brightest_window`: whatever the plates and gaps
   are, a lamp `lamp_factor` times stronger puts `lamp_factor ^ 2` times the
@@ -30,6 +35,7 @@ simulation in `experiments/optics/optics.py` has both properties.
 | `SHIFT_BY_ONE_POINT`     | the same light, moved one point sideways         |
 | `IS_SAME_AT_EVERY_PLACE` | a gap that does not care where the light is      |
 | `MAKE_WAVE`              | a wave: each point is `step` times the one before |
+| `GET_GRATING_STEP`       | the step of the wave a turning plate makes       |
 | `GET_LIGHT_IN_WINDOW`    | the brightness added up over a window            |
 
 How to read the notation:
@@ -48,7 +54,7 @@ import Mathlib.Algebra.BigOperators.Pi
 
 namespace SquigglyLine
 
-open Finset
+open Finset Real
 
 /-! ## A gap keeps each wave -/
 
@@ -185,6 +191,86 @@ theorem beams_stay_beams
   conv_lhs => rw [beam_is_kept]
   -- Two numbers in a row multiply into one.
   rw [smul_smul]
+
+/-! ## A plate makes the waves -/
+
+/-- The step of the wave made by a plate whose axis turns half a turn every
+`period` points: a full turn of the wave every `period` points.
+Python: `cmath.exp(2j * pi / period)`. -/
+noncomputable def GET_GRATING_STEP
+    (period : ℝ) : ℂ :=
+  Complex.exp ((2 * PI / period : ℝ) * Complex.I)
+
+/-- **A turning plate makes three waves.** Let the axis of a plate turn
+steadily, half a turn every `period` points. `plate_on_horizontal_light`
+gives the across part of the light behind it, `1/2 + cos(2θ)/2` at each
+point. That is one half of the wave that goes straight on, a quarter of a
+wave to one side and a quarter of its mirror image to the other side. -/
+theorem turning_plate_makes_three_waves
+    (period : ℝ) :
+    let axis_angle := fun point : ℤ => PI * point / period   -- half a turn every `period` points
+    let across_part : LightOnLine :=
+      fun point => ((1 / 2 + Real.cos (2 * axis_angle point) / 2 : ℝ) : ℂ)
+    let step        := GET_GRATING_STEP period
+    let straight_on := MAKE_WAVE 1                           -- the same at every point
+    let to_one_side := MAKE_WAVE step
+    let to_the_other_side := MAKE_WAVE step⁻¹
+    let three_waves : LightOnLine :=
+      (1 / 2 : ℂ) • straight_on
+        + (1 / 4 : ℂ) • to_one_side
+        + (1 / 4 : ℂ) • to_the_other_side
+    across_part = three_waves := by
+  unfold_named_pieces
+  funext point
+  -- A cosine is half of a wave plus half of its mirror image.
+  have cos_as_two_waves :
+      ∀ angle : ℝ,
+        ((1 / 2 + Real.cos angle / 2 : ℝ) : ℂ)
+          = 1 / 2 + 1 / 4 * Complex.exp ((angle : ℂ) * Complex.I)
+            + 1 / 4 * Complex.exp (-(angle : ℂ) * Complex.I) := by
+    intro angle
+    push_cast
+    rw [Complex.cos]
+    ring
+  -- The wave at a point is `exp` of that point's angle.
+  have wave_at_point :
+      GET_GRATING_STEP period ^ point
+        = Complex.exp
+            (((2 * (PI * point / period) : ℝ) : ℂ) * Complex.I) := by
+    rw [GET_GRATING_STEP, ← Complex.exp_int_mul]
+    congr 1
+    push_cast
+    ring
+  -- Its mirror image has the opposite angle.
+  have mirror_wave_at_point :
+      (GET_GRATING_STEP period)⁻¹ ^ point
+        = Complex.exp
+            (-((2 * (PI * point / period) : ℝ) : ℂ) * Complex.I) := by
+    rw [inv_zpow, wave_at_point, ← Complex.exp_neg, ← neg_mul]
+  simp only [Pi.add_apply, Pi.smul_apply, smul_eq_mul, MAKE_WAVE, one_zpow,
+    wave_at_point, mirror_wave_at_point, cos_as_two_waves]
+  ring
+
+/-- **With circular light a turning plate makes one wave.**
+`plate_on_circular_light` gives the phase shift `exp(2θ i)` of the half of
+the light that changes handedness. Across a plate whose axis turns steadily
+that is a single wave, to one side only. -/
+theorem turning_plate_makes_one_wave_of_circular_light
+    (period : ℝ) :
+    let axis_angle := fun point : ℤ => PI * point / period   -- half a turn every `period` points
+    let phase_shift : LightOnLine :=
+      fun point =>
+        Complex.exp (2 * ((axis_angle point : ℝ) : ℂ) * Complex.I)
+    let to_one_side := MAKE_WAVE (GET_GRATING_STEP period)
+    phase_shift = to_one_side := by
+  unfold_named_pieces
+  funext point
+  -- The wave at a point is `exp` of that point's angle.
+  simp only [MAKE_WAVE]
+  rw [GET_GRATING_STEP, ← Complex.exp_int_mul]
+  congr 1
+  push_cast
+  ring
 
 /-! ## The screen -/
 

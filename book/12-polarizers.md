@@ -317,10 +317,21 @@ wave fainter or shift it. It cannot turn it into a different wave.
 
 Light made of several waves is handled one wave at a time, because the gap
 is linear (`beams_stay_beams`). So **a gap never creates a new direction.
-Only a plate can.** The plate with a steadily turning axis makes three
-waves, straight on and one to each side, and at the screen they are still
-those three. This is why the plates do the steering and the gaps only give
-the light room to get there.
+Only a plate can.** A plate whose axis turns steadily makes exactly three
+waves from horizontal light: one half straight on, a quarter to one side
+and a quarter to the other (`turning_plate_makes_three_waves`). From
+circular light it makes a single wave, to one side only
+(`turning_plate_makes_one_wave_of_circular_light`). At the screen they are
+still those waves. This is why the plates do the steering and the gaps only
+give the light room to get there.
+
+**Can a plate send several rays to the same spot?** Yes, and that is how
+the trained plates work. A "wave" here is not one ray. It is light across
+the whole plate that all leaves in one direction. A plate can give the
+light a different direction at each place: rightward from its left part,
+leftward from its right part. That is many waves at once. Each crosses the
+gap unchanged, and at the far side they pile up at one spot. The plate
+chooses the directions and the gap carries the light there.
 
 **A brighter lamp changes no answer.** Whatever the plates and gaps are, a
 lamp `lamp_factor` times stronger puts `lamp_factor ^ 2` times the light in
