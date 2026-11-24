@@ -69,9 +69,10 @@ theorem attention_output_lies_among_the_values
 *Read aloud:* whatever the scores are, the output is a blend of the
 values.
 
-Here is **measured** what a head does. Six tokens carry the values
+Here is, **from the formula**, what a head does. Six tokens carry the values
 −2, −0.5, 1, 2.5, 4 and 7, and the scores are random. Every row of shares adds
-to one, and every output sits inside the stretch from −2 to 7.
+to one, and every output sits inside the stretch from −2 to 7 (the
+notebook prints this as by construction: an output is a blend of the values).
 
 ![Left, a heat map of the shares each of six queries gives the six tokens; right, the six token values on a line with the six outputs, all inside the band from the smallest to the largest value](figures/36-weights-and-outputs.png)
 
@@ -112,10 +113,11 @@ The rate is also **measured** against the proved bound. The figure shows
 the largest spread of eight tokens over 300 starts, with scores of exactly
 `score_bound` in size arranged so that each token prefers tokens on its own
 side of the middle, which is the arrangement that resists merging. It
-stays under the proved line for every `score_bound`. The control, scores of
-size 50, breaks the hypothesis and does not merge.
+stays under the proved line for every `score_bound`. Scores of
+size 50 are a different parameter, which the `score_bound` 0.5 line does not cover;
+their spread fell only from 7 to 5.97 in 30 layers.
 
-![Spread of the tokens against attention layers for score_bound 0.5, 1 and 3, measured and the proved bound, plus a control with scores of size 50 that does not shrink](figures/36-spread-against-layers.png)
+![Spread of the tokens against attention layers for score_bound 0.5, 1 and 3, measured and the proved bound, plus scores of size 50, a different parameter, whose spread falls from 7 to 5.97 after 30 layers](figures/36-spread-against-layers.png)
 
 `APPLY_ATTENTION_LAYER` makes every token a query at once, with scores
 that may depend on all the tokens. `f^[layer_count]` means applying `f`
@@ -220,16 +222,20 @@ a model linear in its weights with the gradient taken by autograd. The hand
 numbers (4.25, 5, factor 0.632, 4.425 after one layer, 0.0713 after ten, and
 0.7802 for `score_bound` 3 after 100 layers) are **from the formula**, not
 measured; the notebook prints them as "by construction, cannot fail" and they
-are not evidence. In 20,000
+are not evidence. The notebook has 13 checks that could fail, all passing, and 8
+lines that are not counted. In 20,000
 random score vectors every output of the head on values 2, 4 and 9 stayed in
 [2, 9], and 20,000 outputs on six 2-dimensional values stayed inside their
 convex hull. Without the softmax, 0.915 of the outputs left [2, 9]. Through 60
-layers whose scores change with the tokens, 200 starts never left their starting range.
-The rate held at every one of 30 layers, 300 starts, for `score_bound` 0.5, 1
-and 3, with random-sign scores and with the arrangement that resists merging.
-The closest approach was 0.909 of the bound (random signs, `score_bound` 3),
-so the bound is nearly tight there. With scores of size 50 the spread after 30 layers was 5.97, against
-7.4e-06 for the `score_bound` 0.5 bound, so the hypothesis matters. One
+layers whose scores change with the tokens, 200 starts never left their starting range;
+that holds because each layer is a blend, so the notebook prints it as by construction and does not count it.
+The rate held at every one of layers 1 to 30 (layer 0 is left out: the spread and the bound are both 7 there),
+300 starts, for `score_bound` 0.5, 1 and 3, with random-sign scores and with the sorting arrangement (the slower
+to merge at `score_bound` 1 and 3). The worst spread over the bound, for the sorting arrangement at `score_bound` 3,
+was 0.848, 0.8, 0.787, 0.763 and 0.739 at layers 1, 5, 10, 20 and 30; at layer 30 every other setting was at most
+0.0175 of its bound, and the ratio at layer 1 (0.909 for random signs at `score_bound` 3) comes from a layer where
+little has moved. Scores of size 50 are a different parameter, to which the `score_bound` 0.5 bound does not apply:
+their spread fell from 7 to 5.97 after 30 layers, against 7.4e-06 for that bound. One
 autograd gradient step from zero weights matched `learning_rate` times a head
 of linear attention to `1.1e-16` over 100 queries; with the softmax put back
 the largest gap was 0.41. These are measurements, not proofs: the Lean files

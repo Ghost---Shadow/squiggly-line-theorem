@@ -138,7 +138,8 @@ tighter theorem counts `kernel_width - 1`.
 
 **Measured:** one input of a stack of width-3 kernels is raised by 1, and the
 output change is plotted against how far away it was. It is exactly zero
-beyond the window.
+beyond the window, which the array indexing forces; what could fail is the
+change inside the reach, and it is above zero there.
 
 ![Output change against the distance of the changed input, for 1, 2 and 3 layers of width-3 kernels, with the window the theorem allows drawn at 3, 6 and 9 positions](figures/33-output-change-against-distance.png)
 
@@ -185,30 +186,44 @@ chapter 14: stacking multiplies slope.
 
 The notebook [`ch33_convolution.ipynb`](../experiments/part5/ch33_convolution.ipynb)
 uses a one-dimensional convolution layer on random seeded signals, and a sine
-for stride. It has 8 checks, all passing, and two identities printed as "by construction, cannot fail" that are not evidence. These are **measured** numbers: an
+for stride. It has 8 checks that could fail, all passing, and 3 lines that are
+not counted: two identities printed as "by construction, cannot fail" and one
+line printed as "from the formula, one sine". The numbers below are measured
+on the random kernels and signals, except where a line says otherwise: an
 experiment is evidence, not a proof.
 
 - **By hand.** Kernel `1, −2, 1`: the outputs are 0 and 0.4, and the gap
   equals the bound 0.4.
 - **Slope.** Over 200 random kernels and signals of length 10, 1000 and
   100 000, the largest output gap over the bound was 0.997, 1.000 and 1.000,
-  never above 1. With the gap lined up with the kernel signs, the kernel
+  never above 1. Random gaps come near the bound only for narrow kernels (by
+  kernel width 1 to 9 the largest ratio was 1.000, 1.000, 0.994, 0.982, 0.971,
+  0.957, 0.944, 0.890, 0.904), so an adversarial search was added: for each
+  width 1 to 9, 20 kernels, 300 steps of coordinate search over the gap. The
+  largest ratio was 1.000 at every width, never above 1 (to 1e-9). With the gap lined up with the kernel signs, the kernel
   `0.5, 0.5, −1` and gap 2 give exactly 4. Control: a layer whose weights are
   scaled by a number that depends on the position is not a convolution, and
   its output gap was 1.81, 11.67 and 1001.73 times the bound at the three
-  lengths: the length enters.
+  lengths. Those three numbers are the control's own scale factor at the
+  chosen position, not measured from a model; they show that the length
+  enters such a layer.
 - **Locality.** For 1, 2 and 3 layers of width 3, changing an input beyond
   3, 6 and 9 positions left the output exactly unchanged, also with a ReLU
-  between the layers. The farthest input that mattered was at 3, 5 and 7
-  positions. That is inside the window the first theorem allows, and it is
+  between the layers; that is forced by the array indexing and is printed as
+  by construction, not counted. The checks that could fail are that every
+  change inside the exact reach was above 0 (smallest 0.504, 0.649 and 0.128
+  for 1, 2 and 3 layers) and that the farthest input that mattered was at 3, 5 and 7
+  positions (measured). That is inside the window the first theorem allows, and it is
   exactly the window of the tighter one: `layer_count × (3 − 1) + 1`
   positions is 3, 5 and 7. The measurement came first; the tighter theorem
   (`convolution_stack_reads_only_its_exact_window`) was proved after it.
 - **Shift.** The largest difference between the output of the shifted signal
   and the shifted output was 0 for the convolution, and 1.179 for the
   control (the largest output is 0.872).
-- **Stride.** `sin(3x)` has slope 3.0000, and read at every second position
-  6.0000. An input step of 0.1 moved the output by at most 0.5910 (bound 0.6).
+- **Stride.** This is not a run of a strided layer. It reads the slope of
+  one hand-picked function, `sin(6x)`, and is printed as "from the formula,
+  one sine" and not counted: the discrete strided convolution was not run.
+  `sin(3x)` has slope 3.0000, and read at every second position 6.0000. An input step of 0.1 moved the output by at most 0.5910 (bound 0.6).
   A slope of 1.5000 became 6.0000 after two strides. That a stride is the
   squeeze `COMPRESS 2`, and that a stride after an upsampling gives back the
   model, are identities of the definitions (difference 0.0e+00, by

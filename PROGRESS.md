@@ -16,7 +16,7 @@ plan are not counted. To change the bar, tick an item here and run
 <!-- burndown:start -->
 ![Burn-down chart: items still to do against the date, with the straight line to zero](docs/burndown.svg)
 
-**ETA 2026-12-09.** 257.0 items are left, and the pace so far is 17.6 items a day (105 items ticked in 6.0 days). That is a short history, and the items are not of equal size, so treat it as a guess, not a promise. As of 2026-11-24. The blue line is read from git (every commit that changed this list); the dashed line is the straight line to zero at that pace. When items are added to the list the blue line goes up; such a step is not counted in the pace.
+**ETA 2026-12-08.** 253.0 items are left, and the pace so far is 18.3 items a day (109 items ticked in 6.0 days). That is a short history, and the items are not of equal size, so treat it as a guess, not a promise. As of 2026-11-24. The blue line is read from git (every commit that changed this list); the dashed line is the straight line to zero at that pace. When items are added to the list the blue line goes up; such a step is not counted in the pace.
 <!-- burndown:end -->
 
 ## Proofs
@@ -494,11 +494,11 @@ plan are not counted. To change the bar, tick an item here and run
 - [x] The notebook of chapter 30 read by a second reader
 - [x] The notebook of chapter 31 read by a second reader
 - [x] The notebook of chapter 32 read by a second reader
-- [ ] The notebook of chapter 33 read by a second reader
+- [x] The notebook of chapter 33 read by a second reader
 - [x] The notebook of chapter 34 read by a second reader
-- [ ] The notebook of chapter 35 read by a second reader
-- [ ] The notebook of chapter 36 read by a second reader
-- [ ] The notebook of chapter 37 read by a second reader
+- [x] The notebook of chapter 35 read by a second reader
+- [x] The notebook of chapter 36 read by a second reader
+- [x] The notebook of chapter 37 read by a second reader
 - [ ] The notebook of chapter 38 read by a second reader
 - [x] The notebook of chapter 39 read by a second reader
 - [ ] The notebook of chapter 40 read by a second reader

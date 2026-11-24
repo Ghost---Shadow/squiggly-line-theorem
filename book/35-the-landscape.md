@@ -159,27 +159,35 @@ simplex makes that distance as large as it can be for every pair at once.
 
 [`ch35_the_landscape.ipynb`](../experiments/part5/ch35_the_landscape.ipynb) uses a linear model in its weights (fixed
 sine and cosine features, 12 coefficients, 5 data points), the two-weight model, and unit arrows. It is evidence, not
-proof. **Measured** on the linear model: two exact fits 8.42 apart have a largest error on the line between them of
+proof. It has 9 checks that could fail, all passing, and 6 lines that are not counted (a mirror identity, a
+control built as a counterexample, a curved path that fits by construction, two repeats of earlier checks, and one
+reported number). **Measured** on the linear model: two exact fits 8.42 apart have a largest error on the line between them of
 `6.3e-15`, and for 200 random pairs that do not fit, no point on the line is above the worse end (largest excess
 `0.0`). **Measured** on two weights multiplied: for 300 random pairs of fits, the multiplied output agrees with the
-formula `target - hill` to `3.6e-15`; dropping the hill term (the linear-model answer) misses by up to 15.80. Halfway
+formula `target - hill` to `3.6e-15`. Dropping the hill term (the linear-model answer) misses by up to 15.80, which
+is only the largest hill among the random draws: a report, not a test. Halfway
 between `(2, 3)` and `(3, 2)` the model output is 6.25; the hill `-0.25` is **from the formula**. For 200 random targets
-the mirror fits, and the multiplied output at the midpoint is exactly 0.
+the mirror fits, and the multiplied output at the midpoint is exactly 0 and its squared error is the target squared;
+this follows from the form of the model (a product of two zeros), is printed as by construction and is not counted.
 
 The squared error of the product model along the straight line peaks at 0.0625 halfway between `(2, 3)` and `(3, 2)`
 and at 36.00 halfway to the mirror `(-2, -3)`; both agree with the hill squared (**from the formula**) to rounding
-error. The linear model's line has squared error at most `4.1e-29`. The curved path `(a, 6 / a)` is drawn for contrast:
+error; that repeats the check of the two-weight model and is not counted twice. The linear model's line has squared error at most `4.1e-29`, which repeats the check of the linear model. The curved path `(a, 6 / a)` is drawn for contrast:
 it fits by construction, its loss `7.9e-31` is not evidence, and the chapter does not prove it.
 
-![Squared error of the output against the fraction of the way between two fits: the product model's straight line rises to 0.0625 for the swap and 36.00 for the mirror, with dots from the hill formula on it; the linear model's line is at zero; the curved path is drawn at zero because it fits by construction](figures/35-hill-along-the-line.png)
+![Squared error of the output along the straight line between two fits: the product model's straight line rises to 0.0625 for the swap and 36.00 for the mirror, with dots from the hill formula on it; the linear model's line is at zero; the curved path is drawn at zero because it fits by construction](figures/35-hill-along-the-line.png)
 
 For the arrows, a gradient search for unit arrows with the lowest largest overlap, for 2 to 10 classes, never went below
-`-1 / (classes - 1)` (smallest margin `-2.2e-16`, rounding) and came within `6.5e-04` of it; the best arrangements add up
-to a vector of length at most `1.3e-03`, the simplex. Arrows of length 1.5 break the hypothesis: for four classes the
-largest overlap of explicit simplex vectors of that length is `-0.750`, below the unit limit `-0.333`, by 0.417. This
-checks the geometry only; no network was trained to collapse.
+`-1 / (classes - 1)` (smallest margin `-2.2e-16`, rounding) and came within `6.5e-04` of it (the tolerance was `1e-3`;
+the notebook does not record whether the steps, the learning rate and the tolerance were fixed before the first run); the best arrangements add up
+to a vector of length at most `1.3e-03`, the simplex. Random unit arrangements (2000 per class count) stayed above the limit, with a smallest gap of 0.000, 0.032, 0.268,
+0.319, 0.344, 0.416, 0.427, 0.480 and 0.480 for 2 to 10 classes: for 4 or more classes random draws are nowhere near the
+limit, so they do not test it; only the search does. For arrows of length 1.5 the notebook builds the explicit simplex
+vectors, so that every overlap is `-2.25 / (classes - 1)`: for four classes the largest overlap is `-0.750`, below the
+unit limit `-0.333`, by 0.417. That is an explicit counterexample, by construction, not a measurement and not counted.
+This checks the geometry only; no network was trained to collapse.
 
-![Lowest largest overlap against the number of classes: the search for unit arrows lies on the limit, the best random arrangements lie above it, and explicit simplex arrows of length 1.5 lie below it](figures/35-class-overlap-limit.png)
+![Lowest largest overlap between two arrows against the number of classes: the search for unit arrows lies on the limit, the best random arrangements lie above it (for 4 or more classes by a wide margin, so they do not test the limit there), and explicit simplex arrows of length 1.5, built so that every overlap is below the limit, lie below it](figures/35-class-overlap-limit.png)
 
 Run it:
 

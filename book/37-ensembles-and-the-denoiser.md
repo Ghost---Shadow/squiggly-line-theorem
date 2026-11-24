@@ -151,9 +151,9 @@ best-guess result. The hull statement is `attention_output_lies_among_the_values
 members agree, there is nothing to gain, and if they err on different
 sides, the gain is large. The spread is the variance term of chapter 43.
 
-**Measured.** Thirty fitted models, each linear in its weights, are averaged with equal shares. The purple curve is the squared error of the average. The green curve is the average squared error of the same models, which the theorem bounds it by. The black circles are that average error minus the spread, computed apart, and they sit on the purple curve.
+**Measured.** Thirty fitted models, each linear in its weights, are averaged with equal shares. The purple curve is the squared error of the average. The green curve is the average squared error of the same models, which the theorem bounds it by. The black circles are that average error minus the spread, computed apart, and they sit on the purple curve; that is an identity (the circles are the green curve minus the spread, and the gain equals the spread), not a result.
 
-![Squared error of an average of models against the number of models, never above the average error of the single models, with the average error minus the spread lying on the average's error](figures/37-error-of-an-average.png)
+![Squared error of an average of models against the number of models, never above the average error of the single models, with the average error minus the spread lying on the average's error, which is an identity](figures/37-error-of-an-average.png)
 
 **What a diffusion model aims at.** With Gaussian noise, the weight of an
 example falls with its squared distance from the noisy input, as the score
@@ -183,37 +183,44 @@ paid for is **argued**. The denoiser's shares are set by nearness
 
 ## Run it yourself
 
-[`ch37_ensembles_and_the_denoiser.ipynb`](../experiments/part6/ch37_ensembles_and_the_denoiser.ipynb) has 29 checks, all
-passing. Each is labelled in the notebook: **measured** means a fit, a training run or a sampled model was run, **from the
-formula** means the chapter's formula was evaluated (random numbers, hand examples, the denoiser's own formula). The measured
-members are 30 ridge fits, linear in their weights, to bootstrap resamples of 40 noisy points. These are checks, not proofs.
+[`ch37_ensembles_and_the_denoiser.ipynb`](../experiments/part6/ch37_ensembles_and_the_denoiser.ipynb) has 16 checks that
+could fail, all passing, and 13 lines that are not counted: 12 identities (or things the code forces), printed as "by
+construction, cannot fail", and one reported number. **Measured** means a fit, a training run or a sampled model was run;
+**from the formula** means the chapter's formula was evaluated (random numbers, hand examples, the denoiser's own
+formula). The members are 30 ridge fits, linear in their weights, to bootstrap resamples of 40 noisy points. These are
+checks, not proofs.
+
+**Identities, not counted.** These hold for any numbers, so the notebook prints them as identities: the blend is never worse
+than the average error of its members and the gain equals the spread (largest gap `2.2e-16`); the blend of the 30 is no
+steeper than its steepest member (10.202 against 26.143, the triangle inequality, which could fail only on a bug);
+averaged weights predict the average of the predictions (`6.7e-16`) and are no worse than the average member (0.2063
+against 0.7103); the split of the weighted squared distance (`2.8e-14`), none of 10000 random points beating the weighted
+mean, and the unweighted mean losing by exactly the formula (0.356 on average); and, for 203 other outputs for each of 300
+inputs, none beats the ideal denoiser, each loses by exactly the squared distance (`8.5e-14`), and a denoiser at three times
+the noise level is one more of them (it loses 1.368 on average). The control of two runs of a two-layer product trained
+from opposite starts is also forced: the second run is the exact negation of the first by symmetry, so the midpoint error
+(1.159, with both runs at error `7.6e-32` at weights (0.782, 1.164) and (−0.782, −1.164)) is not a finding.
 
 **Measured**
 
-- **The gain.** For 1 to 30 members the blend is never worse than the average error of its members, and the gain equals the
-  spread to `2.2e-16`. The average error of the 30 members is 0.7103, the spread 0.5040 and the error of their average 0.2063.
-  Control: with shares 1.5 and −0.5 the identity holds but the blend (1.3045) is worse than the average error (0.1409).
-- **Slope.** The blend of the 30 is no steeper than its steepest member: 10.202 against 26.143. Control: with shares 1.5 and
-  −0.5, 619 of 870 pairs give a blend steeper than the steeper of the two members.
-- **Weight averaging.** Averaged weights predict the average of the predictions to `6.7e-16`, with error 0.2063. Control, two
-  runs of a two-layer product trained from opposite starts: both fit (error `7.6e-32`) at weights (0.782, 1.164) and
-  (−0.782, −1.164), and the midpoint of their weights has error 1.159.
+- **The gain.** The average error of the 30 members is 0.7103, the spread 0.5040 and the error of their average 0.2063. The
+  average beats member 1 (0.3781, a good member) and the average member (0.7103). Control: with shares 1.5 and −0.5 the
+  blend (1.3045) is worse than the average error (0.1409).
+- **Slope control, a report and not a test.** With shares 1.5 and −0.5, 619 of 870 pairs give a blend steeper than the
+  steeper of the two members. The control was changed after a first look (shares summing to 2 were tried first and were a
+  poorer control), and "over half" was not stated beforehand, so this is a number, not a pass.
 - **The best guess.** A numerical minimiser started away from the weighted mean ends within `3.6e-08` of it.
 - **Bayes' rule (recalled in the chapter).** In a simulation of 4 million draws, the mean clean example at five noisy values
   agrees with the ideal denoiser to within 1.51 standard errors. The denoiser at three times the noise level is off by up to
   487.2.
 
-**From the formula**
+**From the formula** (counted: they could fail)
 
 - **The split.** In 2000 random cases the error of the blend equals the average error minus the spread to `6.8e-13`. With
-  shares that sum to 1.5 the two sides differ by up to 915.2.
-- **The best guess.** The split holds to `2.8e-14` over 500 cases, and none of 10000 random points beats the weighted mean. The
-  unweighted mean loses by exactly the formula, 0.356 on average.
+  shares that sum to 1.5 the two sides differ by up to 915.2. With a negative share the identity still holds.
 - **The denoiser.** The two worked examples give shares 0.982 and 0.018 with output 0.0719, shares 0.51 and 0.49 with output
-  1.96, and exactly 2 half way. Against 203 other outputs for each of 300 inputs, none has a smaller spread than the ideal
-  denoiser, and each loses by exactly the squared distance (largest gap `8.5e-14`). A denoiser at three times the noise level
-  loses 1.368 on average. The output stayed inside the hull in 3000 cases in one dimension and 300 in the plane. Control:
-  without the division by the sum of the weights, 299 of 300 outputs left the hull.
+  1.96, and exactly 2 half way. The output stayed inside the hull in 3000 cases in one dimension and 300 in the plane.
+  Control: without the division by the sum of the weights, 299 of 300 outputs left the hull.
 
 Run it with `jupyter nbconvert --to notebook --execute --inplace experiments/part6/ch37_ensembles_and_the_denoiser.ipynb`.
 
