@@ -75,7 +75,7 @@ theorem curve_nonempty_of
     let line := GET_GRAPH model
     line.Nonempty := by
   unfold_named_pieces
-  exact ⟨_, footpoint_mem_curve model (WithLp.ofLp ambient_point)⟩
+  exact ⟨_, footpoint_is_on_the_line model (WithLp.ofLp ambient_point)⟩
 
 /-- **The field is never steep.** It changes by at most the distance moved,
 however squiggly the line is. -/
@@ -116,7 +116,7 @@ theorem isClosed_curve
             (WithLp.ofLp ambient_point).2
               = model (WithLp.ofLp ambient_point).1} := by
     ext ambient_point
-    exact embed_mem_curve_iff model (WithLp.ofLp ambient_point)
+    exact data_point_is_on_the_line_exactly_when_label_is_output model (WithLp.ofLp ambient_point)
   rw [graph_is_equalizer]
   exact isClosed_eq
     (continuous_snd.comp (WithLp.prod_continuous_ofLp 2 Inputs ℝ))
@@ -171,7 +171,7 @@ theorem notMem_curve_of_dist_lt_verticalDist_div
   unfold_named_pieces
   refine notMem_curve_of_dist_lt (step_is_short.trans_le ?_)
   rw [div_le_iff₀' (by positivity)]
-  exact verticalDist_le_of_lipschitz slope_is_bounded data_point
+  exact vertical_error_is_at_most_stretch_times_nearest_distance slope_is_bounded data_point
 
 /-- The tube of radius `radius` round the line is where the field is below
 `radius`. -/
@@ -221,7 +221,7 @@ theorem abs_signedDist
     have nearest_le_vertical :
         GET_NEAREST_DISTANCE model data_point
           ≤ GET_VERTICAL_ERROR model data_point :=
-      nearestDist_le_verticalDist model data_point
+      nearest_distance_is_at_most_vertical_distance model data_point
     have distance_is_zero : GET_NEAREST_DISTANCE model data_point = 0 :=
       le_antisymm (vertical_is_zero ▸ nearest_le_vertical) distance_nonneg
     simp [GET_SIGNED_DISTANCE, distance_is_zero]
@@ -243,7 +243,7 @@ theorem abs_signedDist_le_verticalDist
   have nearest_le_vertical :
       GET_NEAREST_DISTANCE model data_point
         ≤ GET_VERTICAL_ERROR model data_point :=
-    nearestDist_le_verticalDist model data_point
+    nearest_distance_is_at_most_vertical_distance model data_point
   rw [abs_is_nearest]
   exact nearest_le_vertical
 
@@ -267,7 +267,7 @@ theorem verticalDist_le_abs_signedDist
       GET_VERTICAL_ERROR model data_point
         ≤ √(1 + (slope_limit : ℝ) ^ 2)
           * GET_NEAREST_DISTANCE model data_point :=
-    verticalDist_le_of_lipschitz slope_is_bounded data_point
+    vertical_error_is_at_most_stretch_times_nearest_distance slope_is_bounded data_point
   rw [abs_is_nearest]
   exact vertical_le_stretched
 

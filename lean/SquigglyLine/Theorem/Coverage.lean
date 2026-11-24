@@ -13,7 +13,7 @@ curves, surfaces and hidden-state trajectories alike.
 
 Definition: `GET_UNCOVERED_SET`.
 
-Theorems: `mem_uncovered_iff`, `integral_infDist_eq_integral_uncovered`.
+Theorems: `point_is_uncovered_exactly_when_further_than_radius`, `mean_distance_equals_uncovered_mass_over_all_radii`.
 -/
 import Mathlib.MeasureTheory.Integral.Layercake
 import Mathlib.Topology.MetricSpace.Thickening
@@ -34,7 +34,7 @@ def GET_UNCOVERED_SET (target_set : Set Space) (radius : ℝ) : Set Space :=
 
 /-- A point is uncovered at radius `radius` exactly when it is further than
 `radius` from the set. -/
-theorem mem_uncovered_iff
+theorem point_is_uncovered_exactly_when_further_than_radius
     (set_is_nonempty : target_set.Nonempty)  -- distance to an empty set has no meaning
     {radius : ℝ}
     (radius_nonneg : 0 ≤ radius)
@@ -50,7 +50,7 @@ theorem mem_uncovered_iff
 
 /-- **Tube identity.** Mean distance to the set is the uncovered mass
 integrated over radii. -/
-theorem integral_infDist_eq_integral_uncovered [MeasurableSpace Space]
+theorem mean_distance_equals_uncovered_mass_over_all_radii [MeasurableSpace Space]
     {point_distribution : Measure Space}
     (set_is_nonempty : target_set.Nonempty)
     (distance_is_integrable :
@@ -70,6 +70,6 @@ theorem integral_infDist_eq_integral_uncovered [MeasurableSpace Space]
   refine setIntegral_congr_fun measurableSet_Ioi fun radius radius_pos => ?_
   congr 1
   ext point
-  exact (mem_uncovered_iff set_is_nonempty (le_of_lt radius_pos)).symm
+  exact (point_is_uncovered_exactly_when_further_than_radius set_is_nonempty (le_of_lt radius_pos)).symm
 
 end SquigglyLine

@@ -341,26 +341,26 @@ have been given longer names (for example \texttt{CoversWithin} is now
 \lean{COVERS\_WITHIN}); \texttt{lean/RENAMES.txt} lists them. Theorem names did not change.
 
 \begin{itemize}\setlength{\itemsep}{1pt}
-\item \cref{thm:sandwich}: \texttt{Sandwich}, \lean{nearestDist\_le\_verticalDist},
-\lean{verticalDist\_le\_of\_lipschitz}.
+\item \cref{thm:sandwich}: \texttt{Sandwich}, \lean{nearest\_distance\_is\_at\_most\_vertical\_distance},
+\lean{vertical\_error\_is\_at\_most\_stretch\_times\_nearest\_distance}.
 \item \cref{thm:marginal} and \cref{cor:phase}: \texttt{Marginal},
-\lean{expected\_residualLoss\_congr}; \texttt{RandomPhase},
-\lean{marginal\_randomPhaseWave\_eq}; \texttt{Verdict},
-\lean{not\_learningClaim\_sineWave}.
+\lean{equal\_marginals\_give\_equal\_expected\_loss}; \texttt{RandomPhase},
+\lean{frequency\_does\_not\_change\_the\_marginals\_of\_a\_random\_phase\_wave}; \texttt{Verdict},
+\lean{learning\_claim\_fails\_for\_random\_phase\_sines}.
 \item \cref{thm:tube}: \texttt{Coverage},
-\lean{integral\_infDist\_eq\_integral\_uncovered}.
+\lean{mean\_distance\_equals\_uncovered\_mass\_over\_all\_radii}.
 \item \cref{thm:cover}: \texttt{Oscillation},
-\lean{nearestDist\_le\_of\_coversWithin},
-\lean{verticalDist\_le\_of\_lipschitz\_of\_coversWithin},
-\lean{expected\_nearestDist\_le}; \cref{cor:warp}:
-\lean{exists\_warp\_of\_coversWithin}, \lean{sineWave\_exists\_warp},
-\lean{sin\_exists\_phaseShift}.
-\item \cref{thm:general}: \texttt{Compression}, \lean{COVERS\_WITHIN.compress},
-\lean{lipschitzWith\_compress}, \lean{marginal\_compress\_eq},
+\lean{nearest\_distance\_is\_at\_most\_reach},
+\lean{vertical\_error\_is\_at\_most\_stretch\_times\_reach},
+\lean{expected\_nearest\_distance\_is\_at\_most\_reach}; \cref{cor:warp}:
+\lean{covering\_model\_fits\_any\_target\_after\_a\_small\_warp}, \lean{sine\_fits\_any\_target\_in\_its\_band\_after\_a\_small\_warp},
+\lean{sine\_passes\_through\_any\_point\_after\_a\_phase\_shift}.
+\item \cref{thm:general}: \texttt{Compression}, \lean{COVERS\_WITHIN.squeezing\_divides\_the\_reach},
+\lean{squeezing\_multiplies\_the\_slope\_limit}, \lean{squeezing\_does\_not\_change\_the\_marginals},
 \lean{squiggly\_line\_theorem\_general}.
 \item \cref{thm:sine}: \texttt{SineCloser},
-\lean{sineWave\_nearestDist\_bounds},
-\lean{tendsto\_expected\_nearestDist\_sineWave}; collected in
+\lean{nearest\_distance\_of\_sine\_is\_between\_two\_bounds},
+\lean{expected\_nearest\_distance\_of\_sine\_goes\_to\_zero}; collected in
 \texttt{SquigglyLineTheorem}, \lean{squiggly\_line\_theorem}.
 \item \cref{prop:path,prop:more}: \texttt{LinearModel}, \lean{residual\_along},
 \lean{exists\_within\_budget}, \lean{travel\_coprod\_le}.

@@ -92,9 +92,9 @@ The three lemmas are the three bullets above.
 
 | Fact | Lemma |
 |---|---|
-| closer | `COVERS_WITHIN.compress` |
-| steeper | `lipschitzWith_compress` |
-| no better | `marginal_compress_eq` |
+| closer | `COVERS_WITHIN.squeezing_divides_the_reach` |
+| steeper | `squeezing_multiplies_the_slope_limit` |
+| no better | `squeezing_does_not_change_the_marginals` |
 
 Take "closer". The squeezed model at an input reads the old model at
 `squeeze_factor × input`. The old model hits the wanted label somewhere

@@ -1,0 +1,52 @@
+# Old and new names of theorems. One pair per line: old_name new_name.
+#
+# The rule (lean/STYLE.md, "Theorem names"): a theorem name is a snake_case
+# sentence that says what is true, with no clipped words. The signs are spelled
+#     <=  is_at_most        >=  is_at_least
+#     <   is_less_than      >   is_greater_than
+#     =   equals            /=  is_not
+# The first three were decided by the author on 24 Nov 2026. The other three
+# follow the same pattern and have not been confirmed.
+#
+# scripts/rename_theorems.py applies this file to the Lean sources, the book,
+# docs/, the README, the paper and the notebooks, and its --check fails if an
+# old name is still in use. To change a name later, edit its line here, put the
+# name it has now on the left, and run the script.
+#
+# Theorem/
+COVERS_WITHIN.compress COVERS_WITHIN.squeezing_divides_the_reach
+lipschitzWith_compress squeezing_multiplies_the_slope_limit
+marginal_compress_eq squeezing_does_not_change_the_marginals
+mem_uncovered_iff point_is_uncovered_exactly_when_further_than_radius
+integral_infDist_eq_integral_uncovered mean_distance_equals_uncovered_mass_over_all_radii
+footpoint_mem_curve footpoint_is_on_the_line
+embed_mem_curve_iff data_point_is_on_the_line_exactly_when_label_is_output
+dist_embed distance_between_data_points_is_by_pythagoras
+integral_residualLoss_eq_integral_marginal expected_loss_at_a_point_is_an_average_over_the_marginal
+expected_residualLoss_congr equal_marginals_give_equal_expected_loss
+nearestDist_nonneg nearest_distance_is_at_least_zero
+nearestDist_le_of_coversWithin nearest_distance_is_at_most_reach
+verticalDist_le_of_lipschitz_of_coversWithin vertical_error_is_at_most_stretch_times_reach
+exists_warp_of_coversWithin covering_model_fits_any_target_after_a_small_warp
+expected_nearestDist_nonneg expected_nearest_distance_is_at_least_zero
+expected_nearestDist_le expected_nearest_distance_is_at_most_reach
+marginal_randomPhaseWave marginal_of_random_phase_wave_is_profile_at_uniform_phase
+marginal_randomPhaseWave_eq frequency_does_not_change_the_marginals_of_a_random_phase_wave
+continuous_circleSin sine_on_the_circle_is_continuous
+marginal_sineWave_eq frequency_does_not_change_the_marginals_of_a_random_phase_sine
+nearestDist_le_verticalDist nearest_distance_is_at_most_vertical_distance
+add_mul_le_sqrt_mul_sqrt cauchy_schwarz_in_the_plane
+verticalDist_le_of_lipschitz vertical_error_is_at_most_stretch_times_nearest_distance
+sin_coversWithin sine_covers_its_band_within_half_a_wave
+sin_exists_phaseShift sine_passes_through_any_point_after_a_phase_shift
+sineWave_eval_coe random_phase_sine_is_the_usual_sine
+sineWave_coversWithin random_phase_sine_covers_its_band_within_half_a_wave
+lipschitzWith_sine sine_slope_is_at_most_amplitude_times_frequency
+sineWave_nearestDist_bounds nearest_distance_of_sine_is_between_two_bounds
+sineWave_exists_warp sine_fits_any_target_in_its_band_after_a_small_warp
+expected_nearestDist_sineWave_le expected_nearest_distance_of_sine_is_at_most_half_a_wave
+tendsto_expected_nearestDist_sineWave expected_nearest_distance_of_sine_goes_to_zero
+not_startsCloser_of_marginal_eq shared_marginals_never_start_closer
+not_startsCloser_randomPhaseWave higher_frequency_never_starts_closer
+not_learningClaim_randomPhaseWave learning_claim_fails_for_random_phase_waves
+not_learningClaim_sineWave learning_claim_fails_for_random_phase_sines

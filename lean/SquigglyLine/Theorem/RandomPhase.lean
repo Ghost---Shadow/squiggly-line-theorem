@@ -21,8 +21,8 @@ one-point marginal, because a uniform phase stays uniform after a shift.
 | `ARE_LABELS_ALMOST_SURELY_IN_BAND` | the data's labels are in the band     |
 | `HOLDS_FOR_EVERY_SINE`             | for every frequency > 0 and phase     |
 
-Theorems: `marginal_randomPhaseWave`, `marginal_randomPhaseWave_eq`,
-`continuous_circleSin`, `marginal_sineWave_eq`.
+Theorems: `marginal_of_random_phase_wave_is_profile_at_uniform_phase`, `frequency_does_not_change_the_marginals_of_a_random_phase_wave`,
+`sine_on_the_circle_is_continuous`, `frequency_does_not_change_the_marginals_of_a_random_phase_sine`.
 -/
 import Mathlib.Analysis.Fourier.AddCircle
 import SquigglyLine.Theorem.RandomFunction
@@ -55,7 +55,7 @@ noncomputable def MAKE_RANDOM_PHASE_WAVE
 
 /-- At every input, the wave's output is distributed as the profile at a
 uniform phase. -/
-theorem marginal_randomPhaseWave
+theorem marginal_of_random_phase_wave_is_profile_at_uniform_phase
     (profile_is_measurable : Measurable profile)
     (frequency input : ℝ) :
     let wave :=
@@ -76,7 +76,7 @@ theorem marginal_randomPhaseWave
         rw [map_add_left_eq_self]
 
 /-- **Frequency is invisible in the marginals.** -/
-theorem marginal_randomPhaseWave_eq
+theorem frequency_does_not_change_the_marginals_of_a_random_phase_wave
     (profile_is_measurable : Measurable profile)
     (frequency other_frequency : ℝ) :
     let wave :=
@@ -86,7 +86,7 @@ theorem marginal_randomPhaseWave_eq
     wave.marginal = other_wave.marginal := by
   unfold_named_pieces
   funext input
-  rw [marginal_randomPhaseWave, marginal_randomPhaseWave]
+  rw [marginal_of_random_phase_wave_is_profile_at_uniform_phase, marginal_of_random_phase_wave_is_profile_at_uniform_phase]
 
 section Sine
 
@@ -95,7 +95,7 @@ open Real
 instance : Fact (0 < 2 * π) := ⟨two_pi_pos⟩
 
 /-- The sine as a function on the circle of circumference `2 * PI`. -/
-theorem continuous_circleSin :
+theorem sine_on_the_circle_is_continuous :
     Continuous fun angle : AddCircle (2 * PI) => Angle.sin angle :=
   Angle.continuous_sin
 
@@ -109,17 +109,17 @@ noncomputable def MAKE_RANDOM_PHASE_SINE
     (amplitude frequency : ℝ) : RandomFunction ℝ :=
   MAKE_RANDOM_PHASE_WAVE
     (fun angle => amplitude * Angle.sin angle)  -- the profile: one turn of a sine, which repeats every 2 * PI
-    (continuous_circleSin.measurable.const_mul amplitude)
+    (sine_on_the_circle_is_continuous.measurable.const_mul amplitude)
     frequency
 
 /-- The frequency of a random-phase sine does not change its one-point
 marginals. -/
-theorem marginal_sineWave_eq
+theorem frequency_does_not_change_the_marginals_of_a_random_phase_sine
     (amplitude frequency other_frequency : ℝ) :
     let sine       := MAKE_RANDOM_PHASE_SINE amplitude frequency
     let other_sine := MAKE_RANDOM_PHASE_SINE amplitude other_frequency
     sine.marginal = other_sine.marginal :=
-  marginal_randomPhaseWave_eq _ frequency other_frequency
+  frequency_does_not_change_the_marginals_of_a_random_phase_wave _ frequency other_frequency
 
 /-! ## Names for statements about sines -/
 

@@ -54,7 +54,7 @@ model.
 `reach`, the nearest distance at every data point is at most `reach`.
 
 ```lean
-theorem nearestDist_le_of_coversWithin
+theorem nearest_distance_is_at_most_reach
     (model_covers : COVERS_WITHIN model reach label_range)
     (data_point : DataPoint Inputs)
     (label_in_range : GET_LABEL data_point ∈ label_range) :
@@ -73,7 +73,7 @@ input by at most `reach` so that the model, read at the moved input,
 equals the target.
 
 ```lean
-theorem exists_warp_of_coversWithin
+theorem covering_model_fits_any_target_after_a_small_warp
     (model_covers : COVERS_WITHIN model reach label_range)
     (target : Model Inputs)
     (target_in_range : ∀ input, target input ∈ label_range) :
@@ -109,7 +109,7 @@ changes the answer at that input. **argued**
 vertical_error ≤ √(1 + slope_limit²) × reach
 ```
 
-This is `verticalDist_le_of_lipschitz_of_coversWithin`. A model with a
+This is `vertical_error_is_at_most_stretch_times_reach`. A model with a
 small reach whose vertical error is not small has to be steep.
 
 ## What is not shown

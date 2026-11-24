@@ -8,9 +8,9 @@ means) does not enter.
 
 Theorems:
 
-* `integral_residualLoss_eq_integral_marginal`  the loss on one data point,
+* `expected_loss_at_a_point_is_an_average_over_the_marginal`  the loss on one data point,
   averaged over the draw, is an average over the output at that input;
-* `expected_residualLoss_congr`                 equal one-point marginals
+* `equal_marginals_give_equal_expected_loss`                 equal one-point marginals
   give equal expected loss, on any data.
 -/
 import SquigglyLine.Theorem.RandomFunction
@@ -24,7 +24,7 @@ variable {Inputs : Type*} {random_model other_model : RandomFunction Inputs}
 
 /-- The expected loss on one data point is an integral against the one-point
 marginal. -/
-theorem integral_residualLoss_eq_integral_marginal
+theorem expected_loss_at_a_point_is_an_average_over_the_marginal
     (random_model : RandomFunction Inputs)
     (loss_is_measurable : Measurable loss_fn)  -- so the averages below exist
     (data_point : DataPoint Inputs) :
@@ -44,7 +44,7 @@ theorem integral_residualLoss_eq_integral_marginal
 
 /-- **Marginal lemma.** Equal one-point marginals give equal expected loss,
 on any data. -/
-theorem expected_residualLoss_congr [MeasurableSpace Inputs]
+theorem equal_marginals_give_equal_expected_loss [MeasurableSpace Inputs]
     (loss_is_measurable : Measurable loss_fn)
     (same_marginals : random_model.marginal = other_model.marginal)
     (data_distribution : DataDistributionOver Inputs) :
@@ -56,7 +56,7 @@ theorem expected_residualLoss_congr [MeasurableSpace Inputs]
   unfold_named_pieces
   -- Write both sides through the marginals; then they are the same integral.
   simp only [RandomFunction.expected,
-    integral_residualLoss_eq_integral_marginal _ loss_is_measurable,
+    expected_loss_at_a_point_is_an_average_over_the_marginal _ loss_is_measurable,
     same_marginals]
 
 end SquigglyLine

@@ -19,8 +19,8 @@ case of a sine squeezed by its frequency.
 | `.compress factor`          | the same for a random model                |
 | `HAS_HOMOGENEOUS_MARGINALS` | same output distribution at every input    |
 
-Theorems: `COVERS_WITHIN.compress`, `lipschitzWith_compress`,
-`marginal_compress_eq`, `squiggly_line_theorem_general`.
+Theorems: `COVERS_WITHIN.squeezing_divides_the_reach`, `squeezing_multiplies_the_slope_limit`,
+`squeezing_does_not_change_the_marginals`, `squiggly_line_theorem_general`.
 -/
 import SquigglyLine.Theorem.Marginal
 import SquigglyLine.Theorem.Oscillation
@@ -39,7 +39,7 @@ def COMPRESS (squeeze_factor : ℝ) (model : Model Inputs) : Model Inputs :=
 
 /-- **Closer.** Squeezing by a factor divides the oscillation scale by that
 factor. -/
-theorem COVERS_WITHIN.compress
+theorem COVERS_WITHIN.squeezing_divides_the_reach
     (model_covers : COVERS_WITHIN model reach label_range)
     (squeeze_pos : 0 < squeeze_factor) :
     let squeezed_model := COMPRESS squeeze_factor model
@@ -70,7 +70,7 @@ theorem COVERS_WITHIN.compress
 
 /-- **Steeper.** Squeezing by a factor multiplies the slope by that
 factor. -/
-theorem lipschitzWith_compress
+theorem squeezing_multiplies_the_slope_limit
     {slope_limit : SlopeLimit}
     (slope_is_bounded : LipschitzWith slope_limit model)
     (squeeze : ℝ≥0) :
@@ -113,7 +113,7 @@ def HAS_HOMOGENEOUS_MARGINALS (random_model : RandomFunction Inputs) : Prop :=
 omit [MeasurableSpace Inputs] in
 /-- **No better.** Squeezing a random model with homogeneous marginals
 changes none of its one-point marginals. -/
-theorem marginal_compress_eq
+theorem squeezing_does_not_change_the_marginals
     (random_model : RandomFunction Inputs)
     (marginals_are_homogeneous : HAS_HOMOGENEOUS_MARGINALS random_model)
     (squeeze_factor other_factor : ℝ) :
@@ -227,8 +227,8 @@ theorem squiggly_line_theorem_general
     intro label_in_range
     refine ⟨?_, ?_⟩
     · have sandwich :=
-        verticalDist_le_of_lipschitz
-          (lipschitzWith_compress (every_slope_is_bounded parameters)
+        vertical_error_is_at_most_stretch_times_nearest_distance
+          (squeezing_multiplies_the_slope_limit (every_slope_is_bounded parameters)
             ⟨squeeze_factor, squeeze_pos.le⟩)
           data_point
       change GET_VERTICAL_ERROR
@@ -240,35 +240,35 @@ theorem squiggly_line_theorem_general
         at sandwich
       rw [div_le_iff₀' (by positivity)]
       exact sandwich
-    · exact nearestDist_le_of_coversWithin
-        ((every_draw_covers parameters).compress squeeze_pos)
+    · exact nearest_distance_is_at_most_reach
+        ((every_draw_covers parameters).squeezing_divides_the_reach squeeze_pos)
         data_point label_in_range
 
   -- Proof of claim 2: squeezed between zero and `reach / squeeze_factor`.
   have proof_of_claim_2 : claim_2_distance_vanishes :=
     squeeze_zero'
       (Eventually.of_forall fun _ =>
-        expected_nearestDist_nonneg _ data_distribution)
+        expected_nearest_distance_is_at_least_zero _ data_distribution)
       ((eventually_gt_atTop 0).mono fun squeeze_factor squeeze_pos =>
-        expected_nearestDist_le (random_model.compress squeeze_factor)
+        expected_nearest_distance_is_at_most_reach (random_model.compress squeeze_factor)
           (fun parameters =>
-            (every_draw_covers parameters).compress squeeze_pos)
+            (every_draw_covers parameters).squeezing_divides_the_reach squeeze_pos)
           data_distribution labels_in_range)
       (tendsto_const_nhds.div_atTop tendsto_id)
 
   -- Proof of claim 3: the marginals do not change, so no loss does.
   have proof_of_claim_3 : claim_3_loss_is_flat :=
     fun squeeze_factor other_factor =>
-      expected_residualLoss_congr loss_is_measurable
-        (marginal_compress_eq random_model marginals_are_homogeneous
+      equal_marginals_give_equal_expected_loss loss_is_measurable
+        (squeezing_does_not_change_the_marginals random_model marginals_are_homogeneous
           squeeze_factor other_factor)
         data_distribution
 
   -- Proof of claim 4: a model that covers its range can be warped to fit.
   have proof_of_claim_4 : claim_4_warp_fits_any_target :=
     fun {squeeze_factor} squeeze_pos parameters target target_in_range =>
-      exists_warp_of_coversWithin
-        ((every_draw_covers parameters).compress squeeze_pos)
+      covering_model_fits_any_target_after_a_small_warp
+        ((every_draw_covers parameters).squeezing_divides_the_reach squeeze_pos)
         target target_in_range
 
   -- All four together.

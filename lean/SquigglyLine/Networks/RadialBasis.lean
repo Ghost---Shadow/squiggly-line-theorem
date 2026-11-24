@@ -166,7 +166,7 @@ theorem lipschitzWith_bump
     lipschitzWith_unitBump
   rw [bump_is_squeezed]
   have squeezed_slope :=
-    lipschitzWith_compress unit_bump_slope width⁻¹
+    squeezing_multiplies_the_slope_limit unit_bump_slope width⁻¹
   simpa using squeezed_slope
 
 variable {Examples : Type*} [Fintype Examples]
@@ -242,7 +242,7 @@ theorem verticalDist_bumpNetwork_le
       LipschitzWith ((∑ i, ‖heights i‖₊) * width⁻¹)
         (EVALUATE_BUMP_NETWORK (width : ℝ) centres heights) :=
     lipschitzWith_bumpNetwork width centres heights
-  exact verticalDist_le_of_lipschitz network_slope data_point
+  exact vertical_error_is_at_most_stretch_times_nearest_distance network_slope data_point
 
 /-- The lift of a radial basis network: the list of bump values at an input.
 Python: `[GET_BUMP(width, input - centres[i]) for i in centres]`. -/

@@ -298,7 +298,7 @@ How the two theorems sit side by side:
 | The curve | a wave of frequency `frequency` | the zeta function on a window of the strip |
 | What it gets near | every label in its band | every analytic target with no zero |
 | How | move the input by at most `π / frequency` | shift the height |
-| Exact or near | exact (`sineWave_exists_warp`) | within a tolerance |
+| Exact or near | exact (`sine_fits_any_target_in_its_band_after_a_small_warp`) | within a tolerance |
 | The move | a different small move for each input | one shift for the whole window |
 | How far | at most `π / frequency`, shorter for a squigglier wave | no small bound is known |
 

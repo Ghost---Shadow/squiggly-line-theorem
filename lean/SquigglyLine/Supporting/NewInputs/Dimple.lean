@@ -217,7 +217,7 @@ theorem nearestDist_dimpled_bounds
   constructor
   · -- The lower bound is the slope sandwich.
     rw [div_le_iff₀' (by positivity)]
-    exact verticalDist_le_of_lipschitz
+    exact vertical_error_is_at_most_stretch_times_nearest_distance
       (lipschitzWith_dimpled profile_is_lipschitz) _
   · -- The upper bound: the line has a point at the end of the dimple step.
     have dimpled_at_dimple :
@@ -233,11 +233,11 @@ theorem nearestDist_dimpled_bounds
                 EVALUATE_DIMPLED_MODEL profile dimple_slope
                   (MAKE_DIMPLE profile dimple_slope position label))) :=
           Metric.infDist_le_dist_of_mem
-            (footpoint_mem_curve _
+            (footpoint_is_on_the_line _
               (MAKE_DIMPLE profile dimple_slope position label, label))
       _ = dist (PLACE_ON_MANIFOLD position)
             (MAKE_DIMPLE profile (dimple_slope : ℝ) position label) := by
-          simp [dist_embed, dimpled_at_dimple, Real.sqrt_sq dist_nonneg]
+          simp [distance_between_data_points_is_by_pythagoras, dimpled_at_dimple, Real.sqrt_sq dist_nonneg]
       _ = |label - profile position| / dimple_slope :=
           dist_onManifold_dimple dimple_slope_pos position label
       _ = GET_VERTICAL_ERROR (EVALUATE_DIMPLED_MODEL profile dimple_slope)

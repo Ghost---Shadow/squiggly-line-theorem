@@ -83,11 +83,11 @@ claim, and each calls a lemma from the earlier chapters.
 
 | Claim | Lemma | From |
 |---|---|---|
-| 1, upper bound | `sin_coversWithin`: a sine reaches every height within half a wave | chapter 4 |
-| 1, lower bound | `lipschitzWith_sine`: its slope is at most `amplitude × frequency` | chapter 3 |
-| 2 | `tendsto_expected_nearestDist_sineWave` | claim 1, averaged |
-| 3 | `marginal_sineWave_eq`: the marginal does not depend on the frequency | chapter 5 |
-| 4 | `sineWave_exists_warp` | chapter 4 |
+| 1, upper bound | `sine_covers_its_band_within_half_a_wave`: a sine reaches every height within half a wave | chapter 4 |
+| 1, lower bound | `sine_slope_is_at_most_amplitude_times_frequency`: its slope is at most `amplitude × frequency` | chapter 3 |
+| 2 | `expected_nearest_distance_of_sine_goes_to_zero` | claim 1, averaged |
+| 3 | `frequency_does_not_change_the_marginals_of_a_random_phase_sine`: the marginal does not depend on the frequency | chapter 5 |
+| 4 | `sine_fits_any_target_in_its_band_after_a_small_warp` | chapter 4 |
 
 The one step worth a sentence is claim 3. The output at an input is
 `amplitude × sin(frequency × input + phase)`. The phase is uniform round
@@ -99,7 +99,7 @@ every frequency.
 
 [`Verdict.lean`](../lean/SquigglyLine/Theorem/Verdict.lean) writes the
 "learning" claim of chapter 1 as a statement and proves it false for this
-family (`not_learningClaim_sineWave`). `closer_but_no_better` in
+family (`learning_claim_fails_for_random_phase_sines`). `closer_but_no_better` in
 [`SineCloser.lean`](../lean/SquigglyLine/Theorem/SineCloser.lean) puts
 the two halves side by side: the nearest distance goes to zero while
 every regression loss stays exactly where it was, on average over the

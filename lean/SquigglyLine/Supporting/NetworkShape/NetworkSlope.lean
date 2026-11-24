@@ -106,7 +106,7 @@ theorem verticalDist_network_le
     let stretch          := √(1 + total_slope ^ 2)  -- Pythagoras: 1 across, total_slope up
     vertical_error ≤ stretch * nearest_distance := by
   unfold_named_pieces
-  exact verticalDist_le_of_lipschitz
+  exact vertical_error_is_at_most_stretch_times_nearest_distance
     (readout_is_bounded.comp (lipschitzWith_runLayers each_layer_has_its_slope))
     data_point
 

@@ -270,7 +270,7 @@ change of link or loss. Added 12 Nov 2026.
 ### Using the nearness
 
 23. **Does gradient descent find the warp?** (**open**)
-    `exists_warp_of_coversWithin` shows that a warp of the input of size at
+    `covering_model_fits_any_target_after_a_small_warp` shows that a warp of the input of size at
     most the oscillation scale fits any target. Whether training reaches such
     a warp, and how fast, is not shown. At high frequency the loss as a
     function of one phase has many local minima.

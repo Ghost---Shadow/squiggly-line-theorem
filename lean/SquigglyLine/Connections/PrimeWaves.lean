@@ -630,7 +630,7 @@ theorem two_prime_wave_covers_a_narrower_band
   · constructor <;> linarith
 
 /-- **Any target in the narrower band is fitted exactly after a bounded
-warp.** This is `exists_warp_of_coversWithin` for the sum of two prime
+warp.** This is `covering_model_fits_any_target_after_a_small_warp` for the sum of two prime
 waves: move each input by at most `reach`, and the wave has exactly the
 target's value there. The warp may be any function; no smoothness is
 asked of it, and the reach has no number. -/
@@ -661,7 +661,7 @@ theorem two_prime_wave_fits_any_target_after_a_bounded_warp
     two_prime_wave_covers_a_narrower_band first_is_prime second_is_prime
       primes_differ second_amplitude_nonneg inner_edge_inside
   exact ⟨reach, fun target target_in_band =>
-    exists_warp_of_coversWithin wave_covers target target_in_band⟩
+    covering_model_fits_any_target_after_a_small_warp wave_covers target target_in_band⟩
 
 /-! ## The slope of the wave, and the sandwich -/
 
@@ -772,8 +772,8 @@ theorem two_prime_wave_is_near_the_data_and_pays_the_slope_tax
     two_prime_wave_slope_is_at_most_amplitudes_times_frequencies
       first_prime second_prime first_amplitude second_amplitude
   exact ⟨reach, fun data_point label_in_band =>
-    ⟨nearestDist_le_of_coversWithin wave_covers data_point label_in_band,
-      verticalDist_le_of_lipschitz slope_is_bounded data_point⟩⟩
+    ⟨nearest_distance_is_at_most_reach wave_covers data_point label_in_band,
+      vertical_error_is_at_most_stretch_times_nearest_distance slope_is_bounded data_point⟩⟩
 
 /-! ## The control: frequencies with a common period -/
 

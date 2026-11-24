@@ -8,10 +8,10 @@ flat "vertical error" column of the experiment, as a theorem.
 
 Theorems:
 
-* `not_startsCloser_of_marginal_eq`    shared marginals: nobody starts closer;
-* `not_startsCloser_randomPhaseWave`   so not for random-phase waves;
-* `not_learningClaim_randomPhaseWave`  so the learning claim fails for them;
-* `not_learningClaim_sineWave`         and for sines in particular.
+* `shared_marginals_never_start_closer`    shared marginals: nobody starts closer;
+* `higher_frequency_never_starts_closer`   so not for random-phase waves;
+* `learning_claim_fails_for_random_phase_waves`  so the learning claim fails for them;
+* `learning_claim_fails_for_random_phase_sines`         and for sines in particular.
 -/
 import SquigglyLine.Theorem.Conjecture
 import SquigglyLine.Theorem.Marginal
@@ -26,7 +26,7 @@ variable {Size Inputs : Type*} [Preorder Size] [MeasurableSpace Inputs]
 
 /-- A family with shared one-point marginals never starts closer in a
 regression loss. -/
-theorem not_startsCloser_of_marginal_eq
+theorem shared_marginals_never_start_closer
     {model_family : ModelFamily Size Inputs}
     (loss_is_measurable : Measurable loss_fn)
     (all_marginals_agree :
@@ -42,12 +42,12 @@ theorem not_startsCloser_of_marginal_eq
   -- equal marginals make them equal.
   fun starts_closer =>
     (starts_closer smaller_lt_bigger).ne
-      (expected_residualLoss_congr loss_is_measurable
+      (equal_marginals_give_equal_expected_loss loss_is_measurable
         (all_marginals_agree bigger smaller) data_distribution)
 
 /-- **Squiggliness does not lower the training loss.** Raising the frequency
 of a random-phase wave never lowers its expected regression loss. -/
-theorem not_startsCloser_randomPhaseWave
+theorem higher_frequency_never_starts_closer
     {period : ℝ} [Fact (0 < period)]
     {profile : Profile period}
     (profile_is_measurable : Measurable profile)
@@ -61,13 +61,13 @@ theorem not_startsCloser_randomPhaseWave
     let bigger_starts_closer :=
       STARTS_CLOSER (GET_RESIDUAL_LOSS loss_fn) wave_family data_distribution
     ¬ bigger_starts_closer :=
-  not_startsCloser_of_marginal_eq loss_is_measurable
-    (fun _ _ => marginal_randomPhaseWave_eq profile_is_measurable _ _)
+  shared_marginals_never_start_closer loss_is_measurable
+    (fun _ _ => frequency_does_not_change_the_marginals_of_a_random_phase_wave profile_is_measurable _ _)
     smaller_lt_bigger data_distribution
 
 /-- The learning claim fails for random-phase waves whose frequency grows
 with size. -/
-theorem not_learningClaim_randomPhaseWave
+theorem learning_claim_fails_for_random_phase_waves
     {period : ℝ} [Fact (0 < period)]
     {profile : Profile period}
     (profile_is_measurable : Measurable profile)
@@ -79,13 +79,13 @@ theorem not_learningClaim_randomPhaseWave
     let learning_claim :=
       LEARNING_CLAIM_HOLDS loss_fn wave_family data_distribution
     ¬ learning_claim :=
-  not_startsCloser_randomPhaseWave profile_is_measurable loss_is_measurable
+  higher_frequency_never_starts_closer profile_is_measurable loss_is_measurable
     frequency_of Nat.zero_lt_one data_distribution  -- sizes 0 and 1 are enough to compare
 
 /-- The experiment of `scripts/frequency_isolation.py`, as a theorem: for
 sines of any amplitude and any frequencies, the learning claim fails for
 every regression loss on every data distribution. -/
-theorem not_learningClaim_sineWave
+theorem learning_claim_fails_for_random_phase_sines
     (amplitude : ℝ)
     (loss_is_measurable : Measurable loss_fn)
     (frequency_of : ℕ → ℝ)
@@ -95,8 +95,8 @@ theorem not_learningClaim_sineWave
     let learning_claim :=
       LEARNING_CLAIM_HOLDS loss_fn sine_family data_distribution
     ¬ learning_claim :=
-  not_startsCloser_of_marginal_eq loss_is_measurable
-    (fun _ _ => marginal_sineWave_eq amplitude _ _)
+  shared_marginals_never_start_closer loss_is_measurable
+    (fun _ _ => frequency_does_not_change_the_marginals_of_a_random_phase_sine amplitude _ _)
     Nat.zero_lt_one data_distribution  -- sizes 0 and 1 are enough to compare
 
 end SquigglyLine

@@ -51,7 +51,7 @@ of it you will see in statements.
 ## The statement
 
 ```lean
-theorem expected_residualLoss_congr [MeasurableSpace Inputs]
+theorem equal_marginals_give_equal_expected_loss [MeasurableSpace Inputs]
     (loss_is_measurable : Measurable loss_fn)
     (same_marginals : random_model.marginal = other_model.marginal)
     (data_distribution : DataDistributionOver Inputs) :
@@ -75,7 +75,7 @@ The expected loss is an average of averages: over the data points, and
 for each data point over the draw of the parameters. Take one data point.
 Its loss reads the output at one input. So its average over the draw is
 an average over the marginal at that input
-(`integral_residualLoss_eq_integral_marginal`). Equal marginals give
+(`expected_loss_at_a_point_is_an_average_over_the_marginal`). Equal marginals give
 equal averages, one data point at a time, and so in total.
 
 ## What it does to the conjecture

@@ -25,7 +25,7 @@ costs compare the two:
 | `GET_GRAPH`            | the squiggly line: every `(input, model(input))`|
 | `GET_NEAREST_DISTANCE` | distance from a data point to the line          |
 
-Theorems: `footpoint_mem_curve`, `embed_mem_curve_iff`, `dist_embed`.
+Theorems: `footpoint_is_on_the_line`, `data_point_is_on_the_line_exactly_when_label_is_output`, `distance_between_data_points_is_by_pythagoras`.
 -/
 import Mathlib.Analysis.Normed.Lp.ProdLp
 import Mathlib.Topology.MetricSpace.HausdorffDistance
@@ -95,7 +95,7 @@ def GET_GRAPH {Inputs : Type*} (model : Model Inputs) : Set (Ambient Inputs) :=
   Set.range fun input => EMBED_DATA_POINT (input, model input)
 
 /-- The point of the line directly above or below a data point. -/
-theorem footpoint_mem_curve {Inputs : Type*}
+theorem footpoint_is_on_the_line {Inputs : Type*}
     (model : Model Inputs)
     (data_point : DataPoint Inputs) :
     let input     := GET_INPUT data_point
@@ -105,7 +105,7 @@ theorem footpoint_mem_curve {Inputs : Type*}
 
 /-- A data point is on the line exactly when its label is the model's
 output. -/
-theorem embed_mem_curve_iff {Inputs : Type*}
+theorem data_point_is_on_the_line_exactly_when_label_is_output {Inputs : Type*}
     (model : Model Inputs)
     (data_point : DataPoint Inputs) :
     let is_on_the_line :=
@@ -135,7 +135,7 @@ noncomputable def GET_NEAREST_DISTANCE : Cost Inputs :=
     Metric.infDist (EMBED_DATA_POINT data_point) (GET_GRAPH model)
 
 /-- Pythagoras, for two data points in the ambient space. -/
-theorem dist_embed
+theorem distance_between_data_points_is_by_pythagoras
     (data_point other_point : DataPoint Inputs) :
     let distance :=
       dist (EMBED_DATA_POINT data_point) (EMBED_DATA_POINT other_point)

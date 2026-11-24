@@ -18,7 +18,7 @@ This is the first theorem of chapter 3, copied from
 
 ```lean
 /-- The line is never further away than the vertical error. -/
-theorem nearestDist_le_verticalDist
+theorem nearest_distance_is_at_most_vertical_distance
     (model : Model Inputs)
     (data_point : DataPoint Inputs) :
     let nearest_distance := GET_NEAREST_DISTANCE model data_point
@@ -27,7 +27,7 @@ theorem nearestDist_le_verticalDist
 ```
 
 - `/-- ... -/` is the statement in plain words. Read this first.
-- `theorem nearestDist_le_verticalDist` gives the theorem its name. Other
+- `theorem nearest_distance_is_at_most_vertical_distance` gives the theorem its name. Other
   proofs call it by that name, the way code calls a function.
 - Each line in round brackets is a **given**: a name, a colon, and what
   kind of thing it is. Here we are given any model and any data point.
@@ -50,9 +50,11 @@ most the vertical error.*
 | `PascalCase` | a type: a kind of thing | `Model`, `DataPoint`, `SlopeLimit` |
 
 Functions are verbs. `GET_…` returns a value, `IS_…` and `HAS_…` answer yes
-or no, `MAKE_…` and `DRAW_…` build something. Theorem names
-predate the naming convention in the table above and are kept short
-(`nearestDist_le_verticalDist`). Treat them as labels.
+or no, `MAKE_…` and `DRAW_…` build something. A theorem name is a
+sentence that says what is true
+(`nearest_distance_is_at_most_vertical_distance`). In the later chapters
+many theorems still have older, shorter names in the style of Lean's
+library (`card_ge_of_zigzag`). Treat those as labels.
 
 ## The symbols you will meet
 

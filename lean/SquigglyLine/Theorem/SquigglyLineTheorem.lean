@@ -203,7 +203,7 @@ theorem squiggly_line_theorem
   -- Proof of claim 1: the two bounds, proved point by point for sines.
   have proof_of_claim_1 : claim_1_distance_is_squeezed := by
     intro frequency frequency_pos phase data_point
-    exact sineWave_nearestDist_bounds amplitude frequency_pos phase
+    exact nearest_distance_of_sine_is_between_two_bounds amplitude frequency_pos phase
       data_point
 
   -- Proof of claims 2 and 3: one lemma gives both, as a pair.
@@ -217,7 +217,7 @@ theorem squiggly_line_theorem
   -- Proof of claim 4: a sine that covers its band can be warped to fit.
   have proof_of_claim_4 : claim_4_warp_fits_any_target := by
     intro frequency frequency_pos phase target
-    exact sineWave_exists_warp amplitude frequency_pos phase target
+    exact sine_fits_any_target_in_its_band_after_a_small_warp amplitude frequency_pos phase target
 
   -- All four together.
   exact ⟨proof_of_claim_1, proof_of_claim_2,

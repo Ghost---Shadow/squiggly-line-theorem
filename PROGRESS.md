@@ -102,19 +102,19 @@ No ETA yet: the history covers 5.9 days, and no pace can be read from items tick
 - [ ] Theorem names in the style of the rest of the code: `Supporting/Training/StepRules.lean`
 - [ ] Theorem names in the style of the rest of the code: `Supporting/Training/Symmetry.lean`
 - [ ] Theorem names in the style of the rest of the code: `Supporting/Training/WeightDecay.lean`
-- [ ] Theorem names in the style of the rest of the code: `Theorem/Compression.lean`
-- [ ] Theorem names in the style of the rest of the code: `Theorem/Conjecture.lean`
-- [ ] Theorem names in the style of the rest of the code: `Theorem/Coverage.lean`
-- [ ] Theorem names in the style of the rest of the code: `Theorem/Defs.lean`
-- [ ] Theorem names in the style of the rest of the code: `Theorem/Marginal.lean`
-- [ ] Theorem names in the style of the rest of the code: `Theorem/Oscillation.lean`
-- [ ] Theorem names in the style of the rest of the code: `Theorem/RandomFunction.lean`
-- [ ] Theorem names in the style of the rest of the code: `Theorem/RandomPhase.lean`
-- [ ] Theorem names in the style of the rest of the code: `Theorem/Sandwich.lean`
-- [ ] Theorem names in the style of the rest of the code: `Theorem/SineCloser.lean`
-- [ ] Theorem names in the style of the rest of the code: `Theorem/SquigglyLineTheorem.lean`
-- [ ] Theorem names in the style of the rest of the code: `Theorem/Verdict.lean`
-- [ ] Theorem names in the style of the rest of the code: `Theorem/Vocabulary.lean`
+- [x] Theorem names in the style of the rest of the code: `Theorem/Compression.lean`
+- [x] Theorem names in the style of the rest of the code: `Theorem/Conjecture.lean`
+- [x] Theorem names in the style of the rest of the code: `Theorem/Coverage.lean`
+- [x] Theorem names in the style of the rest of the code: `Theorem/Defs.lean`
+- [x] Theorem names in the style of the rest of the code: `Theorem/Marginal.lean`
+- [x] Theorem names in the style of the rest of the code: `Theorem/Oscillation.lean`
+- [x] Theorem names in the style of the rest of the code: `Theorem/RandomFunction.lean`
+- [x] Theorem names in the style of the rest of the code: `Theorem/RandomPhase.lean`
+- [x] Theorem names in the style of the rest of the code: `Theorem/Sandwich.lean`
+- [x] Theorem names in the style of the rest of the code: `Theorem/SineCloser.lean`
+- [x] Theorem names in the style of the rest of the code: `Theorem/SquigglyLineTheorem.lean`
+- [x] Theorem names in the style of the rest of the code: `Theorem/Verdict.lean`
+- [x] Theorem names in the style of the rest of the code: `Theorem/Vocabulary.lean`
 - [ ] Long proof steps split into named lines, repeated steps made lemmas: `Networks/Bridge.lean`
 - [ ] Long proof steps split into named lines, repeated steps made lemmas: `Networks/Depth.lean`
 - [ ] Long proof steps split into named lines, repeated steps made lemmas: `Networks/DoubleDescent.lean`

@@ -41,7 +41,7 @@ is the left side.
 ```lean
 /-- The vertical error is at most `√(1 + slope_limit²)` times the distance to
 the line. -/
-theorem verticalDist_le_of_lipschitz
+theorem vertical_error_is_at_most_stretch_times_nearest_distance
     {slope_limit : SlopeLimit}
     (slope_is_bounded : LipschitzWith slope_limit model)
     (data_point : DataPoint Inputs) :
@@ -85,7 +85,7 @@ up + slope_limit × across ≤ √(1 + slope_limit²) × √(across² + up²)
 This holds for every point of the curve, so it holds for the nearest one.
 
 In the Lean proof these are the `calc` chain at the end of the file and
-the small lemma `add_mul_le_sqrt_mul_sqrt` just above it.
+the small lemma `cauchy_schwarz_in_the_plane` just above it.
 
 ## Where it goes next
 

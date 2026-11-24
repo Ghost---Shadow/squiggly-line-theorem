@@ -107,10 +107,10 @@ theorem nearestDist_iterate_tent_le
           (EMBED_DATA_POINT
             (other_input, APPLY_TENT^[layer_count] other_input)) :=
         Metric.infDist_le_dist_of_mem
-          (footpoint_mem_curve _
+          (footpoint_is_on_the_line _
             (other_input, APPLY_TENT^[layer_count] other_input))
     _ = |data_point.1 - other_input| := by
-        simp [dist_embed, other_input_hits_label, Real.dist_eq,
+        simp [distance_between_data_points_is_by_pythagoras, other_input_hits_label, Real.dist_eq,
           Real.sqrt_sq_eq_abs]
     _ ≤ 1 / 2 ^ layer_count := other_input_is_close
 

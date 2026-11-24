@@ -29,11 +29,11 @@ Squeezing a function by `w` does three things, and each is exact.
    (**proved**: `CoversWithin.compress`).
 2. **Steeper.** If the function had slope at most `K`, the squeezed one has
    slope at most `w·K`. So its nearest-point distance is at least the vertical
-   error divided by `√(1 + (w·K)²)` (**proved**: `lipschitzWith_compress`).
+   error divided by `√(1 + (w·K)²)` (**proved**: `squeezing_multiplies_the_slope_limit`).
 3. **No better at the start.** Take a random function whose output has the
    same distribution at every input. Squeezing it does not change that
    distribution, so it does not change the expected loss, for any regression
-   loss (**proved**: `marginal_compress_eq`).
+   loss (**proved**: `squeezing_does_not_change_the_marginals`).
 
 And, as before, the nearness is a distance to move: a warp of the input that
 moves no point by more than `ρ / w` fits any target (**proved**). The four

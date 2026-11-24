@@ -19,7 +19,7 @@ standing brief for that port is [`PORTING.md`](PORTING.md).
 | a local name: a binder, a hypothesis, a `let`, a `have` | `snake_case` | `amplitude`, `learning_rate`, `slope_is_bounded` |
 | a global function or constant | `SCREAMING_SNAKE_CASE` | `GET_NEAREST_DISTANCE`, `PI` |
 | a type, or a type variable | `PascalCase` | `DataPoint`, `RealFunction`, `Weights` |
-| a theorem | unchanged | `nearestDist_le_verticalDist` |
+| a theorem | a `snake_case` sentence that says what is true | `nearest_distance_is_at_most_vertical_distance` |
 
 - No single letters and no Greek, anywhere a reader has to read. `i`, `j`
   and `k` are allowed as indices of a sum, as in Python.
@@ -29,8 +29,19 @@ standing brief for that port is [`PORTING.md`](PORTING.md).
 - A hypothesis is named for what it says, not for what it is about:
   `frequency_pos`, `labels_in_band`, `slope_is_bounded`. Never `h`, `hf`,
   `hμ`.
-- Theorem names are not changed. Notes, the paper and other files refer to
-  them.
+- A theorem name is a sentence in `snake_case` that says what is true, with
+  no clipped words: `distance`, not `dist`; `equals`, not `eq`. The signs are
+  spelled `is_at_most` for `≤`, `is_less_than` for `<` and `equals` for `=`
+  (decided by the author on 24 Nov 2026). By the same pattern `≥` is
+  `is_at_least`, `>` is `is_greater_than` and `≠` is `is_not`; these three
+  are not yet confirmed. A few short names that are known by now stay as
+  they are: `squiggly_line_theorem`, `closer_but_no_better`.
+- Notes, the book, the paper and the notebooks refer to theorems by name. So
+  a rename goes through [`RENAMES-theorems.txt`](RENAMES-theorems.txt) and
+  `scripts/rename_theorems.py`, which changes the name everywhere at once.
+  The files of `Theorem/`, `Connections/` and `Networks/Initialisation.lean`
+  follow the rule. The other files still have their older, Mathlib-like
+  names (`card_ge_of_zigzag`) until their turn comes.
 - Names from Mathlib are not changed (`dist`, `Measurable`, `LipschitzWith`).
 - The circle constant is `PI`. A bare `pi` is not a name Lean knows.
 
@@ -82,7 +93,7 @@ so every existing lemma still applies.
 
 ```lean
 /-- The line is never further away than the vertical error. -/
-theorem nearestDist_le_verticalDist
+theorem nearest_distance_is_at_most_vertical_distance
     (model : Inputs → ℝ)
     (data_point : DataPoint Inputs) :
     let nearest_distance := GET_NEAREST_DISTANCE model data_point

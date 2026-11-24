@@ -126,7 +126,7 @@ theorem embed_mem_curve_liftedModel_iff
     is_on_the_line ↔ is_on_the_plane := by
   unfold_named_pieces
   -- On either graph, "is on it" means "the label is the output".
-  rw [propext (embed_mem_curve_iff _ _), propext (embed_mem_curve_iff _ _)]
+  rw [propext (data_point_is_on_the_line_exactly_when_label_is_output _ _), propext (data_point_is_on_the_line_exactly_when_label_is_output _ _)]
   rfl
 
 /-- **A squiggly boundary is a flat one upstairs.** The inputs a classifier
@@ -209,7 +209,7 @@ theorem verticalDist_liftedModel_le
     vertical_error ≤ stretch * nearest_distance := by
   unfold_named_pieces
   simpa using
-    verticalDist_le_of_lipschitz
+    vertical_error_is_at_most_stretch_times_nearest_distance
       (lipschitzWith_liftedModel lift_slope_is_bounded weights) data_point
 
 end Slope

@@ -240,7 +240,7 @@ theorem lipschitzWith_stride
       (fun input => model (2 * input)) = COMPRESS 2 model :=
     stride_eq_compress model
   rw [as_compress]
-  have compressed_bound := lipschitzWith_compress slope_is_bounded 2
+  have compressed_bound := squeezing_multiplies_the_slope_limit slope_is_bounded 2
   simpa using compressed_bound
 
 end SquigglyLine

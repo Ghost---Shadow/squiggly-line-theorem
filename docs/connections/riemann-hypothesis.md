@@ -112,7 +112,7 @@ amplitudes `A` and `B` below are not negative.
    any function whose values lie in the narrower band. Move each input by at
    most the reach, and the sum of the two prime waves has exactly the
    target's value there. This is
-   `exists_warp_of_coversWithin` applied to the primes. It adds little to
+   `covering_model_fits_any_target_after_a_small_warp` applied to the primes. It adds little to
    statement 4: the warp may be any function, with no smoothness asked,
    and the reach has no number. It has the same shape as universality
    (a target is matched by moving the input) and is far weaker.
@@ -185,7 +185,7 @@ here.
 | The curve | a wave of frequency `w` | the zeta function on a window of the strip |
 | What it gets near | every label in its band | every analytic target with no zero |
 | How | move the input by at most `π / w` | shift the height by `τ` |
-| Exact or near | exact (`sineWave_exists_warp`) | within `ε` |
+| Exact or near | exact (`sine_fits_any_target_in_its_band_after_a_small_warp`) | within `ε` |
 | The move | a different small move for each input | one shift for the whole window |
 | How far | at most `π / w`, shorter for a squigglier wave | no small bound is known |
 

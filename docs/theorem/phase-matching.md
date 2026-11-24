@@ -33,8 +33,8 @@ there is a shift of the input, no larger than `ρ`, after which the curve
 passes through the point (**proved**: this is what `COVERS_WITHIN` says).
 
 For a sine of frequency `w` the shift is at most `π / w` (**proved**:
-`sin_coversWithin`). In terms of the phase, the change needed is at most `π`,
-half a turn, at every frequency (**proved**: `sin_exists_phaseShift`).
+`sine_covers_its_band_within_half_a_wave`). In terms of the phase, the change needed is at most `π`,
+half a turn, at every frequency (**proved**: `sine_passes_through_any_point_after_a_phase_shift`).
 
 Those two numbers are worth comparing. Measured as a shift of the input, a
 squigglier curve needs less movement. Measured as a change of phase, it needs
@@ -55,8 +55,8 @@ input axis. And here the covering bound gives everything at once.
 > labels in range is fitted exactly, by the curve applied after a warp of the
 > input that moves no point by more than `ρ`.
 
-(**proved**: `exists_warp_of_coversWithin`; for sines,
-`sineWave_exists_warp`, with `ρ = π / w`.)
+(**proved**: `covering_model_fits_any_target_after_a_small_warp`; for sines,
+`sine_fits_any_target_in_its_band_after_a_small_warp`, with `ρ = π / w`.)
 
 So a squiggly enough curve can fit any data whatever, as long as something in
 front of it may nudge each input a little. In a network that something exists:
