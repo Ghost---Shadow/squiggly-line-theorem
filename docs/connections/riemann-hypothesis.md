@@ -332,9 +332,17 @@ The notebook is
 [`experiments/connections/prime_clocks.ipynb`](../../experiments/connections/prime_clocks.ipynb).
 A Sonnet helper wrote and ran it from the predictions above. I read its
 stored output and the figure, and recomputed one number myself (the nearest
-distance for the primes 2 and 3). No second reader has checked the notebook.
+distance for the primes 2 and 3). A second Sonnet helper then read the
+notebook as a reviewer, and the first helper fixed what it found: checks
+that cannot fail are now printed as such and not counted, an independent
+check of the gap at large heights was added, and the titles of the figure
+say what is plotted. No printed number of M1, M2 or M3 changed.
 Every number below is printed in the notebook; "measured" means the search
 was run.
+
+Three settings were fixed in the helper's brief before the run and are not
+in the predictions above: the seed for the random targets (`default_rng(0)`),
+the 12 heights used for M1, and the least-squares fit.
 
 ![Three panels. Left: the line of the clocks of 2 and 3 on the torus up to height 40, and the closed line for frequencies 1 and 2, with the target marked. Middle: the largest distance from the line falls as the height grows, slope -0.92 on log axes. Right: the first height within 0.3 of a target against the number of primes, 2 to 5, on a log axis, with the volume estimate beside it.](../../graphs/prime_clocks.png)
 
@@ -342,11 +350,16 @@ was run.
   (measured), inside the predicted range of -1.3 to -0.7. The gap falls from
   0.70 at `T` = 30 to 0.0022 at `T` = 30,000. The fall is not even: the last
   three points, from `T` = 8,544 to 30,000, fall only from 0.0026 to 0.0022.
+  With the last point left out the slope is -0.96, and with the last three
+  left out it is also -0.96. The predicted range was wide, and the area
+  argument that gave it almost forces a slope near -1, so this prediction
+  was not a hard test.
 - **M2 held.** For frequencies 1 and 2 the nearest distance to `(π, π)` is
-  1.40496 (measured) at every `T` from 30 to 30,000, and 1.40496 from the
-  formula. For the primes 2 and 3 it is 0.41, 0.028, 0.0026 and 0.0015
-  (measured) at `T` = 30, 300, 3,000 and 30,000. The predicted bound was
-  0.01.
+  1.40496 (found by a search along the line) at every `T` from 30 to 30,000,
+  and 1.40496 from the formula. The two are the same quantity found in two
+  ways, not an experiment against a theory. For the primes 2 and 3 it is
+  0.41, 0.028, 0.0026 and 0.0015 (found by search) at `T` = 30, 300, 3,000
+  and 30,000. The predicted bound was 0.01.
 - **M3 held.** Every target was reached; the largest first height was
   215,994, far below the stop at 5,000,000.
 
@@ -367,10 +380,16 @@ measured: five primes and one tolerance. It says nothing about the zeta
 function itself. It cannot be compared with the bound cited above, which is
 about a small tolerance for a fixed window, not about the number of primes.
 That many primes and a small tolerance would need far greater heights is a
-guess from these numbers, not a measurement. The checks that the sampling step is
-fine enough are printed in the notebook; the helper notes that one of them
-(halving the step for M3) cannot fail, because the first hit is found by a
-closed formula, and that an independent coarse search agrees with it.
+guess from these numbers, not a measurement.
+
+**Where the run departs from the stop rule as written.** The rule says the
+answer must not change by more than 2% when the sampling step is halved, for
+every `N`. The first height is found by a closed formula on each step, so
+halving the step cannot change it: that check cannot fail, and the notebook
+now says so. The check that can fail is an independent coarse search. It
+was run on all 40 targets for 2 and 3 primes and on the 5 earliest targets
+for 4 and 5 primes, and it never found an earlier hit. For 5 primes the step
+was not halved at all, for cost.
 
 To run it (about a minute and a half):
 
@@ -383,7 +402,7 @@ To run it (about a minute and a half):
 - A number for the reach in statement 4.
 - How the height needed grows as the tolerance shrinks. The measurement used
   one tolerance.
-- A second reader for the notebook.
+- A harder prediction for M1, and more than 40 targets for M3.
 - The other two candidates in
   [the proposal](../../book/proposals/proposal-20261124.md) (the waves under
   the count of primes, and the zeros as crossings of a real curve) are not
