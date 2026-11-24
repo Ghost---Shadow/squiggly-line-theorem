@@ -545,3 +545,6 @@ lean/port-log/
 book/build/
 
 scratch
+
+# Personal Claude Code settings
+.claude/settings.local.json
