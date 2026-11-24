@@ -8,7 +8,8 @@ same, so the number is rough. Long jobs are split per chapter or per Lean file, 
 for that fraction. The list is what the first full edition needs: what stands
 today, and the work planned for the existing book in
 [the current plan](book/proposals/proposal-20261117.md). New projects in that
-plan are not counted. To change the bar, tick an item here and run
+plan are not counted, except the egg carton model, which the author made a
+priority on 24 Nov 2026. To change the bar, tick an item here and run
 [`scripts/readme_progress.py`](scripts/readme_progress.py).
 
 ## Burn-down
@@ -16,8 +17,28 @@ plan are not counted. To change the bar, tick an item here and run
 <!-- burndown:start -->
 ![Burn-down chart: items still to do against the date, with the straight line to zero](docs/burndown.svg)
 
-**ETA 2026-12-27.** 253.0 items are left. The pace so far is 54 items per working day (109 items ticked on 2 working days), and the project is worked on 1 day a week, so that is 4.6 more working days. That is a short history, and the items are not of equal size, so treat it as a guess, not a promise. As of 2026-11-24. The blue line is read from git (every commit that changed this list); the dashed line is the straight line to zero at that pace. When items are added to the list the blue line goes up; such a step is not counted in the pace.
+**ETA 2026-12-28.** 263.0 items are left. The pace so far is 54 items per working day (109 items ticked on 2 working days), and the project is worked on 1 day a week, so that is 4.8 more working days. That is a short history, and the items are not of equal size, so treat it as a guess, not a promise. As of 2026-11-24. The blue line is read from git (every commit that changed this list); the dashed line is the straight line to zero at that pace. When items are added to the list the blue line goes up; such a step is not counted in the pace.
 <!-- burndown:end -->
+
+## Priority: the egg carton model
+
+Marked a priority by the author on 24 Nov 2026. The model has two inputs:
+`z(x, y)` is a sum of terms `amplitude × sin(frequency_x × x + phase_x) ×
+sin(frequency_y × y + phase_y)` with random phases. A draft with three
+theorems is in `lean/scratch/EggCarton.lean`, which git ignores; Lean still
+checks it. The plan is in
+[the proposal](book/proposals/proposal-20261117.md), under "hyper-egg-cartons".
+
+- [ ] Egg carton: the draft moved into `lean/SquigglyLine/`, so CI checks it
+- [ ] Egg carton: theorem names as sentences, and the readable-style pass
+- [ ] Egg carton, no better: squeezing changes no one-point marginal (proved in the draft; counted when it is in the library)
+- [ ] Egg carton, closer: it covers its band within a reach
+- [ ] Egg carton, steeper: its slope limit, and with it the sandwich
+- [ ] Egg carton: the squiggly line theorem for it, as one statement
+- [ ] Egg carton: a notebook, with predictions written before the run
+- [ ] Egg carton: a figure
+- [ ] Egg carton: a place in the book, with what is not shown
+- [ ] Hyper egg carton: the same for any number of inputs
 
 ## Proofs
 
