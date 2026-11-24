@@ -555,6 +555,15 @@ checks that each restyled statement says what its original said.
 | [`Positions`](lean/SquigglyLine/Networks/Positions.lean) | position embeddings: the overlap of two sinusoidal position signals is a sum of cosines of their gap; with rotary positions the score depends on the positions only through the gap and no length changes; a relative bias survives a shift of the sequence; a learned table ties no two positions together |
 | [`RandomFourier`](lean/SquigglyLine/Networks/RandomFourier.lean) | random Fourier features: the kernel of the Fourier lift, averaged over frequencies drawn from a bell curve of variance `v`, is the Gaussian bump `exp(−v gap² / 2)`, so the Fourier lift and the radial basis kernel are one thing on average |
 
+**Connections to other problems.** Proofs in
+[`lean/SquigglyLine/Connections/`](lean/SquigglyLine/Connections), notes in
+[`docs/connections/`](docs/connections). Each is a small fact shared with a
+famous open problem. None is a step towards solving one.
+
+| File | What it proves |
+|---|---|
+| [`PrimeWaves`](lean/SquigglyLine/Connections/PrimeWaves.lean) | on a vertical line the zeta function is a sum of waves, one of frequency `log p` for each prime; the waves of two different primes have no common period, so they reach every pair of phases, and their sum takes every label inside its band ([note](docs/connections/riemann-hypothesis.md)) |
+
 **Not formalised:** the constant `0.2974` for sines, the length bound
 `V / (4·l)`, the rate at which travel falls with parameter count, that the
 test error peaks at the threshold, and every statement about networks with
