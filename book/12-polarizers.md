@@ -421,6 +421,21 @@ the plate. For light that travels, Lean has the facts in
 for any gap. The gap of the simulation itself, and so every measured number
 here, is not in Lean.
 
+## Left as an exercise for the reader
+
+The plate above is trained on MNIST as a plain classifier. Four other
+networks are left as an exercise for the reader (or as homework, if you are
+in a class). They are listed from the easiest to the hardest:
+
+1. **CNN.** Let the plate act on small patches of the image, with one set of
+   stripes shared by every patch.
+2. **RNN.** Feed the image one row at a time, and let the light left over from
+   one row enter the plate with the next.
+3. **VAE.** Make the plate an encoder that gives a mean and a spread, and
+   add a second plate to decode.
+4. **Transformer.** Let the light of each patch choose how much of the light of
+   every other patch to take in.
+
 ## Check yourself
 
 1. Light passes a plate turned 60° from it. How much of its strength is
