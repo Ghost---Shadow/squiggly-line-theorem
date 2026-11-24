@@ -4,8 +4,7 @@ This is the list behind the progress bar under the title of the
 [README](README.md).
 
 The bar is the share of the items below that are done. Each item counts the
-same, so the number is rough. Long jobs are split by chapter or by group of
-chapters, so a tick is a small step. An item with a count, such as (1 of 2), counts
+same, so the number is rough. Long jobs are split per chapter or per Lean file, so a tick is a small step. An item with a count, such as (1 of 2), counts
 for that fraction. The list is what the first full edition needs: what stands
 today, and the work planned for the existing book in
 [the current plan](book/proposals/proposal-20261117.md). New projects in that
@@ -24,65 +23,323 @@ No ETA yet: the history covers 5.7 days, and no pace can be read from items tick
 
 - [x] The squiggly line theorem, checked by Lean and rebuilt on every push
 - [x] Every Lean statement quoted in the book matches the sources
-- [x] Chapter 18: strong directions first for any kernel, and the Fourier version
-- [ ] Chapter 17: the two open items about plates (1 of 2)
+- [x] Chapter 18: strong directions first for any kernel
+- [x] Chapter 18: the Fourier version
+- [x] Chapter 17: open item 1 about plates
+- [ ] Chapter 17: open item 2 about plates
 - [ ] Chapter 5: a proof that standard initialisation gives the same loss at every width
-- [ ] Theorem names in the same style as the rest of the code
-- [ ] Long proof steps split into named lines, and long repeated steps made lemmas
+- [ ] Theorem names in the style of the rest of the code: `Networks/Bridge.lean`
+- [ ] Theorem names in the style of the rest of the code: `Networks/Depth.lean`
+- [ ] Theorem names in the style of the rest of the code: `Networks/DoubleDescent.lean`
+- [ ] Theorem names in the style of the rest of the code: `Networks/ExchangeRate.lean`
+- [ ] Theorem names in the style of the rest of the code: `Networks/FourierLift.lean`
+- [ ] Theorem names in the style of the rest of the code: `Networks/Kernel.lean`
+- [ ] Theorem names in the style of the rest of the code: `Networks/Lift.lean`
+- [ ] Theorem names in the style of the rest of the code: `Networks/LinearModel.lean`
+- [ ] Theorem names in the style of the rest of the code: `Networks/MarkovChains.lean`
+- [ ] Theorem names in the style of the rest of the code: `Networks/NarrowChain.lean`
+- [ ] Theorem names in the style of the rest of the code: `Networks/Polarizer.lean`
+- [ ] Theorem names in the style of the rest of the code: `Networks/Positions.lean`
+- [ ] Theorem names in the style of the rest of the code: `Networks/RadialBasis.lean`
+- [ ] Theorem names in the style of the rest of the code: `Networks/RandomFourier.lean`
+- [ ] Theorem names in the style of the rest of the code: `Networks/TentCloser.lean`
+- [ ] Theorem names in the style of the rest of the code: `Networks/ThreePolarizers.lean`
+- [ ] Theorem names in the style of the rest of the code: `Networks/TrainedPlate.lean`
+- [ ] Theorem names in the style of the rest of the code: `Networks/TravellingLight.lean`
+- [ ] Theorem names in the style of the rest of the code: `Theorem/Compression.lean`
+- [ ] Theorem names in the style of the rest of the code: `Theorem/Conjecture.lean`
+- [ ] Theorem names in the style of the rest of the code: `Theorem/Coverage.lean`
+- [ ] Theorem names in the style of the rest of the code: `Theorem/Defs.lean`
+- [ ] Theorem names in the style of the rest of the code: `Theorem/Marginal.lean`
+- [ ] Theorem names in the style of the rest of the code: `Theorem/Oscillation.lean`
+- [ ] Theorem names in the style of the rest of the code: `Theorem/RandomFunction.lean`
+- [ ] Theorem names in the style of the rest of the code: `Theorem/RandomPhase.lean`
+- [ ] Theorem names in the style of the rest of the code: `Theorem/Sandwich.lean`
+- [ ] Theorem names in the style of the rest of the code: `Theorem/SineCloser.lean`
+- [ ] Theorem names in the style of the rest of the code: `Theorem/SquigglyLineTheorem.lean`
+- [ ] Theorem names in the style of the rest of the code: `Theorem/Verdict.lean`
+- [ ] Theorem names in the style of the rest of the code: `Theorem/Vocabulary.lean`
+- [ ] Long proof steps split into named lines, repeated steps made lemmas: `Networks/Bridge.lean`
+- [ ] Long proof steps split into named lines, repeated steps made lemmas: `Networks/Depth.lean`
+- [ ] Long proof steps split into named lines, repeated steps made lemmas: `Networks/DoubleDescent.lean`
+- [ ] Long proof steps split into named lines, repeated steps made lemmas: `Networks/ExchangeRate.lean`
+- [ ] Long proof steps split into named lines, repeated steps made lemmas: `Networks/FourierLift.lean`
+- [ ] Long proof steps split into named lines, repeated steps made lemmas: `Networks/Kernel.lean`
+- [ ] Long proof steps split into named lines, repeated steps made lemmas: `Networks/Lift.lean`
+- [ ] Long proof steps split into named lines, repeated steps made lemmas: `Networks/LinearModel.lean`
+- [ ] Long proof steps split into named lines, repeated steps made lemmas: `Networks/MarkovChains.lean`
+- [ ] Long proof steps split into named lines, repeated steps made lemmas: `Networks/NarrowChain.lean`
+- [ ] Long proof steps split into named lines, repeated steps made lemmas: `Networks/Polarizer.lean`
+- [ ] Long proof steps split into named lines, repeated steps made lemmas: `Networks/Positions.lean`
+- [ ] Long proof steps split into named lines, repeated steps made lemmas: `Networks/RadialBasis.lean`
+- [ ] Long proof steps split into named lines, repeated steps made lemmas: `Networks/RandomFourier.lean`
+- [ ] Long proof steps split into named lines, repeated steps made lemmas: `Networks/TentCloser.lean`
+- [ ] Long proof steps split into named lines, repeated steps made lemmas: `Networks/ThreePolarizers.lean`
+- [ ] Long proof steps split into named lines, repeated steps made lemmas: `Networks/TrainedPlate.lean`
+- [ ] Long proof steps split into named lines, repeated steps made lemmas: `Networks/TravellingLight.lean`
+- [ ] Long proof steps split into named lines, repeated steps made lemmas: `Theorem/Compression.lean`
+- [ ] Long proof steps split into named lines, repeated steps made lemmas: `Theorem/Conjecture.lean`
+- [ ] Long proof steps split into named lines, repeated steps made lemmas: `Theorem/Coverage.lean`
+- [ ] Long proof steps split into named lines, repeated steps made lemmas: `Theorem/Defs.lean`
+- [ ] Long proof steps split into named lines, repeated steps made lemmas: `Theorem/Marginal.lean`
+- [ ] Long proof steps split into named lines, repeated steps made lemmas: `Theorem/Oscillation.lean`
+- [ ] Long proof steps split into named lines, repeated steps made lemmas: `Theorem/RandomFunction.lean`
+- [ ] Long proof steps split into named lines, repeated steps made lemmas: `Theorem/RandomPhase.lean`
+- [ ] Long proof steps split into named lines, repeated steps made lemmas: `Theorem/Sandwich.lean`
+- [ ] Long proof steps split into named lines, repeated steps made lemmas: `Theorem/SineCloser.lean`
+- [ ] Long proof steps split into named lines, repeated steps made lemmas: `Theorem/SquigglyLineTheorem.lean`
+- [ ] Long proof steps split into named lines, repeated steps made lemmas: `Theorem/Verdict.lean`
+- [ ] Long proof steps split into named lines, repeated steps made lemmas: `Theorem/Vocabulary.lean`
 
 ## Book
 
 - [x] All 47 chapters written
-- [x] At least one figure in chapters 1 and 3 to 47
-- [ ] Every "recalled" claim checked against its paper: chapters 17 to 20
-- [ ] Every "recalled" claim checked against its paper: chapters 21 to 25
-- [ ] Every "recalled" claim checked against its paper: chapters 26 to 30
-- [ ] Every "recalled" claim checked against its paper: chapters 31 to 35
-- [ ] Every "recalled" claim checked against its paper: chapters 36 to 40
-- [ ] Every "recalled" claim checked against its paper: chapters 41 to 47
-- [ ] A "Preliminaries" section at the start of chapters 1 to 10
-- [ ] A "Preliminaries" section at the start of chapters 11 to 20
-- [ ] A "Preliminaries" section at the start of chapters 21 to 30
-- [ ] A "Preliminaries" section at the start of chapters 31 to 40
-- [ ] A "Preliminaries" section at the start of chapters 41 to 47
-- [ ] Under each open item, what stood in the way of a proof
-- [ ] Units for the numbers in the worked examples
-- [ ] One shared BibTeX file: every citation of the book gathered in it
-- [ ] One shared BibTeX file: the book builds from it
-- [ ] One shared BibTeX file: the paper builds from it
-- [ ] The planned edits to chapter 2
-- [ ] The planned edits to chapter 6
-- [ ] The planned edits to chapter 7
-- [ ] The planned edits to chapter 8
-- [ ] The planned edits to chapter 17
-- [ ] The planned edits to chapter 18
-- [ ] The planned edits to chapter 19
+- [x] A figure in chapter 1
+- [x] A figure in chapter 3
+- [x] A figure in chapter 4
+- [x] A figure in chapter 5
+- [x] A figure in chapter 6
+- [x] A figure in chapter 7
+- [x] A figure in chapter 8
+- [x] A figure in chapter 9
+- [x] A figure in chapter 10
+- [x] A figure in chapter 11
+- [x] A figure in chapter 12
+- [x] A figure in chapter 13
+- [x] A figure in chapter 14
+- [x] A figure in chapter 15
+- [x] A figure in chapter 16
+- [x] A figure in chapter 17
+- [x] A figure in chapter 18
+- [x] A figure in chapter 19
+- [x] A figure in chapter 20
+- [x] A figure in chapter 21
+- [x] A figure in chapter 22
+- [x] A figure in chapter 23
+- [x] A figure in chapter 24
+- [x] A figure in chapter 25
+- [x] A figure in chapter 26
+- [x] A figure in chapter 27
+- [x] A figure in chapter 28
+- [x] A figure in chapter 29
+- [x] A figure in chapter 30
+- [x] A figure in chapter 31
+- [x] A figure in chapter 32
+- [x] A figure in chapter 33
+- [x] A figure in chapter 34
+- [x] A figure in chapter 35
+- [x] A figure in chapter 36
+- [x] A figure in chapter 37
+- [x] A figure in chapter 38
+- [x] A figure in chapter 39
+- [x] A figure in chapter 40
+- [x] A figure in chapter 41
+- [x] A figure in chapter 42
+- [x] A figure in chapter 43
+- [x] A figure in chapter 44
+- [x] A figure in chapter 45
+- [x] A figure in chapter 46
+- [x] A figure in chapter 47
+- [ ] Chapter 17: every "recalled" claim checked against its paper
+- [ ] Chapter 18: every "recalled" claim checked against its paper
+- [ ] Chapter 19: every "recalled" claim checked against its paper
+- [ ] Chapter 20: every "recalled" claim checked against its paper
+- [ ] Chapter 21: every "recalled" claim checked against its paper
+- [ ] Chapter 22: every "recalled" claim checked against its paper
+- [ ] Chapter 23: every "recalled" claim checked against its paper
+- [ ] Chapter 24: every "recalled" claim checked against its paper
+- [ ] Chapter 25: every "recalled" claim checked against its paper
+- [ ] Chapter 26: every "recalled" claim checked against its paper
+- [ ] Chapter 27: every "recalled" claim checked against its paper
+- [ ] Chapter 28: every "recalled" claim checked against its paper
+- [ ] Chapter 29: every "recalled" claim checked against its paper
+- [ ] Chapter 30: every "recalled" claim checked against its paper
+- [ ] Chapter 31: every "recalled" claim checked against its paper
+- [ ] Chapter 32: every "recalled" claim checked against its paper
+- [ ] Chapter 34: every "recalled" claim checked against its paper
+- [ ] Chapter 35: every "recalled" claim checked against its paper
+- [ ] Chapter 36: every "recalled" claim checked against its paper
+- [ ] Chapter 37: every "recalled" claim checked against its paper
+- [ ] Chapter 39: every "recalled" claim checked against its paper
+- [ ] Chapter 40: every "recalled" claim checked against its paper
+- [ ] Chapter 41: every "recalled" claim checked against its paper
+- [ ] Chapter 42: every "recalled" claim checked against its paper
+- [ ] Chapter 43: every "recalled" claim checked against its paper
+- [ ] Chapter 44: every "recalled" claim checked against its paper
+- [ ] Chapter 45: every "recalled" claim checked against its paper
+- [ ] Chapter 46: every "recalled" claim checked against its paper
+- [ ] Chapter 47: every "recalled" claim checked against its paper
+- [ ] Chapter 0: a "Preliminaries" section at the start
+- [ ] Chapter 1: a "Preliminaries" section at the start
+- [ ] Chapter 2: a "Preliminaries" section at the start
+- [ ] Chapter 3: a "Preliminaries" section at the start
+- [ ] Chapter 4: a "Preliminaries" section at the start
+- [ ] Chapter 5: a "Preliminaries" section at the start
+- [ ] Chapter 6: a "Preliminaries" section at the start
+- [ ] Chapter 7: a "Preliminaries" section at the start
+- [ ] Chapter 8: a "Preliminaries" section at the start
+- [ ] Chapter 9: a "Preliminaries" section at the start
+- [ ] Chapter 10: a "Preliminaries" section at the start
+- [ ] Chapter 11: a "Preliminaries" section at the start
+- [ ] Chapter 12: a "Preliminaries" section at the start
+- [ ] Chapter 13: a "Preliminaries" section at the start
+- [ ] Chapter 14: a "Preliminaries" section at the start
+- [ ] Chapter 15: a "Preliminaries" section at the start
+- [ ] Chapter 16: a "Preliminaries" section at the start
+- [ ] Chapter 17: a "Preliminaries" section at the start
+- [ ] Chapter 18: a "Preliminaries" section at the start
+- [ ] Chapter 19: a "Preliminaries" section at the start
+- [ ] Chapter 20: a "Preliminaries" section at the start
+- [ ] Chapter 21: a "Preliminaries" section at the start
+- [ ] Chapter 22: a "Preliminaries" section at the start
+- [ ] Chapter 23: a "Preliminaries" section at the start
+- [ ] Chapter 24: a "Preliminaries" section at the start
+- [ ] Chapter 25: a "Preliminaries" section at the start
+- [ ] Chapter 26: a "Preliminaries" section at the start
+- [ ] Chapter 27: a "Preliminaries" section at the start
+- [ ] Chapter 28: a "Preliminaries" section at the start
+- [ ] Chapter 29: a "Preliminaries" section at the start
+- [ ] Chapter 30: a "Preliminaries" section at the start
+- [ ] Chapter 31: a "Preliminaries" section at the start
+- [ ] Chapter 32: a "Preliminaries" section at the start
+- [ ] Chapter 33: a "Preliminaries" section at the start
+- [ ] Chapter 34: a "Preliminaries" section at the start
+- [ ] Chapter 35: a "Preliminaries" section at the start
+- [ ] Chapter 36: a "Preliminaries" section at the start
+- [ ] Chapter 37: a "Preliminaries" section at the start
+- [ ] Chapter 38: a "Preliminaries" section at the start
+- [ ] Chapter 39: a "Preliminaries" section at the start
+- [ ] Chapter 40: a "Preliminaries" section at the start
+- [ ] Chapter 41: a "Preliminaries" section at the start
+- [ ] Chapter 42: a "Preliminaries" section at the start
+- [ ] Chapter 43: a "Preliminaries" section at the start
+- [ ] Chapter 44: a "Preliminaries" section at the start
+- [ ] Chapter 45: a "Preliminaries" section at the start
+- [ ] Chapter 46: a "Preliminaries" section at the start
+- [ ] Chapter 47: a "Preliminaries" section at the start
+- [ ] Chapter 37: units for the numbers in the worked examples
+- [ ] Chapter 40: units for the numbers in the worked examples
+- [ ] BibTeX: every citation of the book gathered in one shared file
+- [ ] BibTeX: the book builds from the shared file
+- [ ] BibTeX: the paper builds from the shared file
+- [ ] Chapter 2: the planned edits
+- [ ] Chapter 6: the planned edits
+- [ ] Chapter 7: the planned edits
+- [ ] Chapter 8: the planned edits
+- [ ] Chapter 17: the planned edits
+- [ ] Chapter 18: the planned edits
+- [ ] Chapter 19: the planned edits
 - [x] Chapter 17: the notebook check of the quarter turn matches the Lean statement
 - [ ] Chapters 16 and 44: the damage law, read against the chapter and settled
-- [ ] Chapter 20: weight decay against early stopping, read and settled
-- [ ] Chapter 28: the gap to the product bound, read and settled
-- [ ] Chapter 30: the signal after 50 layers, read and settled
-- [ ] Chapter 31: the stretch of a random skip stack, read and settled
-- [ ] Chapter 32: the loose depth-separation bound, read and settled
-- [ ] Chapter 33: the reach of a convolution stack, read and settled
-- [ ] Chapter 39: the hypothesis on the Hopfield state, read and settled
+- [ ] Chapter 20: weight decay against early stopping, read against the chapter and settled
+- [ ] Chapter 28: the gap to the product bound, read against the chapter and settled
+- [ ] Chapter 30: the signal after 50 layers, read against the chapter and settled
+- [ ] Chapter 31: the stretch of a random skip stack, read against the chapter and settled
+- [ ] Chapter 32: the loose depth-separation bound, read against the chapter and settled
+- [ ] Chapter 33: the reach of a convolution stack, read against the chapter and settled
+- [ ] Chapter 39: the hypothesis on the Hopfield state, read against the chapter and settled
 - [ ] Chapter 46: which distance on inputs the chapter uses, stated
 
 ## Experiments
 
-- [x] A notebook for chapters 1 and 3 to 47
-- [x] The notebooks of chapters 16 to 20, 22, 24, 26, 28, 30 to 32, 34, 39, 43 and 44 read by a second reader
-- [ ] The notebooks of chapters 14 and 15 read by a second reader
-- [ ] The notebooks of chapters 21 and 23 read by a second reader
-- [ ] The notebooks of chapters 25, 27 and 29 read by a second reader
-- [ ] The notebooks of chapters 33 and 35 to 38 read by a second reader
-- [ ] The notebooks of chapters 40 to 42 read by a second reader
-- [ ] The notebooks of chapters 45 to 47 read by a second reader
+- [x] A notebook for chapter 1
+- [x] A notebook for chapter 3
+- [x] A notebook for chapter 4
+- [x] A notebook for chapter 5
+- [x] A notebook for chapter 6
+- [x] A notebook for chapter 7
+- [x] A notebook for chapter 8
+- [x] A notebook for chapter 9
+- [x] A notebook for chapter 10
+- [x] A notebook for chapter 11
+- [x] A notebook for chapter 12
+- [x] A notebook for chapter 13
+- [x] A notebook for chapter 14
+- [x] A notebook for chapter 15
+- [x] A notebook for chapter 16
+- [x] A notebook for chapter 17
+- [x] A notebook for chapter 18
+- [x] A notebook for chapter 19
+- [x] A notebook for chapter 20
+- [x] A notebook for chapter 21
+- [x] A notebook for chapter 22
+- [x] A notebook for chapter 23
+- [x] A notebook for chapter 24
+- [x] A notebook for chapter 25
+- [x] A notebook for chapter 26
+- [x] A notebook for chapter 27
+- [x] A notebook for chapter 28
+- [x] A notebook for chapter 29
+- [x] A notebook for chapter 30
+- [x] A notebook for chapter 31
+- [x] A notebook for chapter 32
+- [x] A notebook for chapter 33
+- [x] A notebook for chapter 34
+- [x] A notebook for chapter 35
+- [x] A notebook for chapter 36
+- [x] A notebook for chapter 37
+- [x] A notebook for chapter 38
+- [x] A notebook for chapter 39
+- [x] A notebook for chapter 40
+- [x] A notebook for chapter 41
+- [x] A notebook for chapter 42
+- [x] A notebook for chapter 43
+- [x] A notebook for chapter 44
+- [x] A notebook for chapter 45
+- [x] A notebook for chapter 46
+- [x] A notebook for chapter 47
+- [ ] The notebook of chapter 14 read by a second reader
+- [ ] The notebook of chapter 15 read by a second reader
+- [x] The notebook of chapter 16 read by a second reader
+- [x] The notebook of chapter 17 read by a second reader
+- [x] The notebook of chapter 18 read by a second reader
+- [x] The notebook of chapter 19 read by a second reader
+- [x] The notebook of chapter 20 read by a second reader
+- [ ] The notebook of chapter 21 read by a second reader
+- [x] The notebook of chapter 22 read by a second reader
+- [ ] The notebook of chapter 23 read by a second reader
+- [x] The notebook of chapter 24 read by a second reader
+- [ ] The notebook of chapter 25 read by a second reader
+- [x] The notebook of chapter 26 read by a second reader
+- [ ] The notebook of chapter 27 read by a second reader
+- [x] The notebook of chapter 28 read by a second reader
+- [ ] The notebook of chapter 29 read by a second reader
+- [x] The notebook of chapter 30 read by a second reader
+- [x] The notebook of chapter 31 read by a second reader
+- [x] The notebook of chapter 32 read by a second reader
+- [ ] The notebook of chapter 33 read by a second reader
+- [x] The notebook of chapter 34 read by a second reader
+- [ ] The notebook of chapter 35 read by a second reader
+- [ ] The notebook of chapter 36 read by a second reader
+- [ ] The notebook of chapter 37 read by a second reader
+- [ ] The notebook of chapter 38 read by a second reader
+- [x] The notebook of chapter 39 read by a second reader
+- [ ] The notebook of chapter 40 read by a second reader
+- [ ] The notebook of chapter 41 read by a second reader
+- [ ] The notebook of chapter 42 read by a second reader
+- [x] The notebook of chapter 43 read by a second reader
+- [x] The notebook of chapter 44 read by a second reader
+- [ ] The notebook of chapter 45 read by a second reader
+- [ ] The notebook of chapter 46 read by a second reader
+- [ ] The notebook of chapter 47 read by a second reader
 - [ ] A test of whether the theory can guess hyperparameters
 
 ## Publishing
 
-- [x] A PDF built on every push, and a web edition
+- [x] A PDF built on every push
+- [x] A web edition built on every push
 - [x] A draft of the paper
 - [x] Lean highlighting on the website, built and looked at
-- [ ] Lean code blocks in `docs/` checked against the sources
+- [ ] Lean code blocks checked against the sources: `docs/theorem/general-theorem.md`
+- [ ] Lean code blocks checked against the sources: `docs/theorem/phase-matching.md`
+- [ ] Lean code blocks checked against the sources: `docs/networks/chain-of-markov-chains.md`
+- [ ] Lean code blocks checked against the sources: `docs/networks/double-descent.md`
+- [ ] Lean code blocks checked against the sources: `docs/networks/fourier-and-relu-bridge.md`
+- [ ] Lean code blocks checked against the sources: `docs/networks/fourier-lift.md`
+- [ ] Lean code blocks checked against the sources: `docs/networks/fourier-parameters.md`
+- [ ] Lean code blocks checked against the sources: `docs/networks/kernel-trick.md`
+- [ ] Lean code blocks checked against the sources: `docs/networks/polarizer-classifier.md`
+- [ ] Lean code blocks checked against the sources: `docs/networks/position-embeddings.md`
+- [ ] Lean code blocks checked against the sources: `docs/networks/radial-basis.md`
+- [ ] Lean code blocks checked against the sources: `docs/networks/three-polarizers.md`
+- [ ] Lean code blocks checked against the sources: `docs/networks/wind-tunnel-and-polarizers.md`
