@@ -217,8 +217,75 @@ No ETA yet: the history covers 5.7 days, and no pace can be read from items tick
 - [ ] Chapter 45: a "Preliminaries" section at the start
 - [ ] Chapter 46: a "Preliminaries" section at the start
 - [ ] Chapter 47: a "Preliminaries" section at the start
+- [ ] Chapter 1: units for the numbers in the worked examples
+- [ ] Chapter 2: units for the numbers in the worked examples
+- [ ] Chapter 3: units for the numbers in the worked examples
+- [ ] Chapter 4: units for the numbers in the worked examples
+- [ ] Chapter 5: units for the numbers in the worked examples
+- [ ] Chapter 6: units for the numbers in the worked examples
+- [ ] Chapter 7: units for the numbers in the worked examples
+- [ ] Chapter 8: units for the numbers in the worked examples
+- [ ] Chapter 9: units for the numbers in the worked examples
+- [ ] Chapter 10: units for the numbers in the worked examples
+- [ ] Chapter 11: units for the numbers in the worked examples
+- [ ] Chapter 12: units for the numbers in the worked examples
+- [ ] Chapter 13: units for the numbers in the worked examples
+- [ ] Chapter 14: units for the numbers in the worked examples
+- [ ] Chapter 15: units for the numbers in the worked examples
+- [ ] Chapter 16: units for the numbers in the worked examples
+- [ ] Chapter 17: units for the numbers in the worked examples
+- [ ] Chapter 18: units for the numbers in the worked examples
+- [ ] Chapter 19: units for the numbers in the worked examples
+- [ ] Chapter 20: units for the numbers in the worked examples
+- [ ] Chapter 21: units for the numbers in the worked examples
+- [ ] Chapter 22: units for the numbers in the worked examples
+- [ ] Chapter 23: units for the numbers in the worked examples
+- [ ] Chapter 24: units for the numbers in the worked examples
+- [ ] Chapter 25: units for the numbers in the worked examples
+- [ ] Chapter 26: units for the numbers in the worked examples
+- [ ] Chapter 27: units for the numbers in the worked examples
+- [ ] Chapter 28: units for the numbers in the worked examples
+- [ ] Chapter 29: units for the numbers in the worked examples
+- [ ] Chapter 30: units for the numbers in the worked examples
+- [ ] Chapter 31: units for the numbers in the worked examples
+- [ ] Chapter 32: units for the numbers in the worked examples
+- [ ] Chapter 33: units for the numbers in the worked examples
+- [ ] Chapter 34: units for the numbers in the worked examples
+- [ ] Chapter 35: units for the numbers in the worked examples
+- [ ] Chapter 36: units for the numbers in the worked examples
 - [ ] Chapter 37: units for the numbers in the worked examples
+- [ ] Chapter 38: units for the numbers in the worked examples
+- [ ] Chapter 39: units for the numbers in the worked examples
 - [ ] Chapter 40: units for the numbers in the worked examples
+- [ ] Chapter 41: units for the numbers in the worked examples
+- [ ] Chapter 42: units for the numbers in the worked examples
+- [ ] Chapter 43: units for the numbers in the worked examples
+- [ ] Chapter 44: units for the numbers in the worked examples
+- [ ] Chapter 45: units for the numbers in the worked examples
+- [ ] Chapter 46: units for the numbers in the worked examples
+- [ ] Chapter 47: units for the numbers in the worked examples
+- [ ] Chapter 2: under each open item, what stood in the way of a proof
+- [ ] Chapter 4: under each open item, what stood in the way of a proof
+- [ ] Chapter 5: under each open item, what stood in the way of a proof
+- [ ] Chapter 6: under each open item, what stood in the way of a proof
+- [ ] Chapter 9: under each open item, what stood in the way of a proof
+- [ ] Chapter 10: under each open item, what stood in the way of a proof
+- [ ] Chapter 12: under each open item, what stood in the way of a proof
+- [ ] Chapter 14: under each open item, what stood in the way of a proof
+- [ ] Chapter 19: under each open item, what stood in the way of a proof
+- [ ] Chapter 21: under each open item, what stood in the way of a proof
+- [ ] Chapter 22: under each open item, what stood in the way of a proof
+- [ ] Chapter 24: under each open item, what stood in the way of a proof
+- [ ] Chapter 27: under each open item, what stood in the way of a proof
+- [ ] Chapter 28: under each open item, what stood in the way of a proof
+- [ ] Chapter 29: under each open item, what stood in the way of a proof
+- [ ] Chapter 32: under each open item, what stood in the way of a proof
+- [ ] Chapter 36: under each open item, what stood in the way of a proof
+- [ ] Chapter 37: under each open item, what stood in the way of a proof
+- [ ] Chapter 42: under each open item, what stood in the way of a proof
+- [ ] Chapter 43: under each open item, what stood in the way of a proof
+- [ ] Chapter 44: under each open item, what stood in the way of a proof
+- [ ] Chapter 47: under each open item, what stood in the way of a proof
 - [ ] BibTeX: every citation of the book gathered in one shared file
 - [ ] BibTeX: the book builds from the shared file
 - [ ] BibTeX: the paper builds from the shared file
