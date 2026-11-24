@@ -70,8 +70,12 @@ introduced.
 | `ATTEND` | an attention head: a weighted average by softmax of the scores | [`Attention.lean`](../lean/SquigglyLine/Supporting/NetworkShape/Attention.lean) |
 | `APPLY_SOFTMAX` | scores turned into shares that add up to one | [`CrossEntropy.lean`](../lean/SquigglyLine/Supporting/Training/CrossEntropy.lean) |
 | `DENOISE_IDEALLY` | the best possible denoiser for a set of examples | [`Averaging.lean`](../lean/SquigglyLine/Supporting/NewInputs/Averaging.lean) |
+| `MAKE_TWO_PRIME_WAVE` | the sum of the waves of two primes, as a function of the height | [`PrimeWaves.lean`](../lean/SquigglyLine/Connections/PrimeWaves.lean) |
+| `BitString` | a string of bits, one for each position | [`ParityZigzag.lean`](../lean/SquigglyLine/Connections/ParityZigzag.lean) |
+| `COUNT_ONES` | how many of the bits are on | [`ParityZigzag.lean`](../lean/SquigglyLine/Connections/ParityZigzag.lean) |
+| `GET_PARITY` | 0 if an even number of bits are on, 1 if an odd number are | [`ParityZigzag.lean`](../lean/SquigglyLine/Connections/ParityZigzag.lean) |
 
 The names of older definitions, for readers who come from the paper, are
 listed in [`lean/RENAMES.txt`](../lean/RENAMES.txt).
 
-Previous: [47. What is not here](47-what-is-not-here.md) · Next: [How to cite this book](how-to-cite.md)
+Previous: [49. Parity is a zigzag](49-parity-is-a-zigzag.md) · Next: [How to cite this book](how-to-cite.md)

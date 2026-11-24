@@ -113,6 +113,16 @@ chapter, in the order to read them.
 |---|---|
 | [47. What is not here](47-what-is-not-here.md) | Where the proofs stop, and how to keep reading. |
 
+### Part VIII. Two famous open problems
+
+Two connections to problems outside deep learning. Neither chapter is a
+step towards solving its problem, and each says so.
+
+| Chapter | What you learn |
+|---|---|
+| [48. The waves of the primes](48-the-waves-of-the-primes.md) | The Riemann zeta function as a sum of waves, and what two primes can cover. |
+| [49. Parity is a zigzag](49-parity-is-a-zigzag.md) | Why counting squiggles proves some lower bounds, and why it is not expected to settle P versus NP. |
+
 ### Back matter
 
 - [Glossary](glossary.md): every name the book uses, with the chapter

@@ -253,9 +253,49 @@ parity. With kinks fixed at 1.5, 2.5, ..., 6.5 it finds none for 6 units.
 That second result is for one placement of the kinks and is not the search
 of Z2.
 
+### What was measured (24 Nov 2026)
+
+The notebook is
+[`experiments/connections/parity_zigzag.ipynb`](../../experiments/connections/parity_zigzag.ipynb).
+A Sonnet helper wrote and ran it once from the predictions above and changed
+nothing afterwards. I read its report and the chapter it wrote from its
+stored output. No second reader has checked this notebook. Settings the
+helper fixed before the run, which are not in the predictions above: the
+Adam optimiser with step size 0.01, starting slopes of plus or minus 1,
+starting kinks uniform from -1 to 9, starting gains normal with standard
+deviation 1, and the seed `default_rng(0)`.
+
+![Three panels. Left: parity of the count for 8 bits, with the output of three tent layers drawn through it as a zigzag. Middle: the best margin found by the search against the number of units from 1 to 8, all below zero. Right: neurons against the number of bits on log axes for the deep network, the Lean bound and the unproved claim.](../../graphs/parity_zigzag.png)
+
+Best margin over 200 starts (found by search). A network computes parity
+exactly when its margin is above 0. No start reached that for any number of
+units.
+
+| Units | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 |
+|---|---|---|---|---|---|---|---|---|
+| Best margin | -0.010 | -0.026 | -0.013 | -0.020 | -0.004 | -0.019 | -0.004 | -0.010 |
+
+- **Z1 held**, as it must: no start succeeded with 1, 2 or 3 units.
+- **Z3 failed.** The search found no network with 7 units or with 8, though
+  one with 7 exists (the notebook builds it by a linear programme; its margin
+  is 1.0, by construction). So the search is too weak to find a network even
+  where one is known to exist.
+- **Z2 held in the letter and shows nothing.** No start succeeded with 4, 5
+  or 6 units. But the same search failed where success was possible, so its
+  finding nothing here is not evidence for the claim of `n - 1` units. The
+  claim was neither broken nor supported.
+- **Z4 held**, as it must: the largest difference between the tent layers
+  and the parity, over 1 to 10 layers and every count, was 0.
+
+Nothing was tuned after the result, as the stop rule says. The claim that a
+shallow network needs `n - 1` units stays what it was: my argument, not
+checked by Lean and not tested by this run.
+
 ## Open
 
 - A shallow network on the bits themselves.
+- The claim of `n - 1` units: a proof in Lean, or a search strong enough to
+  find the 7-unit network, which this one was not.
 - How the share of flips that change a function is spread round one half,
   for a function drawn at random. The Lean statement gives the average.
 - Whether any of this belongs in the book is the author's decision.

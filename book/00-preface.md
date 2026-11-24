@@ -62,6 +62,9 @@ statement disagree, the Lean statement is right.
   averages, and what a fitted model does on new inputs. This is where
   the book meets the rest of deep-learning research.
 - **Chapter 47** says where the proofs stop.
+- **Part VIII, two famous open problems (chapters 48 and 49).** A
+  connection to the Riemann zeta function and one to P versus NP. Neither
+  is a step towards solving its problem. They can be read after part II.
 
 ## Four ways through
 

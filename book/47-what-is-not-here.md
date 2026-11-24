@@ -86,4 +86,4 @@ The notebook counts the five labels in each chapter two ways, per line and with 
 jupyter nbconvert --to notebook --execute --inplace experiments/part7/ch47_what_is_not_here.ipynb
 ```
 
-Previous: [46. The dimpled manifold](46-the-dimpled-manifold.md) · Next: [Glossary](glossary.md)
+Previous: [46. The dimpled manifold](46-the-dimpled-manifold.md) · Next: [48. The waves of the primes](48-the-waves-of-the-primes.md)
