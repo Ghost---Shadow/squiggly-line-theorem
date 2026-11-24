@@ -230,6 +230,40 @@ theorem shallow_network_needs_one_unit_per_two_bits
   have low_at_end := low_at_even (2 * turn + 2) (by omega) ⟨turn + 1, by ring⟩
   exact ⟨low_at_start.trans high_at_middle, low_at_end.trans high_at_middle⟩
 
+/-- **The same, asking less of the network.** It is enough that the output
+is below one half at every even count and above one half at every odd
+count. It need not be near 0 or near 1. The proof above uses only this. -/
+theorem shallow_network_on_right_side_of_half_needs_one_unit_per_two_bits
+    {Index : Type*}
+    (units : Finset Index)
+    (unit_gain : Index → ℝ)
+    (unit_slope : Index → ℝ)
+    (unit_bias : Index → ℝ)
+    (bit_count : ℕ)
+    (is_low_at_even_counts : ∀ ones_count : ℕ, ones_count ≤ bit_count →
+      Even ones_count →
+      EVALUATE_SHALLOW_NETWORK units unit_gain unit_slope unit_bias
+        (ones_count : ℝ) < 1 / 2)
+    (is_high_at_odd_counts : ∀ ones_count : ℕ, ones_count ≤ bit_count →
+      ¬ Even ones_count →
+      1 / 2 < EVALUATE_SHALLOW_NETWORK units unit_gain unit_slope unit_bias
+        (ones_count : ℝ)) :
+    let units_needed := bit_count / 2   -- whole-number division: one unit per two bits
+    let unit_count   := units.card
+    units_needed ≤ unit_count := by
+  unfold_named_pieces
+  refine card_ge_of_zigzag units unit_gain unit_slope unit_bias
+    (checkpoints := fun ones_count : ℕ => (ones_count : ℝ))
+    Nat.strictMono_cast ?_
+  intro turn turn_lt_turn_count
+  have low_at_start :=
+    is_low_at_even_counts (2 * turn) (by omega) (even_two_mul turn)
+  have high_at_middle := is_high_at_odd_counts (2 * turn + 1) (by omega)
+    (by rw [Nat.not_even_iff_odd]; exact odd_two_mul_add_one turn)
+  have low_at_end :=
+    is_low_at_even_counts (2 * turn + 2) (by omega) ⟨turn + 1, by ring⟩
+  exact ⟨low_at_start.trans high_at_middle, low_at_end.trans high_at_middle⟩
+
 /-! ## Being squiggly is common -/
 
 /-- **Exactly half of all functions change at any given flip.** Fix a string

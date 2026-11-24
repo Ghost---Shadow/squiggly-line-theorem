@@ -291,6 +291,24 @@ Nothing was tuned after the result, as the stop rule says. The claim that a
 shallow network needs `n - 1` units stays what it was: my argument, not
 checked by Lean and not tested by this run.
 
+**An earlier measurement that does bear on the claim.** The notebook of
+chapter 32 of the book had already looked at the same question for the tent
+zigzag, which on its grid is the parity of the count. It used a different
+search: it fixed the kinks at candidate positions and solved for the best
+output weights by a linear programme. For grids of 4 and 8 steps the fewest
+kinks it found that came within one half were 3 and 7, against the Lean
+bounds of 2 and 4. That is `n - 1` for `n` = 4 and 8. For 8 steps the kink
+positions for 4 to 6 kinks came from a coarse set of candidates, so 7 is the
+fewest found, not the fewest proved. Chapter 32 gives the same argument as
+above and also marks it as argued.
+
+**About Z1.** The Lean statement asks that the output be closer than one
+half to the parity. The search asks less: only that the output be on the
+right side of one half at every count. The Lean proof uses only that, and
+`shallow_network_on_right_side_of_half_needs_one_unit_per_two_bits` (added
+after the run) states it so. So a success of the search with fewer than
+`n / 2` units would indeed have contradicted a theorem.
+
 ## Open
 
 - A shallow network on the bits themselves.

@@ -23,6 +23,9 @@ Theorems:
 * `one_sub_softmax_div_le`        a cold softmax gives the top score nearly
                                   all the share;
 * `hopfield_eq_denoiser`          Hopfield recall is the ideal denoiser.
+* `hopfield_recall_equals_ideal_denoiser_for_any_state`  the same for a
+                                  state of any length and patterns of one
+                                  common length.
 -/
 import SquigglyLine.Supporting.NewInputs.Neighbours
 
@@ -170,6 +173,33 @@ theorem hopfield_eq_denoiser
         = APPLY_SOFTMAX
             fun i => -‖query - keys i‖ ^ 2 / (2 * temperature) :=
     softmax_cosine_eq_softmax_distance query_is_unit keys_are_unit
+      temperature
+  rw [DENOISE_IDEALLY, ATTEND, ATTEND, Real.sq_sqrt temperature_nonneg,
+    same_shares]
+
+omit [Nonempty Choices] in
+/-- **Hopfield recall is the ideal denoiser, for a state of any length.**
+The state does not need length one. It is enough that the stored patterns
+all have the same length, whatever it is. (The notebook of chapter 39 found
+that the equality still held for a state of length 1.5. This is why.) -/
+theorem hopfield_recall_equals_ideal_denoiser_for_any_state
+    {query : Space}
+    {keys : Choices → Space}
+    {key_length : ℝ}
+    (keys_have_same_length : ∀ i, ‖keys i‖ = key_length)
+    {temperature : ℝ}
+    (temperature_nonneg : 0 ≤ temperature) :
+    let recalled :=
+      ATTEND (fun i => inner ℝ query (keys i) / temperature) keys
+    let denoised := DENOISE_IDEALLY (√temperature) keys query
+    recalled = denoised := by
+  unfold_named_pieces
+  -- Overlap scores and squared-distance scores give the same shares.
+  have same_shares :
+      APPLY_SOFTMAX (fun i => inner ℝ query (keys i) / temperature)
+        = APPLY_SOFTMAX
+            fun i => -‖query - keys i‖ ^ 2 / (2 * temperature) :=
+    softmax_of_overlap_equals_softmax_of_distance keys_have_same_length
       temperature
   rw [DENOISE_IDEALLY, ATTEND, ATTEND, Real.sq_sqrt temperature_nonneg,
     same_shares]

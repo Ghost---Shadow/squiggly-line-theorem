@@ -136,6 +136,18 @@ The function `lipschitzWith_dimpled` says that the dimpled function has
 slope at most `profile_slope_limit + dimple_slope`, which is what the lower
 bound needs.
 
+**Which distance.** An input here is a pair: a position on the sheet and a
+height off it. The distance between two inputs is the larger of the gap in
+position and the gap in height. That is how Lean measures a pair unless
+told otherwise, and the theorems are stated for it. The distance between
+two points with labels is then by Pythagoras, as in chapter 1: the square
+root of the input gap squared plus the label gap squared. With the
+straight-line distance on the pair in its place, no distance changes by
+more than a factor of `√2`, because the larger of two gaps and the
+straight-line length of the two differ by at most that factor
+(**argued**, not in Lean). The step off the sheet moves only in height,
+so its length is the same in both.
+
 ## Why it is true
 
 **The loss cannot see the slope.** At a real input the height is zero, so

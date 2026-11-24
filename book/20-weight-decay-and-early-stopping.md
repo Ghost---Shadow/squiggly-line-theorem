@@ -175,10 +175,14 @@ into the weight-decay share and clear the fractions. It becomes
 ## What it explains
 
 People often use weight decay and early stopping as if either would do.
-The proof says why. Both put a floor under the strength of every
-pattern. A pattern weaker than the floor is not learned. One stronger is
-learned almost as before. Training for longer is the same as turning the
-penalty down. The note adds that the weight-decay fit moves the answer at
+The proof says how far that is true. Both put a floor under the strength
+of every pattern. A pattern weaker than the floor is not learned. One
+stronger is learned almost as before. Training for longer acts like
+turning the penalty down. The two are alike and not equal. What is proved
+is one-sided: at the matching penalty, early stopping leaves no more of
+the error than weight decay does, in every direction. In the measurement
+below it left less in 26 of 30 directions, so early stopping fitted a
+little more than weight decay at the matched setting. The note adds that the weight-decay fit moves the answer at
 a new input by `overlap / (kernel_strength + decay_strength)`
 (`inner_ridgeFit`). That is the same formula as when a pile of spare
 features each add strength to every pattern. So a model with many spare

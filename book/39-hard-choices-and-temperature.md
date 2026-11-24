@@ -129,7 +129,10 @@ says a hard step has slope zero away from its jump.
 value of the hard step. `hasDerivAt_straightThrough` says it has the
 slope of the stand-in. `hopfield_eq_denoiser` says that for patterns and
 a state of length one, the update of a modern Hopfield network is the
-ideal denoiser of chapter 37. `dist_decode_snap_le` and
+ideal denoiser of chapter 37.
+`hopfield_recall_equals_ideal_denoiser_for_any_state` says the same with
+less assumed: the state may have any length, and the patterns need only
+have the same length as each other. `dist_decode_snap_le` and
 `dist_snap_le_of_nearest` say that replacing a code by an entry of a
 codebook moves a decoder's output by at most its slope times the distance
 to the entry, and that the nearest entry gives the smallest bound.
@@ -216,11 +219,18 @@ breaks the bound in 6000 pairs (the largest change per distance is 1.790).
 This claim has no control: the bound is the definition of a slope limit
 applied to two points, and a false slope limit would fail trivially.
 
-One thing the experiment did not bear out as stated: the equality with
-the denoiser also holds, to 7.5e-16, for a state of length 1.5. The
-chapter's hypothesis that the state is a unit vector is therefore
-stronger than the measurement needed, though only unit patterns were
-needed. The chapter proves the unit case, so this is not a contradiction.
+One thing the experiment found beyond the first statement: the equality
+with the denoiser also holds, to 7.5e-16, for a state of length 1.5. So
+the hypothesis that the state has length one was stronger than needed.
+This is now **proved**:
+`hopfield_recall_equals_ideal_denoiser_for_any_state` drops the hypothesis
+on the state, and asks of the patterns only that they all have the same
+length. The reason is short. The overlap score and the squared-distance
+score of a pattern differ by half the squared length of the state plus half
+the squared length of the pattern, over the temperature. If that is the same
+number for every pattern, a softmax does not see it. The control in the
+notebook, patterns of unequal length, is exactly the case this does not
+cover.
 
 Run it with
 `jupyter nbconvert --to notebook --execute --inplace experiments/part6/ch39_hard_choices_and_temperature.ipynb`.

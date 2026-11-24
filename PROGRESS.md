@@ -415,15 +415,15 @@ No ETA yet: the history covers 5.9 days, and no pace can be read from items tick
 - [ ] Chapter 18: the planned edits
 - [ ] Chapter 19: the planned edits
 - [x] Chapter 17: the notebook check of the quarter turn matches the Lean statement
-- [ ] Chapters 16 and 44: the damage law, read against the chapter and settled
-- [ ] Chapter 20: weight decay against early stopping, read against the chapter and settled
-- [ ] Chapter 28: the gap to the product bound, read against the chapter and settled
-- [ ] Chapter 30: the signal after 50 layers, read against the chapter and settled
-- [ ] Chapter 31: the stretch of a random skip stack, read against the chapter and settled
-- [ ] Chapter 32: the loose depth-separation bound, read against the chapter and settled
-- [ ] Chapter 33: the reach of a convolution stack, read against the chapter and settled
-- [ ] Chapter 39: the hypothesis on the Hopfield state, read against the chapter and settled
-- [ ] Chapter 46: which distance on inputs the chapter uses, stated
+- [x] Chapters 16 and 44: the damage law, read against the chapter and settled
+- [x] Chapter 20: weight decay against early stopping, read against the chapter and settled
+- [x] Chapter 28: the gap to the product bound, read against the chapter and settled
+- [x] Chapter 30: the signal after 50 layers, read against the chapter and settled
+- [x] Chapter 31: the stretch of a random skip stack, read against the chapter and settled
+- [x] Chapter 32: the loose depth-separation bound, read against the chapter and settled
+- [x] Chapter 33: the reach of a convolution stack, read against the chapter and settled
+- [x] Chapter 39: the hypothesis on the Hopfield state, read against the chapter and settled
+- [x] Chapter 46: which distance on inputs the chapter uses, stated
 
 ## Experiments
 

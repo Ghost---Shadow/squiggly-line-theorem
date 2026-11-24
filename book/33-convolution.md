@@ -115,6 +115,8 @@ Two more results are named here. `convolution_congr` says an output
 depends only on the `kernel_width` inputs under the kernel, and
 `iterate_convolution_congr` says that after `layer_count` layers it
 depends only on the inputs within `layer_count * kernel_width` of it.
+`convolution_stack_reads_only_its_exact_window` is tighter: it depends
+only on the inputs within `layer_count * (kernel_width - 1)` of it.
 `upsample_eq_compress` says stretching by two is squeezing by one half,
 and `stride_upsample` says a stride of two after an upsampling gives the
 signal back.
@@ -128,8 +130,11 @@ times `max_gap`. No position and no length of signal enters.
 
 **Locality.** An output reads only `kernel_width` inputs. If two signals
 agree on those, the sums agree term by term. For `layer_count` layers,
-each layer reaches `kernel_width` further, so the window grows by that
-much each time.
+each layer reaches further. A kernel reads its own position and the
+`kernel_width - 1` positions after it, so each layer adds
+`kernel_width - 1` to the reach. The first theorem counts `kernel_width`
+for each layer, which is one too many for each layer and still true. The
+tighter theorem counts `kernel_width - 1`.
 
 **Measured:** one input of a stack of width-3 kernels is raised by 1, and the
 output change is plotted against how far away it was. It is exactly zero
@@ -195,7 +200,10 @@ experiment is evidence, not a proof.
 - **Locality.** For 1, 2 and 3 layers of width 3, changing an input beyond
   3, 6 and 9 positions left the output exactly unchanged, also with a ReLU
   between the layers. The farthest input that mattered was at 3, 5 and 7
-  positions, inside the window the theorem allows.
+  positions. That is inside the window the first theorem allows, and it is
+  exactly the window of the tighter one: `layer_count × (3 − 1) + 1`
+  positions is 3, 5 and 7. The measurement came first; the tighter theorem
+  (`convolution_stack_reads_only_its_exact_window`) was proved after it.
 - **Shift.** The largest difference between the output of the shifted signal
   and the shifted output was 0 for the convolution, and 1.179 for the
   control (the largest output is 0.872).
@@ -230,7 +238,8 @@ Run it with
 
 **Answers.** (1) The summed sizes are `0.5 + 0.5 + 1 = 2`, so at most
 `2 × 2 = 4`, by `abs_convolution_sub_le`. (2) The window is
-`4 × 5 = 20` positions further on. (3) One stride gives `2 × 1.5 = 3`
+`4 × 5 = 20` positions further on by `iterate_convolution_congr`, and
+`4 × 4 = 16` further on by the tighter theorem. (3) One stride gives `2 × 1.5 = 3`
 by `lipschitzWith_stride`. A second stride is applied to the strided
 model, which has slope at most 3, so it gives `2 × 3 = 6`.
 

@@ -23,6 +23,9 @@ Theorems:
 * `softmax_add_const`                   shifting every score changes no share;
 * `inner_eq_one_sub_of_unit`            dot product against distance, for unit
                                         vectors;
+* `softmax_of_overlap_equals_softmax_of_distance`  the same for keys of one
+                                        common length and a query of any
+                                        length;
 * `softmax_cosine_eq_softmax_distance`  contrastive scoring is scoring by
                                         nearness.
 -/
@@ -167,5 +170,40 @@ theorem softmax_cosine_eq_softmax_distance
         = APPLY_SOFTMAX fun i => -‖query - keys i‖ ^ 2 / (2 * temperature) :=
     softmax_add_const _ _
   rw [scores_differ_by_const, shift_invariant]
+
+/-- **The same without vectors of length one.** It is enough that the keys
+all have the same length, whatever that length is. The query may have any
+length. The two scores still differ by the same constant for every key, and
+a softmax does not see a constant added to every score. -/
+theorem softmax_of_overlap_equals_softmax_of_distance
+    {query : Space}
+    {keys : Examples → Space}
+    {key_length : ℝ}
+    (keys_have_same_length : ∀ i, ‖keys i‖ = key_length)
+    (temperature : ℝ) :
+    let overlap_shares :=
+      APPLY_SOFTMAX (fun i => inner ℝ query (keys i) / temperature)
+    let distance_shares :=
+      APPLY_SOFTMAX fun i => -‖query - keys i‖ ^ 2 / (2 * temperature)
+    overlap_shares = distance_shares := by
+  unfold_named_pieces
+  -- The two scores differ by the same constant for every key.
+  have scores_differ_by_const :
+      (fun i => inner ℝ query (keys i) / temperature)
+        = fun i => -‖query - keys i‖ ^ 2 / (2 * temperature)
+            + (‖query‖ ^ 2 + key_length ^ 2) / (2 * temperature) := by
+    funext i
+    -- The squared distance written out: two squared lengths, minus twice
+    -- the overlap.
+    have expansion := norm_sub_sq_real query (keys i)
+    rw [keys_have_same_length i] at expansion
+    have dot_product_eq :
+        inner ℝ query (keys i)
+          = (‖query‖ ^ 2 + key_length ^ 2 - ‖query - keys i‖ ^ 2) / 2 := by
+      linarith
+    rw [dot_product_eq]
+    ring
+  rw [scores_differ_by_const]
+  exact softmax_add_const _ _
 
 end SquigglyLine

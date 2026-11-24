@@ -136,6 +136,48 @@ theorem iterate_convolution_congr
     exact earlier_layers_congr fun other_index other_ge other_le =>
       signals_agree other_index (by omega) (by omega)
 
+/-- **The window, one position tighter per layer.** A kernel of width
+`kernel_width` reads its own position and the `kernel_width - 1` after it.
+So each layer reaches `kernel_width - 1` further, and after `layer_count`
+layers an output depends only on the inputs from its position up to
+`layer_count * (kernel_width - 1)` beyond it. That is
+`layer_count * (kernel_width - 1) + 1` positions, which is the reach the
+notebook of chapter 33 measured. `iterate_convolution_congr` above allows a
+wider window and is a consequence of this one. -/
+theorem convolution_stack_reads_only_its_exact_window
+    (kernel_width : ℕ)
+    (kernel : Kernel)
+    (layer_count : ℕ) :
+    let reach_of_one_layer := kernel_width - 1          -- the positions a kernel reads beyond its own
+    let window_reach := layer_count * reach_of_one_layer
+    ∀ {signal : Signal} {other_signal : Signal} {position : ℕ},
+      let signals_agree := ∀ index, position ≤ index →
+        index ≤ position + window_reach → signal index = other_signal index
+      let output       :=
+        (APPLY_CONVOLUTION kernel_width kernel)^[layer_count] signal position
+      let other_output :=
+        (APPLY_CONVOLUTION kernel_width kernel)^[layer_count] other_signal
+          position
+      signals_agree → output = other_output := by
+  unfold_named_pieces
+  induction layer_count with
+  | zero =>
+    intro signal other_signal position signals_agree
+    exact signals_agree position le_rfl (by simp)
+  | succ layer_count earlier_layers_congr =>
+    intro signal other_signal position signals_agree
+    rw [Function.iterate_succ_apply', Function.iterate_succ_apply']
+    refine convolution_congr kernel_width kernel
+      fun index index_ge index_lt => ?_
+    -- The window of one more layer is the earlier window plus the reach of
+    -- one kernel.
+    have window_split :
+        (layer_count + 1) * (kernel_width - 1)
+          = layer_count * (kernel_width - 1) + (kernel_width - 1) := by
+      ring
+    exact earlier_layers_congr fun other_index other_ge other_le =>
+      signals_agree other_index (by omega) (by omega)
+
 variable {model : RealFunction}
 
 /-- **Stride is squeezing.** Reading a signal at every second position is
