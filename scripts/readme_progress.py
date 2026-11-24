@@ -11,8 +11,11 @@ same:
 The burn-down chart plots the items still to do against the date. Its points
 come from git: the checklist as it stood in each commit that changed it, and
 one more point for today when the file has changes that are not committed
-yet. The ETA is a straight line through the first and the last point, run
-down to zero. It is rough, and the page says how many days it rests on.
+yet. The pace is the number of items ticked per day. It counts only commits
+that left the number of items as it was, because a commit that adds or
+splits items changes "items left" without any work being done or undone. The
+ETA is the items left divided by that pace. It is rough, and the page says
+how many days it rests on.
 
 Run it after ticking an item:
 
@@ -126,10 +129,23 @@ def history_days(points: list[Point]) -> float:
     return (read_now(points) - points[0].moment).total_seconds() / 86400
 
 
+def count_ticked_items(points: list[Point]) -> float:
+    """Items ticked over the history. A step between two points counts only if
+    the list had the same number of items at both, so that adding or splitting
+    items is not read as work undone, and a split of ticked items is not read
+    as work done. Ticks made in a commit that also adds items are missed, so
+    the pace is, if anything, too low."""
+    ticked = 0.0
+    for earlier, later in zip(points, points[1:]):
+        if earlier.item_count == later.item_count:
+            ticked += max(0.0, earlier.items_left - later.items_left)
+    return ticked
+
+
 def items_per_day(points: list[Point]) -> float | None:
     if history_days(points) < MIN_DAYS_FOR_ETA:
         return None
-    pace = (points[0].items_left - points[-1].items_left) / history_days(points)
+    pace = count_ticked_items(points) / history_days(points)
     return pace if pace > 0 else None
 
 
@@ -232,9 +248,11 @@ def draw_chart_block(points: list[Point]) -> str:
     else:
         verdict = (
             f"**ETA {eta:%Y-%m-%d}.** {points[-1].items_left:.1f} items are "
-            f"left, and the pace so far is {pace:.1f} items a day. That rests "
-            f"on only {history_days(points):.1f} days of history, so treat it "
-            f"as a guess, not a promise."
+            f"left, and the pace so far is {pace:.1f} items a day "
+            f"({count_ticked_items(points):.0f} items ticked in "
+            f"{history_days(points):.1f} days). That is a short history, and "
+            f"the items are not of equal size, so treat it as a guess, not a "
+            f"promise."
         )
     return (
         "![Burn-down chart: items still to do against the date, with the "
@@ -242,7 +260,8 @@ def draw_chart_block(points: list[Point]) -> str:
         f"{verdict} As of {as_of:%Y-%m-%d}. The blue line is read from git "
         f"(every commit that changed this list); the dashed line is the "
         f"straight line to zero at that pace. When items are added to the "
-        f"list the blue line goes up.\n"
+        f"list the blue line goes up; such a step is not counted in the "
+        f"pace.\n"
     )
 
 
