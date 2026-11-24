@@ -146,9 +146,10 @@ In `SquigglyLine/Connections/`. Each file proves a small fact that this
 project shares with a famous open problem. None is a step towards solving
 one. The notes are in `docs/connections/`.
 
-| File         | Contents                                                          |
-|--------------|-------------------------------------------------------------------|
-| `PrimeWaves` | the waves of two primes reach every pair of phases and cover their band |
+| File           | Contents                                                          |
+|----------------|-------------------------------------------------------------------|
+| `PrimeWaves`   | the waves of two primes reach every pair of phases and cover their band |
+| `ParityZigzag` | parity flips with every bit; deep tents compute it; a shallow network needs a unit per two bits |
 -/
 -- 0. How statements are written
 import SquigglyLine.Style
@@ -244,3 +245,4 @@ import SquigglyLine.Supporting.NetworkShape.AttentionRate
 import SquigglyLine.Supporting.NetworkShape.KolmogorovArnold
 -- 4. Connections to other problems
 import SquigglyLine.Connections.PrimeWaves
+import SquigglyLine.Connections.ParityZigzag
