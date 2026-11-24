@@ -50,7 +50,7 @@ depends on the height only through the hand of the clock of `p`.
 
 ## What is proved here
 
-All six statements are in
+All eight statements are in
 [`PrimeWaves.lean`](../../lean/SquigglyLine/Connections/PrimeWaves.lean).
 They are about the waves of two different primes `p` and `q`.
 
@@ -97,10 +97,22 @@ They are about the waves of two different primes `p` and `q`.
    `exists_warp_of_coversWithin` applied to the primes. It is this
    repository's small counterpart of universality.
 
-6. **The control: clocks that do line up miss part of their band**
+6. **The wave is as steep as its frequencies**
+   (`two_prime_wave_slope_is_at_most_amplitudes_times_frequencies`,
+   **proved**). Its slope is at most `|A| log p + |B| log q`. A larger prime
+   has a larger frequency, so its wave is squigglier.
+
+7. **The squiggly line sandwich holds for the prime wave**
+   (`two_prime_wave_is_near_the_data_and_pays_the_slope_tax`, **proved**).
+   For data whose labels lie in the narrower band, the wave passes within
+   the reach of every data point, and the vertical error is at most
+   `sqrt(1 + slope^2)` times that nearest distance. These are the two bounds
+   of the squiggly line theorem, with the primes put in.
+
+8. **The control: clocks that do line up miss part of their band**
    (`commensurate_wave_misses_part_of_its_band`, **proved**). With
    frequencies 1 and 2 the sum `cos t + cos 2t` never goes below `-9/8`,
-   though its band goes down to `-2`. So statements 3 to 5 need the frequencies
+   though its band goes down to `-2`. So statements 3 to 5 and 7 need the frequencies
    to be those of different primes. It fails for frequencies with a common
    period.
 
@@ -273,13 +285,63 @@ result.
 grows fast with the number of primes. That is the measured side of the
 statement that Voronin's theorem gives no useful bound on the height.
 
+### What was measured (24 Nov 2026)
+
+The notebook is
+[`experiments/connections/prime_clocks.ipynb`](../../experiments/connections/prime_clocks.ipynb).
+A Sonnet helper wrote and ran it from the predictions above. I read its
+stored output and the figure, and recomputed one number myself (the nearest
+distance for the primes 2 and 3). No second reader has checked the notebook.
+Every number below is printed in the notebook; "measured" means the search
+was run.
+
+![Three panels. Left: the line of the clocks of 2 and 3 on the torus up to height 40, and the closed line for frequencies 1 and 2, with the target marked. Middle: the largest distance from the line falls as the height grows, slope -0.92 on log axes. Right: the first height within 0.3 of a target against the number of primes, 2 to 5, on a log axis, with the volume estimate beside it.](../../graphs/prime_clocks.png)
+
+- **M1 held.** The fitted slope of `log gap` against `log T` is -0.92
+  (measured), inside the predicted range of -1.3 to -0.7. The gap falls from
+  0.70 at `T` = 30 to 0.0022 at `T` = 30,000. The fall is not even: the last
+  three points, from `T` = 8,544 to 30,000, fall only from 0.0026 to 0.0022.
+- **M2 held.** For frequencies 1 and 2 the nearest distance to `(π, π)` is
+  1.40496 (measured) at every `T` from 30 to 30,000, and 1.40496 from the
+  formula. For the primes 2 and 3 it is 0.41, 0.028, 0.0026 and 0.0015
+  (measured) at `T` = 30, 300, 3,000 and 30,000. The predicted bound was
+  0.01.
+- **M3 held.** Every target was reached; the largest first height was
+  215,994, far below the stop at 5,000,000.
+
+  | Primes | Median first height (measured) | Volume estimate (from the formula) | Ratio | Factor from the row above |
+  |---|---|---|---|---|
+  | 2 | 16.8 | 35.1 | 0.48 | |
+  | 3 | 213.4 | 294.0 | 0.73 | 12.7 |
+  | 4 | 7,036.9 | 3,363.6 | 2.09 | 33.0 |
+  | 5 | 69,774.6 | 45,688.6 | 1.53 | 9.9 |
+
+  Each factor is above the predicted 3, and each ratio is between 1/3 and 3.
+  The factors are uneven (12.7, 33.0, 9.9): with 40 targets the median is
+  rough.
+
+**What this does and does not show.** Each added prime made the wait about
+ten to thirty times longer, at a tolerance of 0.3. The proof of Voronin's
+theorem needs many primes and a small tolerance, so by this measure the
+heights it needs are far beyond any search. That agrees with the bound cited
+above. It is a measurement for five primes and one tolerance, and it says
+nothing about the zeta function itself. The checks that the sampling step is
+fine enough are printed in the notebook; the helper notes that one of them
+(halving the step for M3) cannot fail, because the first hit is found by a
+closed formula, and that an independent coarse search agrees with it.
+
+To run it (about a minute and a half):
+
+    python -m jupyter nbconvert --to notebook --execute --inplace experiments/connections/prime_clocks.ipynb
+
 ## Open
 
 - The same for any finite number of primes. Mathlib has no Kronecker
   theorem in several dimensions.
 - A number for the reach in statement 4.
-- A measurement of how the height needed grows as the tolerance shrinks and
-  as primes are added.
+- How the height needed grows as the tolerance shrinks. The measurement used
+  one tolerance.
+- A second reader for the notebook.
 - The other two candidates in
   [the proposal](../../book/proposals/proposal-20261124.md) (the waves under
   the count of primes, and the zeros as crossings of a real curve) are not

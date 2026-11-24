@@ -6,7 +6,7 @@ height `height` on a vertical line, the prime `p` contributes the wave
 `cos (height * log p)` to the zeta function. Its frequency is `log p`. So
 the zeta function on a vertical line is a sum of waves, one squiggly line.
 
-This file proves five things about the waves of two different primes.
+This file proves seven things about the waves of two different primes.
 
 * `ratio_of_prime_logs_is_irrational`: the two frequencies have no common
   period. This is unique factorisation: `p ^ a = q ^ b` is impossible.
@@ -24,6 +24,11 @@ This file proves five things about the waves of two different primes.
 * `two_prime_wave_fits_any_target_after_a_bounded_warp`: so the warp theorem
   of `Oscillation.lean` applies. Any target in the narrower band is fitted
   exactly after moving each input by at most the reach.
+
+* `two_prime_wave_slope_is_at_most_amplitudes_times_frequencies`: the slope
+  of the wave is at most `|A| * log p + |B| * log q`.
+* `two_prime_wave_is_near_the_data_and_pays_the_slope_tax`: so both bounds
+  of the squiggly line theorem hold for it: near the data, and steep.
 
 `commensurate_wave_misses_part_of_its_band` is the control. With
 frequencies 1 and 2, which do have a common period, the sum never goes
@@ -51,8 +56,6 @@ To do, not attempted:
   logarithms of the primes have no rational relation.
 * A number for the reach. The proof gets the reach from compactness, which
   gives no number.
-* The slope limit of the wave, `first_amplitude * log p +
-  second_amplitude * log q`, and with it the sandwich of `Sandwich.lean`.
 -/
 import Mathlib.Analysis.Normed.Group.AddCircle
 import Mathlib.Topology.Instances.AddCircle.DenseSubgroup
@@ -654,6 +657,118 @@ theorem two_prime_wave_fits_any_target_after_a_bounded_warp
       primes_differ second_amplitude_nonneg inner_edge_inside
   exact ⟨reach, fun target target_in_band =>
     exists_warp_of_coversWithin wave_covers target target_in_band⟩
+
+/-! ## The slope of the wave, and the sandwich -/
+
+/-- **The wave of a prime is as steep as its frequency.** The sum of the two
+waves has slope at most `|first_amplitude| * log p + |second_amplitude| *
+log q`. A larger prime has a larger frequency `log p`, so its wave is
+squigglier. -/
+theorem two_prime_wave_slope_is_at_most_amplitudes_times_frequencies
+    (first_prime : ℕ)
+    (second_prime : ℕ)
+    (first_amplitude : ℝ)
+    (second_amplitude : ℝ) :
+    let wave :=
+      MAKE_TWO_PRIME_WAVE first_prime second_prime
+        first_amplitude second_amplitude
+    let first_slope  := ‖first_amplitude‖₊ * ‖Real.log first_prime‖₊    -- `‖x‖₊` is `|x|`, as a number that is never negative
+    let second_slope := ‖second_amplitude‖₊ * ‖Real.log second_prime‖₊
+    let slope_limit : SlopeLimit := first_slope + second_slope
+    LipschitzWith slope_limit wave := by
+  unfold_named_pieces
+  refine LipschitzWith.of_dist_le_mul fun height other_height => ?_
+  -- `cos` never changes faster than its angle.
+  have first_cos_gap :=
+    abs_cos_sub_cos_le (height * Real.log first_prime)
+      (other_height * Real.log first_prime)
+  have second_cos_gap :=
+    abs_cos_sub_cos_le (height * Real.log second_prime)
+      (other_height * Real.log second_prime)
+  have first_angle_gap :
+      height * Real.log first_prime - other_height * Real.log first_prime
+        = Real.log first_prime * (height - other_height) := by ring
+  have second_angle_gap :
+      height * Real.log second_prime - other_height * Real.log second_prime
+        = Real.log second_prime * (height - other_height) := by ring
+  rw [first_angle_gap, abs_mul] at first_cos_gap
+  rw [second_angle_gap, abs_mul] at second_cos_gap
+  simp only [Real.dist_eq, NNReal.coe_add, NNReal.coe_mul, coe_nnnorm,
+    Real.norm_eq_abs]
+  unfold MAKE_TWO_PRIME_WAVE
+  calc |first_amplitude * cos (height * Real.log first_prime)
+          + second_amplitude * cos (height * Real.log second_prime)
+        - (first_amplitude * cos (other_height * Real.log first_prime)
+          + second_amplitude * cos (other_height * Real.log second_prime))|
+      = |first_amplitude * (cos (height * Real.log first_prime)
+            - cos (other_height * Real.log first_prime))
+          + second_amplitude * (cos (height * Real.log second_prime)
+            - cos (other_height * Real.log second_prime))| := by
+        congr 1
+        ring
+    _ ≤ |first_amplitude * (cos (height * Real.log first_prime)
+            - cos (other_height * Real.log first_prime))|
+          + |second_amplitude * (cos (height * Real.log second_prime)
+            - cos (other_height * Real.log second_prime))| :=
+        abs_add_le _ _
+    _ = |first_amplitude| * |cos (height * Real.log first_prime)
+            - cos (other_height * Real.log first_prime)|
+          + |second_amplitude| * |cos (height * Real.log second_prime)
+            - cos (other_height * Real.log second_prime)| := by
+        rw [abs_mul, abs_mul]
+    _ ≤ |first_amplitude|
+            * (|Real.log first_prime| * |height - other_height|)
+          + |second_amplitude|
+            * (|Real.log second_prime| * |height - other_height|) :=
+        add_le_add
+          (mul_le_mul_of_nonneg_left first_cos_gap
+            (abs_nonneg first_amplitude))
+          (mul_le_mul_of_nonneg_left second_cos_gap
+            (abs_nonneg second_amplitude))
+    _ = (|first_amplitude| * |Real.log first_prime|
+          + |second_amplitude| * |Real.log second_prime|)
+          * |height - other_height| := by ring
+
+/-- **The squiggly line sandwich for the sum of two prime waves.** For data
+whose labels lie in a band strictly inside the band of the wave, the wave
+passes within `reach` of every data point, and the vertical error is at most
+`√(1 + slope_limit²)` times that nearest distance. Near, and steep by the
+same token: the two bounds of `Oscillation.lean` and `Sandwich.lean`, for
+the primes. -/
+theorem two_prime_wave_is_near_the_data_and_pays_the_slope_tax
+    {first_prime second_prime : ℕ}
+    (first_is_prime : first_prime.Prime)
+    (second_is_prime : second_prime.Prime)
+    (primes_differ : first_prime ≠ second_prime)
+    {first_amplitude : ℝ}
+    {second_amplitude : ℝ}
+    (second_amplitude_nonneg : 0 ≤ second_amplitude)
+    {inner_edge : ℝ}
+    (inner_edge_inside : inner_edge < first_amplitude + second_amplitude) :
+    let wave :=
+      MAKE_TWO_PRIME_WAVE first_prime second_prime
+        first_amplitude second_amplitude
+    let narrower_band := Set.Icc (-inner_edge) inner_edge
+    let first_slope  := ‖first_amplitude‖₊ * ‖Real.log first_prime‖₊
+    let second_slope := ‖second_amplitude‖₊ * ‖Real.log second_prime‖₊
+    let slope_limit : SlopeLimit := first_slope + second_slope
+    let stretch := √(1 + (slope_limit : ℝ) ^ 2)   -- Pythagoras: 1 across, slope_limit up
+    ∃ reach : ℝ, ∀ data_point : DataPoint ℝ,
+      GET_LABEL data_point ∈ narrower_band →
+        let nearest_distance := GET_NEAREST_DISTANCE wave data_point
+        let vertical_error   := GET_VERTICAL_ERROR wave data_point
+        nearest_distance ≤ reach
+          ∧ vertical_error ≤ stretch * nearest_distance := by
+  unfold_named_pieces
+  obtain ⟨reach, wave_covers⟩ :=
+    two_prime_wave_covers_a_narrower_band first_is_prime second_is_prime
+      primes_differ second_amplitude_nonneg inner_edge_inside
+  have slope_is_bounded :=
+    two_prime_wave_slope_is_at_most_amplitudes_times_frequencies
+      first_prime second_prime first_amplitude second_amplitude
+  exact ⟨reach, fun data_point label_in_band =>
+    ⟨nearestDist_le_of_coversWithin wave_covers data_point label_in_band,
+      verticalDist_le_of_lipschitz slope_is_bounded data_point⟩⟩
 
 /-! ## The control: frequencies with a common period -/
 
