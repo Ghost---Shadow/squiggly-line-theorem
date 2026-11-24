@@ -148,7 +148,7 @@ one. The notes are in `docs/connections/`.
 
 | File           | Contents                                                          |
 |----------------|-------------------------------------------------------------------|
-| `PrimeWaves`   | the waves of two primes reach every pair of phases and cover their band |
+| `PrimeWaves`   | the waves of two primes reach every pair of phases and cover their band within a finite reach |
 | `ParityZigzag` | parity flips with every bit; deep tents compute it; a shallow network needs a unit per two bits |
 -/
 -- 0. How statements are written

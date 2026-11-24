@@ -50,7 +50,7 @@ depends on the height only through the hand of the clock of `p`.
 
 ## What is proved here
 
-All four statements are in
+All six statements are in
 [`PrimeWaves.lean`](../../lean/SquigglyLine/Connections/PrimeWaves.lean).
 They are about the waves of two different primes `p` and `q`.
 
@@ -80,10 +80,27 @@ They are about the waves of two different primes `p` and `q`.
    the wave covers its band. With `A = p^(-σ)` and `B = q^(-σ)` the wave is
    the real part of the two terms `1/p^s + 1/q^s` of the sum over primes.
 
-4. **The control: clocks that do line up miss part of their band**
+4. **It does so within a fixed distance of every height**
+   (`two_prime_wave_covers_a_narrower_band`, **proved**). Take any band
+   strictly inside the full band, say from `-c` to `c` with `c < A + B`.
+   There is a distance, the reach, such that within the reach of every
+   height the wave takes every label of that band. This is exactly
+   `COVERS_WITHIN`, the hypothesis that the covering bound and the warp
+   theorem of this repository ask for. The proof gets the reach from the
+   compactness of the circle, so it gives no number for it.
+
+5. **So any target in that band is fitted exactly after a bounded warp**
+   (`two_prime_wave_fits_any_target_after_a_bounded_warp`, **proved**). Give
+   any function whose values lie in the narrower band. Move each input by at
+   most the reach, and the sum of the two prime waves has exactly the
+   target's value there. This is
+   `exists_warp_of_coversWithin` applied to the primes. It is this
+   repository's small counterpart of universality.
+
+6. **The control: clocks that do line up miss part of their band**
    (`commensurate_wave_misses_part_of_its_band`, **proved**). With
    frequencies 1 and 2 the sum `cos t + cos 2t` never goes below `-9/8`,
-   though its band goes down to `-2`. So statement 3 needs the frequencies
+   though its band goes down to `-2`. So statements 3 to 5 need the frequencies
    to be those of different primes. It fails for frequencies with a common
    period.
 
@@ -192,9 +209,10 @@ statement proved here for two primes.
   1, where the zeta function is defined in another way. There the picture
   of prime clocks is a guide to the proof, not a formula.
 - **The Lean statement is weaker than the pictures.** It is for two primes.
-  It gives no bound on the height (no reach), so it is not yet the
-  `COVERS_WITHIN` of this repository. It says nothing about the zeta
-  function itself.
+  It proves that a reach exists and gives no number for it. The warp it
+  gives is a different move for each input, where Voronin's theorem has
+  one shift for a whole window. It says nothing about the zeta function
+  itself.
 - **The words are the same and the objects differ.** "Covers", "near" and
   "move the input" mean points of a graph in this repository and functions
   on a window in Voronin's theorem.
@@ -259,8 +277,7 @@ statement that Voronin's theorem gives no useful bound on the height.
 
 - The same for any finite number of primes. Mathlib has no Kronecker
   theorem in several dimensions.
-- A reach for statement 3: every label of a narrower band is taken within a
-  fixed distance of every height.
+- A number for the reach in statement 4.
 - A measurement of how the height needed grows as the tolerance shrinks and
   as primes are added.
 - The other two candidates in

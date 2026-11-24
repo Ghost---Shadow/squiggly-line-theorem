@@ -6,7 +6,7 @@ height `height` on a vertical line, the prime `p` contributes the wave
 `cos (height * log p)` to the zeta function. Its frequency is `log p`. So
 the zeta function on a vertical line is a sum of waves, one squiggly line.
 
-This file proves three things about the waves of two different primes.
+This file proves five things about the waves of two different primes.
 
 * `ratio_of_prime_logs_is_irrational`: the two frequencies have no common
   period. This is unique factorisation: `p ^ a = q ^ b` is impossible.
@@ -17,6 +17,13 @@ This file proves three things about the waves of two different primes.
 * `two_prime_wave_takes_every_label_inside_its_band`: so the sum of the two
   waves takes every label strictly inside its band. In the words of
   `Oscillation.lean`, it covers its band.
+
+* `two_prime_wave_covers_a_narrower_band`: and it does so with a finite
+  reach. Within a fixed distance of every height it takes every label of
+  any band strictly inside its own. This is `COVERS_WITHIN`.
+* `two_prime_wave_fits_any_target_after_a_bounded_warp`: so the warp theorem
+  of `Oscillation.lean` applies. Any target in the narrower band is fitted
+  exactly after moving each input by at most the reach.
 
 `commensurate_wave_misses_part_of_its_band` is the control. With
 frequencies 1 and 2, which do have a common period, the sum never goes
@@ -42,8 +49,8 @@ To do, not attempted:
 * The same for any finite number of primes. It needs Kronecker's theorem in
   several dimensions, which Mathlib does not have, and the fact that the
   logarithms of the primes have no rational relation.
-* A finite reach: every label of a closed band strictly inside the full band
-  is taken within a fixed distance of every height (`COVERS_WITHIN`).
+* A number for the reach. The proof gets the reach from compactness, which
+  gives no number.
 * The slope limit of the wave, `first_amplitude * log p +
   second_amplitude * log q`, and with it the sandwich of `Sandwich.lean`.
 -/
@@ -343,6 +350,310 @@ theorem two_prime_wave_takes_every_label_inside_its_band
   obtain ⟨height, -, height_hits_label⟩ :=
     intermediate_value_uIcc wave_is_continuous.continuousOn label_is_between
   exact ⟨height, height_hits_label⟩
+
+/-! ## A finite reach -/
+
+/-- **Steps of an irrational size come near every point of the circle within
+a fixed number of steps.** The circle is compact, so finitely many of the
+steps already come within `tolerance` of every point. -/
+theorem irrational_steps_come_near_every_point_in_bounded_time
+    {ratio : ℝ}
+    (ratio_is_irrational : Irrational ratio)
+    {tolerance : ℝ}
+    (tolerance_pos : 0 < tolerance) :
+    ∃ step_limit : ℕ, ∀ target : ℝ,
+      ∃ (step_count : ℤ) (turns_back : ℤ),
+        let uses_few_steps := step_count.natAbs ≤ step_limit
+        let step_size      := 2 * PI * ratio
+        let is_close       :=
+          |target - step_count * step_size - turns_back * (2 * PI)|
+            < tolerance
+        uses_few_steps ∧ is_close := by
+  unfold_named_pieces
+  have circle_has_positive_length : Fact ((0 : ℝ) < 2 * PI) :=
+    ⟨by positivity⟩
+  have step_over_turn : 2 * PI * ratio / (2 * PI) = ratio := by
+    field_simp
+  have steps_are_dense :=
+    (AddCircle.denseRange_zsmul_coe_iff (a := 2 * PI * ratio)
+      (p := 2 * PI)).mpr (by rw [step_over_turn]; exact ratio_is_irrational)
+  -- Put an open ball of radius `tolerance` round every step. The balls
+  -- cover the circle, so finitely many of them do.
+  obtain ⟨chosen_steps, chosen_steps_cover⟩ :=
+    isCompact_univ.elim_finite_subcover
+      (fun step_count : ℤ =>
+        Metric.ball
+          (step_count • ((2 * PI * ratio : ℝ) : AddCircle (2 * PI)))
+          tolerance)
+      (fun _ => Metric.isOpen_ball)
+      (fun point _ => by
+        obtain ⟨step_count, step_is_close⟩ :=
+          steps_are_dense.exists_dist_lt point tolerance_pos
+        exact Set.mem_iUnion.mpr
+          ⟨step_count, Metric.mem_ball.mpr step_is_close⟩)
+  -- The largest of the chosen step counts is the limit.
+  refine ⟨chosen_steps.sup Int.natAbs, fun target => ?_⟩
+  have target_is_covered :=
+    chosen_steps_cover (Set.mem_univ ((target : ℝ) : AddCircle (2 * PI)))
+  simp only [Set.mem_iUnion, Metric.mem_ball, exists_prop]
+    at target_is_covered
+  obtain ⟨step_count, step_is_chosen, step_is_close⟩ := target_is_covered
+  rw [dist_eq_norm, ← AddCircle.coe_zsmul, ← AddCircle.coe_sub,
+    AddCircle.norm_eq, zsmul_eq_mul] at step_is_close
+  exact ⟨step_count, _, Finset.le_sup (f := Int.natAbs) step_is_chosen,
+    step_is_close⟩
+
+/-- **Two prime clocks reach every pair of phases within a fixed distance of
+every height.** The same as `two_prime_clocks_reach_every_pair_of_phases`,
+with a bound: there is a `reach`, depending only on the two primes and the
+tolerance, such that a good height lies within `reach` of any height you
+start from. -/
+theorem two_prime_clocks_reach_every_pair_of_phases_within_a_fixed_distance
+    {first_prime second_prime : ℕ}
+    (first_is_prime : first_prime.Prime)
+    (second_is_prime : second_prime.Prime)
+    (primes_differ : first_prime ≠ second_prime)
+    {tolerance : ℝ}
+    (tolerance_pos : 0 < tolerance) :
+    let first_frequency  := Real.log first_prime
+    let second_frequency := Real.log second_prime
+    ∃ reach : ℝ,
+      ∀ (start_height first_target_phase second_target_phase : ℝ),
+        ∃ (height : ℝ) (first_turns : ℤ) (second_turns : ℤ),
+          let is_near_the_start := |height - start_height| ≤ reach
+          let first_is_exact    :=
+            height * first_frequency
+              = first_target_phase + first_turns * (2 * PI)
+          let second_is_close   :=
+            |height * second_frequency
+                - (second_target_phase + second_turns * (2 * PI))|
+              < tolerance
+          is_near_the_start ∧ first_is_exact ∧ second_is_close := by
+  unfold_named_pieces
+  have first_prime_gt_one : (1 : ℝ) < first_prime := by
+    exact_mod_cast first_is_prime.one_lt
+  have first_frequency_pos : 0 < Real.log first_prime :=
+    Real.log_pos first_prime_gt_one
+  have first_frequency_ne_zero : Real.log first_prime ≠ 0 :=
+    first_frequency_pos.ne'
+  have two_pi_pos : (0 : ℝ) < 2 * PI := by positivity
+  set ratio := Real.log second_prime / Real.log first_prime with ratio_def
+  have ratio_is_irrational : Irrational ratio :=
+    ratio_of_prime_logs_is_irrational first_is_prime second_is_prime
+      primes_differ
+  obtain ⟨step_limit, steps_reach⟩ :=
+    irrational_steps_come_near_every_point_in_bounded_time
+      ratio_is_irrational tolerance_pos
+  refine ⟨(2 * PI + 2 * PI * step_limit) / Real.log first_prime,
+    fun start_height first_target_phase second_target_phase => ?_⟩
+  -- How far the first hand still has to turn, less whole turns: a number
+  -- from 0 up to one turn.
+  obtain ⟨first_left, first_left_def⟩ :
+      ∃ first_left : ℝ, first_left
+        = first_target_phase - start_height * Real.log first_prime :=
+    ⟨_, rfl⟩
+  obtain ⟨whole_turns, whole_turns_def⟩ :
+      ∃ whole_turns : ℤ, whole_turns = ⌊first_left / (2 * PI)⌋ := ⟨_, rfl⟩
+  obtain ⟨first_left_reduced, reduced_def⟩ :
+      ∃ first_left_reduced : ℝ, first_left_reduced
+        = first_left - whole_turns * (2 * PI) := ⟨_, rfl⟩
+  have reduced_nonneg : 0 ≤ first_left_reduced := by
+    have floor_le := Int.floor_le (first_left / (2 * PI))
+    rw [← whole_turns_def, le_div_iff₀ two_pi_pos] at floor_le
+    linarith
+  have reduced_lt_one_turn : first_left_reduced < 2 * PI := by
+    have lt_floor_add_one := Int.lt_floor_add_one (first_left / (2 * PI))
+    rw [← whole_turns_def, div_lt_iff₀ two_pi_pos] at lt_floor_add_one
+    linarith
+  -- Full turns of the first hand bring the second hand where it must go.
+  obtain ⟨step_count, turns_back, uses_few_steps, is_close⟩ :=
+    steps_reach (second_target_phase
+      - start_height * Real.log second_prime - first_left_reduced * ratio)
+  have step_abs_le : |(step_count : ℝ)| ≤ step_limit := by
+    rw [← Int.cast_abs, ← Nat.cast_natAbs]
+    exact_mod_cast uses_few_steps
+  refine ⟨start_height
+      + (first_left_reduced + step_count * (2 * PI)) / Real.log first_prime,
+    step_count - whole_turns, -turns_back, ?_, ?_, ?_⟩
+  · -- The height moved by less than one turn plus `step_limit` turns.
+    have numerator_bound :
+        |first_left_reduced + step_count * (2 * PI)|
+          ≤ 2 * PI + 2 * PI * step_limit :=
+      calc |first_left_reduced + step_count * (2 * PI)|
+          ≤ |first_left_reduced| + |(step_count : ℝ) * (2 * PI)| :=
+            abs_add_le _ _
+        _ = first_left_reduced + |(step_count : ℝ)| * (2 * PI) := by
+            rw [abs_of_nonneg reduced_nonneg, abs_mul, abs_of_pos two_pi_pos]
+        _ ≤ 2 * PI + 2 * PI * step_limit := by
+            have steps_bound :=
+              mul_le_mul_of_nonneg_right step_abs_le two_pi_pos.le
+            linarith
+    rw [add_sub_cancel_left, abs_div, abs_of_pos first_frequency_pos]
+    exact div_le_div_of_nonneg_right numerator_bound first_frequency_pos.le
+  · -- The first hand is exactly in place.
+    rw [reduced_def, first_left_def]
+    push_cast
+    field_simp
+    ring
+  · -- The second hand is where the steps put it.
+    have second_phase_error :
+        (start_height + (first_left_reduced + step_count * (2 * PI))
+            / Real.log first_prime) * Real.log second_prime
+          - (second_target_phase + ((-turns_back : ℤ) : ℝ) * (2 * PI))
+        = -(second_target_phase - start_height * Real.log second_prime
+            - first_left_reduced * ratio
+            - step_count * (2 * PI * ratio) - turns_back * (2 * PI)) := by
+      rw [ratio_def]
+      push_cast
+      field_simp
+      ring
+    rw [second_phase_error, abs_neg]
+    exact is_close
+
+/-- **The sum of two prime waves covers a narrower band, with a finite
+reach.** Take any band strictly inside the full band of the wave. There is a
+`reach` such that within `reach` of every height the wave takes every label
+of the narrower band. This is `COVERS_WITHIN` of `Oscillation.lean`, the
+hypothesis of the covering bound and of the warp theorem. -/
+theorem two_prime_wave_covers_a_narrower_band
+    {first_prime second_prime : ℕ}
+    (first_is_prime : first_prime.Prime)
+    (second_is_prime : second_prime.Prime)
+    (primes_differ : first_prime ≠ second_prime)
+    {first_amplitude : ℝ}
+    {second_amplitude : ℝ}
+    (second_amplitude_nonneg : 0 ≤ second_amplitude)
+    {inner_edge : ℝ}
+    (inner_edge_inside : inner_edge < first_amplitude + second_amplitude) :
+    let wave :=
+      MAKE_TWO_PRIME_WAVE first_prime second_prime
+        first_amplitude second_amplitude
+    let narrower_band := Set.Icc (-inner_edge) inner_edge
+    ∃ reach : ℝ, COVERS_WITHIN wave reach narrower_band := by
+  unfold_named_pieces
+  -- How much narrower the band is than the full band.
+  obtain ⟨room, room_def⟩ :
+      ∃ room : ℝ, room = first_amplitude + second_amplitude - inner_edge :=
+    ⟨_, rfl⟩
+  have room_pos : 0 < room := by linarith
+  have denominator_pos : 0 < second_amplitude + 1 := by linarith
+  have amplitude_share_le_room :
+      second_amplitude * (room / (second_amplitude + 1)) ≤ room := by
+    rw [mul_div_assoc', div_le_iff₀ denominator_pos]
+    nlinarith
+  obtain ⟨reach, clocks_reach⟩ :=
+    two_prime_clocks_reach_every_pair_of_phases_within_a_fixed_distance
+      first_is_prime second_is_prime primes_differ
+      (div_pos room_pos denominator_pos)
+  refine ⟨reach, fun input label label_in_band => ?_⟩
+  obtain ⟨label_above_inner_bottom, label_below_inner_top⟩ :=
+    Set.mem_Icc.mp label_in_band
+  -- A height near `input` where both waves are at or near the bottom ...
+  obtain ⟨low_height, low_first_turns, low_second_turns, low_is_near,
+      low_first_is_exact, low_second_is_close⟩ :=
+    clocks_reach input PI PI
+  -- ... and one where both are at or near the top.
+  obtain ⟨high_height, high_first_turns, high_second_turns, high_is_near,
+      high_first_is_exact, high_second_is_close⟩ :=
+    clocks_reach input 0 0
+  have wave_is_low :
+      MAKE_TWO_PRIME_WAVE first_prime second_prime first_amplitude
+        second_amplitude low_height ≤ label := by
+    have first_cos_is_bottom :
+        cos (low_height * Real.log first_prime) = -1 := by
+      rw [low_first_is_exact, cos_add_int_mul_two_pi, cos_pi]
+    have cos_moves_less_than_phase :=
+      abs_cos_sub_cos_le (low_height * Real.log second_prime)
+        (PI + low_second_turns * (2 * PI))
+    rw [cos_add_int_mul_two_pi, cos_pi] at cos_moves_less_than_phase
+    have second_cos_near_bottom := (abs_le.mp
+      (cos_moves_less_than_phase.trans low_second_is_close.le)).2
+    have second_term_is_low :=
+      mul_le_mul_of_nonneg_left
+        (show cos (low_height * Real.log second_prime)
+            ≤ -1 + room / (second_amplitude + 1) by linarith)
+        second_amplitude_nonneg
+    unfold MAKE_TWO_PRIME_WAVE
+    rw [first_cos_is_bottom]
+    linarith
+  have wave_is_high :
+      label ≤ MAKE_TWO_PRIME_WAVE first_prime second_prime first_amplitude
+        second_amplitude high_height := by
+    have first_cos_is_top :
+        cos (high_height * Real.log first_prime) = 1 := by
+      rw [high_first_is_exact, cos_add_int_mul_two_pi, cos_zero]
+    have cos_moves_less_than_phase :=
+      abs_cos_sub_cos_le (high_height * Real.log second_prime)
+        (0 + high_second_turns * (2 * PI))
+    rw [cos_add_int_mul_two_pi, cos_zero] at cos_moves_less_than_phase
+    have second_cos_near_top := (abs_le.mp
+      (cos_moves_less_than_phase.trans high_second_is_close.le)).1
+    have second_term_is_high :=
+      mul_le_mul_of_nonneg_left
+        (show 1 - room / (second_amplitude + 1)
+            ≤ cos (high_height * Real.log second_prime) by linarith)
+        second_amplitude_nonneg
+    unfold MAKE_TWO_PRIME_WAVE
+    rw [first_cos_is_top]
+    linarith
+  -- A continuous function takes every value between two of its values.
+  have wave_is_continuous :
+      Continuous (MAKE_TWO_PRIME_WAVE first_prime second_prime
+        first_amplitude second_amplitude) := by
+    unfold MAKE_TWO_PRIME_WAVE
+    fun_prop
+  have label_is_between :
+      label ∈ Set.uIcc
+        (MAKE_TWO_PRIME_WAVE first_prime second_prime first_amplitude
+          second_amplitude low_height)
+        (MAKE_TWO_PRIME_WAVE first_prime second_prime first_amplitude
+          second_amplitude high_height) :=
+    Set.mem_uIcc.mpr (Or.inl ⟨wave_is_low, wave_is_high⟩)
+  obtain ⟨height, height_is_between, height_hits_label⟩ :=
+    intermediate_value_uIcc wave_is_continuous.continuousOn label_is_between
+  -- That height lies between two heights that are both near `input`.
+  refine ⟨height, ?_, height_hits_label⟩
+  obtain ⟨low_from_below, low_from_above⟩ := abs_le.mp low_is_near
+  obtain ⟨high_from_below, high_from_above⟩ := abs_le.mp high_is_near
+  rw [Real.dist_eq, abs_le]
+  rcases Set.mem_uIcc.mp height_is_between with
+    ⟨low_le_height, height_le_high⟩ | ⟨high_le_height, height_le_low⟩
+  · constructor <;> linarith
+  · constructor <;> linarith
+
+/-- **Any target in the narrower band is fitted exactly after a bounded
+warp.** This is `exists_warp_of_coversWithin` for the sum of two prime
+waves: move each input by at most `reach`, and the wave has exactly the
+target's value there. It is this project's small counterpart of
+universality: the nearness is used by moving the input. -/
+theorem two_prime_wave_fits_any_target_after_a_bounded_warp
+    {first_prime second_prime : ℕ}
+    (first_is_prime : first_prime.Prime)
+    (second_is_prime : second_prime.Prime)
+    (primes_differ : first_prime ≠ second_prime)
+    {first_amplitude : ℝ}
+    {second_amplitude : ℝ}
+    (second_amplitude_nonneg : 0 ≤ second_amplitude)
+    {inner_edge : ℝ}
+    (inner_edge_inside : inner_edge < first_amplitude + second_amplitude) :
+    let wave :=
+      MAKE_TWO_PRIME_WAVE first_prime second_prime
+        first_amplitude second_amplitude
+    let narrower_band := Set.Icc (-inner_edge) inner_edge
+    ∃ reach : ℝ, ∀ target : RealFunction,
+      (∀ input, target input ∈ narrower_band) →
+      ∃ warp : WarpOver ℝ,
+        let moves_each_input_a_little :=
+          ∀ input, dist input (warp input) ≤ reach
+        let hits_the_target :=
+          ∀ input, wave (warp input) = target input
+        moves_each_input_a_little ∧ hits_the_target := by
+  unfold_named_pieces
+  obtain ⟨reach, wave_covers⟩ :=
+    two_prime_wave_covers_a_narrower_band first_is_prime second_is_prime
+      primes_differ second_amplitude_nonneg inner_edge_inside
+  exact ⟨reach, fun target target_in_band =>
+    exists_warp_of_coversWithin wave_covers target target_in_band⟩
 
 /-! ## The control: frequencies with a common period -/
 

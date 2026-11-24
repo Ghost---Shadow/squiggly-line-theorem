@@ -562,7 +562,7 @@ famous open problem. None is a step towards solving one.
 
 | File | What it proves |
 |---|---|
-| [`PrimeWaves`](lean/SquigglyLine/Connections/PrimeWaves.lean) | on a vertical line the zeta function is a sum of waves, one of frequency `log p` for each prime; the waves of two different primes have no common period, so they reach every pair of phases, and their sum takes every label inside its band ([note](docs/connections/riemann-hypothesis.md)) |
+| [`PrimeWaves`](lean/SquigglyLine/Connections/PrimeWaves.lean) | on a vertical line the zeta function is a sum of waves, one of frequency `log p` for each prime; the waves of two different primes have no common period, so they reach every pair of phases, and their sum takes every label inside its band; it does so within a fixed distance of every height (`COVERS_WITHIN`), so any target in a narrower band is fitted exactly after a bounded warp of the input ([note](docs/connections/riemann-hypothesis.md)) |
 | [`ParityZigzag`](lean/SquigglyLine/Connections/ParityZigzag.lean) | parity is a zigzag: flipping any bit flips it; `L` tent layers compute the parity of `2^L` bits from their count, and one hidden layer needs a unit for every two bits. Lower bounds for weak circuits count squiggles in this way, and the natural proofs barrier says such counting cannot separate P from NP ([note](docs/connections/p-versus-np.md)) |
 
 **Not formalised:** the constant `0.2974` for sines, the length bound
