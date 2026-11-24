@@ -24,25 +24,25 @@ of this project with the width in the place of the frequency.
 ## A bump of width `width` is the unit bump, squeezed
 
 Dividing the input by the width before applying the unit bump is squeezing
-the unit bump sideways by `1 / width` (**proved**: `bump_eq_compress`).
+the unit bump sideways by `1 / width` (**proved**: `bump_is_the_unit_bump_squeezed`).
 
 So everything [`Compression.lean`](../../lean/SquigglyLine/Theorem/Compression.lean) says about a squeezed function holds for a
 bump. In particular its slope is the slope of the unit bump times
 `1 / width`.
 
 The unit bump never climbs faster than one (**proved**:
-`lipschitzWith_unitBump`). The exact figure is `1 / √e`, about 0.61; the
+`unit_bump_slope_is_at_most_one`). The exact figure is `1 / √e`, about 0.61; the
 proof here settles for one. So a bump of width `width` has slope at most
-`1 / width` (**proved**: `lipschitzWith_bump`).
+`1 / width` (**proved**: `bump_slope_is_at_most_one_over_width`).
 
 ## The network is no steeper than its heights over its width
 
 A sum of bumps has slope at most the sum of the sizes of the heights,
-divided by the width (**proved**: `lipschitzWith_bumpNetwork`).
+divided by the width (**proved**: `bump_network_slope_is_at_most_heights_over_width`).
 
 Put that into the slope sandwich. The vertical error is at most
 `√(1 + slope²)` times the nearest distance (**proved**:
-`verticalDist_bumpNetwork_le`). So a network of wide bumps and modest
+`vertical_error_of_bump_network_is_at_most_stretch_times_nearest_distance`). So a network of wide bumps and modest
 heights cannot pass near a data point it misses by a lot. To be near, it
 must have narrow bumps or large heights. Those are the two dials of a radial
 basis network, and both are slope.
@@ -50,29 +50,29 @@ basis network, and both are slope.
 ## It is a lift, so the kernel results apply
 
 The list of bump values at an input is a lift of the input, and the network
-is a flat model on that lift (**proved**: `bumpNetwork_eq_liftedModel`). So
+is a flat model on that lift (**proved**: `bump_network_is_a_lifted_model`). So
 the results of [`Lift.lean`](../../lean/SquigglyLine/Networks/Lift.lean) hold for it: it trains through its kernel, and the
 kernel of two inputs is the overlap of their bump lists.
 
 The bump itself depends only on the distance between input and centre, so
 shifting both by the same amount changes nothing (**proved**:
-`bump_shift`). A network with a bump at every data point gives the same line
+`bump_does_not_change_under_a_shift`). A network with a bump at every data point gives the same line
 when the data is shifted.
 
 ## Narrow bumps fit anything
 
 Put one bump on each data point. If the bumps hardly overlap, the network
 can be given heights that fit any labels exactly (**proved**:
-`exists_heights_of_small_overlap`). "Hardly overlap" means: at each data
+`narrow_bumps_fit_anything`). "Hardly overlap" means: at each data
 point, the other bumps together are worth less than the point's own bump,
 which is one.
 
 That is the case once the bumps are narrow against the gaps in the data. If
 every two inputs are at least `gap` apart, each of the other bumps is worth
-at most `exp(-(gap / width)² / 2)` (**proved**: `bump_le_of_gap`), and that
+at most `exp(-(gap / width)² / 2)` (**proved**: `bump_away_from_its_centre_is_small`), and that
 goes to zero as the width shrinks. With `n` data points the bumps are narrow
 enough once `(n - 1) * exp(-(gap / width)² / 2)` is below one (**proved**:
-`exists_heights_of_gap`).
+`bumps_fit_when_narrower_than_the_gap`).
 
 So a radial basis network memorises by narrowing, and the section above
 says what that costs: slope `1 / width`.
@@ -86,11 +86,11 @@ The kernel of the Fourier lift of frequency `w` is `cos(w * gap)`, where
 `gap` is the difference of the two inputs (`fourier-lift.md`). Draw the
 frequency from a bell curve of mean zero and variance `v`. The mean of
 `cos(w * gap)` is then `exp(-v * gap² / 2)` (**proved**:
-`integral_cos_gaussian`). That is the Gaussian bump of the gap, with width
+`average_cosine_under_a_bell_curve_is_a_bump`). That is the Gaussian bump of the gap, with width
 `1 / √v`.
 
 So the kernel of the Fourier lift, averaged over random frequencies, is the
-radial basis kernel (**proved**: `integral_liftKernel_fourierLift`). A wide
+radial basis kernel (**proved**: `random_fourier_kernel_is_the_bump_kernel`). A wide
 layer of random cosine features and a network of bumps train as the same
 model, on average. A wide spread of frequencies is a narrow bump: the two
 dials of squiggliness, frequency and one over width, are the same dial.

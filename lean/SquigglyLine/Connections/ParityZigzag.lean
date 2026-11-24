@@ -175,7 +175,7 @@ theorem deep_narrow_network_computes_parity
     network_output = GET_PARITY bits := by
   unfold_named_pieces
   -- The share is a grid point, and the tents zigzag along the grid.
-  exact iterate_tent_dyadic layer_count (COUNT_ONES bits)
+  exact tent_layers_zigzag_on_the_grid layer_count (COUNT_ONES bits)
     (count_of_ones_is_at_most_bit_count bits)
 
 /-- **A shallow network needs one unit for every two bits.** Take a network

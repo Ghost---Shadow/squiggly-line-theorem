@@ -16,14 +16,14 @@ manifold and has slope `slope` across it is
 
 Theorems:
 
-* `residualLoss_dimpled_onManifold`: on real data every loss is that of
+* `loss_on_the_manifold_does_not_see_the_dimple_slope`: on real data every loss is that of
   `profile`. Training cannot see `slope`.
-* `dimpled_dimple`, `dist_onManifold_dimple`: for any data point and any
+* `any_label_is_one_step_off_the_manifold`, `length_of_dimple_step_equals_error_over_slope`: for any data point and any
   label, the step `(label - profile position) / slope` straight off the
   manifold gives that label.
-* `lipschitzWith_dimpled`: the dimpled function is no steeper than the two
+* `dimpled_model_slope_is_at_most_profile_slope_plus_dimple_slope`: the dimpled function is no steeper than the two
   slopes added.
-* `nearestDist_dimpled_bounds`: so the nearest-point distance lies between
+* `nearest_distance_of_dimpled_model_is_between_two_bounds`: so the nearest-point distance lies between
   `vertical_error / √(1 + (profile_slope_limit + dimple_slope)²)` and
   `vertical_error / dimple_slope`.
 
@@ -72,7 +72,7 @@ noncomputable def MAKE_DIMPLE
 omit [SeminormedAddCommGroup Position] in
 /-- On the manifold, the dimpled function is `profile`. -/
 @[simp]
-theorem dimpled_onManifold
+theorem dimpled_model_on_the_manifold_equals_profile
     (profile : Model Position)
     (slope : ℝ)
     (position : Position) :
@@ -86,7 +86,7 @@ omit [SeminormedAddCommGroup Position] in
 /-- **Training cannot see the slope off the manifold.** On real data, every
 loss of the dimpled function is the loss of `profile`, whatever `slope`
 is. -/
-theorem residualLoss_dimpled_onManifold
+theorem loss_on_the_manifold_does_not_see_the_dimple_slope
     (loss_fn : RealFunction)
     (profile : Model Position)
     (slope : ℝ)
@@ -103,7 +103,7 @@ theorem residualLoss_dimpled_onManifold
 
 omit [SeminormedAddCommGroup Position] in
 /-- The adversarial step does not move along the manifold. -/
-theorem dimple_fst
+theorem dimple_does_not_move_along_the_manifold
     (profile : Model Position)
     (slope : ℝ)
     (position : Position)
@@ -114,7 +114,7 @@ theorem dimple_fst
 
 omit [SeminormedAddCommGroup Position] in
 /-- **Any label is one step off the manifold.** -/
-theorem dimpled_dimple
+theorem any_label_is_one_step_off_the_manifold
     (slope_ne_zero : slope ≠ 0)
     (position : Position)
     (label : ℝ) :
@@ -127,7 +127,7 @@ theorem dimpled_dimple
   ring
 
 /-- The length of the adversarial step is the error divided by the slope. -/
-theorem dist_onManifold_dimple
+theorem length_of_dimple_step_equals_error_over_slope
     (slope_pos : 0 < slope)
     (position : Position)
     (label : ℝ) :
@@ -143,7 +143,7 @@ theorem dist_onManifold_dimple
 
 /-- A dimpled function is `(profile_slope_limit + dimple_slope)`-Lipschitz
 when `profile` is `profile_slope_limit`-Lipschitz. -/
-theorem lipschitzWith_dimpled
+theorem dimpled_model_slope_is_at_most_profile_slope_plus_dimple_slope
     {profile_slope_limit : SlopeLimit}
     {dimple_slope : SlopeLimit}
     (profile_is_lipschitz : LipschitzWith profile_slope_limit profile) :
@@ -194,7 +194,7 @@ theorem lipschitzWith_dimpled
 point, the nearest-point distance of a dimpled function lies between the
 vertical error divided by `√(1 + (profile_slope_limit + dimple_slope)²)` and
 the vertical error divided by `dimple_slope`. -/
-theorem nearestDist_dimpled_bounds
+theorem nearest_distance_of_dimpled_model_is_between_two_bounds
     {profile_slope_limit : SlopeLimit}
     {dimple_slope : SlopeLimit}
     (profile_is_lipschitz : LipschitzWith profile_slope_limit profile)
@@ -218,13 +218,13 @@ theorem nearestDist_dimpled_bounds
   · -- The lower bound is the slope sandwich.
     rw [div_le_iff₀' (by positivity)]
     exact vertical_error_is_at_most_stretch_times_nearest_distance
-      (lipschitzWith_dimpled profile_is_lipschitz) _
+      (dimpled_model_slope_is_at_most_profile_slope_plus_dimple_slope profile_is_lipschitz) _
   · -- The upper bound: the line has a point at the end of the dimple step.
     have dimpled_at_dimple :
         EVALUATE_DIMPLED_MODEL profile (dimple_slope : ℝ)
             (MAKE_DIMPLE profile (dimple_slope : ℝ) position label)
           = label :=
-      dimpled_dimple dimple_slope_pos.ne' position label
+      any_label_is_one_step_off_the_manifold dimple_slope_pos.ne' position label
     calc GET_NEAREST_DISTANCE (EVALUATE_DIMPLED_MODEL profile dimple_slope)
           (PLACE_ON_MANIFOLD position, label)
         ≤ dist (EMBED_DATA_POINT (PLACE_ON_MANIFOLD position, label))
@@ -239,7 +239,7 @@ theorem nearestDist_dimpled_bounds
             (MAKE_DIMPLE profile (dimple_slope : ℝ) position label) := by
           simp [distance_between_data_points_is_by_pythagoras, dimpled_at_dimple, Real.sqrt_sq dist_nonneg]
       _ = |label - profile position| / dimple_slope :=
-          dist_onManifold_dimple dimple_slope_pos position label
+          length_of_dimple_step_equals_error_over_slope dimple_slope_pos position label
       _ = GET_VERTICAL_ERROR (EVALUATE_DIMPLED_MODEL profile dimple_slope)
             (PLACE_ON_MANIFOLD position, label) / dimple_slope := by
           simp [GET_RESIDUAL_LOSS]

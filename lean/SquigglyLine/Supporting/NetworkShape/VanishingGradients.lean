@@ -122,7 +122,7 @@ theorem inner_runPlates
           = PASS_THROUGH_PLATE first_axis
               (RUN_LAYERS (later_axes.reverse.map PASS_THROUGH_PLATE)
                 other_light) := by
-      simp [RUN_LAYERS, runLayers_append]
+      simp [RUN_LAYERS, running_two_stacks_is_running_one_after_the_other]
     have forward_step :
         RUN_LAYERS ((first_axis :: later_axes).map PASS_THROUGH_PLATE) light
           = RUN_LAYERS (later_axes.map PASS_THROUGH_PLATE)

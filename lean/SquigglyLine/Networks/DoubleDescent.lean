@@ -4,10 +4,10 @@ Double descent, as the travel peak.
 Two inequalities connect the test-error peak of double descent to the
 distance from the start to the nearest fit.
 
-* `exists_fit_near_start`: there is a fit whose output on any feature vector
+* `fit_near_the_start_is_tame_everywhere`: there is a fit whose output on any feature vector
   differs from the output at the start by at most the size of that vector
   times the travel. A fit that is near the start is tame everywhere.
-* `travel_le_of_le_kernel`: if the kernel is at least `kernel_floor` in every
+* `travel_is_at_most_residual_over_root_of_kernel_floor`: if the kernel is at least `kernel_floor` in every
   direction, the travel is at most the size of the residual divided by
   `√kernel_floor`. The travel can be large only where the kernel has a weak
   direction, which is what happens when the model has barely enough
@@ -16,17 +16,17 @@ distance from the start to the nearest fit.
 That the test error does peak there is measured (`scripts/double_descent.py`),
 not proved.
 
-* `abs_inner_sub_le`                  an output moves by at most the feature
+* `output_moves_at_most_length_times_distance`                  an output moves by at most the feature
                                       length times the distance moved;
-* `exists_fit_near_start`             a fit near the start is tame;
-* `travel_le_of_le_kernel`            a strong kernel means a short travel;
-* `kernel_inner_comm`                 the kernel is symmetric;
-* `not_exists_fit_of_kernel_eq_zero`  strength zero: out of reach;
-* `travel_eq_of_eigen`                strength `strength`: the exact price;
-* `le_travel_of_eigen_le`             the weaker the direction, the further
+* `fit_near_the_start_is_tame_everywhere`             a fit near the start is tame;
+* `travel_is_at_most_residual_over_root_of_kernel_floor`            a strong kernel means a short travel;
+* `kernel_is_symmetric`                 the kernel is symmetric;
+* `no_fit_along_a_direction_of_zero_strength`  strength zero: out of reach;
+* `travel_along_a_direction_equals_residual_over_root_of_strength`                strength `strength`: the exact price;
+* `weaker_direction_needs_at_least_as_much_travel`             the weaker the direction, the further
                                       the fit;
-* `tightFeatures_innerSL`             one training point has tight features;
-* `travel_one_point`                  one training point: travel is error over
+* `one_training_point_has_tight_features`             one training point has tight features;
+* `travel_for_one_point_equals_error_over_feature_length`                  one training point: travel is error over
                                       feature length.
 -/
 import SquigglyLine.Networks.Kernel
@@ -44,7 +44,7 @@ variable {Weights Outputs : Type*}
 omit [CompleteSpace Weights] in
 /-- The output on a feature vector moves by at most its length times the
 distance moved in parameter space. -/
-theorem abs_inner_sub_le
+theorem output_moves_at_most_length_times_distance
     (features : Weights)
     (weights : Weights)
     (start_weights : Weights) :
@@ -60,7 +60,7 @@ theorem abs_inner_sub_le
 /-- **A fit near the start is tame everywhere.** There is a fit whose output on
 every feature vector is within its length times the travel of the output at the
 start. -/
-theorem exists_fit_near_start
+theorem fit_near_the_start_is_tame_everywhere
     (predict : Weights →L[ℝ] Outputs)
     (kernel_inverse : Outputs → Outputs)
     (kernel_inverse_works : ∀ vector,
@@ -82,7 +82,7 @@ theorem exists_fit_near_start
     ?_, fun features => ?_⟩
   · rw [map_add, kernel_inverse_works]
     simp [GET_RESIDUAL]
-  · rw [travel_eq_norm_of_kernelInverse predict kernel_inverse
+  · rw [travel_depends_on_the_kernel_only predict kernel_inverse
       kernel_inverse_works]
     calc |inner ℝ features (start_weights + adjoint predict (kernel_inverse
             (GET_RESIDUAL (predict : Weights →ₗ[ℝ] Outputs) labels
@@ -90,7 +90,7 @@ theorem exists_fit_near_start
         ≤ ‖features‖ * ‖start_weights + adjoint predict (kernel_inverse
             (GET_RESIDUAL (predict : Weights →ₗ[ℝ] Outputs) labels
               start_weights)) - start_weights‖ :=
-          abs_inner_sub_le _ _ _
+          output_moves_at_most_length_times_distance _ _ _
       _ = ‖features‖ * ‖adjoint predict (kernel_inverse
             (GET_RESIDUAL (predict : Weights →ₗ[ℝ] Outputs) labels
               start_weights))‖ := by
@@ -99,7 +99,7 @@ theorem exists_fit_near_start
 /-- **The travel is large only where the kernel is weak.** If the kernel is at
 least `kernel_floor` in every direction, the travel is at most the size of the
 residual divided by `√kernel_floor`. -/
-theorem travel_le_of_le_kernel
+theorem travel_is_at_most_residual_over_root_of_kernel_floor
     (predict : Weights →L[ℝ] Outputs)
     (kernel_inverse : Outputs → Outputs)
     (kernel_inverse_works : ∀ vector,
@@ -122,11 +122,11 @@ theorem travel_le_of_le_kernel
       residual = GET_RESIDUAL (predict : Weights →ₗ[ℝ] Outputs) labels
         start_weights :=
     ⟨_, rfl⟩
-  rw [travel_eq_norm_of_kernelInverse predict kernel_inverse
+  rw [travel_depends_on_the_kernel_only predict kernel_inverse
     kernel_inverse_works, ← residual_def]
   have squared_eq : ‖adjoint predict (kernel_inverse residual)‖ ^ 2
       = inner ℝ (kernel_inverse residual) residual :=
-    norm_adjoint_kernelInverse_sq predict kernel_inverse
+    length_of_pulled_back_solution_depends_on_kernel_only predict kernel_inverse
       kernel_inverse_works residual
   have kernel_inverse_residual_works :=
     kernel_inverse_works residual
@@ -175,7 +175,7 @@ Follow one direction `residual` of the labels that the kernel stretches by
 huge price. `strength` large: cheap. -/
 
 /-- The kernel is symmetric. -/
-theorem kernel_inner_comm
+theorem kernel_is_symmetric
     (predict : Weights →L[ℝ] Outputs)
     (vector : Outputs)
     (other_vector : Outputs) :
@@ -190,7 +190,7 @@ theorem kernel_inner_comm
 /-- **Strength zero: out of reach.** If the kernel sends a direction to zero,
 no change of the parameters produces it. The model cannot fit that part of the
 labels. -/
-theorem not_exists_fit_of_kernel_eq_zero
+theorem no_fit_along_a_direction_of_zero_strength
     (predict : Weights →L[ℝ] Outputs)
     {residual : Outputs}
     (residual_ne_zero : residual ≠ 0)
@@ -213,7 +213,7 @@ theorem not_exists_fit_of_kernel_eq_zero
 /-- **Strength `strength`: the exact price.** If the residual lies along a
 direction that the kernel stretches by `strength > 0`, the travel is exactly
 the size of the residual divided by `√strength`. -/
-theorem travel_eq_of_eigen
+theorem travel_along_a_direction_equals_residual_over_root_of_strength
     (predict : Weights →L[ℝ] Outputs)
     (kernel_inverse : Outputs → Outputs)
     (kernel_inverse_works : ∀ vector,
@@ -240,14 +240,14 @@ theorem travel_eq_of_eigen
       residual = GET_RESIDUAL (predict : Weights →ₗ[ℝ] Outputs) labels
         start_weights :=
     ⟨_, rfl⟩
-  rw [travel_eq_norm_of_kernelInverse predict kernel_inverse
+  rw [travel_depends_on_the_kernel_only predict kernel_inverse
     kernel_inverse_works, ← residual_def]
   rw [← residual_def] at residual_is_stretched
   have kernel_form_eq :
       inner ℝ (predict (adjoint predict (kernel_inverse residual))) residual
         = inner ℝ (kernel_inverse residual)
             (predict (adjoint predict residual)) :=
-    kernel_inner_comm predict (kernel_inverse residual) residual
+    kernel_is_symmetric predict (kernel_inverse residual) residual
   have stretched_form : strength * inner ℝ (kernel_inverse residual) residual
       = ‖residual‖ ^ 2 := by
     rw [← real_inner_smul_right, ← residual_is_stretched, ← kernel_form_eq,
@@ -256,7 +256,7 @@ theorem travel_eq_of_eigen
       = ‖residual‖ ^ 2 / strength := by
     have squared_eq : ‖adjoint predict (kernel_inverse residual)‖ ^ 2
         = inner ℝ (kernel_inverse residual) residual :=
-      norm_adjoint_kernelInverse_sq predict kernel_inverse
+      length_of_pulled_back_solution_depends_on_kernel_only predict kernel_inverse
         kernel_inverse_works residual
     rw [squared_eq, eq_div_iff strength_pos.ne', mul_comm]
     exact stretched_form
@@ -271,7 +271,7 @@ theorem travel_eq_of_eigen
 stretches the residual's direction by at most `tolerance ^ 2`, the travel is at
 least the size of the residual divided by `tolerance`. As `tolerance` goes to
 zero this grows without bound. -/
-theorem le_travel_of_eigen_le
+theorem weaker_direction_needs_at_least_as_much_travel
     (predict : Weights →L[ℝ] Outputs)
     (kernel_inverse : Outputs → Outputs)
     (kernel_inverse_works : ∀ vector,
@@ -299,7 +299,7 @@ theorem le_travel_of_eigen_le
       GET_TRAVEL (predict : Weights →ₗ[ℝ] Outputs) labels start_weights
         = ‖GET_RESIDUAL (predict : Weights →ₗ[ℝ] Outputs) labels
             start_weights‖ / √strength :=
-    travel_eq_of_eigen predict kernel_inverse kernel_inverse_works
+    travel_along_a_direction_equals_residual_over_root_of_strength predict kernel_inverse kernel_inverse_works
       strength_pos labels start_weights residual_is_stretched
   rw [travel_exact]
   refine div_le_div_of_nonneg_left (norm_nonneg _)
@@ -312,7 +312,7 @@ theorem le_travel_of_eigen_le
 /-- With one training point and feature vector `feature_vector`, the kernel is
 the squared length of `feature_vector`. Adding features can only make it
 larger. -/
-theorem tightFeatures_innerSL
+theorem one_training_point_has_tight_features
     (feature_vector : Weights) :
     let one_point_predict := innerSL ℝ feature_vector
     let squared_length    := ‖feature_vector‖ ^ 2  -- the kernel of one point is a 1 × 1 matrix
@@ -325,7 +325,7 @@ theorem tightFeatures_innerSL
 /-- **One training point.** The distance to the nearest fit is the error
 divided by the length of the feature vector. A short feature vector means a
 distant fit. -/
-theorem travel_one_point
+theorem travel_for_one_point_equals_error_over_feature_length
     {feature_vector : Weights}
     (feature_vector_ne_zero : feature_vector ≠ 0)
     (label : ℝ)
@@ -338,8 +338,8 @@ theorem travel_one_point
   unfold_named_pieces
   have tight_features : HAS_TIGHT_FEATURES (innerSL ℝ feature_vector)
       (‖feature_vector‖ ^ 2) :=
-    tightFeatures_innerSL feature_vector
-  rw [tight_features.travel_eq
+    one_training_point_has_tight_features feature_vector
+  rw [tight_features.travel_equals_residual_over_root_of_squared_length
       (pow_pos (norm_pos_iff.mpr feature_vector_ne_zero) 2) label
       start_weights,
     Real.sqrt_sq (norm_nonneg feature_vector)]

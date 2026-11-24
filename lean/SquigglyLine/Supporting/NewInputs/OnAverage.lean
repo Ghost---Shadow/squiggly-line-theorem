@@ -12,10 +12,10 @@ Two facts about averages: the median, and random directions.
   `1 / dimension`: the more dimensions, the smaller the overlap.
 
 Theorems:
-* `sum_abs_sub_le_of_le`   moving a centre up from a value with at most half
+* `moving_a_centre_away_from_the_median_does_not_help`   moving a centre up from a value with at most half
                            the points above it does not lower the error;
-* `sum_abs_sub_median_le`  absolute error is least at a median;
-* `sum_mul_sq_overlap`     the mean square overlap of a random direction.
+* `absolute_error_is_least_at_a_median`  absolute error is least at a median;
+* `random_directions_are_nearly_at_right_angles`     the mean square overlap of a random direction.
 -/
 import Mathlib.Algebra.BigOperators.Ring.Finset
 import Mathlib.Algebra.Order.BigOperators.Group.Finset
@@ -34,7 +34,7 @@ variable {Points : Type*} [Fintype Points]
 
 /-- Moving a centre up, away from a value that has at most half the points
 above it, does not lower the summed absolute error. -/
-theorem sum_abs_sub_le_of_le
+theorem moving_a_centre_away_from_the_median_does_not_help
     (values : Points → ℝ)
     {centre other_centre : ℝ}
     (few_above :
@@ -90,7 +90,7 @@ theorem sum_abs_sub_le_of_le
 /-- **Absolute error is least at a median.** If at most half the points are
 below `centre` and at most half are above it, no other centre has a smaller
 summed absolute error. -/
-theorem sum_abs_sub_median_le
+theorem absolute_error_is_least_at_a_median
     (values : Points → ℝ)
     {centre : ℝ}
     (few_below :
@@ -105,7 +105,7 @@ theorem sum_abs_sub_median_le
     centre_error ≤ other_error := by
   unfold_named_pieces
   rcases le_total centre other_centre with centre_le_other | other_le_centre
-  · exact sum_abs_sub_le_of_le values few_above centre_le_other
+  · exact moving_a_centre_away_from_the_median_does_not_help values few_above centre_le_other
   · -- Turn the line over: "below" becomes "above".
     have flipped_few_above :
         2 * (Finset.univ.filter fun i => -centre < -values i).card
@@ -114,7 +114,7 @@ theorem sum_abs_sub_median_le
     have flipped_bound :
         ∑ i, |(fun i => -values i) i - -centre|
           ≤ ∑ i, |(fun i => -values i) i - -other_centre| :=
-      sum_abs_sub_le_of_le (fun i => -values i) flipped_few_above
+      moving_a_centre_away_from_the_median_does_not_help (fun i => -values i) flipped_few_above
         (neg_le_neg other_le_centre)
     have flip_invariant : ∀ any_centre : ℝ,
         ∑ i, |-values i - -any_centre| = ∑ i, |values i - any_centre| :=
@@ -132,7 +132,7 @@ variable {Coordinates : Type*} [Fintype Coordinates]
 `chance outcome`, whose coordinates are uncorrelated with mean square
 `mean_square`. Its overlap with a fixed vector `direction` has mean square
 `mean_square` times the squared length of `direction`. -/
-theorem sum_mul_sq_overlap
+theorem random_directions_are_nearly_at_right_angles
     {chance : Outcomes → ℝ}
     {vector : RandomVector Outcomes Coordinates}
     {mean_square : ℝ}

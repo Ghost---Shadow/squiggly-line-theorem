@@ -20,13 +20,13 @@ this is why a real image model draws the wrong number of fingers.
 
 Theorems:
 
-* `exists_half_count`              a smooth read-out from `count` to
+* `between_two_counts_there_is_a_half`              a smooth read-out from `count` to
                                    `count + 1` passes through `count + 1/2`;
-* `attend_two_of_const_score`      equal scores give the midpoint of the two
+* `equal_scores_give_the_point_half_way`      equal scores give the midpoint of the two
                                    values;
-* `denoiser_two_of_equidistant`    the ideal denoiser at an input equally far
+* `ideal_denoiser_blends_two_equally_far_examples`    the ideal denoiser at an input equally far
                                    from two examples returns their midpoint;
-* `one_le_slope_mul_dist_of_count` a jump of one needs slope at least one over
+* `sharp_count_costs_slope` a jump of one needs slope at least one over
                                    the distance.
 -/
 import Mathlib.Topology.Order.IntermediateValue
@@ -37,7 +37,7 @@ namespace SquigglyLine
 /-- **Between two counts there is a half.** A read-out that is continuous along
 a path, and says `count` at one end and `count + 1` at the other, says
 `count + 1/2` somewhere on the path. -/
-theorem exists_half_count
+theorem between_two_counts_there_is_a_half
     {readout : RealFunction}
     {count : ℝ}
     (readout_is_continuous : ContinuousOn readout (Set.Icc 0 1))
@@ -59,7 +59,7 @@ variable {Space : Type*} [NormedAddCommGroup Space] [InnerProductSpace ℝ Space
 
 /-- An attention head that scores two examples equally returns the point half
 way between them. -/
-theorem attend_two_of_const_score
+theorem equal_scores_give_the_point_half_way
     (equal_score : ℝ)
     (values : Fin 2 → Space) :
     let scores : Fin 2 → ℝ := fun _ => equal_score
@@ -77,7 +77,7 @@ theorem attend_two_of_const_score
 /-- **The ideal denoiser blends counts.** At a noisy input equally far from two
 training examples, it returns the point half way between them: half of one hand
 and half of the other. -/
-theorem denoiser_two_of_equidistant
+theorem ideal_denoiser_blends_two_equally_far_examples
     (noise_level : ℝ)
     (examples : Fin 2 → Space)
     {noisy_input : Space}
@@ -98,12 +98,12 @@ theorem denoiser_two_of_equidistant
     funext i
     rw [same_distance i]
   rw [DENOISE_IDEALLY, equal_scores]
-  exact attend_two_of_const_score _ examples
+  exact equal_scores_give_the_point_half_way _ examples
 
 /-- **Being sharp about a count costs slope.** A model that says `count` at one
 input and `count + 1` at another has slope at least one over the distance
 between them. -/
-theorem one_le_slope_mul_dist_of_count
+theorem sharp_count_costs_slope
     {Inputs : Type*} [PseudoMetricSpace Inputs]
     {model : Model Inputs}
     {slope_limit : SlopeLimit}

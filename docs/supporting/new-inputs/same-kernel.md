@@ -44,19 +44,19 @@ Take two such models. Suppose
 Then:
 
 - **Same errors, every step.** Gradient descent takes both through the same
-  training errors (**proved** earlier: `residual_iterate_gradientStep_eq` in
+  training errors (**proved** earlier: `same_kernel_gives_same_training_path` in
   [`Kernel.lean`](../../../lean/SquigglyLine/Networks/Kernel.lean)).
 - **Same answer at the test point, every step.** Their predictions at the test
   point are equal after any number of steps
-  (**proved**: `prediction_iterate_gradientStep_eq`).
+  (**proved**: `same_kernel_gives_same_predictions`).
 - **Same answer in the end.** The fit that training heads for gives the same
-  prediction in both models (**proved**: `prediction_kernelFit_eq`).
+  prediction in both models (**proved**: `same_kernel_gives_same_final_answer`).
 - **Same distance to go.** Their nearest fits are equally far away (**proved**
-  earlier: `travel_eq_of_kernel_eq` in [`Kernel.lean`](../../../lean/SquigglyLine/Networks/Kernel.lean)).
+  earlier: `same_kernel_gives_same_travel` in [`Kernel.lean`](../../../lean/SquigglyLine/Networks/Kernel.lean)).
 
 The reason is one line. A gradient step changes the answer at a test point by
 the step size times the test row matched against the current errors
-(**proved**: `inner_gradientStep`). The weights do not appear in that
+(**proved**: `gradient_step_moves_a_prediction_through_the_kernel`). The weights do not appear in that
 sentence. Only the kernel does.
 
 ## What this says about the hypothesis

@@ -52,7 +52,7 @@ up-and-down (**proved** earlier: `card_ge_of_zigzag` in
 ## Depth buys pattern, not storage
 
 A stack of `L` folds draws `2^L` turns with only `2L` neurons (**proved**
-earlier: `iterate_tent_dyadic`). That looks like storing `2^L` answers in
+earlier: `tent_layers_zigzag_on_the_grid`). That looks like storing `2^L` answers in
 `2L` neurons. It is not. The stack draws one particular pattern, the same
 zigzag at every scale. It cannot be set to an arbitrary pattern of that
 length, because by the count of bits it does not hold enough bits.

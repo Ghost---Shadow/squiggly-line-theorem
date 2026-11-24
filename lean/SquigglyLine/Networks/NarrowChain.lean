@@ -19,8 +19,8 @@ turn through.
 | `RUN_NARROW_CHAIN`   | the whole network, as a function of its input     |
 | `NEVER_TURNS`        | the function only rises, or only falls            |
 
-Theorems: `narrowLayer_neverTurns`, `NEVER_TURNS.comp`,
-`narrowChain_neverTurns`, `NEVER_TURNS.between`.
+Theorems: `narrow_layer_never_turns`, `NEVER_TURNS.chain_never_turns`,
+`narrow_chain_never_turns`, `NEVER_TURNS.middle_output_is_between_the_outer_two`.
 
 How to read the notation:
 
@@ -88,7 +88,7 @@ def NEVER_TURNS
 /-! ## No layer turns, so no chain of layers turns -/
 
 /-- A single one-neuron layer never turns. -/
-theorem narrowLayer_neverTurns
+theorem narrow_layer_never_turns
     (weight : ℝ)
     (bias : ℝ) :
     let layer := APPLY_NARROW_LAYER weight bias
@@ -111,7 +111,7 @@ theorem narrowLayer_neverTurns
 
 /-- Chaining two functions that never turn gives a function that never
 turns. -/
-theorem NEVER_TURNS.comp
+theorem NEVER_TURNS.chain_never_turns
     {outer : RealFunction}
     {inner : RealFunction}
     (outer_never_turns : NEVER_TURNS outer)
@@ -130,7 +130,7 @@ theorem NEVER_TURNS.comp
 
 /-- **A one-neuron-per-layer network never turns**, whatever its depth and
 weights. -/
-theorem narrowChain_neverTurns
+theorem narrow_chain_never_turns
     (layers : NarrowNetwork) :
     let network := RUN_NARROW_CHAIN layers
     NEVER_TURNS network := by
@@ -139,12 +139,12 @@ theorem narrowChain_neverTurns
   | nil => exact .inl monotone_id
   | cons last_layer earlier_layers earlier_layers_never_turn =>
     -- The last layer never turns, and neither does everything before it.
-    exact (narrowLayer_neverTurns last_layer.1 last_layer.2).comp
+    exact (narrow_layer_never_turns last_layer.1 last_layer.2).chain_never_turns
       earlier_layers_never_turn
 
 /-- What "never turns" means for three inputs in a row: the middle output
 lies between the outer two. There is no peak and no valley. -/
-theorem NEVER_TURNS.between
+theorem NEVER_TURNS.middle_output_is_between_the_outer_two
     {model : RealFunction}
     (model_never_turns : NEVER_TURNS model)
     {left_input : ℝ}

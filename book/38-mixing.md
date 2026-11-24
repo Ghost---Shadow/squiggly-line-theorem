@@ -55,7 +55,7 @@ the nodes: `sum(node_weights[node][j] * node_values[j] for j in nodes)`.
 adds to one and every weight is at least `weight_floor`, two nodes end no
 further apart than `1 - node_count * weight_floor` times the range of the
 values. -/
-theorem abs_messagePassing_sub_le
+theorem message_passing_layer_shrinks_the_spread
     {node_weights : Nodes → Nodes → ℝ}
     {weight_floor lower_bound upper_bound : ℝ}
     (weights_above_floor : ∀ i j, weight_floor ≤ node_weights i j)
@@ -78,7 +78,7 @@ its weight, then after one layer any two nodes differ by at most
 `1 − node_count × weight_floor` times the range of the values.
 
 After `layer_count` layers the factor is to that power
-(`abs_iterate_messagePassing_sub_le`). It is the same statement as the
+(`depth_blurs_the_nodes`). It is the same statement as the
 merging of tokens in chapter 36.
 
 The curves are **measured**, the green line **proved**: the spread of the node values of 40 random graphs falls below the bound at every layer, while two groups that only listen to themselves (a case with zeros in the weights, no floor) do not shrink at all.
@@ -92,7 +92,7 @@ noise) of the variance.
 /-- **The signal's share is the product of the factors `1 - noise_rate`.**
 With the same `noise_rate` at every step it is `(1 - noise_rate) ^ step_count`
 of what it was. -/
-theorem iterate_noisingStep_signal
+theorem signal_share_after_many_noising_steps
     (noise_rate : ℝ)
     (split : VarianceSplit)
     (step_count : ℕ) :
@@ -106,7 +106,7 @@ theorem iterate_noisingStep_signal
 `(1 − noise_rate)^step_count` of what it was.
 
 `.1` picks the first of the pair, the signal. The two shares keep adding
-to one (`noisingStep_sum`).
+to one (`noising_step_keeps_total_variance_at_one`).
 
 Guidance. `APPLY_GUIDANCE` is `(1 + strength) × with_prompt − strength ×
 without_prompt`.
@@ -115,7 +115,7 @@ without_prompt`.
 /-- **Guidance is not an average.** For a positive strength the guided
 prediction is not on the stretch between the two predictions it is made
 from. -/
-theorem guidance_notMem_segment
+theorem guidance_is_not_an_average
     {guidance_strength : ℝ}
     (strength_pos : 0 < guidance_strength)
     {without_prompt with_prompt : Space}
@@ -131,21 +131,21 @@ the guided prediction lies off the stretch between them.
 
 `segment` is the stretch between two points, and `∉` means "is not in".
 The guided move is `1 + guidance_strength` times the plain one
-(`guidance_sub`, `norm_guidance_sub`).
+(`guidance_moves_along_the_prompt_direction`, `guided_step_is_longer_by_one_plus_strength`).
 
 The line is **from the formula**: the position of the guided prediction on the line through the two predictions, 0 for the prediction without the prompt and 1 for the one with it. For a positive strength it is above 1, off the stretch. For strengths from -1 to 0 the weights are both non-negative, an average, and it stays on the stretch.
 
 ![Position of the guided prediction on the line through the two predictions against guidance strength, rising above the shaded stretch from 0 to 1 for positive strength, with strengths from -1 to 0 inside it](figures/38-guidance-off-the-stretch.png)
 
 The rest are named. Averaging a model over moves of its input gives a
-model that ignores the moves (`averageOverMoves_smul`) and is no steeper
-if the moves keep distances (`lipschitzWith_averageOverMoves`). A baseline
-pushes nothing on average (`sum_mul_baseline_eq_zero`), so subtracting one
-changes no average push (`sum_mul_sub_baseline`). Absolute error is least
-at a median (`sum_abs_sub_median_le`). And a random direction with
+model that ignores the moves (`averaged_model_ignores_the_moves`) and is no steeper
+if the moves keep distances (`averaged_model_is_no_steeper`). A baseline
+pushes nothing on average (`baseline_pushes_nothing_on_average`), so subtracting one
+changes no average push (`subtracting_a_baseline_keeps_the_average_push`). Absolute error is least
+at a median (`absolute_error_is_least_at_a_median`). And a random direction with
 uncorrelated coordinates, each of mean square `mean_square`, has overlap
 with a fixed direction of mean square `mean_square` times its squared
-length (`sum_mul_sq_overlap`).
+length (`random_directions_are_nearly_at_right_angles`).
 
 ## Why it is true
 
@@ -251,10 +251,10 @@ jupyter nbconvert --to notebook --execute --inplace experiments/part6/ch38_mixin
 3. A diffusion schedule has `noise_rate` = 0.5. What share of the signal
    is left after three steps?
 
-**Answers.** (1) At most `(1 − 4 × 0.1) × 20 = 12` (`abs_messagePassing_sub_le`).
+**Answers.** (1) At most `(1 − 4 × 0.1) × 20 = 12` (`message_passing_layer_shrinks_the_spread`).
 (2) `3 × 4 − 2 × 3 = 6`. It is 3 away from 3, three times the plain step of
-1 (`guidance_sub`), and off the stretch from 3 to 4
-(`guidance_notMem_segment`). (3) `0.5^3 = 0.125`
-(`iterate_noisingStep_signal`).
+1 (`guidance_moves_along_the_prompt_direction`), and off the stretch from 3 to 4
+(`guidance_is_not_an_average`). (3) `0.5^3 = 0.125`
+(`signal_share_after_many_noising_steps`).
 
 Previous: [37. Ensembles and the ideal denoiser](37-ensembles-and-the-denoiser.md) · Next: [39. Hard choices and temperature](39-hard-choices-and-temperature.md)

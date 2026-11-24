@@ -56,7 +56,7 @@ distance has scores 0 and −1, and gives it `1 / (1 + e⁻¹)`, also about
 `slope_limit`, then copying the label of the nearest training input
 `inputs nearest` is wrong by at most `slope_limit` times the distance from the
 query to any training input, and so to the nearest. -/
-theorem abs_sub_nearest_le
+theorem nearest_neighbour_error_is_at_most_slope_times_distance
     {model : Model Space}
     {slope_limit : SlopeLimit}
     (slope_is_bounded : LipschitzWith slope_limit model)
@@ -81,7 +81,7 @@ Taking `other` to be the nearest itself gives the tightest bound.
 ```lean
 /-- **k-means, second half.** For the points of one cluster, no centre has a
 lower cost than their mean. -/
-theorem sum_sq_mean_le [Nonempty Examples]
+theorem mean_is_the_best_centre_of_a_cluster [Nonempty Examples]
     (points : Examples → Space)
     (other_centre : Space) :
     let mean :=
@@ -101,7 +101,7 @@ equal shares of one over the count. The double bars `‖ ‖` are length.
 /-- **Contrastive learning scores by nearness.** For vectors of length one, the
 softmax over cosine similarity at temperature `temperature` is the softmax over
 minus the squared distance, divided by `2 * temperature`. -/
-theorem softmax_cosine_eq_softmax_distance
+theorem softmax_of_cosine_equals_softmax_of_distance_for_unit_vectors
     {query : Space}
     {keys : Examples → Space}
     (query_is_unit : ‖query‖ = 1)
@@ -121,10 +121,10 @@ divided by twice the temperature.
 `inner ℝ query (keys i)` is the dot product. For vectors of length one it
 is the cosine similarity.
 
-The other results of the file are named here. `sum_sq_reassign_le` is the
+The other results of the file are named here. `reassigning_points_does_not_raise_the_cost` is the
 first half of a k-means step: moving every point to a no-further centre
-does not raise the cost. `softmax_add_const` says adding the same number
-to every score changes no share. `inner_eq_one_sub_of_unit` says that for
+does not raise the cost. `softmax_ignores_a_constant_added_to_every_score` says adding the same number
+to every score changes no share. `overlap_of_unit_vectors_equals_one_minus_half_squared_distance` says that for
 vectors of length one the dot product is one minus half the squared
 distance.
 
@@ -145,10 +145,10 @@ and some points cross it.
 
 **k-means.** The first half is a sum of squares. Each point's new
 distance is no larger than its old one, so each square is no larger, and
-so the sum is no larger (`sum_sq_reassign_le`). The second half is the
+so the sum is no larger (`reassigning_points_does_not_raise_the_cost`). The second half is the
 best-guess fact of chapter 37. The weighted mean is the best single
 guess for a set of points under squared distance
-(`weightedMean_isBest`). With equal shares the weights are one over the
+(`weighted_mean_is_the_best_single_guess`). With equal shares the weights are one over the
 count, a common factor on both sides, and the factor cancels.
 
 The next figure is **measured**: the mean k-means cost over 200 random point
@@ -160,10 +160,10 @@ rising and falling.
 
 **Contrastive.** Expand the squared distance between two vectors of
 length one. It is `1 + 1` minus twice their dot product. Solve for the
-dot product and you get `inner_eq_one_sub_of_unit`. So the dot product
+dot product and you get `overlap_of_unit_vectors_equals_one_minus_half_squared_distance`. So the dot product
 and minus half the squared distance differ by the same constant for
 every key. A softmax does not change when every score is shifted by one
-constant (`softmax_add_const`). Dividing by the temperature then gives
+constant (`softmax_ignores_a_constant_added_to_every_score`). Dividing by the temperature then gives
 the statement above.
 
 ## What it explains
@@ -255,10 +255,10 @@ jupyter nbconvert --to notebook --execute --inplace experiments/part6/ch40_neigh
 3. Two keys are at squared distance 2 and 0.5 from a query, all of length
    one. By how much do their dot products with the query differ?
 
-**Answers.** (1) At most `3 × 0.1 = 0.3` (`abs_sub_nearest_le`). (2) The
+**Answers.** (1) At most `3 × 0.1 = 0.3` (`nearest_neighbour_error_is_at_most_slope_times_distance`). (2) The
 mean is 3. The cost at 3 is `4 + 1 + 9 = 14`. At 4 it is `9 + 4 + 4 = 17`,
-which is higher, as `sum_sq_mean_le` says. (3) The dot products are
+which is higher, as `mean_is_the_best_centre_of_a_cluster` says. (3) The dot products are
 `1 − 2 / 2 = 0` and `1 − 0.5 / 2 = 0.75`, so they differ by 0.75
-(`inner_eq_one_sub_of_unit`).
+(`overlap_of_unit_vectors_equals_one_minus_half_squared_distance`).
 
 Previous: [39. Hard choices and temperature](39-hard-choices-and-temperature.md) · Next: [41. Counting](41-counting.md)

@@ -19,13 +19,13 @@ two are equal.
 
 * `HAS_TIGHT_FEATURES`        the features are orthogonal on the data side,
                               each with squared length `squared_length`;
-* `norm_adjoint_sq`           the adjoint scales squared lengths by
+* `pulling_back_scales_the_squared_length`           the adjoint scales squared lengths by
                               `squared_length`;
-* `norm_map_sq_le`            a step changes the outputs by at most
+* `outputs_change_at_most_root_of_squared_length_times_step`            a step changes the outputs by at most
                               `√squared_length` times its length;
-* `travel_eq`                 the exchange rate: travel is the residual size
+* `travel_equals_residual_over_root_of_squared_length`                 the exchange rate: travel is the residual size
                               over `√squared_length`;
-* `travel_eq_norm_residual`   with `squared_length = 1` the two are equal.
+* `travel_equals_residual_for_orthonormal_features`   with `squared_length = 1` the two are equal.
 -/
 import Mathlib.Analysis.InnerProductSpace.Adjoint
 import SquigglyLine.Networks.LinearModel
@@ -52,7 +52,7 @@ namespace HAS_TIGHT_FEATURES
 
 /-- Pulling a vector back to weight space scales its squared length by
 `squared_length`. -/
-theorem norm_adjoint_sq
+theorem pulling_back_scales_the_squared_length
     (features_are_tight : HAS_TIGHT_FEATURES predict squared_length)
     (vector : Outputs) :
     let pullback_size := ‖adjoint predict vector‖ ^ 2
@@ -65,7 +65,7 @@ theorem norm_adjoint_sq
 
 /-- A move of size `‖step‖` in parameter space changes the outputs by at most
 `√squared_length ‖step‖`. -/
-theorem norm_map_sq_le
+theorem outputs_change_at_most_root_of_squared_length_times_step
     (features_are_tight : HAS_TIGHT_FEATURES predict squared_length)
     (squared_length_pos : 0 < squared_length)
     (step : Weights) :
@@ -79,7 +79,7 @@ theorem norm_map_sq_le
     exact real_inner_le_norm _ _
   have pullback_sq : ‖adjoint predict (predict step)‖ ^ 2
       = squared_length * ‖predict step‖ ^ 2 :=
-    features_are_tight.norm_adjoint_sq _
+    features_are_tight.pulling_back_scales_the_squared_length _
   rcases eq_or_lt_of_le (sq_nonneg ‖predict step‖) with zero | positive
   · rw [← zero]
     positivity
@@ -98,7 +98,7 @@ theorem norm_map_sq_le
 /-- **The exchange rate.** With tight features, the distance in parameter
 space from the start to the nearest fit is the size of the residual divided by
 `√squared_length`. -/
-theorem travel_eq
+theorem travel_equals_residual_over_root_of_squared_length
     (features_are_tight : HAS_TIGHT_FEATURES predict squared_length)
     (squared_length_pos : 0 < squared_length)
     (labels : Outputs)
@@ -126,7 +126,7 @@ theorem travel_eq
     · have pullback_size :
           ‖adjoint predict residual‖ = √squared_length * ‖residual‖ := by
         rw [← Real.sqrt_sq (norm_nonneg (adjoint predict residual)),
-          features_are_tight.norm_adjoint_sq residual,
+          features_are_tight.pulling_back_scales_the_squared_length residual,
           Real.sqrt_mul squared_length_pos.le,
           Real.sqrt_sq (norm_nonneg residual)]
       rw [add_sub_cancel_left, norm_smul,
@@ -146,7 +146,7 @@ theorem travel_eq
       simp [residual_def, GET_RESIDUAL, map_sub, predict_weights]
     have step_bound : ‖predict (weights - start_weights)‖ ^ 2
         ≤ squared_length * ‖weights - start_weights‖ ^ 2 :=
-      features_are_tight.norm_map_sq_le squared_length_pos
+      features_are_tight.outputs_change_at_most_root_of_squared_length_times_step squared_length_pos
         (weights - start_weights)
     rw [step_gives_residual] at step_bound
     rw [div_le_iff₀ root_pos]
@@ -160,7 +160,7 @@ theorem travel_eq
 
 /-- **Parameter space is data space.** With orthonormal features, the distance
 to the nearest fit is exactly the size of the residual. -/
-theorem travel_eq_norm_residual
+theorem travel_equals_residual_for_orthonormal_features
     (features_are_orthonormal : HAS_TIGHT_FEATURES predict 1)
     (labels : Outputs)
     (start_weights : Weights) :
@@ -170,7 +170,7 @@ theorem travel_eq_norm_residual
       ‖GET_RESIDUAL linear_predict labels start_weights‖
     travel = residual_size := by
   unfold_named_pieces
-  simpa using features_are_orthonormal.travel_eq one_pos labels start_weights
+  simpa using features_are_orthonormal.travel_equals_residual_over_root_of_squared_length one_pos labels start_weights
 
 end HAS_TIGHT_FEATURES
 

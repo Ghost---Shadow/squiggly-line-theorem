@@ -11,9 +11,9 @@ So a wide layer of random cosine features and a radial basis network have
 the same kernel, on average.
 
 Theorems:
-* `integral_cos_gaussian`            the average cosine under a bell curve is
+* `average_cosine_under_a_bell_curve_is_a_bump`            the average cosine under a bell curve is
                                      a bump;
-* `integral_liftKernel_fourierLift`  the average Fourier kernel is the
+* `random_fourier_kernel_is_the_bump_kernel`  the average Fourier kernel is the
                                      radial basis kernel.
 -/
 import Mathlib.MeasureTheory.Measure.CharacteristicFunction.Basic
@@ -28,7 +28,7 @@ open MeasureTheory ProbabilityTheory NNReal
 /-- **The average cosine under a bell curve is a bump.** For a frequency drawn
 from the bell curve of mean zero and variance `variance`, the mean of
 `cos (gap * frequency)` is `exp (-variance * gap² / 2)`. -/
-theorem integral_cos_gaussian
+theorem average_cosine_under_a_bell_curve_is_a_bump
     (variance : ℝ≥0)
     (gap : ℝ) :
     let bell_curve     := gaussianReal 0 variance
@@ -83,7 +83,7 @@ theorem integral_cos_gaussian
 kernel of the Fourier lift over frequencies drawn from the bell curve of
 variance `variance`. The result is the Gaussian bump of the gap between the
 two inputs. -/
-theorem integral_liftKernel_fourierLift
+theorem random_fourier_kernel_is_the_bump_kernel
     (variance : ℝ≥0)
     (input other_input : ℝ) :
     let bell_curve     := gaussianReal 0 variance
@@ -102,9 +102,9 @@ theorem integral_liftKernel_fourierLift
       have kernel_eq :
           GET_LIFT_KERNEL (LIFT_BY_FOURIER frequency) input other_input
             = Real.cos (frequency * (input - other_input)) :=
-        liftKernel_fourierLift frequency input other_input
+        fourier_kernel_is_cosine_of_the_gap frequency input other_input
       rw [kernel_eq, mul_comm]
   simp only [kernel_is_cosine]
-  exact integral_cos_gaussian variance (input - other_input)
+  exact average_cosine_under_a_bell_curve_is_a_bump variance (input - other_input)
 
 end SquigglyLine

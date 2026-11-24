@@ -9,7 +9,7 @@ occupies after each one. `readout` turns the last layer's place into an answer.
 * `card_image_label_le` : so every layer keeps at least as many places as
   there are labels.
 * `bottleneck` : the count lies between the number of labels and the number
-  of inputs. (It never goes up: `card_image_runLayers_append_le`.)
+  of inputs. (It never goes up: `flock_never_spreads_over_more_places`.)
 * `merged_iff_label_eq` : a layer squeezed down to exactly as many places as
   labels merges two inputs exactly when they share a label.
 
@@ -74,7 +74,7 @@ theorem image_label_eq
   have run_append :
       RUN_LAYERS (early_layers ++ late_layers)
         = RUN_LAYERS late_layers ∘ RUN_LAYERS early_layers :=
-    runLayers_append early_layers late_layers
+    running_two_stacks_is_running_one_after_the_other early_layers late_layers
   rw [Finset.image_image]
   refine Finset.image_congr fun input input_in_flock => ?_
   simp only [← network_is_right input (Finset.mem_coe.mp input_in_flock),
@@ -169,11 +169,11 @@ theorem merged_iff_label_eq
     Finset.card_image_iff.mp (by rw [← labels_eq, as_many_places_as_labels])
   have input_readout : readout (RUN_LAYERS late_layers
       (RUN_LAYERS early_layers input)) = label input := by
-    simpa only [runLayers_append, Function.comp_apply] using
+    simpa only [running_two_stacks_is_running_one_after_the_other, Function.comp_apply] using
       network_is_right input input_in_flock
   have other_readout : readout (RUN_LAYERS late_layers
       (RUN_LAYERS early_layers other_input)) = label other_input := by
-    simpa only [runLayers_append, Function.comp_apply] using
+    simpa only [running_two_stacks_is_running_one_after_the_other, Function.comp_apply] using
       network_is_right other_input other_input_in_flock
   refine readout_injective
     (Finset.mem_coe.mpr (Finset.mem_image_of_mem _ input_in_flock))

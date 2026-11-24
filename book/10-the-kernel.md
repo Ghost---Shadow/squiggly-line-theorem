@@ -23,7 +23,7 @@ says which data points the model treats as alike.
 ## The statement
 
 ```lean
-theorem residual_gradientStep
+theorem gradient_step_changes_residual_by_the_kernel
     (predict : Weights →L[ℝ] Outputs)
     (labels : Outputs)
     (learning_rate : ℝ)
@@ -52,8 +52,8 @@ change. It is three lines of algebra.
 ## Same kernel, same learner
 
 Two models with the same kernel go through the same errors at every
-step (`residual_iterate_gradientStep_eq`), and their nearest fits are
-equally far away (`travel_eq_of_kernel_eq`). Their weights can be
+step (`same_kernel_gives_same_training_path`), and their nearest fits are
+equally far away (`same_kernel_gives_same_travel`). Their weights can be
 entirely different things. A Fourier series and a ReLU network with a
 trained last layer are the same learner whenever their kernels agree.
 
@@ -89,9 +89,9 @@ The travel can be read off the kernel too. Along a pattern of strength
 `strength`:
 
 - if the strength is zero, no weights fit that part of the labels
-  (`not_exists_fit_of_kernel_eq_zero`);
+  (`no_fit_along_a_direction_of_zero_strength`);
 - if it is positive, the travel is exactly the size of that part divided
-  by `√strength` (`travel_eq_of_eigen`).
+  by `√strength` (`travel_along_a_direction_equals_residual_over_root_of_strength`).
 
 Now grow a model past the point where it can just fit its data. Below
 that point some strengths are zero: the model cannot fit the noise, and
@@ -101,7 +101,7 @@ the travel is short.
 
 A fit that is near the start cannot behave wildly: its output anywhere
 differs from the starting model's by at most the size of the features
-there times the travel (`exists_fit_near_start`). A fit that is far away
+there times the travel (`fit_near_the_start_is_tame_everywhere`). A fit that is far away
 has no such leash.
 
 | parameters | test error | travel to the fit |

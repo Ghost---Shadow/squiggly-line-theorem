@@ -28,7 +28,7 @@ Each polarizer does one thing: it replaces the light's vibration by its shadow
 on the polarizer's axis. If the axis is at an angle `θ` to the vibration, the
 shadow has `cos θ` of the length. This is Malus's law. The brightness is the
 square of the length, so it goes as `cos² θ`. (**recalled** as physics; the shadow rule is
-**proved** as a statement about projections: `malus`.)
+**proved** as a statement about projections: `malus_law`.)
 
 - Horizontal light on a vertical axis: the angle is 90°, `cos 90° = 0`.
   Nothing passes.

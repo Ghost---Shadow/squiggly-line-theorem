@@ -67,7 +67,7 @@ theorem gradientStep_two_batches
           - learning_rate • second_predict (adjoint first_predict
             (GET_RESIDUAL (first_predict : Weights →ₗ[ℝ] FirstOutputs)
               first_labels weights)) :=
-    residual_gradientStep_other second_predict first_predict second_labels
+    forgetting_goes_through_the_cross_kernel second_predict first_predict second_labels
       first_labels learning_rate weights
   rw [TAKE_GRADIENT_STEP, step, map_sub, map_smul, TAKE_GRADIENT_STEP]
   module

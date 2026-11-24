@@ -319,7 +319,7 @@ theorem lipschitzWith_liftedModel_add_sub
     liftedModel_add features weights weight_change point
   -- The old output cancels, leaving the model of the change alone.
   simp only [add_split, add_sub_cancel_left]
-  exact lipschitzWith_liftedModel lift_slope_is_bounded weight_change
+  exact lifted_model_slope_is_at_most_tilt_times_stretch lift_slope_is_bounded weight_change
 
 end Rounding
 

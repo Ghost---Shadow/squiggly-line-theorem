@@ -7,13 +7,13 @@ direction.
 
 * `bias_variance` : if the noise part is zero on average, the expected squared
   error is the bias squared plus the variance.
-* `signal_term_sub` : the bias. A floor shrinks the signal term by the factor
+* `floor_shrinks_the_signal_term` : the bias. A floor shrinks the signal term by the factor
   `floor / (signal_strength + floor)`.
-* `expected_sq_error` : the two together, for a signal along a direction of
+* `expected_squared_error_splits_into_signal_and_noise` : the two together, for a signal along a direction of
   strength `signal_strength` and noise along one of strength
   `noise_strength`.
-* `bias_factor_mono` : raising the floor raises the bias.
-* `variance_factor_anti` : raising the floor lowers the variance.
+* `raising_the_floor_raises_the_bias` : raising the floor raises the bias.
+* `raising_the_floor_lowers_the_variance` : raising the floor lowers the variance.
 
 | Name                   | Meaning                                          |
 |------------------------|--------------------------------------------------|
@@ -52,7 +52,7 @@ section Factors
 
 /-- **The bias.** A floor shrinks the signal term by the factor
 `floor / (signal_strength + floor)`. -/
-theorem signal_term_sub
+theorem floor_shrinks_the_signal_term
     (signal_overlap : ℝ)
     {signal_strength : ℝ}
     {floor : ℝ}
@@ -69,7 +69,7 @@ theorem signal_term_sub
   ring
 
 /-- **Raising the floor raises the bias.** -/
-theorem bias_factor_mono
+theorem raising_the_floor_raises_the_bias
     {signal_strength : ℝ}
     {lower_floor : ℝ}
     {higher_floor : ℝ}
@@ -84,7 +84,7 @@ theorem bias_factor_mono
   nlinarith
 
 /-- **Raising the floor lowers the variance.** -/
-theorem variance_factor_anti
+theorem raising_the_floor_lowers_the_variance
     {noise_strength : ℝ}
     {lower_floor : ℝ}
     {higher_floor : ℝ}
@@ -165,7 +165,7 @@ theorem bias_variance
 is zero on average, and lies along a direction of strength `noise_strength`.
 With a floor `floor`, the expected squared error at the new input is the bias
 squared plus the variance. -/
-theorem expected_sq_error
+theorem expected_squared_error_splits_into_signal_and_noise
     {noise_overlap : NoiseTerm Outcomes}
     (noise_overlap_has_mean : Integrable noise_overlap noise_distribution)
     (noise_overlap_sq_has_mean :
@@ -188,7 +188,7 @@ theorem expected_sq_error
           + noise_overlap outcome / (noise_strength + floor)       -- the noise, divided by its raised strength
           - true_answer) ^ 2 ∂noise_distribution
     let bias_size          :=
-      true_answer * GET_BIAS_FACTOR signal_strength floor          -- from `signal_term_sub`; the sign goes when squared
+      true_answer * GET_BIAS_FACTOR signal_strength floor          -- from `floor_shrinks_the_signal_term`; the sign goes when squared
     let noise_mean_square  :=
       ∫ outcome, noise_overlap outcome ^ 2 ∂noise_distribution
     let variance           :=
@@ -206,7 +206,7 @@ theorem expected_sq_error
               * (floor / (signal_strength + floor)))
             + noise_overlap outcome / (noise_strength + floor)) ^ 2 := by
     funext outcome
-    rw [← signal_term_sub signal_overlap signal_strength_ne_zero
+    rw [← floor_shrinks_the_signal_term signal_overlap signal_strength_ne_zero
       raised_strength_ne_zero]
     ring
   have noise_part_has_mean :

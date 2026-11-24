@@ -69,7 +69,7 @@ That is the old U-shaped curve, with the floor as its dial.
 The bias first. A floor shrinks the signal term by a fixed fraction.
 
 ```lean
-theorem signal_term_sub
+theorem floor_shrinks_the_signal_term
     (signal_overlap : ℝ)
     {signal_strength : ℝ}
     {floor : ℝ}
@@ -117,12 +117,12 @@ The symbol `∫ ... ∂noise_distribution` is the average of what is written
 over all those draws. The first two assumptions only say that the
 averages exist.
 
-Three more results finish the picture. `expected_sq_error` applies
+Three more results finish the picture. `expected_squared_error_splits_into_signal_and_noise` applies
 `bias_variance` to the fit with a signal and a noise, and gives the
 variance as the mean square of the noise overlap divided by
-`(noise_strength + floor) ^ 2`. `bias_factor_mono` says a higher floor
+`(noise_strength + floor) ^ 2`. `raising_the_floor_raises_the_bias` says a higher floor
 gives a larger bias factor, for a positive `signal_strength`.
-`variance_factor_anti` says a higher floor gives a smaller
+`raising_the_floor_lowers_the_variance` says a higher floor gives a smaller
 `1 / (noise_strength + floor)`, so the noise is divided by more.
 
 ## Why it is true
@@ -139,7 +139,7 @@ terms one at a time. The first is a constant. The last is the variance.
 The middle one is a constant times the average of the noise part, and
 that average is zero. So the cross term vanishes.
 
-**The dial.** In `expected_sq_error` the error is the bias plus the noise
+**The dial.** In `expected_squared_error_splits_into_signal_and_noise` the error is the bias plus the noise
 divided by its raised strength. Dividing a random number by a fixed one divides its mean
 square by the square of the fixed one, which gives the variance above. The two monotone
 results are comparisons of fractions with the floor in the denominator.
@@ -235,8 +235,8 @@ one noise direction**.
 `(2 − 1) ^ 2 = 1`, which average to 5. The split gives `2 ^ 2 + 1 = 5`,
 as `bias_variance` says. (2) The bias factor `floor / (signal_strength +
 floor)` goes from `1 / 4 = 0.25` to `2 / 5 = 0.4`, so it rises, as
-`bias_factor_mono` says. The other quantity goes from `1 / 2` to `1 / 3`,
-so it falls, as `variance_factor_anti` says. (3) No. The mean squared
+`raising_the_floor_raises_the_bias` says. The other quantity goes from `1 / 2` to `1 / 3`,
+so it falls, as `raising_the_floor_lowers_the_variance` says. (3) No. The mean squared
 error is `(1 + 1) ^ 2 = 4`, and `bias ^ 2 + variance = 1 + 1 = 2`. The
 theorem needs `noise_part_mean_zero`, and here the mean is 1, so the
 cross term does not vanish.

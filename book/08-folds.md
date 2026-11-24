@@ -53,18 +53,18 @@ multiplied by depth and only added by width.
 
 Each fold halves the reach of chapter 4. After `layer_count` folds every
 label between 0 and 1 is hit within `1 / 2 ^ layer_count` of every input
-(`iterate_tent_covers`). So by chapter 4 the curve is that close to every
+(`tent_layers_cover_within_one_over_two_to_the_layers`). So by chapter 4 the curve is that close to every
 point of the unit square:
 
 ```lean
-theorem nearestDist_iterate_tent_le
+theorem nearest_distance_of_tent_layers_is_at_most_one_over_two_to_the_layers
     (layer_count : ℕ)
     (data_point : DataPoint ℝ)
     (input_in_unit : data_point.1 ∈ Set.Icc (0 : ℝ) 1)
     (label_in_unit : data_point.2 ∈ Set.Icc (0 : ℝ) 1) :
     let nearest_distance :=
       GET_NEAREST_DISTANCE (APPLY_TENT^[layer_count]) data_point
-    let max_gap := 1 / 2 ^ layer_count  -- the gap found by `iterate_tent_covers`
+    let max_gap := 1 / 2 ^ layer_count  -- the gap found by `tent_layers_cover_within_one_over_two_to_the_layers`
     nearest_distance ≤ max_gap := by
 ```
 
@@ -84,9 +84,9 @@ doubles it.
 
 There is an exact link between this network and the sine of chapter 6.
 Look at the tent's output through the fixed lens `sin²(PI/2 × y)`. One
-fold doubles the angle inside the sine (`sin_sq_tent`), so `layer_count`
+fold doubles the angle inside the sine (`one_fold_doubles_the_angle`), so `layer_count`
 folds give a single wave of frequency `2 ^ layer_count`
-(`sin_sq_iterate_tent`). A fold is a frequency doubling.
+(`folds_are_one_fourier_term`). A fold is a frequency doubling.
 
 ## Width cannot keep up
 

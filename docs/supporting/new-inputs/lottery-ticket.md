@@ -28,14 +28,14 @@ it is taken as the meaning of "the whole model" here.
 
 So pruning subtracts a kernel. Follow one direction of the labels. Say the kept
 weights have strength `λ` there and the dropped weights have strength `μ`. The
-whole model has strength `λ + μ` there (**proved**: `kernel_eigen_add`).
+whole model has strength `λ + μ` there (**proved**: `strengths_add`).
 
 ## What pruning costs
 
 **It slows that direction down.** At each step the whole model multiplies its
 error along that direction by `1 − η(λ + μ)`. The pruned model multiplies its
 error by `1 − ηλ`. So at every step the pruned model has at least as large a
-share of its error left (**proved**: `pruned_share_ge`). This is spectral bias
+share of its error left (**proved**: `pruning_slows_a_direction_down`). This is spectral bias
 applied to the two kernels.
 
 **It moves the fit farther.** Take the case where both groups of weights have
@@ -45,10 +45,10 @@ orthogonal features, of strengths `c` and `c'`. Then
 travel of pruned model × √c  =  travel of whole model × √(c + c')
 ```
 
-(**proved**: `travel_mul_sqrt_pruned`.) So pruning to a tenth of the strength
+(**proved**: `pruning_moves_the_fit_farther`.) So pruning to a tenth of the strength
 puts the fit `√10` times farther. This is the exchange rate read backwards.
 The general statement, that adding parameters never moves the fit away, was
-**proved** earlier (`travel_coprod_le` in [`LinearModel.lean`](../../../lean/SquigglyLine/Networks/LinearModel.lean)).
+**proved** earlier (`more_weights_never_move_the_fit_away` in [`LinearModel.lean`](../../../lean/SquigglyLine/Networks/LinearModel.lean)).
 
 ## When a ticket wins
 

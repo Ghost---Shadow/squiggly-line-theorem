@@ -362,27 +362,27 @@ have been given longer names (for example \texttt{CoversWithin} is now
 \lean{nearest\_distance\_of\_sine\_is\_between\_two\_bounds},
 \lean{expected\_nearest\_distance\_of\_sine\_goes\_to\_zero}; collected in
 \texttt{SquigglyLineTheorem}, \lean{squiggly\_line\_theorem}.
-\item \cref{prop:path,prop:more}: \texttt{LinearModel}, \lean{residual\_along},
-\lean{exists\_within\_budget}, \lean{travel\_coprod\_le}.
-\item \cref{thm:kernel}: \texttt{Kernel}, \lean{residual\_gradientStep},
-\lean{travel\_eq\_norm\_of\_kernelInverse}, \lean{travel\_eq\_of\_kernel\_eq},
-\lean{residual\_iterate\_gradientStep\_eq}.
-\item \cref{prop:dd}: \texttt{DoubleDescent}, \lean{exists\_fit\_near\_start},
-\lean{travel\_le\_of\_le\_kernel}, \lean{travel\_eq\_of\_eigen},
-\lean{le\_travel\_of\_eigen\_le}, \lean{not\_exists\_fit\_of\_kernel\_eq\_zero},
-\lean{travel\_one\_point}.
-\item \cref{cor:rate}: \texttt{ExchangeRate}, \lean{HAS\_TIGHT\_FEATURES.travel\_eq};
-\texttt{MarkovChains}, \lean{HAS\_TIGHT\_FEATURES.residual\_iterate\_gradientStep},
-\lean{HAS\_TIGHT\_FEATURES.residual\_gradientStep\_inv}.
-\item \cref{app:chains}: \texttt{NarrowChain}, \lean{narrowChain\_neverTurns};
-\texttt{Depth}, \lean{iterate\_tent\_dyadic}; \texttt{TentCloser},
-\lean{iterate\_tent\_covers}, \lean{nearestDist\_iterate\_tent\_le}; \texttt{Bridge},
-\lean{sin\_sq\_iterate\_tent}; \texttt{Polarizer}, \lean{relu2\_nearest},
-\lean{fan\_of\_le\_pi\_div\_two}, \lean{fan\_of\_pi\_div\_two\_le},
-\lean{iterate\_fan}; \texttt{ThreePolarizers}, \lean{malus},
-\lean{throughPlates\_light}, \lean{three\_polarizers},
+\item \cref{prop:path,prop:more}: \texttt{LinearModel}, \lean{residual\_along\_the\_path\_is\_a\_share\_of\_the\_start},
+\lean{budget\_of\_travel\_buys\_its\_share\_of\_the\_loss}, \lean{more\_weights\_never\_move\_the\_fit\_away}.
+\item \cref{thm:kernel}: \texttt{Kernel}, \lean{gradient\_step\_changes\_residual\_by\_the\_kernel},
+\lean{travel\_depends\_on\_the\_kernel\_only}, \lean{same\_kernel\_gives\_same\_travel},
+\lean{same\_kernel\_gives\_same\_training\_path}.
+\item \cref{prop:dd}: \texttt{DoubleDescent}, \lean{fit\_near\_the\_start\_is\_tame\_everywhere},
+\lean{travel\_is\_at\_most\_residual\_over\_root\_of\_kernel\_floor}, \lean{travel\_along\_a\_direction\_equals\_residual\_over\_root\_of\_strength},
+\lean{weaker\_direction\_needs\_at\_least\_as\_much\_travel}, \lean{no\_fit\_along\_a\_direction\_of\_zero\_strength},
+\lean{travel\_for\_one\_point\_equals\_error\_over\_feature\_length}.
+\item \cref{cor:rate}: \texttt{ExchangeRate}, \lean{HAS\_TIGHT\_FEATURES.travel\_equals\_residual\_over\_root\_of\_squared\_length};
+\texttt{MarkovChains}, \lean{HAS\_TIGHT\_FEATURES.residual\_after\_many\_gradient\_steps},
+\lean{HAS\_TIGHT\_FEATURES.one\_gradient\_step\_fits}.
+\item \cref{app:chains}: \texttt{NarrowChain}, \lean{narrow\_chain\_never\_turns};
+\texttt{Depth}, \lean{tent\_layers\_zigzag\_on\_the\_grid}; \texttt{TentCloser},
+\lean{tent\_layers\_cover\_within\_one\_over\_two\_to\_the\_layers}, \lean{nearest\_distance\_of\_tent\_layers\_is\_at\_most\_one\_over\_two\_to\_the\_layers}; \texttt{Bridge},
+\lean{folds\_are\_one\_fourier\_term}; \texttt{Polarizer}, \lean{relu\_is\_a\_projection\_onto\_the\_quadrant},
+\lean{fan\_keeps\_cosine\_of\_a\_turn\_up\_to\_a\_quarter}, \lean{fan\_blocks\_a\_turn\_beyond\_a\_quarter},
+\lean{many\_small\_turns\_keep\_cosine\_to\_the\_power}; \texttt{ThreePolarizers}, \lean{malus\_law},
+\lean{light\_after\_many\_plates}, \lean{three\_polarizers},
 \lean{quarter\_turn\_arrives}; \texttt{MarkovChains},
-\lean{merged\_stays\_merged}, \lean{card\_image\_runLayers\_append\_le},
+\lean{merged\_stays\_merged}, \lean{flock\_never\_spreads\_over\_more\_places},
 \lean{dead\_stays\_dead}.
 \end{itemize}
 \endgroup

@@ -30,7 +30,7 @@ still knows about which input it was given.
 Three facts pin the count down.
 
 - **It never goes up.** A later layer cannot occupy more places than an
-  earlier one (**proved** earlier: `card_image_runLayers_append_le`).
+  earlier one (**proved** earlier: `flock_never_spreads_over_more_places`).
 - **It starts no higher than the flock.** There are no more places than birds.
 - **It never goes below the number of labels.** If the network gets every
   label in the flock right, then at every layer there are at least as many

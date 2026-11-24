@@ -11,14 +11,14 @@ In the terms of statistics this is a generalized linear model with no link
 function and squared error, that is, linear regression on the features
 `predict`.
 
-* `residual_along`: on the straight path from `start_weights` to a fit
+* `residual_along_the_path_is_a_share_of_the_start`: on the straight path from `start_weights` to a fit
   `end_weights`, the residual shrinks in proportion. Every model walks the
   same loss curve.
-* `exists_within_budget`: so moving a distance `budget` from the start
+* `budget_of_travel_buys_its_share_of_the_loss`: so moving a distance `budget` from the start
   removes the fraction `budget / ‖end_weights - start_weights‖` of the
   residual. Loss gap = distance × steepness: the nearer the fit, the more a
   fixed budget of movement buys.
-* `travel_coprod_le`: adding weights never moves the nearest fit further
+* `more_weights_never_move_the_fit_away`: adding weights never moves the nearest fit further
   away. A bigger model can always do what the smaller one did.
 
 Together with `Marginal.lean`: at budget zero a bigger random model is no
@@ -105,7 +105,7 @@ variable
 
 /-- **Every model walks the same loss curve.** On the straight path to a fit,
 the residual is the starting residual scaled by `1 - fraction`. -/
-theorem residual_along
+theorem residual_along_the_path_is_a_share_of_the_start
     (end_weights_fit : predict end_weights = labels)
     (fraction : ℝ) :
     let weights_on_path    := MOVE_ALONG start_weights end_weights fraction
@@ -122,7 +122,7 @@ theorem residual_along
 
 /-- The size of the residual falls in a straight line along the path to a
 fit. -/
-theorem norm_residual_along
+theorem residual_size_falls_in_a_straight_line
     (end_weights_fit : predict end_weights = labels)
     {fraction : ℝ}
     (fraction_le_one : fraction ≤ 1) :                          -- the path stops at the fit and does not go past it
@@ -132,13 +132,13 @@ theorem norm_residual_along
     let remaining_fraction := 1 - fraction                      -- the part of the path still ahead
     residual_on_path = remaining_fraction * residual_at_start := by
   unfold_named_pieces
-  rw [residual_along predict labels start_weights end_weights
+  rw [residual_along_the_path_is_a_share_of_the_start predict labels start_weights end_weights
       end_weights_fit,
     norm_smul, Real.norm_of_nonneg (sub_nonneg.mpr fraction_le_one)]
 
 /-- A fraction of the way along the path is that fraction of the whole
 distance away from the start. -/
-theorem norm_along_sub
+theorem fraction_of_the_path_is_that_fraction_of_the_distance
     {fraction : ℝ}
     (fraction_nonneg : 0 ≤ fraction) :                          -- the path goes forwards from the start
     let weights_on_path := MOVE_ALONG start_weights end_weights fraction
@@ -151,7 +151,7 @@ theorem norm_along_sub
 /-- **Loss gap = distance × steepness.** If a fit lies at some distance from
 the start, then moving a distance `budget`, no larger than that, removes the
 fraction `budget / distance` of the residual. -/
-theorem exists_within_budget
+theorem budget_of_travel_buys_its_share_of_the_loss
     (end_weights_fit : predict end_weights = labels)
     (end_is_not_start : end_weights ≠ start_weights)            -- so the distance to the fit is not zero
     {budget : ℝ}
@@ -174,10 +174,10 @@ theorem exists_within_budget
   -- spent.
   refine ⟨MOVE_ALONG start_weights end_weights
     (budget / ‖end_weights - start_weights‖), ?_, ?_⟩
-  · rw [norm_along_sub _ _
+  · rw [fraction_of_the_path_is_that_fraction_of_the_distance _ _
         (div_nonneg budget_nonneg distance_to_fit_pos.le),
       div_mul_cancel₀ _ distance_to_fit_pos.ne']
-  · exact norm_residual_along predict labels start_weights end_weights
+  · exact residual_size_falls_in_a_straight_line predict labels start_weights end_weights
       end_weights_fit
       ((div_le_one distance_to_fit_pos).mpr budget_le_distance_to_fit)
 
@@ -200,7 +200,7 @@ noncomputable def GET_TRAVEL : ℝ :=
 /-- **More weights never move the fit away.** Extend the model with new
 weights, with their own features `extra_predict`, starting at zero. The
 nearest fit is then no further than before. -/
-theorem travel_coprod_le
+theorem more_weights_never_move_the_fit_away
     (extra_predict : LinearPredictor ExtraWeights Outputs)
     (some_weights_fit : ∃ weights, predict weights = labels) :  -- otherwise there is no nearest fit to speak of
     let bigger_predict := predict.coprod extra_predict          -- the outputs of the old and the new weights, added

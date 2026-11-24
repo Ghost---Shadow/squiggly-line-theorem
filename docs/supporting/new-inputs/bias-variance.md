@@ -32,8 +32,8 @@ At a new input the fit is off from the ideal answer by two terms:
 error  =  − (signal's overlap / λs) × μ / (λs + μ)   +   noise's overlap / (λe + μ)
 ```
 
-(**proved**: `signal_term_sub` gives the first term, and the second is the
-noise term of `inner_splitFit`.) The first term is there even with no noise.
+(**proved**: `floor_shrinks_the_signal_term` gives the first term, and the second is the
+noise term of `answer_of_split_fit_at_a_new_input`.) The first term is there even with no noise.
 It is the bias. The second is there only because of the noise. Squared and
 averaged, it is the variance.
 
@@ -44,16 +44,16 @@ exactly the bias squared plus the variance:
 expected squared error  =  bias²  +  variance
 ```
 
-(**proved**: `bias_variance` in general, `expected_sq_error` for this
+(**proved**: `bias_variance` in general, `expected_squared_error_splits_into_signal_and_noise` for this
 set-up.) There is no cross term, because the noise averages out against a
 fixed bias.
 
 ## The dial is the floor
 
 - **Raising the floor raises the bias.** The factor `μ / (λs + μ)` grows with
-  `μ` (**proved**: `bias_factor_mono`).
+  `μ` (**proved**: `raising_the_floor_raises_the_bias`).
 - **Raising the floor lowers the variance.** The factor `1 / (λe + μ)` falls
-  with `μ` (**proved**: `variance_factor_anti`).
+  with `μ` (**proved**: `raising_the_floor_lowers_the_variance`).
 
 So the trade-off is real, and its dial is `μ`. A high floor gives a stiff
 model: it shrinks the pattern along with the noise. A low floor gives a loose

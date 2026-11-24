@@ -20,25 +20,25 @@ Proofs in
 - **Sinusoidal, all frequencies together.** Give each position one cosine
   and one sine for every frequency. The overlap of the signals of two
   positions is a sum of cosines of the gap between them (**proved**:
-  `positionOverlap_eq_sum_cos`). So it depends only on the gap (**proved**:
-  `positionOverlap_shift`), and no two positions overlap more than a
-  position does with itself (**proved**: `positionOverlap_le_card`,
-  `positionOverlap_self`). This is the Fourier lift of `fourier-lift.md`, with
+  `position_overlap_equals_sum_of_cosines_of_the_gap`). So it depends only on the gap (**proved**:
+  `position_overlap_does_not_change_under_a_shift`), and no two positions overlap more than a
+  position does with itself (**proved**: `position_overlap_is_at_most_frequency_count`,
+  `position_overlap_with_itself_equals_frequency_count`). This is the Fourier lift of `fourier-lift.md`, with
   many frequencies at once.
 - **Rotary.** Do not add a signal. Turn the query and the key, each by an
   angle set by its position. The dot product of the two is that of the query
   turned by the difference of the angles, with the key left alone
-  (**proved**: `planeDot_rotate_rotate`). So the score depends on the two
-  positions only through their gap (**proved**: `planeDot_rotate_shift`),
-  and no vector changes length (**proved**: `planeDot_rotate_self`). The
+  (**proved**: `dot_product_after_two_turns_depends_on_angle_gap`). So the score depends on the two
+  positions only through their gap (**proved**: `rotary_score_depends_on_position_gap`),
+  and no vector changes length (**proved**: `turning_keeps_the_length`). The
   proof is for one pair of coordinates; a real model turns every pair, each
   at its own frequency.
 - **Relative position bias.** Add to each score a number looked up by the
   gap. Shifting the whole sequence changes no gap, so it changes no bias
-  (**proved**: `relativeBias_shift`).
+  (**proved**: `relative_bias_does_not_change_under_a_shift`).
 - **Learned table.** Give each position a free vector. Changing the vector
   of one position changes nothing at any other (**proved**:
-  `update_table_of_ne`). The table is a lookup, a lift that can fit
+  `learned_table_ties_no_two_positions`). The table is a lookup, a lift that can fit
   anything, and it says nothing about a position it has not seen.
 
 The first three build in the fact that only the gap matters. The table has

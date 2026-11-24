@@ -22,7 +22,7 @@ worst thing to ask of such a model.
 Take any read-out of an image that changes smoothly as the image changes.
 Move the image along a path from one with `k` things to one with `k + 1`.
 Somewhere on the path the read-out says `k + 1/2` (**proved**:
-`exists_half_count`). This is the intermediate value theorem.
+`between_two_counts_there_is_a_half`). This is the intermediate value theorem.
 
 So a model that moves smoothly through the space of images cannot go from
 five fingers to six without passing through images that are neither.
@@ -31,10 +31,10 @@ five fingers to six without passing through images that are neither.
 
 The ideal denoiser is an attention head over the training examples
 (`averaging.md`). An attention head that scores two examples equally returns
-the point half way between them (**proved**: `attend_two_of_const_score`).
+the point half way between them (**proved**: `equal_scores_give_the_point_half_way`).
 So at a noisy input equally far from two training examples, the ideal
 denoiser returns half of one and half of the other (**proved**:
-`denoiser_two_of_equidistant`).
+`ideal_denoiser_blends_two_equally_far_examples`).
 
 If one of those is a hand with five fingers and the other a hand with six,
 the output is a blend of the two. An average of hands does not have a whole
@@ -44,7 +44,7 @@ number of fingers.
 
 A model that says `k` at one input and `k + 1` at another has slope at least
 one over the distance between them (**proved**:
-`one_le_slope_mul_dist_of_count`). Two images that differ by one finger are
+`sharp_count_costs_slope`). Two images that differ by one finger are
 close. So telling them apart takes a steep model, and every result in this
 project says slope has to be paid for.
 

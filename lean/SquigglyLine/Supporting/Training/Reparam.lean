@@ -295,7 +295,7 @@ theorem strength_mul_travel_sq
       GET_TRAVEL (predict : Weights →ₗ[ℝ] Outputs) labels start_weights
         = ‖GET_RESIDUAL (predict : Weights →ₗ[ℝ] Outputs) labels
             start_weights‖ / √kernel_strength :=
-    travel_eq_of_eigen predict kernel_inverse kernel_inverse_works
+    travel_along_a_direction_equals_residual_over_root_of_strength predict kernel_inverse kernel_inverse_works
       kernel_strength_pos labels start_weights residual_is_stretched
   -- Travel is the error over `√kernel_strength`; squaring cancels the root.
   rw [travel_exact, div_pow, Real.sq_sqrt kernel_strength_pos.le]

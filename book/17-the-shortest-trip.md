@@ -157,7 +157,7 @@ People often say that gradient descent has an **implicit bias**: of all
 the fits, it prefers some. Here the preference is exact for a linear
 model. It prefers the fit nearest the start, and the function it ends with
 stays as close as possible to the starting function. That is why
-`exists_fit_near_start` of chapter 10 has a leash on the fit.
+`fit_near_the_start_is_tame_everywhere` of chapter 10 has a leash on the fit.
 
 For the layers, the note says a trained network with skip connections is
 reported to take straighter paths as it trains (**recalled**: Hosseini

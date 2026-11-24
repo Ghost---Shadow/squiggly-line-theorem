@@ -19,19 +19,19 @@ is the type of the feature vectors too.
 
 Theorems:
 
-* `liftedModel_eq_comp` : the model is the flat function after the lift.
-* `flatModel_blend` : the function upstairs is flat.
-* `embed_mem_curve_liftedModel_iff` : a point is on the squiggly line exactly
+* `lifted_model_is_flat_model_after_the_lift` : the model is the flat function after the lift.
+* `flat_model_of_a_blend_is_the_blend` : the function upstairs is flat.
+* `point_is_on_the_line_exactly_when_its_lift_is_on_the_plane` : a point is on the squiggly line exactly
   when its lift is on the flat plane.
-* `boundary_eq_preimage` : the same for the boundary of a classifier.
-* `abs_liftedModel_sub_le`, `lipschitzWith_liftedModel` : the slope of the
+* `squiggly_boundary_is_a_flat_boundary_upstairs` : the same for the boundary of a classifier.
+* `lifted_model_changes_at_most_weight_size_times_lift_distance`, `lifted_model_slope_is_at_most_tilt_times_stretch` : the slope of the
   line is at most the tilt of the plane times the stretch of the lift.
-* `verticalDist_liftedModel_le` : so the slope sandwich reads in those two.
-* `liftedModel_add_sum` : **the kernel trick.** Weights moved along the
+* `vertical_error_of_lifted_model_is_at_most_stretch_times_nearest_distance` : so the slope sandwich reads in those two.
+* `kernel_trick` : **the kernel trick.** Weights moved along the
   lifted data predict through the kernel alone.
-* `liftKernel_comm`, `sum_sum_liftKernel_eq`, `sum_sum_liftKernel_nonneg` :
+* `lift_kernel_is_symmetric`, `lift_kernel_over_all_pairs_is_a_squared_length`, `lift_kernel_over_all_pairs_is_at_least_zero` :
   such a kernel is symmetric and never negative.
-* `exists_lift_eq` : any function is flat in some lift, so the statement says
+* `any_function_is_flat_in_some_lift` : any function is flat in some lift, so the statement says
   something only when the lift is fixed in advance.
 -/
 import Mathlib.Analysis.InnerProductSpace.Basic
@@ -90,7 +90,7 @@ variable (features : FeatureMap Inputs Weights) (weights : Weights)
 
 /-- The model downstairs is the flat function upstairs, applied after the
 lift. -/
-theorem liftedModel_eq_comp :
+theorem lifted_model_is_flat_model_after_the_lift :
     let model_downstairs := EVALUATE_LIFTED_MODEL features weights
     let flat_after_lift  := EVALUATE_FLAT_MODEL weights ∘ features  -- `∘` chains two functions: lift first, then the flat one
     model_downstairs = flat_after_lift :=
@@ -98,7 +98,7 @@ theorem liftedModel_eq_comp :
 
 /-- **Flat above.** Upstairs, the value at a blend of two feature vectors is
 the same blend of the two values. -/
-theorem flatModel_blend
+theorem flat_model_of_a_blend_is_the_blend
     (feature_vector : Weights)
     (other_vector : Weights)
     (fraction : ℝ) :
@@ -115,7 +115,7 @@ theorem flatModel_blend
 
 /-- **The squiggly line is the flat plane, seen through the lift.** A point
 is on the line downstairs exactly when its lift is on the plane upstairs. -/
-theorem embed_mem_curve_liftedModel_iff
+theorem point_is_on_the_line_exactly_when_its_lift_is_on_the_plane
     (data_point : DataPoint Inputs) :
     let squiggly_line := GET_GRAPH (EVALUATE_LIFTED_MODEL features weights)
     let flat_plane    := GET_GRAPH (EVALUATE_FLAT_MODEL weights)
@@ -132,7 +132,7 @@ theorem embed_mem_curve_liftedModel_iff
 /-- **A squiggly boundary is a flat one upstairs.** The inputs a classifier
 scores zero are the ones whose lifts lie on a flat plane through the
 origin. -/
-theorem boundary_eq_preimage :
+theorem squiggly_boundary_is_a_flat_boundary_upstairs :
     let squiggly_boundary :=
       {input | EVALUATE_LIFTED_MODEL features weights input = 0}  -- the inputs the classifier scores zero
     let flat_boundary :=
@@ -149,7 +149,7 @@ section Slope
 
 /-- The line changes by at most the size of the weights times how far the
 lift moves. -/
-theorem abs_liftedModel_sub_le
+theorem lifted_model_changes_at_most_weight_size_times_lift_distance
     (features : FeatureMap Inputs Weights)
     (weights : Weights)
     (input : Inputs)
@@ -168,7 +168,7 @@ theorem abs_liftedModel_sub_le
 /-- **Slope is tilt times stretch.** If the lift stretches distances by at
 most `lift_slope_limit`, the line is no steeper than the size of the weights
 times `lift_slope_limit`. -/
-theorem lipschitzWith_liftedModel
+theorem lifted_model_slope_is_at_most_tilt_times_stretch
     [PseudoMetricSpace Inputs]
     {features : FeatureMap Inputs Weights}
     {lift_slope_limit : SlopeLimit}
@@ -187,13 +187,13 @@ theorem lipschitzWith_liftedModel
         lift_slope_is_bounded.dist_le_mul input other_input
     rw [Real.dist_eq, NNReal.coe_mul, coe_nnnorm, mul_assoc]
     -- The flat function upstairs multiplies that move by at most the tilt.
-    exact (abs_liftedModel_sub_le features weights input other_input).trans
+    exact (lifted_model_changes_at_most_weight_size_times_lift_distance features weights input other_input).trans
       (mul_le_mul_of_nonneg_left lift_moves_little (norm_nonneg weights))
 
 /-- **The sandwich, in tilt and stretch.** The line can be nearer to a data
 point than its vertical error only by the factor
 `√(1 + (‖weights‖ * lift_slope_limit)²)`. -/
-theorem verticalDist_liftedModel_le
+theorem vertical_error_of_lifted_model_is_at_most_stretch_times_nearest_distance
     {Inputs : Type*}
     [SeminormedAddCommGroup Inputs]
     {features : FeatureMap Inputs Weights}
@@ -210,7 +210,7 @@ theorem verticalDist_liftedModel_le
   unfold_named_pieces
   simpa using
     vertical_error_is_at_most_stretch_times_nearest_distance
-      (lipschitzWith_liftedModel lift_slope_is_bounded weights) data_point
+      (lifted_model_slope_is_at_most_tilt_times_stretch lift_slope_is_bounded weights) data_point
 
 end Slope
 
@@ -225,7 +225,7 @@ lifted data points, by `coefficients i` along the lift of `data_inputs i`.
 The new prediction at any input is the old one plus the kernel between that
 input and each data point, weighted by the coefficients. The lift itself is
 never needed. -/
-theorem liftedModel_add_sum
+theorem kernel_trick
     (examples : Finset Examples)
     (start_weights : Weights)
     (data_inputs : InputPerExample Examples Inputs)
@@ -248,7 +248,7 @@ theorem liftedModel_add_sum
   rfl
 
 /-- The kernel does not care which input comes first. -/
-theorem liftKernel_comm
+theorem lift_kernel_is_symmetric
     (input : Inputs)
     (other_input : Inputs) :
     let kernel         := GET_LIFT_KERNEL features input other_input
@@ -259,7 +259,7 @@ theorem liftKernel_comm
 /-- **A kernel summed over all pairs is a squared length.** Weigh the data
 points by any numbers `coefficients`. The kernel summed over all pairs with
 those weights is the squared length of one vector upstairs. -/
-theorem sum_sum_liftKernel_eq
+theorem lift_kernel_over_all_pairs_is_a_squared_length
     (examples : Finset Examples)
     (data_inputs : InputPerExample Examples Inputs)
     (coefficients : NumberPerExample Examples) :
@@ -285,7 +285,7 @@ theorem sum_sum_liftKernel_eq
 /-- **A kernel from a lift is never negative.** The kernel summed over all
 pairs, with any weights, is a squared length, and a square is not
 negative. -/
-theorem sum_sum_liftKernel_nonneg
+theorem lift_kernel_over_all_pairs_is_at_least_zero
     (examples : Finset Examples)
     (data_inputs : InputPerExample Examples Inputs)
     (coefficients : NumberPerExample Examples) :
@@ -295,7 +295,7 @@ theorem sum_sum_liftKernel_nonneg
           * GET_LIFT_KERNEL features (data_inputs i) (data_inputs j)  -- every pair `(i, j)`, a data point with itself included
     0 ≤ kernel_over_all_pairs := by
   unfold_named_pieces
-  rw [sum_sum_liftKernel_eq]
+  rw [lift_kernel_over_all_pairs_is_a_squared_length]
   positivity
 
 end Kernel
@@ -305,7 +305,7 @@ end Kernel
 /-- **Any function is flat in some lift.** Take the function itself as the
 lift. So "flat upstairs" says something only when the lift is chosen before
 the labels are seen. -/
-theorem exists_lift_eq
+theorem any_function_is_flat_in_some_lift
     {Inputs : Type*}
     (model : Model Inputs) :
     ∃ features : FeatureMap Inputs ℝ,

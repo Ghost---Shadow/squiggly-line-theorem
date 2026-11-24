@@ -86,13 +86,13 @@ not jump. [`Counting.lean`](../lean/SquigglyLine/Supporting/NewInputs/Counting.l
 has three short facts.
 
 - A read-out that changes smoothly from `count` to `count + 1` says
-  `count + 1/2` somewhere on the way (`exists_half_count`).
+  `count + 1/2` somewhere on the way (`between_two_counts_there_is_a_half`).
 - At a noisy input equally far from two training examples, the ideal
   denoiser returns the point half way between them
-  (`denoiser_two_of_equidistant`). If one is a hand with five fingers and
+  (`ideal_denoiser_blends_two_equally_far_examples`). If one is a hand with five fingers and
   the other a hand with six, the answer is a blend of the two.
 - Telling `count` from `count + 1` takes slope at least one over the
-  distance between the inputs (`one_le_slope_mul_dist_of_count`, the
+  distance between the inputs (`sharp_count_costs_slope`, the
   statement you read in chapter 2).
 
 **From the formula** (the denoiser evaluated, not trained), and the head
@@ -198,7 +198,7 @@ jupyter nbconvert --to notebook --execute --inplace experiments/part3/ch15_avera
 3. Why can an average of gentle models not draw a sharp step?
 
 **Answers.** (1) No. A weighted average stays between 2 and 9. (2) 5.5
-(`attend_two_of_const_score`). (3) An average is no steeper than its
+(`equal_scores_give_the_point_half_way`). (3) An average is no steeper than its
 steepest member (chapter 14), and a sharp step needs a large slope.
 
 Previous: [14. Three ways to combine slope](14-combining-slope.md) · Next: [16. New inputs](16-new-inputs.md)

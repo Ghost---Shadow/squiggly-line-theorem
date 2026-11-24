@@ -18,11 +18,11 @@ logarithm of frequency in the Fourier model.
 
 Theorems:
 
-* `tent_mem_Icc`            one tent layer keeps `[0, 1]` inside `[0, 1]`;
-* `iterate_tent_mem_Icc`    so does a stack of them;
-* `sin_sq_tent`             one fold doubles the angle;
-* `sin_sq_two_mul`          the double-angle formula for `sin²`;
-* `sin_sq_iterate_tent`     `layer_count` folds are one Fourier term of
+* `tent_keeps_the_unit_interval`            one tent layer keeps `[0, 1]` inside `[0, 1]`;
+* `tent_layers_keep_the_unit_interval`    so does a stack of them;
+* `one_fold_doubles_the_angle`             one fold doubles the angle;
+* `sine_squared_of_double_angle`          the double-angle formula for `sin²`;
+* `folds_are_one_fourier_term`     `layer_count` folds are one Fourier term of
                             frequency `2 ^ layer_count`.
 -/
 import SquigglyLine.Networks.Depth
@@ -35,7 +35,7 @@ open Real
 variable {input : ℝ}
 
 /-- One tent layer keeps the unit interval inside the unit interval. -/
-theorem tent_mem_Icc
+theorem tent_keeps_the_unit_interval
     (input_nonneg : 0 ≤ input)
     (input_le_one : input ≤ 1) :
     let tent_output := APPLY_TENT input
@@ -44,13 +44,13 @@ theorem tent_mem_Icc
     output_nonneg ∧ output_le_one := by
   unfold_named_pieces
   rcases le_total input (1 / 2) with input_in_left_half | input_in_right_half
-  · rw [tent_of_le_half input_nonneg input_in_left_half]
+  · rw [tent_rises_left_of_the_fold input_nonneg input_in_left_half]
     constructor <;> linarith
-  · rw [tent_of_half_le input_in_right_half]
+  · rw [tent_falls_right_of_the_fold input_in_right_half]
     constructor <;> linarith
 
 /-- The wind tunnel keeps the unit interval inside the unit interval. -/
-theorem iterate_tent_mem_Icc
+theorem tent_layers_keep_the_unit_interval
     (input_nonneg : 0 ≤ input)
     (input_le_one : input ≤ 1)
     (layer_count : ℕ) :
@@ -63,10 +63,10 @@ theorem iterate_tent_mem_Icc
   | zero => exact ⟨input_nonneg, input_le_one⟩
   | succ layer_count output_in_unit_interval =>
     rw [Function.iterate_succ_apply']
-    exact tent_mem_Icc output_in_unit_interval.1 output_in_unit_interval.2
+    exact tent_keeps_the_unit_interval output_in_unit_interval.1 output_in_unit_interval.2
 
 /-- **One fold doubles the angle.** -/
-theorem sin_sq_tent
+theorem one_fold_doubles_the_angle
     (input_nonneg : 0 ≤ input) :
     let folded_value  := sin (PI / 2 * APPLY_TENT input) ^ 2  -- the lens `sin² (PI/2 · y)` applied to one fold
     let doubled_value := sin (PI * input) ^ 2                 -- the angle `PI/2 · input` doubled
@@ -74,14 +74,14 @@ theorem sin_sq_tent
   unfold_named_pieces
   rcases le_total input (1 / 2) with input_in_left_half | input_in_right_half
   · -- Rising side: the tent doubles the input, so the angle doubles.
-    rw [tent_of_le_half input_nonneg input_in_left_half,
+    rw [tent_rises_left_of_the_fold input_nonneg input_in_left_half,
       show PI / 2 * (2 * input) = PI * input by ring]
   · -- Falling side: the tent mirrors the input; `sin (PI - a) = sin a`.
-    rw [tent_of_half_le input_in_right_half,
+    rw [tent_falls_right_of_the_fold input_in_right_half,
       show PI / 2 * (2 - 2 * input) = PI - PI * input by ring, sin_pi_sub]
 
 /-- The double-angle formula for `sin²`. -/
-theorem sin_sq_two_mul
+theorem sine_squared_of_double_angle
     (angle : ℝ) :
     let doubled_angle_value := sin (2 * angle) ^ 2
     let polynomial_in_sin   := 4 * sin angle ^ 2 * (1 - sin angle ^ 2)  -- sin 2a = 2 sin a cos a, and cos² = 1 - sin²
@@ -93,7 +93,7 @@ theorem sin_sq_two_mul
 /-- **`layer_count` folds are one Fourier term of frequency
 `2 ^ layer_count`.** Seen through the lens `sin² (PI/2 · y)`, the wind tunnel
 of depth `layer_count` is `sin²` of `2 ^ layer_count` times the input angle. -/
-theorem sin_sq_iterate_tent
+theorem folds_are_one_fourier_term
     (input_nonneg : 0 ≤ input)
     (input_le_one : input ≤ 1)
     (layer_count : ℕ) :
@@ -106,11 +106,11 @@ theorem sin_sq_iterate_tent
   | succ layer_count angle_doubled_so_far =>
     -- One more fold doubles the angle once more, by the double-angle formula.
     rw [Function.iterate_succ_apply',
-      sin_sq_tent (iterate_tent_mem_Icc input_nonneg input_le_one layer_count).1,
+      one_fold_doubles_the_angle (tent_layers_keep_the_unit_interval input_nonneg input_le_one layer_count).1,
       show PI * APPLY_TENT^[layer_count] input
         = 2 * (PI / 2 * APPLY_TENT^[layer_count] input) by ring,
       show (2 : ℝ) ^ (layer_count + 1) * (PI / 2 * input)
         = 2 * (2 ^ layer_count * (PI / 2 * input)) by ring,
-      sin_sq_two_mul, sin_sq_two_mul, angle_doubled_so_far]
+      sine_squared_of_double_angle, sine_squared_of_double_angle, angle_doubled_so_far]
 
 end SquigglyLine

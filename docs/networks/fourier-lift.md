@@ -24,17 +24,17 @@ three well-known methods inside it.
 Wind the input round a circle: `x ↦ (cos(w·x), sin(w·x))`. The number `w` is
 the frequency. A flat plane over the circle, with weights `(a, b)`, is the
 wave `a·cos(w·x) + b·sin(w·x)` downstairs (**proved**:
-`liftedModel_fourierLift`).
+`flat_plane_over_the_circle_is_a_wave`).
 
 Two inputs a distance `d` apart land `√(2 − 2·cos(w·d))` apart on the circle
-(**proved**: `norm_fourierLift_sub_sq`). For small `d` that is about `w·d`,
+(**proved**: `squared_distance_of_fourier_lifts_is_a_chord`). For small `d` that is about `w·d`,
 and it is never more:
 
 > The Fourier lift stretches distances by at most its frequency.
 
-(**proved**: `lipschitzWith_fourierLift`.) So the wave is no steeper than the
+(**proved**: `fourier_lift_stretches_at_most_by_its_frequency`.) So the wave is no steeper than the
 size of its weights times its frequency (**proved**:
-`lipschitzWith_liftedModel_fourierLift`).
+`wave_slope_is_at_most_size_times_frequency`).
 
 ## Fourier features and NeRF
 
@@ -61,8 +61,8 @@ its position, at several frequencies (**recalled**: Vaswani et al. 2017).
 That is the Fourier lift applied to position.
 
 The kernel of the lift is `cos(w·(x − x′))` (**proved**:
-`liftKernel_fourierLift`). It depends only on how far apart the two positions
-are, not on where they are (**proved**: `liftKernel_fourierLift_shift`). So
+`fourier_kernel_is_cosine_of_the_gap`). It depends only on how far apart the two positions
+are, not on where they are (**proved**: `fourier_kernel_does_not_change_under_a_shift`). So
 an attention head that scores by this kernel attends by relative position.
 Moving along the sequence by `d` turns every lifted point through the same
 angle `w·d` (**recalled**: the angle-addition formulas), which is what
@@ -73,7 +73,7 @@ rotary position signals use directly (**recalled**: Su et al. 2021).
 A kernel that depends only on the gap between two inputs gives a learner
 that does not care where things are. Shift every training input and the
 question by the same amount, and the answer is the same (**proved**:
-`liftedModel_shift`, for any lift with such a kernel).
+`shifting_data_and_question_changes_no_answer`, for any lift with such a kernel).
 
 A convolution layer builds this in by using the same weights at every place
 (**recalled**: LeCun et al. 1989). In the terms used here it is a choice of

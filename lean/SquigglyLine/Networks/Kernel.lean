@@ -6,24 +6,24 @@ series in its coefficients, or a ReLU network in its last layer. Write
 `predict` for the map from weights to outputs. The kernel is
 `predict (adjoint predict vector)`, that is `K = A A†` with `A = predict`.
 
-* `residual_gradientStep`: one gradient step sends the error `residual` to
+* `gradient_step_changes_residual_by_the_kernel`: one gradient step sends the error `residual` to
   `residual - learning_rate • K residual`. The weights do not appear.
-* `travel_eq_norm_of_kernelInverse`: the distance to the nearest fit is the
+* `travel_depends_on_the_kernel_only`: the distance to the nearest fit is the
   length of `A† K⁻¹ residual`, whose square is `⟪K⁻¹ residual, residual⟫`.
 
 So two models with the same kernel are the same learner
-(`residual_iterate_gradientStep_eq`, `travel_eq_of_kernel_eq`): gradient
+(`same_kernel_gives_same_training_path`, `same_kernel_gives_same_travel`): gradient
 descent takes them through the same errors, and their nearest fits are equally
 far away. This is the exact sense in which the Fourier model and the ReLU
 model can be equivalent.
 
 * `TAKE_GRADIENT_STEP`                  one step of gradient descent;
-* `residual_gradientStep`               one step, seen on the residual;
-* `norm_adjoint_kernelInverse_sq`       the squared length of `A† K⁻¹ residual`;
-* `travel_eq_norm_of_kernelInverse`     travel is the length of
+* `gradient_step_changes_residual_by_the_kernel`               one step, seen on the residual;
+* `length_of_pulled_back_solution_depends_on_kernel_only`       the squared length of `A† K⁻¹ residual`;
+* `travel_depends_on_the_kernel_only`     travel is the length of
                                         `A† K⁻¹ residual`;
-* `residual_iterate_gradientStep_eq`    same kernel, same training path;
-* `travel_eq_of_kernel_eq`              same kernel, same travel.
+* `same_kernel_gives_same_training_path`    same kernel, same training path;
+* `same_kernel_gives_same_travel`              same kernel, same travel.
 -/
 import SquigglyLine.Networks.ExchangeRate
 
@@ -53,7 +53,7 @@ noncomputable def TAKE_GRADIENT_STEP
 
 /-- **Gradient descent sees only the kernel.** One step sends the error
 `residual` to `residual - learning_rate • K residual`. -/
-theorem residual_gradientStep
+theorem gradient_step_changes_residual_by_the_kernel
     (predict : Weights →L[ℝ] Outputs)
     (labels : Outputs)
     (learning_rate : ℝ)
@@ -72,7 +72,7 @@ theorem residual_gradientStep
 
 /-- The squared length of `A† K⁻¹ residual` is `⟪K⁻¹ residual, residual⟫`: it
 depends on the kernel only. -/
-theorem norm_adjoint_kernelInverse_sq
+theorem length_of_pulled_back_solution_depends_on_kernel_only
     (predict : Weights →L[ℝ] Outputs)
     (kernel_inverse : Outputs → Outputs)
     (kernel_inverse_works : ∀ vector,
@@ -88,7 +88,7 @@ theorem norm_adjoint_kernelInverse_sq
 /-- **Travel sees only the kernel.** If `kernel_inverse` inverts the kernel,
 the distance from the start to the nearest fit is the length of
 `A† K⁻¹ residual`. -/
-theorem travel_eq_norm_of_kernelInverse
+theorem travel_depends_on_the_kernel_only
     (predict : Weights →L[ℝ] Outputs)
     (kernel_inverse : Outputs → Outputs)
     (kernel_inverse_works : ∀ vector,
@@ -128,7 +128,7 @@ theorem travel_eq_norm_of_kernelInverse
           * ‖weights - start_weights‖ := by
       have squared_eq : ‖adjoint predict (kernel_inverse residual)‖ ^ 2
           = inner ℝ (kernel_inverse residual) residual :=
-        norm_adjoint_kernelInverse_sq predict kernel_inverse
+        length_of_pulled_back_solution_depends_on_kernel_only predict kernel_inverse
           kernel_inverse_works residual
       rw [squared_eq, ← pullback_form_eq]
       exact real_inner_le_norm _ _
@@ -146,7 +146,7 @@ variable {predict : Weights →L[ℝ] Outputs}
 /-- **Same kernel, same training path.** If two models have the same kernel
 and start with the same error, gradient descent keeps their errors equal at
 every step. -/
-theorem residual_iterate_gradientStep_eq
+theorem same_kernel_gives_same_training_path
     (same_kernel : ∀ vector,
       predict (adjoint predict vector)
         = other_predict (adjoint other_predict vector))
@@ -176,13 +176,13 @@ theorem residual_iterate_gradientStep_eq
   | zero => exact same_start_residual
   | succ previous_count earlier_case =>
     rw [Function.iterate_succ_apply', Function.iterate_succ_apply',
-      residual_gradientStep, residual_gradientStep, earlier_case,
+      gradient_step_changes_residual_by_the_kernel, gradient_step_changes_residual_by_the_kernel, earlier_case,
       same_kernel]
 
 /-- **Same kernel, same travel.** If two models have the same invertible
 kernel and start with the same error, their nearest fits are equally far away
 in parameter space. -/
-theorem travel_eq_of_kernel_eq
+theorem same_kernel_gives_same_travel
     (same_kernel : ∀ vector,
       predict (adjoint predict vector)
         = other_predict (adjoint other_predict vector))
@@ -206,9 +206,9 @@ theorem travel_eq_of_kernel_eq
   have other_kernel_inverse_works : ∀ vector,
       other_predict (adjoint other_predict (kernel_inverse vector)) = vector :=
     fun vector => (same_kernel _).symm.trans (kernel_inverse_works vector)
-  rw [travel_eq_norm_of_kernelInverse predict kernel_inverse
+  rw [travel_depends_on_the_kernel_only predict kernel_inverse
       kernel_inverse_works,
-    travel_eq_norm_of_kernelInverse other_predict kernel_inverse
+    travel_depends_on_the_kernel_only other_predict kernel_inverse
       other_kernel_inverse_works,
     ← same_start_residual]
   -- Two lengths are equal once their squares are, and both squares are
@@ -219,14 +219,14 @@ theorem travel_eq_of_kernel_eq
       = inner ℝ (kernel_inverse
           (GET_RESIDUAL (predict : Weights →ₗ[ℝ] Outputs) labels weights))
         (GET_RESIDUAL (predict : Weights →ₗ[ℝ] Outputs) labels weights) :=
-    norm_adjoint_kernelInverse_sq predict kernel_inverse
+    length_of_pulled_back_solution_depends_on_kernel_only predict kernel_inverse
       kernel_inverse_works _
   have other_squared_eq : ‖adjoint other_predict (kernel_inverse
         (GET_RESIDUAL (predict : Weights →ₗ[ℝ] Outputs) labels weights))‖ ^ 2
       = inner ℝ (kernel_inverse
           (GET_RESIDUAL (predict : Weights →ₗ[ℝ] Outputs) labels weights))
         (GET_RESIDUAL (predict : Weights →ₗ[ℝ] Outputs) labels weights) :=
-    norm_adjoint_kernelInverse_sq other_predict kernel_inverse
+    length_of_pulled_back_solution_depends_on_kernel_only other_predict kernel_inverse
       other_kernel_inverse_works _
   rw [squared_eq, other_squared_eq]
 

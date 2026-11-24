@@ -5,26 +5,26 @@ Split a model's weights into the kept ones (features `kept_predict`) and the
 dropped ones (features `dropped_predict`). The whole model `whole_predict` has
 both. Its kernel is the sum of the two kernels (`IS_KERNEL_SUM`).
 
-* `kernel_eigen_add` : along a direction where the kept weights have strength
+* `strengths_add` : along a direction where the kept weights have strength
   `kept_strength` and the dropped weights have strength `dropped_strength`, the
   whole model has strength `kept_strength + dropped_strength`.
-* `pruned_share_ge` : the pruned model has at least as large a share of its
+* `pruning_slows_a_direction_down` : the pruned model has at least as large a share of its
   error left along that direction, at every step.
 * `winning_ticket` : if the dropped weights have no strength along a
   direction, the pruned model and the whole model keep the same error there
   at every step.
-* `travel_mul_sqrt_pruned` : with orthogonal features of strengths
+* `pruning_moves_the_fit_farther` : with orthogonal features of strengths
   `kept_strength` and `dropped_strength`, pruning moves the nearest fit farther
   by `√((kept_strength + dropped_strength) / kept_strength)`.
 
 Definition and theorems:
 
 * `IS_KERNEL_SUM`                  the whole kernel is the sum of the two;
-* `kernel_eigen_add`               strengths add;
-* `pruned_share_ge`                pruning slows a direction down;
+* `strengths_add`               strengths add;
+* `pruning_slows_a_direction_down`                pruning slows a direction down;
 * `winning_ticket`                 no strength dropped, no error added;
-* `HAS_TIGHT_FEATURES.of_kernelSum`  orthogonal features add up;
-* `travel_mul_sqrt_pruned`         pruning moves the fit farther.
+* `HAS_TIGHT_FEATURES.whole_model_has_tight_features`  orthogonal features add up;
+* `pruning_moves_the_fit_farther`         pruning moves the fit farther.
 -/
 import SquigglyLine.Supporting.Training.SpectralBias
 
@@ -58,7 +58,7 @@ variable {whole_predict : WholeWeights →L[ℝ] Outputs}
   {dropped_predict : DroppedWeights →L[ℝ] Outputs}
 
 /-- **Strengths add.** -/
-theorem kernel_eigen_add
+theorem strengths_add
     (kernel_is_sum : IS_KERNEL_SUM whole_predict kept_predict dropped_predict)
     {direction : Outputs}
     {kept_strength : ℝ}
@@ -79,7 +79,7 @@ theorem kernel_eigen_add
 /-- **Pruning slows a direction down.** With step size `learning_rate`, the
 share of the error left along a direction is at least as large for the pruned
 model as for the whole model. -/
-theorem pruned_share_ge
+theorem pruning_slows_a_direction_down
     {learning_rate : ℝ}
     {kept_strength : ℝ}
     {dropped_strength : ℝ}
@@ -170,7 +170,7 @@ theorem winning_ticket
 
 /-- With orthogonal features on both sides, the whole model has orthogonal
 features too, and the strengths add. -/
-theorem HAS_TIGHT_FEATURES.of_kernelSum
+theorem HAS_TIGHT_FEATURES.whole_model_has_tight_features
     (kernel_is_sum : IS_KERNEL_SUM whole_predict kept_predict dropped_predict)
     {kept_strength : ℝ}
     {dropped_strength : ℝ}
@@ -186,7 +186,7 @@ theorem HAS_TIGHT_FEATURES.of_kernelSum
 `kept_strength` (kept) and `dropped_strength` (dropped), and the same error at
 the start, the travel of the pruned model times `√kept_strength` is the travel
 of the whole model times `√(kept_strength + dropped_strength)`. -/
-theorem travel_mul_sqrt_pruned
+theorem pruning_moves_the_fit_farther
     (kernel_is_sum : IS_KERNEL_SUM whole_predict kept_predict dropped_predict)
     {kept_strength : ℝ}
     {dropped_strength : ℝ}
@@ -215,9 +215,9 @@ theorem travel_mul_sqrt_pruned
     linarith
   have whole_tight :
       HAS_TIGHT_FEATURES whole_predict (kept_strength + dropped_strength) :=
-    HAS_TIGHT_FEATURES.of_kernelSum kernel_is_sum kept_tight dropped_tight
-  rw [kept_tight.travel_eq kept_strength_pos,
-    whole_tight.travel_eq whole_strength_pos, same_start_residual,
+    HAS_TIGHT_FEATURES.whole_model_has_tight_features kernel_is_sum kept_tight dropped_tight
+  rw [kept_tight.travel_equals_residual_over_root_of_squared_length kept_strength_pos,
+    whole_tight.travel_equals_residual_over_root_of_squared_length whole_strength_pos, same_start_residual,
     div_mul_cancel₀ _ (Real.sqrt_pos.mpr kept_strength_pos).ne',
     div_mul_cancel₀ _ (Real.sqrt_pos.mpr whole_strength_pos).ne']
 

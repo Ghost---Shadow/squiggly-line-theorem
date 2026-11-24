@@ -64,7 +64,7 @@ gives `0.02 × 3 × 5 = 0.3`.
 First, what one step does to the answer at a test point.
 
 ```lean
-theorem inner_gradientStep
+theorem gradient_step_moves_a_prediction_through_the_kernel
     (predict : Weights →L[ℝ] Outputs)
     (labels : Outputs)
     (learning_rate : ℝ)
@@ -94,7 +94,7 @@ appears in the `correction`.
 Now the main result.
 
 ```lean
-theorem prediction_iterate_gradientStep_eq
+theorem same_kernel_gives_same_predictions
     (same_kernel : ∀ vector,
       predict (adjoint predict vector)
         = other_predict (adjoint other_predict vector))
@@ -131,7 +131,7 @@ not be alike. `same_kernel` says that applying the model to its own
 transpose (`adjoint`, chapter 10) gives the same result in both. The
 notation `^[step_count]` means "apply the step `step_count` times".
 
-A third result, `prediction_kernelFit_eq`, says the same about the fit
+A third result, `same_kernel_gives_same_final_answer`, says the same about the fit
 that training heads for: start weights plus the transpose applied to the
 inverse kernel acting on the errors. Its answer at the test point is the
 same in both models.
@@ -150,7 +150,7 @@ the claim is the assumption `same_start_answer`. Suppose the two answers
 agree after some steps. The next step adds the same correction to both:
 the test rows are equal by `same_test_row`, and the errors are equal
 because chapter 10 showed that models with the same kernel go through
-the same errors (`residual_iterate_gradientStep_eq`). Equal answers plus
+the same errors (`same_kernel_gives_same_training_path`). Equal answers plus
 equal corrections are equal answers.
 
 The third theorem needs no induction. The fit is the start plus one
@@ -178,7 +178,7 @@ This is the **kernel** idea of chapter 10 applied to a new point. The
 nearest fit of chapter 9 is the end of the trip, and the third theorem
 says the answer at the test point at the end of that trip is the same for
 both models. Chapter 10 already said that their trips are equally long
-(`travel_eq_of_kernel_eq`). Together: the same trip, the same arrival
+(`same_kernel_gives_same_travel`). Together: the same trip, the same arrival
 point as seen from the test point.
 
 ## Run it yourself
@@ -254,7 +254,7 @@ step, since `1 − 0.02 × 25 = 0.5`. The correction at step 3 is `0.02 × 3 × 
 0.15`, so the answer goes from 0.9 to 1.05 in both models. (2) No. The
 test row of B would be `1.2×5 = 6`, which is not the 3 of model A, so
 `same_test_row` fails, and the first step already differs: `0.02 × 6 ×
-10 = 1.2` against 0.6. (3) They are equal, by `prediction_kernelFit_eq`,
+10 = 1.2` against 0.6. (3) They are equal, by `same_kernel_gives_same_final_answer`,
 because the number of weights does not appear in its assumptions.
 
 Previous: [41. Counting](41-counting.md) · Next: [43. Bias and variance](43-bias-and-variance.md)

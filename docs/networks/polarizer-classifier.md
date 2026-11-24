@@ -43,7 +43,7 @@ Lengths are in wavelengths. The light at a point is a pair of complex numbers
 
 - **A plate** with axis angle `θ` at a point replaces the light there by its
   shadow on the axis: `E ← u (u · E)` with `u = (cos θ, sin θ)`. (**proved**
-  for one point: `malus`, `three_polarizers`.)
+  for one point: `malus_law`, `three_polarizers`.)
 - **A gap** of length `d` lets the light spread. Each of the two parts
   spreads by the angular-spectrum rule: take the Fourier transform, multiply
   the part at spatial frequency `(fx, fy)` by `exp(2πi d √(1 − fx² − fy²))`,

@@ -13,20 +13,20 @@ Nearest neighbours, k-means and contrastive learning: three uses of nearness.
   `√temperature`.
 
 Theorems:
-* `abs_sub_nearest_le`                  nearest-neighbour error is at most
+* `nearest_neighbour_error_is_at_most_slope_times_distance`                  nearest-neighbour error is at most
                                         slope times distance;
-* `sum_sq_reassign_le`                  k-means, first half: moving points to
+* `reassigning_points_does_not_raise_the_cost`                  k-means, first half: moving points to
                                         a no-further centre does not raise the
                                         cost;
-* `sum_sq_mean_le`                      k-means, second half: the mean is the
+* `mean_is_the_best_centre_of_a_cluster`                      k-means, second half: the mean is the
                                         best centre;
-* `softmax_add_const`                   shifting every score changes no share;
-* `inner_eq_one_sub_of_unit`            dot product against distance, for unit
+* `softmax_ignores_a_constant_added_to_every_score`                   shifting every score changes no share;
+* `overlap_of_unit_vectors_equals_one_minus_half_squared_distance`            dot product against distance, for unit
                                         vectors;
 * `softmax_of_overlap_equals_softmax_of_distance`  the same for keys of one
                                         common length and a query of any
                                         length;
-* `softmax_cosine_eq_softmax_distance`  contrastive scoring is scoring by
+* `softmax_of_cosine_equals_softmax_of_distance_for_unit_vectors`  contrastive scoring is scoring by
                                         nearness.
 -/
 import SquigglyLine.Supporting.NewInputs.Averaging
@@ -43,7 +43,7 @@ omit [InnerProductSpace ℝ Space] in
 `slope_limit`, then copying the label of the nearest training input
 `inputs nearest` is wrong by at most `slope_limit` times the distance from the
 query to any training input, and so to the nearest. -/
-theorem abs_sub_nearest_le
+theorem nearest_neighbour_error_is_at_most_slope_times_distance
     {model : Model Space}
     {slope_limit : SlopeLimit}
     (slope_is_bounded : LipschitzWith slope_limit model)
@@ -67,7 +67,7 @@ variable {Centres : Type*} [Fintype Examples]
 omit [InnerProductSpace ℝ Space] in
 /-- **k-means, first half.** Give every point a centre that is no further than
 the one it had. The cost does not rise. -/
-theorem sum_sq_reassign_le
+theorem reassigning_points_does_not_raise_the_cost
     (points : Examples → Space)
     (centres : Centres → Space)
     (old_centre_of new_centre_of : Examples → Centres)
@@ -83,7 +83,7 @@ theorem sum_sq_reassign_le
 
 /-- **k-means, second half.** For the points of one cluster, no centre has a
 lower cost than their mean. -/
-theorem sum_sq_mean_le [Nonempty Examples]
+theorem mean_is_the_best_centre_of_a_cluster [Nonempty Examples]
     (points : Examples → Space)
     (other_centre : Space) :
     let mean :=
@@ -107,12 +107,12 @@ theorem sum_sq_mean_le [Nonempty Examples]
               points‖ ^ 2
         ≤ ∑ i, (Fintype.card Examples : ℝ)⁻¹
           * ‖points i - other_centre‖ ^ 2 :=
-    weightedMean_isBest shares_sum_to_one points other_centre
+    weighted_mean_is_the_best_single_guess shares_sum_to_one points other_centre
   simp only [← Finset.mul_sum] at weighted_bound
   exact le_of_mul_le_mul_left weighted_bound (inv_pos.mpr count_pos)
 
 /-- Adding the same number to every score changes no share of the softmax. -/
-theorem softmax_add_const
+theorem softmax_ignores_a_constant_added_to_every_score
     (scores : Examples → ℝ)
     (shift : ℝ) :
     let shifted_shares := APPLY_SOFTMAX (fun i => scores i + shift)
@@ -125,7 +125,7 @@ theorem softmax_add_const
 
 /-- For two vectors of length one, the dot product is one minus half the
 squared distance. -/
-theorem inner_eq_one_sub_of_unit
+theorem overlap_of_unit_vectors_equals_one_minus_half_squared_distance
     {vector other_vector : Space}
     (vector_is_unit : ‖vector‖ = 1)
     (other_vector_is_unit : ‖other_vector‖ = 1) :
@@ -140,7 +140,7 @@ theorem inner_eq_one_sub_of_unit
 /-- **Contrastive learning scores by nearness.** For vectors of length one, the
 softmax over cosine similarity at temperature `temperature` is the softmax over
 minus the squared distance, divided by `2 * temperature`. -/
-theorem softmax_cosine_eq_softmax_distance
+theorem softmax_of_cosine_equals_softmax_of_distance_for_unit_vectors
     {query : Space}
     {keys : Examples → Space}
     (query_is_unit : ‖query‖ = 1)
@@ -160,7 +160,7 @@ theorem softmax_cosine_eq_softmax_distance
     funext i
     have dot_product_eq :
         inner ℝ query (keys i) = 1 - ‖query - keys i‖ ^ 2 / 2 :=
-      inner_eq_one_sub_of_unit query_is_unit (keys_are_unit i)
+      overlap_of_unit_vectors_equals_one_minus_half_squared_distance query_is_unit (keys_are_unit i)
     rw [dot_product_eq]
     ring
   have shift_invariant :
@@ -168,7 +168,7 @@ theorem softmax_cosine_eq_softmax_distance
           (fun i => -‖query - keys i‖ ^ 2 / (2 * temperature)
             + 1 / temperature)
         = APPLY_SOFTMAX fun i => -‖query - keys i‖ ^ 2 / (2 * temperature) :=
-    softmax_add_const _ _
+    softmax_ignores_a_constant_added_to_every_score _ _
   rw [scores_differ_by_const, shift_invariant]
 
 /-- **The same without vectors of length one.** It is enough that the keys
@@ -204,6 +204,6 @@ theorem softmax_of_overlap_equals_softmax_of_distance
     rw [dot_product_eq]
     ring
   rw [scores_differ_by_const]
-  exact softmax_add_const _ _
+  exact softmax_ignores_a_constant_added_to_every_score _ _
 
 end SquigglyLine

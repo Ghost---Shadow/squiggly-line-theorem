@@ -34,7 +34,7 @@ The layer has doubled the angle inside the sine. Stack `L` layers:
 sin²(π/2 · tent^L(x)) = sin²(2^(L−1) · π · x)
 ```
 
-(**proved**: `sin_sq_iterate_tent` in [`Bridge.lean`](../../lean/SquigglyLine/Networks/Bridge.lean); also **checked** to machine
+(**proved**: `folds_are_one_fourier_term` in [`Bridge.lean`](../../lean/SquigglyLine/Networks/Bridge.lean); also **checked** to machine
 precision for `L` up to 10.)
 
 The right side is a single Fourier term: `sin²(a) = (1 − cos(2a)) / 2`, so it
@@ -83,13 +83,13 @@ kernel is `K = A·Aᵀ`: it records how alike the features make two data points
 look. Then:
 
 - A gradient step changes the error by `error ← error − η · K · error`. The
-  weights do not appear (**proved**: `residual_gradientStep` in [`Kernel.lean`](../../lean/SquigglyLine/Networks/Kernel.lean)).
+  weights do not appear (**proved**: `gradient_step_changes_residual_by_the_kernel` in [`Kernel.lean`](../../lean/SquigglyLine/Networks/Kernel.lean)).
 - The travel to the nearest fit is `√(errorᵀ · K⁻¹ · error)`. The weights do
-  not appear (**proved**: `travel_eq_norm_of_kernelInverse`).
+  not appear (**proved**: `travel_depends_on_the_kernel_only`).
 
 So two models with the same kernel on the data are the same learner. They have
 the same travel, and gradient descent takes them through the same sequence of
-outputs (**proved**: `travel_eq_of_kernel_eq`, `residual_iterate_gradientStep_eq`). That is the exact sense in which a Fourier model and a ReLU model can
+outputs (**proved**: `same_kernel_gives_same_travel`, `same_kernel_gives_same_training_path`). That is the exact sense in which a Fourier model and a ReLU model can
 be equivalent: when their kernels agree.
 
 ## Where they differ: the exchange rate

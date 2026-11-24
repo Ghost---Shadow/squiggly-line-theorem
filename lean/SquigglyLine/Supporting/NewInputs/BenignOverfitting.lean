@@ -5,19 +5,19 @@ What is left to fit splits into a signal `signal` and a noise `noise`, along
 kernel directions of strengths `signal_strength` and `noise_strength`.
 `GET_SPLIT_FIT` is the fit gradient descent heads for.
 
-* `splitFit_fits`, `splitFit_is_nearest` : it fits signal and noise exactly,
+* `split_fit_fits_signal_and_noise`, `split_fit_is_the_nearest_fit` : it fits signal and noise exactly,
   and no fit is nearer to the start.
-* `inner_splitFit` : at a new input the answer moves by the signal's overlap
+* `answer_of_split_fit_at_a_new_input` : at a new input the answer moves by the signal's overlap
   divided by `signal_strength` plus the noise's overlap divided by
   `noise_strength`.
-* `abs_noise_damage_le` : with junk features of strength `junk_strength` in
+* `noise_damage_at_a_new_input_is_at_most_its_cap` : with junk features of strength `junk_strength` in
   every direction, the noise term is at most the overlap divided by
   `junk_strength`.
-* `abs_signal_loss_le` : and the signal term changes by at most the fraction
+* `signal_is_nearly_untouched_by_junk` : and the signal term changes by at most the fraction
   `junk_strength / signal_strength` of itself.
 * `benign_overfitting` : the three together.
 
-Definition: `GET_SPLIT_FIT`. Helper: `abs_div_add_le`.
+Definition: `GET_SPLIT_FIT`. Helper: `damage_is_at_most_one_over_junk_strength`.
 -/
 import SquigglyLine.Supporting.Training.LeastAction
 import SquigglyLine.Supporting.NewInputs.Pruning
@@ -33,7 +33,7 @@ section Terms
 /-- **The damage is capped by the junk.** A noise direction of any strength
 `noise_strength ≥ 0`, after junk features add `junk_strength`, moves a new
 answer by at most the overlap over `junk_strength`. -/
-theorem abs_div_add_le
+theorem damage_is_at_most_one_over_junk_strength
     {overlap overlap_bound noise_strength junk_strength : ℝ}
     (overlap_in_bound : |overlap| ≤ overlap_bound)
     (noise_strength_nonneg : 0 ≤ noise_strength)
@@ -58,7 +58,7 @@ theorem abs_div_add_le
 /-- **The signal is nearly untouched.** Adding `junk_strength` to a strong
 direction changes its term by at most the fraction
 `junk_strength / signal_strength` of itself. -/
-theorem abs_signal_loss_le
+theorem signal_is_nearly_untouched_by_junk
     (overlap : ℝ)
     {signal_strength junk_strength : ℝ}
     (signal_strength_pos : 0 < signal_strength)
@@ -113,7 +113,7 @@ noncomputable def GET_SPLIT_FIT
       (signal_strength⁻¹ • signal + noise_strength⁻¹ • noise)
 
 /-- **It fits the signal and the noise exactly.** -/
-theorem splitFit_fits
+theorem split_fit_fits_signal_and_noise
     (whole_predict : Weights →L[ℝ] Outputs)
     (labels : Outputs)
     (start_weights : Weights)
@@ -143,7 +143,7 @@ theorem splitFit_fits
   simp [GET_RESIDUAL]
 
 /-- **No fit is nearer.** -/
-theorem splitFit_is_nearest
+theorem split_fit_is_the_nearest_fit
     (whole_predict : Weights →L[ℝ] Outputs)
     {labels : Outputs}
     (start_weights : Weights)
@@ -171,7 +171,7 @@ theorem splitFit_is_nearest
 /-- **What the fit does to a new input.** The answer at `query_features`
 moves by the signal's overlap with the test row divided by `signal_strength`,
 plus the noise's overlap divided by `noise_strength`. -/
-theorem inner_splitFit
+theorem answer_of_split_fit_at_a_new_input
     (whole_predict : Weights →L[ℝ] Outputs)
     (start_weights : Weights)
     (query_features : Weights)
@@ -215,7 +215,7 @@ variable {RealWeights JunkWeights Weights Outputs : Type*}
 
 omit [CompleteSpace Weights] [CompleteSpace Outputs] in
 /-- The damage the noise does to the answer at a new input. -/
-theorem abs_noise_damage_le
+theorem noise_damage_at_a_new_input_is_at_most_its_cap
     (whole_predict : Weights →L[ℝ] Outputs)
     (query_features : Weights)
     (noise : Outputs)
@@ -228,7 +228,7 @@ theorem abs_noise_damage_le
       ‖whole_predict query_features‖ * ‖noise‖ / junk_strength  -- Cauchy–Schwarz bounds the overlap
     damage ≤ damage_cap := by
   unfold_named_pieces
-  exact abs_div_add_le (abs_real_inner_le_norm _ _) noise_strength_nonneg
+  exact damage_is_at_most_one_over_junk_strength (abs_real_inner_le_norm _ _) noise_strength_nonneg
     junk_strength_pos
 
 /-- **Benign overfitting.** The whole model `whole_predict` has real features
@@ -274,14 +274,14 @@ theorem benign_overfitting
         ≤ ‖whole_predict query_features‖ * ‖noise‖ / junk_strength
     fits_exactly ∧ answer_moves ∧ noise_term_is_capped := by
   unfold_named_pieces
-  exact ⟨splitFit_fits whole_predict labels start_weights
+  exact ⟨split_fit_fits_signal_and_noise whole_predict labels start_weights
       (ne_of_gt (by linarith)) (ne_of_gt (by linarith))
-      (kernel_eigen_add kernel_is_sum signal_is_eigen
+      (strengths_add kernel_is_sum signal_is_eigen
         (junk_is_tight signal))
-      (kernel_eigen_add kernel_is_sum noise_is_eigen (junk_is_tight noise))
+      (strengths_add kernel_is_sum noise_is_eigen (junk_is_tight noise))
       residual_splits,
-    inner_splitFit whole_predict start_weights query_features signal noise _ _,
-    abs_noise_damage_le whole_predict query_features noise
+    answer_of_split_fit_at_a_new_input whole_predict start_weights query_features signal noise _ _,
+    noise_damage_at_a_new_input_is_at_most_its_cap whole_predict query_features noise
       noise_strength_nonneg junk_strength_pos⟩
 
 end Junk

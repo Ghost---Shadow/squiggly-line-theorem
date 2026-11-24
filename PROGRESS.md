@@ -28,27 +28,27 @@ No ETA yet: the history covers 5.9 days, and no pace can be read from items tick
 - [x] Chapter 17: open item 1 about plates
 - [ ] Chapter 17: open item 2 about plates
 - [x] Chapter 5: a proof that standard initialisation gives the same loss at every width
-- [ ] Theorem names in the style of the rest of the code: `Networks/Bridge.lean`
-- [ ] Theorem names in the style of the rest of the code: `Networks/Depth.lean`
-- [ ] Theorem names in the style of the rest of the code: `Networks/DoubleDescent.lean`
-- [ ] Theorem names in the style of the rest of the code: `Networks/ExchangeRate.lean`
-- [ ] Theorem names in the style of the rest of the code: `Networks/FourierLift.lean`
+- [x] Theorem names in the style of the rest of the code: `Networks/Bridge.lean`
+- [x] Theorem names in the style of the rest of the code: `Networks/Depth.lean`
+- [x] Theorem names in the style of the rest of the code: `Networks/DoubleDescent.lean`
+- [x] Theorem names in the style of the rest of the code: `Networks/ExchangeRate.lean`
+- [x] Theorem names in the style of the rest of the code: `Networks/FourierLift.lean`
 - [x] Theorem names in the style of the rest of the code: `Connections/ParityZigzag.lean`
 - [x] Theorem names in the style of the rest of the code: `Connections/PrimeWaves.lean`
 - [x] Theorem names in the style of the rest of the code: `Networks/Initialisation.lean`
-- [ ] Theorem names in the style of the rest of the code: `Networks/Kernel.lean`
-- [ ] Theorem names in the style of the rest of the code: `Networks/Lift.lean`
-- [ ] Theorem names in the style of the rest of the code: `Networks/LinearModel.lean`
-- [ ] Theorem names in the style of the rest of the code: `Networks/MarkovChains.lean`
-- [ ] Theorem names in the style of the rest of the code: `Networks/NarrowChain.lean`
-- [ ] Theorem names in the style of the rest of the code: `Networks/Polarizer.lean`
-- [ ] Theorem names in the style of the rest of the code: `Networks/Positions.lean`
-- [ ] Theorem names in the style of the rest of the code: `Networks/RadialBasis.lean`
-- [ ] Theorem names in the style of the rest of the code: `Networks/RandomFourier.lean`
-- [ ] Theorem names in the style of the rest of the code: `Networks/TentCloser.lean`
-- [ ] Theorem names in the style of the rest of the code: `Networks/ThreePolarizers.lean`
-- [ ] Theorem names in the style of the rest of the code: `Networks/TrainedPlate.lean`
-- [ ] Theorem names in the style of the rest of the code: `Networks/TravellingLight.lean`
+- [x] Theorem names in the style of the rest of the code: `Networks/Kernel.lean`
+- [x] Theorem names in the style of the rest of the code: `Networks/Lift.lean`
+- [x] Theorem names in the style of the rest of the code: `Networks/LinearModel.lean`
+- [x] Theorem names in the style of the rest of the code: `Networks/MarkovChains.lean`
+- [x] Theorem names in the style of the rest of the code: `Networks/NarrowChain.lean`
+- [x] Theorem names in the style of the rest of the code: `Networks/Polarizer.lean`
+- [x] Theorem names in the style of the rest of the code: `Networks/Positions.lean`
+- [x] Theorem names in the style of the rest of the code: `Networks/RadialBasis.lean`
+- [x] Theorem names in the style of the rest of the code: `Networks/RandomFourier.lean`
+- [x] Theorem names in the style of the rest of the code: `Networks/TentCloser.lean`
+- [x] Theorem names in the style of the rest of the code: `Networks/ThreePolarizers.lean`
+- [x] Theorem names in the style of the rest of the code: `Networks/TrainedPlate.lean`
+- [x] Theorem names in the style of the rest of the code: `Networks/TravellingLight.lean`
 - [ ] Theorem names in the style of the rest of the code: `Supporting/NetworkShape/Activations.lean`
 - [ ] Theorem names in the style of the rest of the code: `Supporting/NetworkShape/Attention.lean`
 - [ ] Theorem names in the style of the rest of the code: `Supporting/NetworkShape/AttentionRate.lean`
@@ -72,17 +72,17 @@ No ETA yet: the history covers 5.9 days, and no pace can be read from items tick
 - [ ] Theorem names in the style of the rest of the code: `Supporting/NetworkShape/Temperature.lean`
 - [ ] Theorem names in the style of the rest of the code: `Supporting/NetworkShape/UniversalApproximation.lean`
 - [ ] Theorem names in the style of the rest of the code: `Supporting/NetworkShape/VanishingGradients.lean`
-- [ ] Theorem names in the style of the rest of the code: `Supporting/NewInputs/Averaging.lean`
-- [ ] Theorem names in the style of the rest of the code: `Supporting/NewInputs/BenignOverfitting.lean`
-- [ ] Theorem names in the style of the rest of the code: `Supporting/NewInputs/BiasVariance.lean`
-- [ ] Theorem names in the style of the rest of the code: `Supporting/NewInputs/Counting.lean`
-- [ ] Theorem names in the style of the rest of the code: `Supporting/NewInputs/Dimple.lean`
-- [ ] Theorem names in the style of the rest of the code: `Supporting/NewInputs/Forgetting.lean`
-- [ ] Theorem names in the style of the rest of the code: `Supporting/NewInputs/Mixing.lean`
-- [ ] Theorem names in the style of the rest of the code: `Supporting/NewInputs/Neighbours.lean`
-- [ ] Theorem names in the style of the rest of the code: `Supporting/NewInputs/OnAverage.lean`
-- [ ] Theorem names in the style of the rest of the code: `Supporting/NewInputs/Pruning.lean`
-- [ ] Theorem names in the style of the rest of the code: `Supporting/NewInputs/SameKernel.lean`
+- [x] Theorem names in the style of the rest of the code: `Supporting/NewInputs/Averaging.lean`
+- [x] Theorem names in the style of the rest of the code: `Supporting/NewInputs/BenignOverfitting.lean`
+- [x] Theorem names in the style of the rest of the code: `Supporting/NewInputs/BiasVariance.lean`
+- [x] Theorem names in the style of the rest of the code: `Supporting/NewInputs/Counting.lean`
+- [x] Theorem names in the style of the rest of the code: `Supporting/NewInputs/Dimple.lean`
+- [x] Theorem names in the style of the rest of the code: `Supporting/NewInputs/Forgetting.lean`
+- [x] Theorem names in the style of the rest of the code: `Supporting/NewInputs/Mixing.lean`
+- [x] Theorem names in the style of the rest of the code: `Supporting/NewInputs/Neighbours.lean`
+- [x] Theorem names in the style of the rest of the code: `Supporting/NewInputs/OnAverage.lean`
+- [x] Theorem names in the style of the rest of the code: `Supporting/NewInputs/Pruning.lean`
+- [x] Theorem names in the style of the rest of the code: `Supporting/NewInputs/SameKernel.lean`
 - [ ] Theorem names in the style of the rest of the code: `Supporting/Training/AdamW.lean`
 - [ ] Theorem names in the style of the rest of the code: `Supporting/Training/BatchSize.lean`
 - [ ] Theorem names in the style of the rest of the code: `Supporting/Training/ComputeBudget.lean`
@@ -484,13 +484,13 @@ No ETA yet: the history covers 5.9 days, and no pace can be read from items tick
 - [x] The notebook of chapter 20 read by a second reader
 - [x] The notebook of chapter 21 read by a second reader
 - [x] The notebook of chapter 22 read by a second reader
-- [ ] The notebook of chapter 23 read by a second reader
+- [x] The notebook of chapter 23 read by a second reader
 - [x] The notebook of chapter 24 read by a second reader
-- [ ] The notebook of chapter 25 read by a second reader
+- [x] The notebook of chapter 25 read by a second reader
 - [x] The notebook of chapter 26 read by a second reader
-- [ ] The notebook of chapter 27 read by a second reader
+- [x] The notebook of chapter 27 read by a second reader
 - [x] The notebook of chapter 28 read by a second reader
-- [ ] The notebook of chapter 29 read by a second reader
+- [x] The notebook of chapter 29 read by a second reader
 - [x] The notebook of chapter 30 read by a second reader
 - [x] The notebook of chapter 31 read by a second reader
 - [x] The notebook of chapter 32 read by a second reader

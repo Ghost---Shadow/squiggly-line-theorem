@@ -26,14 +26,14 @@ the outputs on the old task as well.
 
 By how much? The old task's errors change by the step size times the new
 task's errors, passed through the table of likeness between the old inputs and
-the new ones (**proved**: `residual_gradientStep_other`). Call that table the
+the new ones (**proved**: `forgetting_goes_through_the_cross_kernel`). Call that table the
 cross kernel. Read along one direction `u` of the old labels:
 
 ```
 change in old error along u  =  − η × (how the new task sees u) matched against the new errors
 ```
 
-(**proved**: `inner_forgetting_step`.) The weights do not appear. Only the
+(**proved**: `forgetting_along_one_direction`.) The weights do not appear. Only the
 cross kernel does.
 
 So forgetting is interference. A step that corrects the new task's answer at a
@@ -44,7 +44,7 @@ it. If the old label there disagrees, the old task gets worse.
 
 If the cross kernel is zero, the model sees no old input as like any new one.
 Then training on the new task, for any number of steps, leaves every old error
-exactly where it was (**proved**: `residual_iterate_of_cross_kernel_eq_zero`).
+exactly where it was (**proved**: `separate_features_forget_nothing`).
 
 That is the exact form of "the tasks use separate features".
 
@@ -52,7 +52,7 @@ That is the exact form of "the tasks use separate features".
 
 Moving the weights a certain distance changes the old outputs by at most that
 distance times the size of the old task's features
-(**proved**: `forgetting_le_dist`).
+(**proved**: `forgetting_is_at_most_predict_size_times_distance`).
 
 Gradient descent moves the weights as little as any method could: if it
 arrives at a fit of the new task, that fit is the nearest one (**proved**
@@ -61,7 +61,7 @@ earlier: `gradientDescent_fit_is_nearest` in [`LeastAction.lean`](../../../lean/
 > The amount forgotten is at most the size of the old task's features times
 > the distance from the start to the nearest fit of the new task.
 
-(**proved**: `forgetting_le_travel`.) The new task's travel is the budget.
+(**proved**: `forgetting_is_at_most_predict_size_times_travel`.) The new task's travel is the budget.
 Forgetting cannot spend more than that.
 
 ## How this meets the squiggly line

@@ -24,8 +24,8 @@ nothing. This is the three-polarizer effect.
 | `APPLY_FAN`          | one layer: rotate, then ReLU                      |
 | `PLACE_ON_EDGE`      | the bird: the point `(length, 0)`                 |
 
-Theorems: `abs_sub_relu_le`, `relu2_nearest`, `fan_of_le_pi_div_two`,
-`fan_of_pi_div_two_le`, `iterate_fan`, `one_sub_le_cos_pow`.
+Theorems: `relu_moves_to_the_nearest_number_that_is_not_negative`, `relu_is_a_projection_onto_the_quadrant`, `fan_keeps_cosine_of_a_turn_up_to_a_quarter`,
+`fan_blocks_a_turn_beyond_a_quarter`, `many_small_turns_keep_cosine_to_the_power`, `half_turn_in_many_steps_keeps_almost_everything`.
 
 How to read the notation:
 
@@ -80,7 +80,7 @@ noncomputable def APPLY_FAN
 
 /-- On the number line, ReLU moves a number to the nearest number that is not
 negative: no other such number is closer. -/
-theorem abs_sub_relu_le
+theorem relu_moves_to_the_nearest_number_that_is_not_negative
     (value : ℝ)
     {candidate : ℝ}
     (candidate_nonneg : 0 ≤ candidate) :
@@ -99,7 +99,7 @@ theorem abs_sub_relu_le
 
 /-- **ReLU is a projection.** It sends a point to the nearest point of the
 positive quadrant: no other point of the quadrant is closer. -/
-theorem relu2_nearest
+theorem relu_is_a_projection_onto_the_quadrant
     (point : PlanePoint)
     (candidate : PlanePoint)
     (candidate_across_nonneg : 0 ≤ candidate.1)
@@ -113,8 +113,8 @@ theorem relu2_nearest
   unfold_named_pieces
   -- ReLU is nearest in each coordinate on its own, so it is nearest overall.
   exact add_le_add
-    (sq_le_sq.mpr (abs_sub_relu_le point.1 candidate_across_nonneg))
-    (sq_le_sq.mpr (abs_sub_relu_le point.2 candidate_up_nonneg))
+    (sq_le_sq.mpr (relu_moves_to_the_nearest_number_that_is_not_negative point.1 candidate_across_nonneg))
+    (sq_le_sq.mpr (relu_moves_to_the_nearest_number_that_is_not_negative point.2 candidate_up_nonneg))
 
 /-! ## A bird on the edge of the quadrant
 
@@ -138,7 +138,7 @@ variable
 /-- **Malus's law.** A bird on the edge, turned out of the quadrant by at
 most 90°, is pressed back onto the edge and keeps the fraction `cos(angle)`
 of its length. -/
-theorem fan_of_le_pi_div_two
+theorem fan_keeps_cosine_of_a_turn_up_to_a_quarter
     (length_nonneg : 0 ≤ length)
     (angle_nonneg : 0 ≤ angle)
     (angle_le_quarter_turn : angle ≤ PI / 2) :                  -- PI / 2 is 90°
@@ -167,7 +167,7 @@ theorem fan_of_le_pi_div_two
 
 /-- **Crossed polarizers.** A bird turned by between 90° and 180° in one step
 is blocked. -/
-theorem fan_of_pi_div_two_le
+theorem fan_blocks_a_turn_beyond_a_quarter
     (length_nonneg : 0 ≤ length)
     (quarter_turn_le_angle : PI / 2 ≤ angle)                    -- PI / 2 is 90°
     (angle_le_half_turn : angle ≤ PI) :                         -- PI is 180°
@@ -195,7 +195,7 @@ theorem fan_of_pi_div_two_le
 
 /-- **Many small turns.** `layer_count` layers, each turning by at most 90°,
 keep the fraction `cos(angle) ^ layer_count` of the length. -/
-theorem iterate_fan
+theorem many_small_turns_keep_cosine_to_the_power
     (length_nonneg : 0 ≤ length)
     (angle_nonneg : 0 ≤ angle)
     (angle_le_quarter_turn : angle ≤ PI / 2)                    -- PI / 2 is 90°
@@ -215,7 +215,7 @@ theorem iterate_fan
     -- After the earlier layers the bird is on the edge again, only shorter.
     -- So Malus's law applies to the last layer as well.
     rw [Function.iterate_succ_apply', bird_after_earlier_layers,
-      fan_of_le_pi_div_two
+      fan_keeps_cosine_of_a_turn_up_to_a_quarter
         (mul_nonneg length_nonneg
           (pow_nonneg cosine_nonneg earlier_layer_count))
         angle_nonneg angle_le_quarter_turn,
@@ -224,7 +224,7 @@ theorem iterate_fan
 /-- **The three-polarizer effect.** A half turn split into `step_count ≥ 3`
 equal steps keeps at least `1 - PI ^ 2 / (2 * step_count)` of the length.
 Split into one step it keeps nothing. -/
-theorem one_sub_le_cos_pow
+theorem half_turn_in_many_steps_keeps_almost_everything
     {step_count : ℕ}
     (at_least_three_steps : 3 ≤ step_count) :                   -- then each step is at most 60°, small enough for the bound
     let step_angle    := PI / step_count                        -- a half turn is PI, cut into equal steps

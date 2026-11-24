@@ -195,13 +195,24 @@ learning rate of zero at strength 0.01, plain descent took 358 steps and the
 sign rule 5. Inside Adam, a weight of 4 and a weight of 0.1 each lose 0.1
 in one step (from the formula), while plain descent with an L2 penalty loses
 0.2 from the large one and 0.005 from the small one, a ratio of 40.0 (control,
-from the formula). Run: AdamW leaves 0.5987 of every weight after 10 steps
-and 0.3585 after 20. Run: clipped gradients were never longer than the limit,
-and travel over 100 steps never exceeded the cap of 20. The largest of 200
-random sequences travelled 3.374, aligned gradients reached 20.000000, and
-unclipped sequences travelled up to 1014. Two statements are by construction
-and are not evidence: that every Adam coordinate moves by exactly 1, and that
-AdamW is the shrink then Adam's step. These are checks, not proofs. They do
+from the formula). Exact iteration of the rule (by construction, not evidence): with a zero
+gradient AdamW leaves 0.5987 of every weight after 10 steps and 0.3585 after
+20, because each step is literally the weight times `1 - learning_rate * decay`.
+Run: clipped gradients were never longer than the limit, and travel over 100
+steps never exceeded the cap of 20. The largest of 200 random sequences
+travelled 3.374, far from the cap, so random sequences do not test the bound;
+300 slowly rotating and 300 partly aligned sequences (each with a clipped
+length of 2 on every step) reached 0.99958 and 1.00000 of the cap and none
+went above it. Aligned gradients reached 20.000000, which is the equality
+case. Unclipped sequences travelled up to 1014, a ratio of 50.7 to the cap,
+and the control asks only that this be above the cap. Of the checks, 19 could
+fail and passed. Eight are printed as by construction and are not counted:
+that every Adam coordinate moves by exactly 1 (and that a coordinate moves by
+exactly `learning_rate` inside Adam, and that each sign step removes exactly
+`learning_rate` from the gap), that scaling the loss is dividing the decay
+inside Adam, the AdamW power check above, that AdamW is the shrink then Adam's
+step, that a gradient within the limit is left alone (the definition of the
+clip), and that a cap of 100 is below 250. These are checks, not proofs. They do
 not test Adam with memory, and the comparison of coordinates with directions
 is made only on a landscape whose directions are the coordinates.
 

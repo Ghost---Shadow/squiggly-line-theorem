@@ -19,10 +19,10 @@ Four common ways to tell a transformer where a token is.
 | `GET_POSITION_OVERLAP` | overlap of the sinusoidal signals of two places |
 | `GET_PLANE_DOT`        | the dot product of two points of the plane      |
 
-Theorems: `positionOverlap_eq_sum_cos`, `positionOverlap_shift`,
-`positionOverlap_le_card`, `positionOverlap_self`, `planeDot_rotate_rotate`,
-`planeDot_rotate_shift`, `planeDot_rotate_self`, `relativeBias_shift`,
-`update_table_of_ne`.
+Theorems: `position_overlap_equals_sum_of_cosines_of_the_gap`, `position_overlap_does_not_change_under_a_shift`,
+`position_overlap_is_at_most_frequency_count`, `position_overlap_with_itself_equals_frequency_count`, `dot_product_after_two_turns_depends_on_angle_gap`,
+`rotary_score_depends_on_position_gap`, `turning_keeps_the_length`, `relative_bias_does_not_change_under_a_shift`,
+`learned_table_ties_no_two_positions`.
 -/
 import SquigglyLine.Networks.Polarizer
 
@@ -44,7 +44,7 @@ noncomputable def GET_POSITION_OVERLAP
     + sin (frequencies k * position) * sin (frequencies k * other_position))
 
 /-- **The overlap of two positions is a sum of cosines of their gap.** -/
-theorem positionOverlap_eq_sum_cos
+theorem position_overlap_equals_sum_of_cosines_of_the_gap
     (frequencies : Frequency → ℝ)
     (position : ℝ)
     (other_position : ℝ) :
@@ -59,7 +59,7 @@ theorem positionOverlap_eq_sum_cos
 
 /-- So it depends only on the gap: moving both positions along by `shift`
 changes nothing. -/
-theorem positionOverlap_shift
+theorem position_overlap_does_not_change_under_a_shift
     (frequencies : Frequency → ℝ)
     (position : ℝ)
     (other_position : ℝ)
@@ -75,15 +75,15 @@ theorem positionOverlap_shift
           (other_position + shift)
         = ∑ k, cos (frequencies k
             * (position + shift - (other_position + shift))) :=
-    positionOverlap_eq_sum_cos frequencies _ _
+    position_overlap_equals_sum_of_cosines_of_the_gap frequencies _ _
   have overlap_as_cosines :
       GET_POSITION_OVERLAP frequencies position other_position
         = ∑ k, cos (frequencies k * (position - other_position)) :=
-    positionOverlap_eq_sum_cos frequencies _ _
+    position_overlap_equals_sum_of_cosines_of_the_gap frequencies _ _
   rw [shifted_as_cosines, overlap_as_cosines, add_sub_add_right_eq_sub]
 
 /-- No two positions overlap more than a position does with itself. -/
-theorem positionOverlap_le_card
+theorem position_overlap_is_at_most_frequency_count
     (frequencies : Frequency → ℝ)
     (position : ℝ)
     (other_position : ℝ) :
@@ -95,7 +95,7 @@ theorem positionOverlap_le_card
   have overlap_as_cosines :
       GET_POSITION_OVERLAP frequencies position other_position
         = ∑ k, cos (frequencies k * (position - other_position)) :=
-    positionOverlap_eq_sum_cos frequencies _ _
+    position_overlap_equals_sum_of_cosines_of_the_gap frequencies _ _
   rw [overlap_as_cosines]
   calc ∑ k, cos (frequencies k * (position - other_position))
       ≤ ∑ _k : Frequency, (1 : ℝ) :=
@@ -103,7 +103,7 @@ theorem positionOverlap_le_card
     _ = Fintype.card Frequency := by simp
 
 /-- A position's overlap with itself is the number of frequencies. -/
-theorem positionOverlap_self
+theorem position_overlap_with_itself_equals_frequency_count
     (frequencies : Frequency → ℝ)
     (position : ℝ) :
     let overlap := GET_POSITION_OVERLAP frequencies position position
@@ -113,7 +113,7 @@ theorem positionOverlap_self
   have overlap_as_cosines :
       GET_POSITION_OVERLAP frequencies position position
         = ∑ k, cos (frequencies k * (position - position)) :=
-    positionOverlap_eq_sum_cos frequencies _ _
+    position_overlap_equals_sum_of_cosines_of_the_gap frequencies _ _
   rw [overlap_as_cosines]
   simp
 
@@ -127,7 +127,7 @@ def GET_PLANE_DOT
 /-- **Rotary positions.** Turn the query by one angle and the key by another.
 Their dot product is that of the query turned by the difference, with the key
 left alone. -/
-theorem planeDot_rotate_rotate
+theorem dot_product_after_two_turns_depends_on_angle_gap
     (query_angle : ℝ)
     (key_angle : ℝ)
     (query : PlanePoint)
@@ -145,7 +145,7 @@ theorem planeDot_rotate_rotate
 
 /-- With angles `position * frequency`, the score depends on the two positions
 only through their gap. -/
-theorem planeDot_rotate_shift
+theorem rotary_score_depends_on_position_gap
     (frequency : ℝ)
     (position : ℝ)
     (other_position : ℝ)
@@ -166,21 +166,21 @@ theorem planeDot_rotate_shift
         = GET_PLANE_DOT
             (ROTATE ((position + shift) * frequency
               - (other_position + shift) * frequency) query) key :=
-    planeDot_rotate_rotate _ _ query key
+    dot_product_after_two_turns_depends_on_angle_gap _ _ query key
   have plain_relative :
       GET_PLANE_DOT (ROTATE (position * frequency) query)
           (ROTATE (other_position * frequency) key)
         = GET_PLANE_DOT
             (ROTATE (position * frequency - other_position * frequency)
               query) key :=
-    planeDot_rotate_rotate _ _ query key
+    dot_product_after_two_turns_depends_on_angle_gap _ _ query key
   rw [shifted_relative, plain_relative]
   -- The shift cancels in the gap of the two angles.
   congr 2
   ring
 
 /-- Turning a vector does not change its length. -/
-theorem planeDot_rotate_self
+theorem turning_keeps_the_length
     (angle : ℝ)
     (point : PlanePoint) :
     let turned_point          := ROTATE angle point
@@ -193,7 +193,7 @@ theorem planeDot_rotate_self
 
 /-- **A relative position bias** reads only the gap, so shifting the whole
 sequence leaves it as it was. -/
-theorem relativeBias_shift
+theorem relative_bias_does_not_change_under_a_shift
     (bias : ℤ → ℝ)
     (query_position : ℤ)
     (key_position : ℤ)
@@ -206,7 +206,7 @@ theorem relativeBias_shift
 
 /-- **A learned table ties no two positions together.** Changing the vector of
 one position changes nothing at any other. -/
-theorem update_table_of_ne
+theorem learned_table_ties_no_two_positions
     {Position Vector : Type*}
     [DecidableEq Position]
     (table : Position → Vector)

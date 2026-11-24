@@ -3,7 +3,7 @@
 # The Squiggly Line Theorem (Early Access)
 
 <!-- progress-bar:start -->
-`███████░░░░░░░░░░░░░` **34% done** · ETA unknown ([what this counts](PROGRESS.md), [burn-down](PROGRESS.md#burn-down))
+`████████░░░░░░░░░░░░` **41% done** · ETA unknown ([what this counts](PROGRESS.md), [burn-down](PROGRESS.md#burn-down))
 <!-- progress-bar:end -->
 
 **A squigglier curve passes closer to the data. It is steeper by the same
@@ -378,7 +378,7 @@ the loss at the start can detect squiggliness.
 
 **For networks.** Depth can buy squiggliness. `L` layers of two ReLU neurons
 fold the line `L` times and draw a curve that passes within `1 / 2^L` of every
-point of the unit square (`nearestDist_iterate_tent_le`). A network with one
+point of the unit square (`nearest_distance_of_tent_layers_is_at_most_one_over_two_to_the_layers`). A network with one
 neuron per layer never turns at all, and a network with one hidden layer needs
 `2^L` neurons to follow what `2(L + 1)` neurons do in depth. Width with random
 weights does not buy it: the loss at the start is the same at every width,
@@ -601,10 +601,10 @@ speed of light and with no power spent on the plates.
 
 **What is proved here.** Only the arithmetic, not the hardware.
 
-- A plate is a projection, and Malus's law follows (`malus` in
+- A plate is a projection, and Malus's law follows (`malus_law` in
   [`ThreePolarizers`](lean/SquigglyLine/Networks/ThreePolarizers.lean)). In the plane,
   ReLU is also a projection, onto a quadrant where the plate's is onto a line
-  (`relu2_nearest` in [`Polarizer`](lean/SquigglyLine/Networks/Polarizer.lean)).
+  (`relu_is_a_projection_onto_the_quadrant` in [`Polarizer`](lean/SquigglyLine/Networks/Polarizer.lean)).
 - Depth is affordable. A quarter turn spread over `N` plates loses at most
   `π² / (8N)` of the light (`quarter_turn_arrives`), and any turn `φ` loses at
   most `φ² / (2N)` once each step is small (`turn_in_steps_keeps`).

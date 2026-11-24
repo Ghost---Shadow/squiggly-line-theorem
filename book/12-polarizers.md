@@ -17,13 +17,13 @@ part of the light that lines up with its axis.
 
 **ReLU is a wide polarizer.** Take a point in the plane and apply ReLU to
 both coordinates. The result is the nearest point of the positive
-quadrant (`relu2_nearest`). So ReLU is a projection: it presses each
+quadrant (`relu_is_a_projection_onto_the_quadrant`). So ReLU is a projection: it presses each
 point onto a region. A polarizer presses each arrow of light onto a line.
 
 **Malus's law.** Light of strength `amplitude` meets a polarizer whose
 axis is turned by an angle from the light. What passes has strength
-`amplitude × cos(angle)` (`malus`). At 90° nothing passes
-(`polarizer_crossed`).
+`amplitude × cos(angle)` (`malus_law`). At 90° nothing passes
+(`crossed_polarizer_blocks`).
 
 ## Three polarizers
 
@@ -92,7 +92,7 @@ chain of layers, and the steps themselves form a chain: the next weights
 depend only on the current ones. For tight features (chapter 9) the
 outer chain is the one-factor rule of chapter 10: after `step_count`
 steps the error is `(1 − learning_rate × squared_length) ^ step_count`
-times what it was (`HAS_TIGHT_FEATURES.residual_iterate_gradientStep`).
+times what it was (`HAS_TIGHT_FEATURES.residual_after_many_gradient_steps`).
 
 ## A plate you can train
 

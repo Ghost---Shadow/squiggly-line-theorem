@@ -22,19 +22,19 @@ Definitions: `APPLY_MESSAGE_PASSING`, `TAKE_NOISING_STEP`,
 `AVERAGE_OVER_MOVES`, `APPLY_GUIDANCE`.
 
 Theorems:
-* `abs_messagePassing_sub_le`          one layer shrinks the spread;
-* `abs_iterate_messagePassing_sub_le`  depth shrinks it geometrically;
-* `noisingStep_sum`                    a noising step keeps the variance at
+* `message_passing_layer_shrinks_the_spread`          one layer shrinks the spread;
+* `depth_blurs_the_nodes`  depth shrinks it geometrically;
+* `noising_step_keeps_total_variance_at_one`                    a noising step keeps the variance at
                                        one;
-* `iterate_noisingStep_signal`         the signal's share is a product;
-* `averageOverMoves_smul`              the averaged model ignores the moves;
-* `lipschitzWith_averageOverMoves`     and it is no steeper;
-* `sum_mul_baseline_eq_zero`           a baseline pushes nothing on average;
-* `sum_mul_sub_baseline`               so subtracting one changes no push;
-* `guidance_sub`                       guidance moves `1 + strength` times as
+* `signal_share_after_many_noising_steps`         the signal's share is a product;
+* `averaged_model_ignores_the_moves`              the averaged model ignores the moves;
+* `averaged_model_is_no_steeper`     and it is no steeper;
+* `baseline_pushes_nothing_on_average`           a baseline pushes nothing on average;
+* `subtracting_a_baseline_keeps_the_average_push`               so subtracting one changes no push;
+* `guidance_moves_along_the_prompt_direction`                       guidance moves `1 + strength` times as
                                        far;
-* `norm_guidance_sub`                  the same, for lengths;
-* `guidance_notMem_segment`            guidance is not an average.
+* `guided_step_is_longer_by_one_plus_strength`                  the same, for lengths;
+* `guidance_is_not_an_average`            guidance is not an average.
 -/
 import Mathlib.Analysis.Convex.Segment
 import SquigglyLine.Supporting.NetworkShape.AttentionRate
@@ -63,7 +63,7 @@ def APPLY_MESSAGE_PASSING
 adds to one and every weight is at least `weight_floor`, two nodes end no
 further apart than `1 - node_count * weight_floor` times the range of the
 values. -/
-theorem abs_messagePassing_sub_le
+theorem message_passing_layer_shrinks_the_spread
     {node_weights : Nodes → Nodes → ℝ}
     {weight_floor lower_bound upper_bound : ℝ}
     (weights_above_floor : ∀ i j, weight_floor ≤ node_weights i j)
@@ -93,7 +93,7 @@ theorem abs_messagePassing_sub_le
 /-- **Depth blurs the nodes.** After `layer_count` layers any two nodes differ
 by at most `(1 - node_count * weight_floor) ^ layer_count` times the range
 they started in. -/
-theorem abs_iterate_messagePassing_sub_le
+theorem depth_blurs_the_nodes
     [Nonempty Nodes]
     {node_weights : Nodes → Nodes → ℝ}
     {weight_floor lower_bound upper_bound : ℝ}
@@ -157,7 +157,7 @@ theorem abs_iterate_messagePassing_sub_le
               - APPLY_MESSAGE_PASSING node_weights previous lowest_node|
             ≤ (1 - Fintype.card Nodes * weight_floor)
               * (band_upper - band_lower) :=
-          abs_messagePassing_sub_le weights_above_floor rows_sum_to_one
+          message_passing_layer_shrinks_the_spread weights_above_floor rows_sum_to_one
             above_band_lower below_band_upper highest_node lowest_node
         calc APPLY_MESSAGE_PASSING node_weights previous highest_node
               - APPLY_MESSAGE_PASSING node_weights previous lowest_node
@@ -184,7 +184,7 @@ def TAKE_NOISING_STEP
   ((1 - noise_rate) * split.1, (1 - noise_rate) * split.2 + noise_rate)
 
 /-- **The schedule keeps the total variance at one.** -/
-theorem noisingStep_sum
+theorem noising_step_keeps_total_variance_at_one
     (noise_rate : ℝ)
     {split : VarianceSplit}
     (split_sums_to_one : split.1 + split.2 = 1) :
@@ -199,7 +199,7 @@ theorem noisingStep_sum
 /-- **The signal's share is the product of the factors `1 - noise_rate`.**
 With the same `noise_rate` at every step it is `(1 - noise_rate) ^ step_count`
 of what it was. -/
-theorem iterate_noisingStep_signal
+theorem signal_share_after_many_noising_steps
     (noise_rate : ℝ)
     (split : VarianceSplit)
     (step_count : ℕ) :
@@ -228,7 +228,7 @@ noncomputable def AVERAGE_OVER_MOVES
   (Fintype.card Moves : ℝ)⁻¹ * ∑ move : Moves, model (move • input)
 
 /-- **The averaged model ignores the moves.** -/
-theorem averageOverMoves_smul
+theorem averaged_model_ignores_the_moves
     (model : Model Inputs)
     (move : Moves)
     (input : Inputs) :
@@ -242,7 +242,7 @@ theorem averageOverMoves_smul
   exact Fintype.sum_equiv (Equiv.mulRight move) _ _ fun other_move => rfl
 
 /-- **And it is no steeper**, when the moves keep distances. -/
-theorem lipschitzWith_averageOverMoves
+theorem averaged_model_is_no_steeper
     [PseudoMetricSpace Inputs]
     {model : Model Inputs}
     {slope_limit : SlopeLimit}
@@ -288,7 +288,7 @@ variable {Actions : Type*} [Fintype Actions] [DecidableEq Actions]
 /-- **A baseline pushes nothing on average.** For a policy over actions, the
 push on the score of action `chosen_action` from "action taken minus
 prediction", averaged over the action taken, is zero. -/
-theorem sum_mul_baseline_eq_zero
+theorem baseline_pushes_nothing_on_average
     {policy : Actions → ℝ}
     (policy_sums_to_one : ∑ i, policy i = 1)
     (chosen_action : Actions) :
@@ -304,7 +304,7 @@ theorem sum_mul_baseline_eq_zero
 
 /-- So subtracting a baseline from every reward leaves the average push as it
 was. -/
-theorem sum_mul_sub_baseline
+theorem subtracting_a_baseline_keeps_the_average_push
     {policy : Actions → ℝ}
     (policy_sums_to_one : ∑ i, policy i = 1)
     (rewards : Actions → ℝ)
@@ -322,7 +322,7 @@ theorem sum_mul_sub_baseline
   have baseline_part_zero :
       ∑ i, policy i *
         ((if i = chosen_action then 1 else 0) - policy chosen_action) = 0 :=
-    sum_mul_baseline_eq_zero policy_sums_to_one chosen_action
+    baseline_pushes_nothing_on_average policy_sums_to_one chosen_action
   have split_term : ∀ i,
       policy i * (rewards i - baseline) *
           ((if i = chosen_action then 1 else 0) - policy chosen_action)
@@ -347,7 +347,7 @@ def APPLY_GUIDANCE
 
 /-- Guidance moves from the plain prediction in the direction of the prompt,
 `1 + guidance_strength` times as far as the prompt alone does. -/
-theorem guidance_sub
+theorem guidance_moves_along_the_prompt_direction
     (guidance_strength : ℝ)
     (without_prompt with_prompt : Space) :
     let guided_move :=
@@ -362,7 +362,7 @@ theorem guidance_sub
 
 /-- The guided step is `1 + guidance_strength` times as long as the plain
 step. -/
-theorem norm_guidance_sub
+theorem guided_step_is_longer_by_one_plus_strength
     {guidance_strength : ℝ}
     (strength_ok : 0 ≤ 1 + guidance_strength)
     (without_prompt with_prompt : Space) :
@@ -377,13 +377,13 @@ theorem norm_guidance_sub
       APPLY_GUIDANCE guidance_strength without_prompt with_prompt
           - without_prompt
         = (1 + guidance_strength) • (with_prompt - without_prompt) :=
-    guidance_sub guidance_strength without_prompt with_prompt
+    guidance_moves_along_the_prompt_direction guidance_strength without_prompt with_prompt
   rw [guided_move_eq, norm_smul, Real.norm_of_nonneg strength_ok]
 
 /-- **Guidance is not an average.** For a positive strength the guided
 prediction is not on the stretch between the two predictions it is made
 from. -/
-theorem guidance_notMem_segment
+theorem guidance_is_not_an_average
     {guidance_strength : ℝ}
     (strength_pos : 0 < guidance_strength)
     {without_prompt with_prompt : Space}
@@ -411,7 +411,7 @@ theorem guidance_notMem_segment
         APPLY_GUIDANCE guidance_strength without_prompt with_prompt
             - without_prompt
           = (1 + guidance_strength) • (with_prompt - without_prompt) :=
-      guidance_sub guidance_strength without_prompt with_prompt
+      guidance_moves_along_the_prompt_direction guidance_strength without_prompt with_prompt
     rw [guided_move_eq] at guided_move_on_stretch
     rw [sub_smul, guided_move_on_stretch, sub_self]
   rcases smul_eq_zero.mp step_is_zero with factor_zero | difference_zero

@@ -42,19 +42,19 @@ Three things follow.
 
 **1. Training cannot see `K`.** On real data the height is zero, so the
 function equals `g`, whatever `K` is. Every loss on real data is the same for
-every `K` (**proved**: `residualLoss_dimpled_onManifold`). Nothing in training rewards or punishes the slope
+every `K` (**proved**: `loss_on_the_manifold_does_not_see_the_dimple_slope`). Nothing in training rewards or punishes the slope
 off the sheet.
 
 **2. The adversarial step goes straight off the sheet, and its length is the
 error divided by `K`.** Take a data point and any label you like. Step off the
 sheet by `(label − g) / K` and the function gives exactly that label. The step
-does not move along the sheet at all (**proved**: `dimpled_dimple`,
-`dist_onManifold_dimple`, `dimple_fst`). So the nearest-point
+does not move along the sheet at all (**proved**: `any_label_is_one_step_off_the_manifold`,
+`length_of_dimple_step_equals_error_over_slope`, `dimple_does_not_move_along_the_manifold`). So the nearest-point
 distance of the squiggly line theorem is at most `vertical / K`.
 
 **3. That is essentially the whole story.** If `g` has slope at most `L` along
 the sheet, then no adversarial step can be shorter than
-`vertical / √(1 + (L + K)²)` (**proved**: `nearestDist_dimpled_bounds`). For large
+`vertical / √(1 + (L + K)²)` (**proved**: `nearest_distance_of_dimpled_model_is_between_two_bounds`). For large
 `K` the two bounds agree up to a constant: the adversarial distance is the
 vertical error divided by `K`.
 

@@ -39,9 +39,10 @@ standing brief for that port is [`PORTING.md`](PORTING.md).
 - Notes, the book, the paper and the notebooks refer to theorems by name. So
   a rename goes through [`RENAMES-theorems.txt`](RENAMES-theorems.txt) and
   `scripts/rename_theorems.py`, which changes the name everywhere at once.
-  The files of `Theorem/`, `Connections/` and `Networks/Initialisation.lean`
-  follow the rule. The other files still have their older, Mathlib-like
-  names (`card_ge_of_zigzag`) until their turn comes.
+  The files of `Theorem/`, `Networks/`, `Connections/` and
+  `Supporting/NewInputs/` follow the rule. The files of
+  `Supporting/NetworkShape/` and `Supporting/Training/` still have their
+  older, Mathlib-like names (`card_ge_of_zigzag`) until their turn comes.
 - Names from Mathlib are not changed (`dist`, `Measurable`, `LipschitzWith`).
 - The circle constant is `PI`. A bare `pi` is not a name Lean knows.
 

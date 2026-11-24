@@ -57,7 +57,7 @@ strength is learned in the end. The left side says it cannot be hurried: until
 
 **A direction of strength zero is never learned.** Its error stays exactly
 where it started, for ever (**proved**: `inner_residual_iterate_of_kernel_eq_zero`).
-This is the training-time side of `not_exists_fit_of_kernel_eq_zero`.
+This is the training-time side of `no_fit_along_a_direction_of_zero_strength`.
 
 ## Three things this explains
 

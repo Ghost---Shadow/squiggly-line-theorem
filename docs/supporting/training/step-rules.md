@@ -100,7 +100,7 @@ has (**recalled**: Li et al. 2018).
 Confining the weights to a subspace never shortens the trip. If a fit exists
 inside the subspace, it is at least as far from the start as the nearest fit
 of the full model (**proved**: `travel_le_travel_comp`). This is
-`travel_coprod_le` in [`LinearModel.lean`](../../../lean/SquigglyLine/Networks/LinearModel.lean) read the other way: adding
+`more_weights_never_move_the_fit_away` in [`LinearModel.lean`](../../../lean/SquigglyLine/Networks/LinearModel.lean) read the other way: adding
 directions never lengthens the trip, and removing them never shortens it.
 
 So low-rank training trades travel for parameters. It works well when the

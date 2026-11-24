@@ -47,12 +47,12 @@ Two short facts connect them.
 **A fit that is near the start stays near it everywhere.** The fitted function
 at any new input differs from the starting function by at most the size of
 the features at that input, times the travel (**proved**:
-`exists_fit_near_start`). So a small travel means a tame function between the
+`fit_near_the_start_is_tame_everywhere`). So a small travel means a tame function between the
 data points. A large travel is the only way the function can go wild.
 
 **The travel is large exactly when the kernel has a weak direction.** If the
 kernel is at least `c` in every direction, the travel is at most the size of
-the labels divided by `√c` (**proved**: `travel_le_of_le_kernel`). At the
+the labels divided by `√c` (**proved**: `travel_is_at_most_residual_over_root_of_kernel_floor`). At the
 threshold the model has just enough features to reach every label, and some
 direction is reachable only barely. There `c` is tiny: 0.00000007 at 21
 parameters, against 202 at 513 (**measured**).
@@ -82,7 +82,7 @@ There are three cases, and they are the three parts of the curve.
 1. **Strength zero: out of reach.** No setting of the parameters produces the
    pattern. The model cannot fit that part of the labels, so it leaves it
    alone. Whatever noise lies in that direction does no harm
-   (**proved**: `not_exists_fit_of_kernel_eq_zero`).
+   (**proved**: `no_fit_along_a_direction_of_zero_strength`).
 
 2. **Strength small: reachable, at a huge price.** Now a fit exists, and the
    model takes it. The distance to that fit is exactly
@@ -97,9 +97,9 @@ There are three cases, and they are the three parts of the curve.
    shift = (overlap of the new input with the pattern) / λ
    ```
 
-   The first formula is **proved** (`travel_eq_of_eigen`), and so is the
+   The first formula is **proved** (`travel_along_a_direction_equals_residual_over_root_of_strength`), and so is the
    blow-up: a strength of at most `ε²` forces a travel of at least the size of
-   the pattern divided by `ε` (`le_travel_of_eigen_le`). The second formula is
+   the pattern divided by `ε` (`weaker_direction_needs_at_least_as_much_travel`). The second formula is
    a calculation, not yet in Lean. As `λ` goes to zero both grow without
    bound. This is the peak. The model has just become able to fit a pattern, the pattern is
    mostly noise, and fitting it costs coefficients so large that the function
@@ -111,7 +111,7 @@ There are three cases, and they are the three parts of the curve.
 Adding parameters only ever adds strength. A direction starts out of reach,
 becomes barely reachable, then easily reachable. Past the threshold, adding
 parameters never moves the fit further away (**proved** earlier:
-`travel_coprod_le`).
+`more_weights_never_move_the_fit_away`).
 
 So double descent is one direction crossing from "cannot" through "barely
 can" to "easily can". Being unable to fit noise is safe. Being barely able to
@@ -129,8 +129,8 @@ is the feature. To fit the label `y` the parameter must be `y / a`.
 
 With more parameters the feature becomes a list `(a₁, a₂, …)`, the strength is
 `a₁² + a₂² + …`, and it can only grow as terms are added (**proved**:
-`tightFeatures_innerSL`; the travel is then the error divided by the length of
-the feature list, `travel_one_point`).
+`one_training_point_has_tight_features`; the travel is then the error divided by the length of
+the feature list, `travel_for_one_point_equals_error_over_feature_length`).
 
 ## How low the second descent goes
 

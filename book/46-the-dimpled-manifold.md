@@ -65,7 +65,7 @@ formula `(label − profile) / slope`.
 ## The statement
 
 ```lean
-theorem residualLoss_dimpled_onManifold
+theorem loss_on_the_manifold_does_not_see_the_dimple_slope
     (loss_fn : RealFunction)
     (profile : Model Position)
     (slope : ℝ)
@@ -89,7 +89,7 @@ zero. `EVALUATE_DIMPLED_MODEL profile slope` is the function
 chapter 5.
 
 ```lean
-theorem dimpled_dimple
+theorem any_label_is_one_step_off_the_manifold
     (slope_ne_zero : slope ≠ 0)
     (position : Position)
     (label : ℝ) :
@@ -103,11 +103,11 @@ stepping straight off the sheet makes the function give that label.
 
 `MAKE_DIMPLE profile slope position label` is that input: the same
 position, at height `(label − profile position) / slope`. The theorems
-`dimple_fst` and `dist_onManifold_dimple` say that it does not move along
+`dimple_does_not_move_along_the_manifold` and `length_of_dimple_step_equals_error_over_slope` say that it does not move along
 the sheet and that the step has length `|label − profile position| / slope`.
 
 ```lean
-theorem nearestDist_dimpled_bounds
+theorem nearest_distance_of_dimpled_model_is_between_two_bounds
     {profile_slope_limit : SlopeLimit}
     {dimple_slope : SlopeLimit}
     (profile_is_lipschitz : LipschitzWith profile_slope_limit profile)
@@ -132,7 +132,7 @@ theorem nearestDist_dimpled_bounds
 vertical error over `√(1 + total_slope_limit²)` and at most the vertical
 error over the slope across the sheet.
 
-The function `lipschitzWith_dimpled` says that the dimpled function has
+The function `dimpled_model_slope_is_at_most_profile_slope_plus_dimple_slope` says that the dimpled function has
 slope at most `profile_slope_limit + dimple_slope`, which is what the lower
 bound needs.
 
@@ -256,10 +256,10 @@ jupyter nbconvert --to notebook --execute --inplace experiments/part7/ch46_the_d
    the vertical error is 3. Between what two numbers is the nearest
    distance?
 
-**Answers.** (1) `(10 − 4) / 3 = 2`, from `dimpled_dimple` and
-`dist_onManifold_dimple`. (2) No, from `residualLoss_dimpled_onManifold`.
+**Answers.** (1) `(10 − 4) / 3 = 2`, from `any_label_is_one_step_off_the_manifold` and
+`length_of_dimple_step_equals_error_over_slope`. (2) No, from `loss_on_the_manifold_does_not_see_the_dimple_slope`.
 (3) The total slope limit is 11, so the lower bound is `3 / √(1 + 11²)`,
 which is `3 / √122`, about 0.27. The upper bound is `3 / 10 = 0.3`. That
-is `nearestDist_dimpled_bounds`.
+is `nearest_distance_of_dimpled_model_is_between_two_bounds`.
 
 Previous: [45. Pruning and forgetting](45-pruning-and-forgetting.md) · Next: [47. What is not here](47-what-is-not-here.md)

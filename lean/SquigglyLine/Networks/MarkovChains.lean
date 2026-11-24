@@ -7,21 +7,21 @@ state depends only on the current one.
 
 The inner chain (`RUN_LAYERS`), and what having no memory costs:
 * `merged_stays_merged`  : two birds at the same place stay together;
-* `card_image_runLayers_append_le` : the flock never spreads over more places;
+* `flock_never_spreads_over_more_places` : the flock never spreads over more places;
 * `dead_stays_dead`      : a state every layer fixes is never left.
 
 The photon (`MAKE_PLATE_MATRIX`), a two-state Markov chain with real chance in
 it:
-* `plateMatrix_pow`      : after `plate_count` plates it is alive with
+* `photon_chain_after_many_plates`      : after `plate_count` plates it is alive with
                            probability `pass_probability ^ plate_count` and
                            "absorbed" is never left.
 
 The outer chain (`TAKE_GRADIENT_STEP`), with orthogonal features:
-* `HAS_TIGHT_FEATURES.residual_iterate_gradientStep` : the error after
+* `HAS_TIGHT_FEATURES.residual_after_many_gradient_steps` : the error after
                            `step_count` steps is
                            `(1 - learning_rate * squared_length) ^ step_count`
                            times the error at the start;
-* `HAS_TIGHT_FEATURES.residual_gradientStep_inv`     : with
+* `HAS_TIGHT_FEATURES.one_gradient_step_fits`     : with
                            `learning_rate = 1 / squared_length`, one step fits.
 
 Definitions and theorems:
@@ -31,16 +31,16 @@ Definitions and theorems:
 | `Layer`                           | one layer: a map from state to state  |
 | `LayerStack`                      | a list of layers                      |
 | `RUN_LAYERS`                      | run a stack of layers                 |
-| `runLayers_append`                | running two stacks one after the other|
+| `running_two_stacks_is_running_one_after_the_other`                | running two stacks one after the other|
 | `merged_stays_merged`             | two merged birds stay merged          |
-| `card_image_runLayers_append_le`  | a flock never spreads                 |
+| `flock_never_spreads_over_more_places`  | a flock never spreads                 |
 | `dead_stays_dead`                 | a fixed state is never left           |
-| `polarizer_zero`, `fan_zero`      | nothing in, nothing out               |
+| `blocked_photon_stays_blocked`, `bird_at_the_origin_stays_there`      | nothing in, nothing out               |
 | `TransitionMatrix`                | a two-state transition matrix         |
 | `MAKE_PLATE_MATRIX`               | the matrix of one plate               |
-| `plateMatrix_row_sum`             | each row is a distribution            |
-| `plateMatrix_pow`                 | many plates                           |
-| `survival_eq_sq_length`           | survival is the length squared        |
+| `each_row_of_plate_matrix_sums_to_one`             | each row is a distribution            |
+| `photon_chain_after_many_plates`                 | many plates                           |
+| `survival_probability_equals_squared_length`           | survival is the length squared        |
 -/
 import Mathlib.LinearAlgebra.Matrix.Notation
 import SquigglyLine.Networks.Kernel
@@ -70,7 +70,7 @@ def RUN_LAYERS : LayerStack State → State → State
 
 /-- Running two stacks one after the other: first the early layers, then the
 late ones. -/
-theorem runLayers_append
+theorem running_two_stacks_is_running_one_after_the_other
     (early_layers : LayerStack State)
     (late_layers : LayerStack State) :
     let all_layers := early_layers ++ late_layers
@@ -102,12 +102,12 @@ theorem merged_stays_merged
   have run_append :
       RUN_LAYERS (early_layers ++ late_layers)
         = RUN_LAYERS late_layers ∘ RUN_LAYERS early_layers :=
-    runLayers_append early_layers late_layers
+    running_two_stacks_is_running_one_after_the_other early_layers late_layers
   simp only [run_append, Function.comp_apply, merged_after_early]
 
 /-- **The flock never spreads over more places.** Further layers cannot
 increase the number of distinct places a flock occupies. -/
-theorem card_image_runLayers_append_le
+theorem flock_never_spreads_over_more_places
     [DecidableEq State]
     (early_layers : LayerStack State)
     (late_layers : LayerStack State)
@@ -122,7 +122,7 @@ theorem card_image_runLayers_append_le
   have run_append :
       RUN_LAYERS (early_layers ++ late_layers)
         = RUN_LAYERS late_layers ∘ RUN_LAYERS early_layers :=
-    runLayers_append early_layers late_layers
+    running_two_stacks_is_running_one_after_the_other early_layers late_layers
   -- Running the late layers on the places after the early layers is one more
   -- map, and a map never creates new places.
   rw [run_append, ← Finset.image_image]
@@ -146,7 +146,7 @@ theorem dead_stays_dead
       every_layer_fixes_dead layer (List.mem_cons_of_mem _ layer_in_later)
 
 /-- A blocked photon stays blocked. -/
-theorem polarizer_zero
+theorem blocked_photon_stays_blocked
     (axis_angle : ℝ) :
     let blocked_light : LightArrow := (0, 0)
     let outgoing_light := PASS_THROUGH_POLARIZER axis_angle blocked_light
@@ -155,7 +155,7 @@ theorem polarizer_zero
   simp [PASS_THROUGH_POLARIZER]
 
 /-- A bird at the origin stays at the origin under any fan. -/
-theorem fan_zero
+theorem bird_at_the_origin_stays_there
     (angle : ℝ) :
     let origin : PlanePoint := (0, 0)
     let bird_after_layer := APPLY_FAN angle origin
@@ -180,7 +180,7 @@ def MAKE_PLATE_MATRIX
   !![pass_probability, 1 - pass_probability; 0, 1]  -- row 0: alive; row 1: absorbed stays absorbed
 
 /-- Each row of the transition matrix is a probability distribution. -/
-theorem plateMatrix_row_sum
+theorem each_row_of_plate_matrix_sums_to_one
     (pass_probability : ℝ)
     (state : Fin 2) :
     let plate_matrix := MAKE_PLATE_MATRIX pass_probability
@@ -192,7 +192,7 @@ theorem plateMatrix_row_sum
 /-- **The photon's chain.** After `plate_count` plates an alive photon is still
 alive with probability `pass_probability ^ plate_count`, and an absorbed photon
 is still absorbed. -/
-theorem plateMatrix_pow
+theorem photon_chain_after_many_plates
     (pass_probability : ℝ)
     (plate_count : ℕ) :
     let plate_matrix    := MAKE_PLATE_MATRIX pass_probability
@@ -211,7 +211,7 @@ theorem plateMatrix_pow
 
 /-- The survival probability is the square of the surviving length:
 `(cos² angle) ^ plate_count` is `(cos angle ^ plate_count)²`. -/
-theorem survival_eq_sq_length
+theorem survival_probability_equals_squared_length
     (angle : ℝ)
     (plate_count : ℕ) :
     let plate_matrix := MAKE_PLATE_MATRIX (Real.cos angle ^ 2)  -- Malus's law: probability is cos² of the angle
@@ -223,7 +223,7 @@ theorem survival_eq_sq_length
       MAKE_PLATE_MATRIX (Real.cos angle ^ 2) ^ plate_count
         = !![(Real.cos angle ^ 2) ^ plate_count,
             1 - (Real.cos angle ^ 2) ^ plate_count; 0, 1] :=
-    plateMatrix_pow (Real.cos angle ^ 2) plate_count
+    photon_chain_after_many_plates (Real.cos angle ^ 2) plate_count
   rw [power_form]
   simp [pow_right_comm]
 
@@ -246,7 +246,7 @@ variable {Weights Outputs : Type*}
 `squared_length`, the error after `step_count` gradient steps is
 `(1 - learning_rate * squared_length) ^ step_count` times the error at the
 start. -/
-theorem HAS_TIGHT_FEATURES.residual_iterate_gradientStep
+theorem HAS_TIGHT_FEATURES.residual_after_many_gradient_steps
     (tight_features : HAS_TIGHT_FEATURES predict squared_length)
     (labels : Outputs)
     (learning_rate : ℝ)
@@ -265,13 +265,13 @@ theorem HAS_TIGHT_FEATURES.residual_iterate_gradientStep
   | zero => simp
   | succ earlier_step_count earlier_case =>
     -- One more step multiplies the error by `1 - learning_rate * squared_length`.
-    rw [Function.iterate_succ_apply', residual_gradientStep, earlier_case,
+    rw [Function.iterate_succ_apply', gradient_step_changes_residual_by_the_kernel, earlier_case,
       tight_features]
     module
 
 /-- **One step fits.** With the step size `1 / squared_length`, a single
 gradient step leaves no error. -/
-theorem HAS_TIGHT_FEATURES.residual_gradientStep_inv
+theorem HAS_TIGHT_FEATURES.one_gradient_step_fits
     (tight_features : HAS_TIGHT_FEATURES predict squared_length)
     (squared_length_ne_zero : squared_length ≠ 0)
     (labels : Outputs)
@@ -284,7 +284,7 @@ theorem HAS_TIGHT_FEATURES.residual_gradientStep_inv
     residual_after = no_error := by
   unfold_named_pieces
   have one_step_case :=
-    tight_features.residual_iterate_gradientStep labels squared_length⁻¹
+    tight_features.residual_after_many_gradient_steps labels squared_length⁻¹
       weights 1
   simpa [inv_mul_cancel₀ squared_length_ne_zero] using one_step_case
 

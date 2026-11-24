@@ -6,10 +6,10 @@ at angle `light_angle`: light of strength `amplitude` vibrating along that
 direction. `PASS_THROUGH_POLARIZER axis_angle` replaces an arrow by its shadow
 on the direction `axis_angle`.
 
-* `malus`: the shadow has length `amplitude * cos(axis_angle - light_angle)`
+* `malus_law`: the shadow has length `amplitude * cos(axis_angle - light_angle)`
   and points along `axis_angle`.
-* `polarizer_crossed`: a plate at 90° to the arrow blocks it.
-* `throughPlates_light`: after `plate_count` plates, each turned by
+* `crossed_polarizer_blocks`: a plate at 90° to the arrow blocks it.
+* `light_after_many_plates`: after `plate_count` plates, each turned by
   `turn_angle` from the last, the arrow has length
   `amplitude * cos(turn_angle) ^ plate_count` and angle
   `plate_count * turn_angle`. The tips of these arrows are the photon's
@@ -80,7 +80,7 @@ noncomputable def PASS_THROUGH_POLARIZER
 
 /-- **Malus's law.** The shadow has `cos` of the angle between arrow and
 axis. -/
-theorem malus
+theorem malus_law
     (amplitude : ℝ)
     (light_angle : ℝ)
     (axis_angle : ℝ) :
@@ -95,7 +95,7 @@ theorem malus
   ext <;> simp only [PASS_THROUGH_POLARIZER, MAKE_LIGHT, cos_sub] <;> ring
 
 /-- Light of strength zero is no light, whatever its direction. -/
-theorem light_zero
+theorem light_of_zero_strength_is_no_light
     (light_angle : ℝ) :
     let light_of_strength_zero := MAKE_LIGHT 0 light_angle
     light_of_strength_zero = NO_LIGHT := by
@@ -104,7 +104,7 @@ theorem light_zero
 
 /-- **Crossed plates block.** A polarizer at 90° to the light lets nothing
 through. -/
-theorem polarizer_crossed
+theorem crossed_polarizer_blocks
     (amplitude : ℝ)
     (light_angle : ℝ) :
     let incoming_light := MAKE_LIGHT amplitude light_angle
@@ -113,7 +113,7 @@ theorem polarizer_crossed
     outgoing_light = NO_LIGHT := by
   unfold_named_pieces
   -- By Malus's law the light keeps `cos (PI / 2)` of its length, which is 0.
-  rw [malus, add_sub_cancel_left, cos_pi_div_two, mul_zero, light_zero]
+  rw [malus_law, add_sub_cancel_left, cos_pi_div_two, mul_zero, light_of_zero_strength_is_no_light]
 
 /-! ## Many polarizers in a row -/
 
@@ -141,7 +141,7 @@ noncomputable def PASS_THROUGH_PLATES
 /-- **The photon's path.** After `plate_count` plates the arrow has length
 `amplitude * cos(turn_angle) ^ plate_count` and angle
 `plate_count * turn_angle`. -/
-theorem throughPlates_light
+theorem light_after_many_plates
     (amplitude : ℝ)
     (turn_angle : ℝ)
     (plate_count : ℕ) :
@@ -159,7 +159,7 @@ theorem throughPlates_light
   | succ earlier_plate_count light_before_last_plate =>
     -- Peel off the last plate. The light reaches it at an angle of
     -- `turn_angle` to its axis, so Malus's law gives one more factor.
-    rw [PASS_THROUGH_PLATES, light_before_last_plate, malus,
+    rw [PASS_THROUGH_PLATES, light_before_last_plate, malus_law,
       show ((earlier_plate_count + 1 : ℕ) : ℝ) * turn_angle
           - earlier_plate_count * turn_angle = turn_angle by
         push_cast; ring,
@@ -175,7 +175,7 @@ theorem three_polarizers :
     let half_pointing_up : LightArrow := (0, 1 / 2)          -- cos(45°) ^ 2 = 1/2, once for each plate
     outgoing_light = half_pointing_up := by
   unfold_named_pieces
-  rw [throughPlates_light, MAKE_LIGHT, one_mul, cos_pi_div_four,
+  rw [light_after_many_plates, MAKE_LIGHT, one_mul, cos_pi_div_four,
     show ((2 : ℕ) : ℝ) * (PI / 4) = PI / 2 by push_cast; ring,
     cos_pi_div_two, sin_pi_div_two, mul_zero, mul_one, div_pow,
     sq_sqrt (by norm_num)]
@@ -189,13 +189,13 @@ theorem two_polarizers :
       PASS_THROUGH_POLARIZER vertical_axis incoming_light
     outgoing_light = NO_LIGHT := by
   unfold_named_pieces
-  simpa using polarizer_crossed 1 0
+  simpa using crossed_polarizer_blocks 1 0
 
 /-! ## More plates lose less -/
 
 /-- A small turn loses little: `cos(turn_angle) ^ plate_count` is at least
 `1 - plate_count * (turn_angle ^ 2 / 2)`. -/
-theorem one_sub_mul_le_cos_pow
+theorem small_turns_lose_little
     {turn_angle : ℝ}
     (turn_is_small : turn_angle ^ 2 ≤ 2)                     -- so that one plate cannot lose more than everything
     (plate_count : ℕ) :
@@ -238,7 +238,7 @@ theorem quarter_turn_arrives
   constructor
   · -- The last plate's axis is at `plate_count * turn_angle = PI / 2`:
     -- straight up.
-    rw [throughPlates_light, MAKE_LIGHT, one_mul,
+    rw [light_after_many_plates, MAKE_LIGHT, one_mul,
       show (plate_count : ℝ) * (PI / (2 * plate_count)) = PI / 2 by
         field_simp,
       cos_pi_div_two, sin_pi_div_two, mul_zero, mul_one]
@@ -247,7 +247,7 @@ theorem quarter_turn_arrives
       rw [div_le_iff₀ (by positivity)]
       nlinarith [pi_lt_d2]
     have losses_add_up :=
-      one_sub_mul_le_cos_pow (turn_angle := PI / (2 * plate_count))
+      small_turns_lose_little (turn_angle := PI / (2 * plate_count))
         (by nlinarith) plate_count
     calc 1 - PI ^ 2 / (8 * plate_count)
         = 1 - plate_count * ((PI / (2 * plate_count)) ^ 2 / 2) := by

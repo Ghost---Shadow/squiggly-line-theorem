@@ -172,7 +172,7 @@ theorem hopfield_eq_denoiser
       APPLY_SOFTMAX (fun i => inner ℝ query (keys i) / temperature)
         = APPLY_SOFTMAX
             fun i => -‖query - keys i‖ ^ 2 / (2 * temperature) :=
-    softmax_cosine_eq_softmax_distance query_is_unit keys_are_unit
+    softmax_of_cosine_equals_softmax_of_distance_for_unit_vectors query_is_unit keys_are_unit
       temperature
   rw [DENOISE_IDEALLY, ATTEND, ATTEND, Real.sq_sqrt temperature_nonneg,
     same_shares]

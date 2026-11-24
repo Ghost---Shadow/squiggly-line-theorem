@@ -144,7 +144,7 @@ exactly one, which swaps even and odd.
 
 **The deep network.** This is `Depth.lean`, which chapter 8 met. Each tent layer
 doubles the number of turns, and on the grid of shares `0, 1/2^L, ..., 1` the stack
-alternates between 0 and 1. The count over `2^L` is a grid point (`iterate_tent_dyadic`).
+alternates between 0 and 1. The count over `2^L` is a grid point (`tent_layers_zigzag_on_the_grid`).
 
 **The shallow network.** This is chapter 32 read for parity. "Closer than one half
 to the parity" means below one half at an even count and above one half at an odd

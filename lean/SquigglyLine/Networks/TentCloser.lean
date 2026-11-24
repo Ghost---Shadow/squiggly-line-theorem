@@ -10,9 +10,9 @@ exponential rate. The weights are chosen, not random.
 
 Theorems:
 
-* `iterate_tent_covers`         every label in the unit interval is taken at
+* `tent_layers_cover_within_one_over_two_to_the_layers`         every label in the unit interval is taken at
                                 an input within `1 / 2 ^ layer_count`;
-* `nearestDist_iterate_tent_le` so the curve is within that distance of every
+* `nearest_distance_of_tent_layers_is_at_most_one_over_two_to_the_layers` so the curve is within that distance of every
                                 point of the unit square.
 -/
 import SquigglyLine.Networks.Bridge
@@ -23,7 +23,7 @@ namespace SquigglyLine
 /-- **Each fold halves the distance.** For any input and any label in the unit
 interval, the `layer_count`-fold network takes that label at some input within
 `1 / 2 ^ layer_count`. -/
-theorem iterate_tent_covers
+theorem tent_layers_cover_within_one_over_two_to_the_layers
     (layer_count : ℕ)
     {input label : ℝ}
     (input_in_unit : input ∈ Set.Icc (0 : ℝ) 1)
@@ -50,7 +50,7 @@ theorem iterate_tent_covers
     -- unfold the answer it finds.
     obtain ⟨folded_answer, answer_in_unit, answer_is_close,
         answer_hits_label⟩ :=
-      covered_by_fewer_layers (tent_mem_Icc input_in_unit.1 input_in_unit.2)
+      covered_by_fewer_layers (tent_keeps_the_unit_interval input_in_unit.1 input_in_unit.2)
     have gap_halves :
         (1 : ℝ) / 2 ^ (layer_count + 1) = 1 / 2 ^ layer_count / 2 := by
       rw [pow_succ]
@@ -60,7 +60,7 @@ theorem iterate_tent_covers
       refine ⟨folded_answer / 2,
         ⟨by linarith [answer_in_unit.1], by linarith [answer_in_unit.2]⟩,
         ?_, ?_⟩
-      · rw [tent_of_le_half input_in_unit.1 input_in_left_half]
+      · rw [tent_rises_left_of_the_fold input_in_unit.1 input_in_left_half]
           at answer_is_close
         rw [gap_halves,
           show input - folded_answer / 2 = (2 * input - folded_answer) / 2
@@ -68,7 +68,7 @@ theorem iterate_tent_covers
           abs_div, abs_two]
         exact div_le_div_of_nonneg_right answer_is_close (by norm_num)
       · rw [Function.iterate_succ_apply,
-          tent_of_le_half (by linarith [answer_in_unit.1])
+          tent_rises_left_of_the_fold (by linarith [answer_in_unit.1])
             (by linarith [answer_in_unit.2]),
           show 2 * (folded_answer / 2) = folded_answer by ring,
           answer_hits_label]
@@ -76,31 +76,31 @@ theorem iterate_tent_covers
       refine ⟨1 - folded_answer / 2,
         ⟨by linarith [answer_in_unit.2], by linarith [answer_in_unit.1]⟩,
         ?_, ?_⟩
-      · rw [tent_of_half_le input_in_right_half] at answer_is_close
+      · rw [tent_falls_right_of_the_fold input_in_right_half] at answer_is_close
         rw [gap_halves,
           show input - (1 - folded_answer / 2)
             = -((2 - 2 * input - folded_answer) / 2) by ring,
           abs_neg, abs_div, abs_two]
         exact div_le_div_of_nonneg_right answer_is_close (by norm_num)
       · rw [Function.iterate_succ_apply,
-          tent_of_half_le (by linarith [answer_in_unit.2]),
+          tent_falls_right_of_the_fold (by linarith [answer_in_unit.2]),
           show 2 - 2 * (1 - folded_answer / 2) = folded_answer by ring,
           answer_hits_label]
 
 /-- **More layers, closer.** The curve drawn by `layer_count` two-neuron layers
 passes within `1 / 2 ^ layer_count` of every point of the unit square. -/
-theorem nearestDist_iterate_tent_le
+theorem nearest_distance_of_tent_layers_is_at_most_one_over_two_to_the_layers
     (layer_count : ℕ)
     (data_point : DataPoint ℝ)
     (input_in_unit : data_point.1 ∈ Set.Icc (0 : ℝ) 1)
     (label_in_unit : data_point.2 ∈ Set.Icc (0 : ℝ) 1) :
     let nearest_distance :=
       GET_NEAREST_DISTANCE (APPLY_TENT^[layer_count]) data_point
-    let max_gap := 1 / 2 ^ layer_count  -- the gap found by `iterate_tent_covers`
+    let max_gap := 1 / 2 ^ layer_count  -- the gap found by `tent_layers_cover_within_one_over_two_to_the_layers`
     nearest_distance ≤ max_gap := by
   unfold_named_pieces
   obtain ⟨other_input, -, other_input_is_close, other_input_hits_label⟩ :=
-    iterate_tent_covers layer_count input_in_unit label_in_unit
+    tent_layers_cover_within_one_over_two_to_the_layers layer_count input_in_unit label_in_unit
   -- The curve point above `other_input` is a candidate for the nearest point.
   calc GET_NEAREST_DISTANCE (APPLY_TENT^[layer_count]) data_point
       ≤ dist (EMBED_DATA_POINT data_point)

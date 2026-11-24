@@ -52,7 +52,7 @@ interval from 0 to 1 in half. Stack `L` of them. The network has `2L` neurons.
 > For every point of the unit square, the curve drawn by this network passes
 > within `1 / 2^L` of it.
 
-(**proved**: `nearestDist_iterate_tent_le`.) Each layer halves the distance. Ten layers bring the curve
+(**proved**: `nearest_distance_of_tent_layers_is_at_most_one_over_two_to_the_layers`.) Each layer halves the distance. Ten layers bring the curve
 within a thousandth of every point of the square.
 
 So for this family the first two claims of the original conjecture are true,

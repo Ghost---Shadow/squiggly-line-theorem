@@ -37,7 +37,7 @@ half was I in".
 end up at the same output after `L` folds
 (**proved**: `card_le_two_pow_of_iterate_tent_eq`). And about that many do:
 all the even grid points go to zero (**proved** earlier:
-`iterate_tent_dyadic`).
+`tent_layers_zigzag_on_the_grid`).
 
 A layer is one binary digit. Depth is code length.
 

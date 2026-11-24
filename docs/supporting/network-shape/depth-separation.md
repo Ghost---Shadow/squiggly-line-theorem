@@ -12,7 +12,7 @@ done. Each statement is marked **proved** (in
 The wind tunnel notes say depth multiplies the turns: each layer folds
 everything the earlier layers made. A stack of `L` tent layers, two neurons
 each, draws a zigzag that goes up and down `2^(L−1)` times
-(**proved** earlier: `iterate_tent_dyadic` in [`Depth.lean`](../../../lean/SquigglyLine/Networks/Depth.lean)).
+(**proved** earlier: `tent_layers_zigzag_on_the_grid` in [`Depth.lean`](../../../lean/SquigglyLine/Networks/Depth.lean)).
 
 Could a network with one hidden layer do the same with about as many neurons?
 No. This is a known result (**recalled**: Telgarsky 2016, "Benefits of depth

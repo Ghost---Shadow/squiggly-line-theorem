@@ -5,32 +5,32 @@ An average is never squigglier than what it averages, and never worse on
 squared error than its members are on average.
 
 Ensembles (`BLEND`):
-* `sq_blend_sub` : the squared error of the average is the average squared
+* `error_of_the_average_equals_average_error_minus_spread` : the squared error of the average is the average squared
   error minus the spread of the members round the average.
-* `sq_blend_sub_le` : so the average is at least as good as the members are
+* `ensemble_error_is_at_most_average_member_error` : so the average is at least as good as the members are
   on average.
-* `lipschitzWith_blend` : and it is no steeper than the steepest member.
+* `average_slope_is_at_most_steepest_member` : and it is no steeper than the steepest member.
 
 Weight averaging:
-* `liftedModel_sum_smul` : for a model linear in its weights, averaging the
+* `averaging_weights_is_averaging_lines` : for a model linear in its weights, averaging the
   weights is averaging the lines.
-* `sq_liftedModel_soup_sub_le` : so the averaged weights are at least as good
+* `averaged_weights_error_is_at_most_average_member_error` : so the averaged weights are at least as good
   as the members are on average.
 
 The ideal denoiser (`DENOISE_IDEALLY`):
-* `sum_mul_norm_sub_sq` : the weighted squared distance to any point is the
+* `weighted_squared_distance_splits_at_the_mean` : the weighted squared distance to any point is the
   weighted squared distance to the weighted mean plus the squared distance
   from the mean to the point.
-* `weightedMean_isBest` : so the weighted mean is the best single guess.
-* `idealDenoiser_isBest` : the ideal denoiser is that mean, with shares set
+* `weighted_mean_is_the_best_single_guess` : so the weighted mean is the best single guess.
+* `ideal_denoiser_is_the_best_guess` : the ideal denoiser is that mean, with shares set
   by nearness to the noisy input. It is an attention head over the training
   examples.
-* `idealDenoiser_mem_convexHull` : so it never leaves the region the training
+* `ideal_denoiser_stays_inside_the_examples` : so it never leaves the region the training
   examples span.
 
 Definitions: `BLEND`, `GET_WEIGHTED_MEAN`, `DENOISE_IDEALLY`.
-Helper lemmas: `sum_mul_sq_sub`, `sum_smul_sub_weightedMean`,
-`idealDenoiser_eq_weightedMean`.
+Helper lemmas: `weighted_squared_distance_to_a_centre_expanded`, `offsets_from_the_weighted_mean_cancel`,
+`ideal_denoiser_equals_weighted_mean_of_examples`.
 -/
 import SquigglyLine.Networks.Lift
 import SquigglyLine.Supporting.NetworkShape.Attention
@@ -52,7 +52,7 @@ def BLEND : ℝ :=
   ∑ i ∈ member_set, shares i * predictions i
 
 /-- Expand the weighted squared distance of the predictions to a center. -/
-theorem sum_mul_sq_sub
+theorem weighted_squared_distance_to_a_centre_expanded
     (center : ℝ) :
     let weighted_sq_error :=
       ∑ i ∈ member_set, shares i * (predictions i - center) ^ 2
@@ -67,7 +67,7 @@ theorem sum_mul_sq_sub
   exact Finset.sum_congr rfl fun i _ => by ring
 
 /-- **The error of the average is the average error minus the spread.** -/
-theorem sq_blend_sub
+theorem error_of_the_average_equals_average_error_minus_spread
     (shares_sum_to_one : ∑ i ∈ member_set, shares i = 1)
     (label : ℝ) :
     let blend_error   := (BLEND member_set shares predictions - label) ^ 2
@@ -83,13 +83,13 @@ theorem sq_blend_sub
         = ∑ i ∈ member_set, shares i * predictions i ^ 2
           - 2 * center * ∑ i ∈ member_set, shares i * predictions i
           + center ^ 2 * ∑ i ∈ member_set, shares i :=
-    sum_mul_sq_sub member_set shares predictions center
+    weighted_squared_distance_to_a_centre_expanded member_set shares predictions center
   rw [expand, expand, shares_sum_to_one]
   simp only [BLEND]
   ring
 
 /-- **An ensemble is at least as good as its members are on average.** -/
-theorem sq_blend_sub_le
+theorem ensemble_error_is_at_most_average_member_error
     (shares_nonneg : ∀ i ∈ member_set, 0 ≤ shares i)
     (shares_sum_to_one : ∑ i ∈ member_set, shares i = 1)
     (label : ℝ) :
@@ -109,12 +109,12 @@ theorem sq_blend_sub_le
         = ∑ i ∈ member_set, shares i * (predictions i - label) ^ 2
           - ∑ i ∈ member_set, shares i *
             (predictions i - BLEND member_set shares predictions) ^ 2 :=
-    sq_blend_sub member_set shares predictions shares_sum_to_one label
+    error_of_the_average_equals_average_error_minus_spread member_set shares predictions shares_sum_to_one label
   rw [blend_error_eq]
   linarith
 
 /-- **An average is no steeper than its steepest member.** -/
-theorem lipschitzWith_blend
+theorem average_slope_is_at_most_steepest_member
     {Inputs : Type*} [PseudoMetricSpace Inputs]
     {slope_limit : SlopeLimit}
     {lines : Members → Inputs → ℝ}
@@ -153,7 +153,7 @@ variable {Inputs Weights Members : Type*}
 
 /-- **Averaging weights is averaging lines**, for a model linear in its
 weights. -/
-theorem liftedModel_sum_smul
+theorem averaging_weights_is_averaging_lines
     (features : FeatureMap Inputs Weights)
     (member_set : Finset Members)
     (shares : Members → ℝ)
@@ -172,7 +172,7 @@ theorem liftedModel_sum_smul
 
 /-- **Averaged weights are at least as good as the members are on
 average.** -/
-theorem sq_liftedModel_soup_sub_le
+theorem averaged_weights_error_is_at_most_average_member_error
     (features : FeatureMap Inputs Weights)
     (member_set : Finset Members)
     {shares : Members → ℝ}
@@ -196,9 +196,9 @@ theorem sq_liftedModel_soup_sub_le
         = ∑ i ∈ member_set,
             shares i *
               EVALUATE_LIFTED_MODEL features (member_weights i) input :=
-    liftedModel_sum_smul features member_set shares member_weights input
+    averaging_weights_is_averaging_lines features member_set shares member_weights input
   rw [soup_is_blend]
-  exact sq_blend_sub_le member_set shares
+  exact ensemble_error_is_at_most_average_member_error member_set shares
     (fun i => EVALUATE_LIFTED_MODEL features (member_weights i) input)
     shares_nonneg shares_sum_to_one label
 
@@ -220,7 +220,7 @@ def GET_WEIGHTED_MEAN
 
 /-- With shares that add to one, the points' offsets from their weighted mean
 cancel out. -/
-theorem sum_smul_sub_weightedMean
+theorem offsets_from_the_weighted_mean_cancel
     {shares : Examples → ℝ}
     (shares_sum_to_one : ∑ i, shares i = 1)
     (points : Examples → Space) :
@@ -235,7 +235,7 @@ theorem sum_smul_sub_weightedMean
 /-- The weighted squared distance to any point `target` splits into the
 weighted squared distance to the mean, plus the squared distance from the mean
 to `target`. -/
-theorem sum_mul_norm_sub_sq
+theorem weighted_squared_distance_splits_at_the_mean
     {shares : Examples → ℝ}
     (shares_sum_to_one : ∑ i, shares i = 1)
     (points : Examples → Space)
@@ -251,7 +251,7 @@ theorem sum_mul_norm_sub_sq
       ∑ i, shares i * inner ℝ (points i - GET_WEIGHTED_MEAN shares points)
         (GET_WEIGHTED_MEAN shares points - target) = 0 := by
     simp only [← real_inner_smul_left, ← sum_inner,
-      sum_smul_sub_weightedMean shares_sum_to_one, inner_zero_left]
+      offsets_from_the_weighted_mean_cancel shares_sum_to_one, inner_zero_left]
   have term_split (i : Examples) :
       shares i * ‖points i - target‖ ^ 2
         = shares i * ‖points i - GET_WEIGHTED_MEAN shares points‖ ^ 2
@@ -270,7 +270,7 @@ theorem sum_mul_norm_sub_sq
   ring
 
 /-- **The weighted mean is the best single guess.** -/
-theorem weightedMean_isBest
+theorem weighted_mean_is_the_best_single_guess
     {shares : Examples → ℝ}
     (shares_sum_to_one : ∑ i, shares i = 1)
     (points : Examples → Space)
@@ -284,7 +284,7 @@ theorem weightedMean_isBest
       ∑ i, shares i * ‖points i - target‖ ^ 2
         = ∑ i, shares i * ‖points i - GET_WEIGHTED_MEAN shares points‖ ^ 2
           + ‖GET_WEIGHTED_MEAN shares points - target‖ ^ 2 :=
-    sum_mul_norm_sub_sq shares_sum_to_one points target
+    weighted_squared_distance_splits_at_the_mean shares_sum_to_one points target
   rw [split_spread]
   exact le_add_of_nonneg_right (sq_nonneg _)
 
@@ -303,7 +303,7 @@ noncomputable def DENOISE_IDEALLY
 
 omit [Nonempty Examples] in
 /-- The ideal denoiser is the mean of the examples with softmax shares. -/
-theorem idealDenoiser_eq_weightedMean
+theorem ideal_denoiser_equals_weighted_mean_of_examples
     (noise_level : ℝ)
     (examples : Examples → Space)
     (noisy_input : Space) :
@@ -320,7 +320,7 @@ theorem idealDenoiser_eq_weightedMean
 /-- **No other guess is better.** Among all outputs `other_output`, the ideal
 denoiser has the least squared distance to the examples, weighted by how
 likely each is to be the clean one. -/
-theorem idealDenoiser_isBest
+theorem ideal_denoiser_is_the_best_guess
     (noise_level : ℝ)
     (examples : Examples → Space)
     (noisy_input : Space)
@@ -333,11 +333,11 @@ theorem idealDenoiser_isBest
     let other_spread    := ∑ i, shares i * ‖examples i - other_output‖ ^ 2
     denoiser_spread ≤ other_spread := by
   unfold_named_pieces
-  exact weightedMean_isBest (sum_softmax _) examples other_output
+  exact weighted_mean_is_the_best_single_guess (sum_softmax _) examples other_output
 
 /-- **The ideal denoiser only averages its training set.** Its output never
 leaves the region the training examples span. -/
-theorem idealDenoiser_mem_convexHull
+theorem ideal_denoiser_stays_inside_the_examples
     (noise_level : ℝ)
     (examples : Examples → Space)
     (noisy_input : Space) :

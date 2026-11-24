@@ -171,7 +171,7 @@ notes under `docs/`, grouped the same way.
    This is the double-descent peak seen in parameter space.
 
 10. **New parameters that start at random.** (**open**)
-    `travel_coprod_le` shows that added parameters starting at zero never move
+    `more_weights_never_move_the_fit_away` shows that added parameters starting at zero never move
     the nearest fit further away. The experiment starts them at random and the
     result still holds on average. State and prove the version with a random
     start.
@@ -192,7 +192,7 @@ change of link or loss. Added 12 Nov 2026.
     cross-entropy with two classes, 12 Nov 2026: `le_totalLogLoss_sub_along`
     and `totalLogLoss_along_le_max` in [`CrossEntropy.lean`](../lean/SquigglyLine/Supporting/Training/CrossEntropy.lean); other losses
     **known, not formalised**)
-    `exists_within_budget` says a move of `ε` toward a fit at distance `d`
+    `budget_of_travel_buys_its_share_of_the_loss` says a move of `ε` toward a fit at distance `d`
     removes exactly `ε / d` of the error. For any loss that is convex in the
     weighted sum, which covers the logistic and Poisson losses, the same move
     removes at least `ε / d` of the gap in loss. `no_barrier` extends the same

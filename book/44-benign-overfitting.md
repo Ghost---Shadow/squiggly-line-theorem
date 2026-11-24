@@ -68,7 +68,7 @@ The first statement says what the fit does to a new input. The fit is
 applied to the signal over its strength plus the noise over its strength.
 
 ```lean
-theorem inner_splitFit
+theorem answer_of_split_fit_at_a_new_input
     (whole_predict : Weights →L[ℝ] Outputs)
     (start_weights : Weights)
     (query_features : Weights)
@@ -95,13 +95,13 @@ plus the noise's overlap with the test row divided by `noise_strength`.
 The **test row** is `whole_predict query_features`, as in chapter 42: how
 alike the new input is to each training point. The **overlap** of the
 signal with it is their inner product. Two companion results say that the
-fit gives the training labels exactly (`splitFit_fits`) and that no other
-fit is nearer to the start (`splitFit_is_nearest`).
+fit gives the training labels exactly (`split_fit_fits_signal_and_noise`) and that no other
+fit is nearer to the start (`split_fit_is_the_nearest_fit`).
 
 The second statement is the cap on the damage.
 
 ```lean
-theorem abs_noise_damage_le
+theorem noise_damage_at_a_new_input_is_at_most_its_cap
     (whole_predict : Weights →L[ℝ] Outputs)
     (query_features : Weights)
     (noise : Outputs)
@@ -125,7 +125,7 @@ be 1, so the cap is `1 / junk_strength`. The assumption
 `noise_strength_nonneg` is what lets the cap ignore how weak the noise
 direction was: weaker only makes the bound easier.
 
-Two more results complete the picture. `abs_signal_loss_le` says that
+Two more results complete the picture. `signal_is_nearly_untouched_by_junk` says that
 adding `junk_strength` to a strong direction changes its term by at most
 the fraction `junk_strength / signal_strength` of itself. And
 `benign_overfitting` puts it together. For a whole model whose kernel is
@@ -196,7 +196,7 @@ the noise terms are below them.
 
 **The three statements.** In 300 random models (random strengths, random
 start weights, random queries with a junk part) the identity of
-`inner_splitFit` held to `4e-14`, the split fit gave the labels and equalled
+`answer_of_split_fit_at_a_new_input` held to `4e-14`, the split fit gave the labels and equalled
 the pseudo-inverse fit to `3e-14`, the largest noise term was 0.520 of its
 cap, and the largest signal change, measured from two fits, was 0.998 of its allowance. The control
 leaves the noise direction out of the junk, so the junk is not the same in
@@ -269,12 +269,12 @@ direction**.
 2. A signal of strength 10 has overlap 20. Junk of strength 1 is added.
    How much can its term change at most?
 3. The junk strength is 30 and the signal strength is 3. What does
-   `abs_signal_loss_le` tell you about the signal?
+   `signal_is_nearly_untouched_by_junk` tell you about the signal?
 
 **Answers.** (1) The noise term is `2 / (0 + 4) = 0.5`. The cap is
-`2 / 4 = 0.5`, as in `abs_noise_damage_le`. The two agree because the
+`2 / 4 = 0.5`, as in `noise_damage_at_a_new_input_is_at_most_its_cap`. The two agree because the
 noise strength is 0 and the overlap equals the product of the lengths.
-(2) The term is `20 / 10 = 2`. By `abs_signal_loss_le` it changes by at
+(2) The term is `20 / 10 = 2`. By `signal_is_nearly_untouched_by_junk` it changes by at
 most `2 × 1 / 10 = 0.2`. (3) Very little. The allowed loss is the term
 times `30 / 3 = 10`, ten times the term itself, so the bound allows the
 signal to be lost completely. The junk has to be much weaker than the

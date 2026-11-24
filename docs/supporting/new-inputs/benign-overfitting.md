@@ -28,7 +28,7 @@ Split what is left to fit into two parts.
   model is weak, of strength `λe`.
 
 There is one fit that gradient descent heads for: the nearest one. It fits
-both parts exactly (**proved**: `splitFit_fits`, `splitFit_is_nearest`). That
+both parts exactly (**proved**: `split_fit_fits_signal_and_noise`, `split_fit_is_the_nearest_fit`). That
 is overfitting in the plain sense. The training error is zero and the noise
 has been learned.
 
@@ -40,7 +40,7 @@ At a new input the answer moves by two terms, one for each part:
 signal's overlap with the new input / λs   +   noise's overlap with the new input / λe
 ```
 
-(**proved**: `inner_splitFit`.) Each part is divided by the strength of its
+(**proved**: `answer_of_split_fit_at_a_new_input`.) Each part is divided by the strength of its
 direction. This is the whole story in one line.
 
 The signal term is what we want. The noise term is the damage. And the damage
@@ -52,7 +52,7 @@ the noise direction, so it pays a fortune to fit it.
 
 Now give the model a pile of extra features that have nothing to do with the
 task. Suppose they are spread evenly, with strength `c'` in every direction.
-Strengths add (**proved** earlier: `kernel_eigen_add` in [`Pruning.lean`](../../../lean/SquigglyLine/Supporting/NewInputs/Pruning.lean)), so
+Strengths add (**proved** earlier: `strengths_add` in [`Pruning.lean`](../../../lean/SquigglyLine/Supporting/NewInputs/Pruning.lean)), so
 every direction gains `c'`. The two terms become
 
 ```
@@ -63,9 +63,9 @@ The model still fits every label exactly. But now:
 
 - **The damage is capped.** However weak the noise direction was, the noise
   term is at most the overlap divided by `c'`
-  (**proved**: `abs_noise_damage_le`).
+  (**proved**: `noise_damage_at_a_new_input_is_at_most_its_cap`).
 - **The signal is nearly untouched.** The signal term changes by at most a
-  fraction `c' / λs` of itself (**proved**: `abs_signal_loss_le`).
+  fraction `c' / λs` of itself (**proved**: `signal_is_nearly_untouched_by_junk`).
 
 (**proved** together: `benign_overfitting`.) So the overfitting is harmless
 when `c'` sits between the two strengths: much bigger than the noise's

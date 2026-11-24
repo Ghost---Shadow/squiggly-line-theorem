@@ -133,8 +133,8 @@ theorem inner_residual_gradientStep
     let shrink       := 1 - learning_rate * kernel_strength  -- the step removes `learning_rate * kernel_strength` of the error
     error_after = shrink * error_before := by
   unfold_named_pieces
-  rw [residual_gradientStep, inner_sub_right, real_inner_smul_right,
-    ← kernel_inner_comm, direction_is_stretched, real_inner_smul_left]
+  rw [gradient_step_changes_residual_by_the_kernel, inner_sub_right, real_inner_smul_right,
+    ← kernel_is_symmetric, direction_is_stretched, real_inner_smul_left]
   ring
 
 /-- **Each direction on its own clock.** After `step_count` steps the error

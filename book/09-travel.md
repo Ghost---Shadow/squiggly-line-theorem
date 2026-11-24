@@ -37,7 +37,7 @@ features.
 **1. On the straight path to a fit, the error shrinks in proportion.**
 
 ```lean
-theorem residual_along
+theorem residual_along_the_path_is_a_share_of_the_start
     (end_weights_fit : predict end_weights = labels)
     (fraction : ℝ) :
     let weights_on_path    := MOVE_ALONG start_weights end_weights fraction
@@ -51,10 +51,10 @@ theorem residual_along
 
 Half way along the path, half the error is gone. So the nearer the fit,
 the more error a fixed amount of movement removes
-(`exists_within_budget`).
+(`budget_of_travel_buys_its_share_of_the_loss`).
 
 **2. More weights never move the nearest fit further away**
-(`travel_coprod_le`). A bigger model can always leave its new weights
+(`more_weights_never_move_the_fit_away`). A bigger model can always leave its new weights
 alone and do what the smaller one did.
 
 **3. The exchange rate.** Suppose that, seen from the data side, the
@@ -63,7 +63,7 @@ features are at right angles to each other and each has squared length
 the travel is known exactly.
 
 ```lean
-theorem travel_eq
+theorem travel_equals_residual_over_root_of_squared_length
     (features_are_tight : HAS_TIGHT_FEATURES predict squared_length)
     (squared_length_pos : 0 < squared_length)
     (labels : Outputs)

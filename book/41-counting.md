@@ -51,7 +51,7 @@ images are at distance 0.01, the slope is at least 100.
 /-- **Between two counts there is a half.** A read-out that is continuous along
 a path, and says `count` at one end and `count + 1` at the other, says
 `count + 1/2` somewhere on the path. -/
-theorem exists_half_count
+theorem between_two_counts_there_is_a_half
     {readout : RealFunction}
     {count : ℝ}
     (readout_is_continuous : ContinuousOn readout (Set.Icc 0 1))
@@ -73,7 +73,7 @@ says the read-out has no jumps along it.
 /-- **The ideal denoiser blends counts.** At a noisy input equally far from two
 training examples, it returns the point half way between them: half of one hand
 and half of the other. -/
-theorem denoiser_two_of_equidistant
+theorem ideal_denoiser_blends_two_equally_far_examples
     (noise_level : ℝ)
     (examples : Fin 2 → Space)
     {noisy_input : Space}
@@ -95,7 +95,7 @@ examples. `•` multiplies a point by a number.
 /-- **Being sharp about a count costs slope.** A model that says `count` at one
 input and `count + 1` at another has slope at least one over the distance
 between them. -/
-theorem one_le_slope_mul_dist_of_count
+theorem sharp_count_costs_slope
     {Inputs : Type*} [PseudoMetricSpace Inputs]
     {model : Model Inputs}
     {slope_limit : SlopeLimit}
@@ -116,7 +116,7 @@ times the distance between the inputs.
 This is the statement you read in chapter 2. Divide both sides by the
 distance to get the slope bound.
 
-Two more results are named. `attend_two_of_const_score` says an attention
+Two more results are named. `equal_scores_give_the_point_half_way` says an attention
 head that scores two examples equally returns the midpoint of their
 values. `iterate_convolution_congr` says that after some layers of
 convolution an output depends only on the inputs within a window.
@@ -133,7 +133,7 @@ check that half lies between the ends (`half_between`).
 denoiser scores each example by minus its squared distance over a noise
 term. A head with equal scores gives each example an equal share. So its
 output is the plain average, which for two examples is the midpoint
-(`equal_scores`, then `attend_two_of_const_score`).
+(`equal_scores`, then `equal_scores_give_the_point_half_way`).
 
 **The price of a jump.** The slope condition says two outputs differ by at
 most `slope_limit` times the distance between the inputs. The outputs
@@ -227,9 +227,9 @@ These are checks of small cases by measurement, not proofs. Run it with
 3. Two images are at distance 0.05. A model says 2 at one and 3 at the
    other. What can you say about its slope?
 
-**Answers.** (1) 3.5 (`exists_half_count`). (2) 5.5, the midpoint
-(`denoiser_two_of_equidistant`). (3) The slope limit times 0.05 is at
+**Answers.** (1) 3.5 (`between_two_counts_there_is_a_half`). (2) 5.5, the midpoint
+(`ideal_denoiser_blends_two_equally_far_examples`). (3) The slope limit times 0.05 is at
 least 1, so the slope limit is at least `1 / 0.05 = 20`
-(`one_le_slope_mul_dist_of_count`).
+(`sharp_count_costs_slope`).
 
 Previous: [40. Neighbours](40-neighbours.md) · Next: [42. Same kernel, same predictions](42-same-kernel.md)

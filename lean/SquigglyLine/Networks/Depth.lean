@@ -16,9 +16,9 @@ per layer the count stays at zero (`NarrowChain.lean`).
 | Name                  | Meaning                                         |
 |-----------------------|-------------------------------------------------|
 | `APPLY_TENT`          | one layer: `2 * relu(x) - 4 * relu(x - 1/2)`    |
-| `tent_of_le_half`     | on `[0, 1/2]` the tent is `2 * x`               |
-| `tent_of_half_le`     | from `1/2` on the tent is `2 - 2 * x`           |
-| `iterate_tent_dyadic` | stacked tents zigzag between 0 and 1 on the grid|
+| `tent_rises_left_of_the_fold`     | on `[0, 1/2]` the tent is `2 * x`               |
+| `tent_falls_right_of_the_fold`     | from `1/2` on the tent is `2 - 2 * x`           |
+| `tent_layers_zigzag_on_the_grid` | stacked tents zigzag between 0 and 1 on the grid|
 
 How to read the notation:
 
@@ -42,7 +42,7 @@ noncomputable def APPLY_TENT
   2 * first_neuron - 4 * second_neuron        -- slope 2 before the fold, and 2 - 4 = -2 after it
 
 /-- Left of the fold the tent rises: it doubles its input. -/
-theorem tent_of_le_half
+theorem tent_rises_left_of_the_fold
     {input : ℝ}
     (input_nonneg : 0 ≤ input)
     (input_le_half : input ≤ 1 / 2) :
@@ -56,7 +56,7 @@ theorem tent_of_le_half
   ring
 
 /-- Right of the fold the tent falls: from 1 at the fold back to 0 at 1. -/
-theorem tent_of_half_le
+theorem tent_falls_right_of_the_fold
     {input : ℝ}
     (half_le_input : 1 / 2 ≤ input) :
     let tent_output  := APPLY_TENT input
@@ -71,7 +71,7 @@ theorem tent_of_half_le
 /-- **Depth doubles the turns.** `layer_count` tent layers send grid point
 number `grid_index`, of `2 ^ layer_count + 1` evenly spaced inputs, to 0 when
 `grid_index` is even and to 1 when it is odd. -/
-theorem iterate_tent_dyadic
+theorem tent_layers_zigzag_on_the_grid
     (layer_count : ℕ)
     (grid_index : ℕ)
     (index_is_on_grid : grid_index ≤ 2 ^ layer_count) :
@@ -103,7 +103,7 @@ theorem iterate_tent_dyadic
       have first_layer_output :
           APPLY_TENT ((grid_index : ℝ) / 2 ^ (layer_count + 1))
             = (grid_index : ℝ) / 2 ^ layer_count := by
-        rw [tent_of_le_half (by positivity) point_le_half, pow_succ]
+        rw [tent_rises_left_of_the_fold (by positivity) point_le_half, pow_succ]
         field_simp
       rw [first_layer_output,
         zigzag_on_coarser_grid grid_index index_in_left_half]
@@ -123,7 +123,7 @@ theorem iterate_tent_dyadic
           APPLY_TENT ((grid_index : ℝ) / 2 ^ (layer_count + 1))
             = ((2 ^ (layer_count + 1) - grid_index : ℕ) : ℝ)
               / 2 ^ layer_count := by
-        rw [tent_of_half_le half_le_point, Nat.cast_sub index_is_on_grid]
+        rw [tent_falls_right_of_the_fold half_le_point, Nat.cast_sub index_is_on_grid]
         push_cast
         rw [pow_succ]
         field_simp

@@ -7,16 +7,16 @@ each (`features`, `other_features`); the model's answer there is
 `⟪features, weights⟫`. The test row of the kernel is `predict features`: how
 alike the test point is to each training point.
 
-* `inner_gradientStep` : a gradient step changes the answer at a test point by
+* `gradient_step_moves_a_prediction_through_the_kernel` : a gradient step changes the answer at a test point by
   `learning_rate` times the test row matched against the current errors. The
   weights do not appear.
-* `prediction_iterate_gradientStep_eq` : so two models with the same kernel,
+* `same_kernel_gives_same_predictions` : so two models with the same kernel,
   the same test row and the same start give the same answer at the test point
   after every step.
-* `prediction_kernelFit_eq` : and the same answer at the fit that training
+* `same_kernel_gives_same_final_answer` : and the same answer at the fit that training
   heads for.
 
-With `residual_iterate_gradientStep_eq` and `travel_eq_of_kernel_eq` this says
+With `same_kernel_gives_same_training_path` and `same_kernel_gives_same_travel` this says
 a model is its kernel, for training and for prediction.
 -/
 import SquigglyLine.Networks.Kernel
@@ -36,7 +36,7 @@ variable {Weights OtherWeights Outputs : Type*}
 /-- **A step moves a prediction through the kernel only.** The answer at a test
 point with features `features` changes by `learning_rate` times the test row
 `predict features` matched against the errors. -/
-theorem inner_gradientStep
+theorem gradient_step_moves_a_prediction_through_the_kernel
     (predict : Weights →L[ℝ] Outputs)
     (labels : Outputs)
     (learning_rate : ℝ)
@@ -62,7 +62,7 @@ variable {predict : Weights →L[ℝ] Outputs}
 training set, the same test row, the same errors at the start and the same
 answer at the test point at the start give the same answer there after every
 step of gradient descent. -/
-theorem prediction_iterate_gradientStep_eq
+theorem same_kernel_gives_same_predictions
     (same_kernel : ∀ vector,
       predict (adjoint predict vector)
         = other_predict (adjoint other_predict vector))
@@ -95,15 +95,15 @@ theorem prediction_iterate_gradientStep_eq
     -- Each step adds the same correction to both answers: the test row
     -- matched against the residual, and the residuals stay equal.
     rw [Function.iterate_succ_apply', Function.iterate_succ_apply',
-      inner_gradientStep, inner_gradientStep, earlier_case, same_test_row,
-      residual_iterate_gradientStep_eq same_kernel labels learning_rate
+      gradient_step_moves_a_prediction_through_the_kernel, gradient_step_moves_a_prediction_through_the_kernel, earlier_case, same_test_row,
+      same_kernel_gives_same_training_path same_kernel labels learning_rate
         same_start_residual previous_count]
 
 /-- **Same kernel, same answer in the end.** The fit
 `weights + A† K⁻¹ residual` (the nearest fit, by
-`travel_eq_norm_of_kernelInverse`) gives the same answer at the test point in
+`travel_depends_on_the_kernel_only`) gives the same answer at the test point in
 both models. -/
-theorem prediction_kernelFit_eq
+theorem same_kernel_gives_same_final_answer
     (kernel_inverse : Outputs → Outputs)
     (labels : Outputs)
     {weights : Weights}

@@ -64,11 +64,11 @@ theorem tent_one_sub
     mirror_output = output := by
   unfold_named_pieces
   rcases le_total input (1 / 2) with in_left_half | in_right_half
-  · rw [tent_of_le_half input_nonneg in_left_half,
-      tent_of_half_le (by linarith)]
+  · rw [tent_rises_left_of_the_fold input_nonneg in_left_half,
+      tent_falls_right_of_the_fold (by linarith)]
     ring
-  · rw [tent_of_half_le in_right_half,
-      tent_of_le_half (by linarith) (by linarith)]
+  · rw [tent_falls_right_of_the_fold in_right_half,
+      tent_rises_left_of_the_fold (by linarith) (by linarith)]
     ring
 
 /-- **And with nothing else.** Two inputs with the same output are equal or
@@ -84,16 +84,16 @@ theorem eq_or_eq_one_sub_of_tent_eq
   unfold_named_pieces
   rcases le_total input (1 / 2) with in_left | in_right <;>
     rcases le_total other_input (1 / 2) with other_left | other_right
-  · rw [tent_of_le_half other_input_mem.1 other_left,
-      tent_of_le_half input_mem.1 in_left] at same_output
+  · rw [tent_rises_left_of_the_fold other_input_mem.1 other_left,
+      tent_rises_left_of_the_fold input_mem.1 in_left] at same_output
     exact Or.inl (by linarith)
-  · rw [tent_of_half_le other_right,
-      tent_of_le_half input_mem.1 in_left] at same_output
+  · rw [tent_falls_right_of_the_fold other_right,
+      tent_rises_left_of_the_fold input_mem.1 in_left] at same_output
     exact Or.inr (by linarith)
-  · rw [tent_of_le_half other_input_mem.1 other_left,
-      tent_of_half_le in_right] at same_output
+  · rw [tent_rises_left_of_the_fold other_input_mem.1 other_left,
+      tent_falls_right_of_the_fold in_right] at same_output
     exact Or.inr (by linarith)
-  · rw [tent_of_half_le other_right, tent_of_half_le in_right] at same_output
+  · rw [tent_falls_right_of_the_fold other_right, tent_falls_right_of_the_fold in_right] at same_output
     exact Or.inl (by linarith)
 
 /-- **`fold_count` folds throw away at most `fold_count` bits.** At most
@@ -125,7 +125,7 @@ theorem card_le_two_pow_of_iterate_tent_eq
       refine ih (inputs.image APPLY_TENT) (fun folded folded_mem => ?_)
         common_output (fun folded folded_mem => ?_)
       · obtain ⟨input, input_mem, rfl⟩ := Finset.mem_image.mp folded_mem
-        exact tent_mem_Icc (inputs_in_unit input input_mem).1
+        exact tent_keeps_the_unit_interval (inputs_in_unit input input_mem).1
           (inputs_in_unit input input_mem).2
       · obtain ⟨input, input_mem, rfl⟩ := Finset.mem_image.mp folded_mem
         rw [← Function.iterate_succ_apply]
@@ -283,7 +283,7 @@ theorem travel_sq_div_eq_of_tight
     let error_cost  := ‖residual‖ ^ 2 / (2 * noise_scale ^ 2 * strength)
     travel_cost = error_cost := by
   unfold_named_pieces
-  rw [features_are_tight.travel_eq strength_pos, div_pow,
+  rw [features_are_tight.travel_equals_residual_over_root_of_squared_length strength_pos, div_pow,
     Real.sq_sqrt strength_pos.le, div_div, mul_comm strength]
 
 end Description

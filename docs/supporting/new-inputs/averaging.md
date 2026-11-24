@@ -25,13 +25,13 @@ members, minus how far the members are spread round the average:
 error of the average  =  average error  −  spread
 ```
 
-(**proved**: `sq_blend_sub`; **recalled**: Krogh and Vedelsby 1995.) The
+(**proved**: `error_of_the_average_equals_average_error_minus_spread`; **recalled**: Krogh and Vedelsby 1995.) The
 spread is never negative, so the ensemble is at least as good as its members
-are on average (**proved**: `sq_blend_sub_le`). It is strictly better
+are on average (**proved**: `ensemble_error_is_at_most_average_member_error`). It is strictly better
 whenever the members disagree.
 
 The average is also no steeper than its steepest member (**proved**:
-`lipschitzWith_blend`).
+`average_slope_is_at_most_steepest_member`).
 
 Put the two together. Each member fits the data by being squiggly in its own
 way. Between the data points the squiggles disagree, and the average cancels
@@ -48,8 +48,8 @@ al. 2018; Wortsman et al. 2022, "model soups").
 
 For a model that is linear in its weights the two are the same thing.
 Averaging the weights is averaging the lines (**proved**:
-`liftedModel_sum_smul`). So the averaged weights are at least as good as the
-members are on average (**proved**: `sq_liftedModel_soup_sub_le`).
+`averaging_weights_is_averaging_lines`). So the averaged weights are at least as good as the
+members are on average (**proved**: `averaged_weights_error_is_at_most_average_member_error`).
 
 For a real network they are not the same. With just two weights multiplied,
 the midpoint between a fit and its mirror image outputs zero
@@ -66,15 +66,15 @@ the best it can do under squared error is the average of the candidates,
 each weighted by how likely it is.
 
 - Whatever the weights are, the weighted mean is the best single guess
-  (**proved**: `sum_mul_norm_sub_sq`, `weightedMean_isBest`).
+  (**proved**: `weighted_squared_distance_splits_at_the_mean`, `weighted_mean_is_the_best_single_guess`).
 - With Gaussian noise of size `σ`, the weight of a training example falls
   with its squared distance from the noisy input: it is the softmax of
   `−distance² / 2σ²` (**recalled**: Bayes' rule; not proved here).
 - So the ideal denoiser is an attention head. The query is the noisy input,
   the tokens are the training examples, and the score is nearness
-  (**proved**: `idealDenoiser_eq_weightedMean`, `idealDenoiser_isBest`).
+  (**proved**: `ideal_denoiser_equals_weighted_mean_of_examples`, `ideal_denoiser_is_the_best_guess`).
 - Its output never leaves the region the training examples span (**proved**:
-  `idealDenoiser_mem_convexHull`).
+  `ideal_denoiser_stays_inside_the_examples`).
 
 With a lot of noise every example gets about the same share and the output
 is the plain average of the training set. With very little noise the nearest

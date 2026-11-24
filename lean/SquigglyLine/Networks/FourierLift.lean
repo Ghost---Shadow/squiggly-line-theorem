@@ -12,23 +12,23 @@ moves. A flat plane over that circle is a sine wave downstairs.
 
 Theorems:
 
-* `liftedModel_fourierLift` : weights `(cosine_weight, sine_weight)` give
+* `flat_plane_over_the_circle_is_a_wave` : weights `(cosine_weight, sine_weight)` give
   `cosine_weight * cos (frequency * input)
     + sine_weight * sin (frequency * input)`.
-* `liftKernel_fourierLift` : the kernel of two inputs is
+* `fourier_kernel_is_cosine_of_the_gap` : the kernel of two inputs is
   `cos (frequency * (input - other_input))`. It depends only on how far
   apart they are.
-* `norm_fourierLift_sub_sq` : two lifted points are
+* `squared_distance_of_fourier_lifts_is_a_chord` : two lifted points are
   `√(2 - 2 cos (frequency * (input - other_input)))` apart.
-* `lipschitzWith_fourierLift` : so the lift stretches distances by at most
+* `fourier_lift_stretches_at_most_by_its_frequency` : so the lift stretches distances by at most
   `|frequency|`.
-* `lipschitzWith_liftedModel_fourierLift` : and the wave is no steeper than
+* `wave_slope_is_at_most_size_times_frequency` : and the wave is no steeper than
   the size of its weights times the frequency.
 
 Shift invariance, for any lift:
-* `liftedModel_shift` : if the kernel depends only on how far apart two inputs
+* `shifting_data_and_question_changes_no_answer` : if the kernel depends only on how far apart two inputs
   are, shifting the data and the question together changes no answer.
-* `liftKernel_fourierLift_shift` : the Fourier lift is such a lift.
+* `fourier_kernel_does_not_change_under_a_shift` : the Fourier lift is such a lift.
 -/
 import Mathlib.Analysis.InnerProductSpace.PiL2
 import Mathlib.Analysis.SpecialFunctions.Trigonometric.Bounds
@@ -54,7 +54,7 @@ noncomputable def LIFT_BY_FOURIER
   !₂[Real.cos angle, Real.sin angle]    -- the point of the unit circle at that angle
 
 /-- **A flat plane over the circle is a wave.** -/
-theorem liftedModel_fourierLift
+theorem flat_plane_over_the_circle_is_a_wave
     (frequency : ℝ)
     (cosine_weight : ℝ)
     (sine_weight : ℝ)
@@ -72,7 +72,7 @@ theorem liftedModel_fourierLift
 
 /-- **The kernel sees only the gap.** The overlap of two lifted inputs is the
 cosine of the frequency times how far apart they are. -/
-theorem liftKernel_fourierLift
+theorem fourier_kernel_is_cosine_of_the_gap
     (frequency : ℝ)
     (input : ℝ)
     (other_input : ℝ) :
@@ -87,7 +87,7 @@ theorem liftKernel_fourierLift
 
 /-- Shifting both inputs by the same amount leaves the Fourier kernel as it
 was: the gap between them has not changed. -/
-theorem liftKernel_fourierLift_shift
+theorem fourier_kernel_does_not_change_under_a_shift
     (frequency : ℝ)
     (shift : ℝ)
     (input : ℝ)
@@ -98,14 +98,14 @@ theorem liftKernel_fourierLift_shift
     let kernel         := GET_LIFT_KERNEL features input other_input
     shifted_kernel = kernel := by
   unfold_named_pieces
-  rw [liftKernel_fourierLift, liftKernel_fourierLift,
+  rw [fourier_kernel_is_cosine_of_the_gap, fourier_kernel_is_cosine_of_the_gap,
     add_sub_add_right_eq_sub]
 
 /-! ### Its stretch -/
 
 /-- The squared distance between two lifted inputs: the squared length of a
 chord of the unit circle. -/
-theorem norm_fourierLift_sub_sq
+theorem squared_distance_of_fourier_lifts_is_a_chord
     (frequency : ℝ)
     (input : ℝ)
     (other_input : ℝ) :
@@ -120,7 +120,7 @@ theorem norm_fourierLift_sub_sq
       inner ℝ (LIFT_BY_FOURIER frequency first)
           (LIFT_BY_FOURIER frequency second)
         = Real.cos (frequency * (first - second)) :=
-    liftKernel_fourierLift frequency first second
+    fourier_kernel_is_cosine_of_the_gap frequency first second
   -- Multiply the square out into three overlaps, each one a cosine.
   rw [norm_sub_sq_real, ← real_inner_self_eq_norm_sq,
     ← real_inner_self_eq_norm_sq, overlap_is_cosine, overlap_is_cosine,
@@ -128,7 +128,7 @@ theorem norm_fourierLift_sub_sq
   ring
 
 /-- **The Fourier lift stretches by at most its frequency.** -/
-theorem lipschitzWith_fourierLift
+theorem fourier_lift_stretches_at_most_by_its_frequency
     (frequency : ℝ) :
     let slope_limit := ‖frequency‖₊             -- the size of the frequency, kept as a number that is not negative
     let features    := LIFT_BY_FOURIER frequency
@@ -143,21 +143,21 @@ theorem lipschitzWith_fourierLift
       ‖LIFT_BY_FOURIER frequency input
           - LIFT_BY_FOURIER frequency other_input‖ ^ 2
         ≤ (|frequency| * |input - other_input|) ^ 2 := by
-    rw [norm_fourierLift_sub_sq, ← abs_mul, sq_abs]
+    rw [squared_distance_of_fourier_lifts_is_a_chord, ← abs_mul, sq_abs]
     linarith
   rw [dist_eq_norm, Real.dist_eq, coe_nnnorm, Real.norm_eq_abs]
   exact (sq_le_sq₀ (norm_nonneg _) (by positivity)).mp
     squared_distance_is_small
 
 /-- **A wave is no steeper than its size times its frequency.** -/
-theorem lipschitzWith_liftedModel_fourierLift
+theorem wave_slope_is_at_most_size_times_frequency
     (frequency : ℝ)
     (weights : CosineSinePair) :
     let slope_limit := ‖weights‖₊ * ‖frequency‖₊  -- tilt of the plane times stretch of the lift
     let wave        :=
       EVALUATE_LIFTED_MODEL (LIFT_BY_FOURIER frequency) weights
     LipschitzWith slope_limit wave :=
-  lipschitzWith_liftedModel (lipschitzWith_fourierLift frequency) weights
+  lifted_model_slope_is_at_most_tilt_times_stretch (fourier_lift_stretches_at_most_by_its_frequency frequency) weights
 
 /-! ### Shift invariance -/
 
@@ -168,7 +168,7 @@ variable {Inputs Weights Examples : Type*} [Add Inputs]
 
 /-- **Shift the data and the question together and no answer changes.** This
 holds whenever the kernel depends only on how far apart two inputs are. -/
-theorem liftedModel_shift
+theorem shifting_data_and_question_changes_no_answer
     (features : FeatureMap Inputs Weights)
     (kernel_ignores_shift :
       ∀ shift input other_input,
@@ -191,10 +191,10 @@ theorem liftedModel_shift
   -- The kernel trick, once for the shifted data and once for the plain
   -- data. Both answers are then sums of kernels, and the kernels agree.
   have shifted_answer_by_kernel :=
-    liftedModel_add_sum features examples 0
+    kernel_trick features examples 0
       (fun i => data_inputs i + shift) coefficients (input + shift)
   have answer_by_kernel :=
-    liftedModel_add_sum features examples 0 data_inputs coefficients input
+    kernel_trick features examples 0 data_inputs coefficients input
   simp only [zero_add] at shifted_answer_by_kernel answer_by_kernel
   rw [shifted_answer_by_kernel, answer_by_kernel]
   simp only [kernel_ignores_shift, EVALUATE_LIFTED_MODEL, inner_zero_left]

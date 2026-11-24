@@ -33,19 +33,19 @@ seen as a function of the input, it is a squiggly line.
 ## Four facts about any lift
 
 1. **A point is on the squiggly line exactly when its lift is on the
-   plane** (`embed_mem_curve_liftedModel_iff`).
+   plane** (`point_is_on_the_line_exactly_when_its_lift_is_on_the_plane`).
 2. **The slope downstairs is at most the size of the weights times the
-   stretch of the lift** (`lipschitzWith_liftedModel`). The stretch is how
+   stretch of the lift** (`lifted_model_slope_is_at_most_tilt_times_stretch`). The stretch is how
    much the lift can pull two nearby inputs apart. So chapter 3's price
    of nearness can be paid in two ways: big weights, or a lift that
    stretches.
-3. **The kernel trick** (`liftedModel_add_sum`). If the weights have
+3. **The kernel trick** (`kernel_trick`). If the weights have
    moved from their start only along the lifted data points, then the
    prediction at a new input is the starting prediction plus a sum over
    the data: a number for each data point, times the kernel between that
    point and the new input. The features themselves never have to be
    written down. Gradient descent only ever moves the weights that way.
-4. **A warning** (`exists_lift_eq`). Any function at all is flat in some
+4. **A warning** (`any_function_is_flat_in_some_lift`). Any function at all is flat in some
    lift. So "it is flat upstairs" says something only when the lift is
    fixed before the data is seen.
 
@@ -62,10 +62,10 @@ A flat plane over that circle is, downstairs, a wave:
 chapter 6, seen as a lifted model.
 
 - The kernel of two inputs is `cos(frequency × gap)`, where `gap` is
-  how far apart they are (`liftKernel_fourierLift`). It sees only the
+  how far apart they are (`fourier_kernel_is_cosine_of_the_gap`). It sees only the
   gap. So shifting the data and the question together changes no answer.
 - The lift stretches distances by at most `frequency`
-  (`lipschitzWith_fourierLift`). So by fact 2 the wave is no steeper than
+  (`fourier_lift_stretches_at_most_by_its_frequency`). So by fact 2 the wave is no steeper than
   the size of its weights times its frequency. The frequency is the
   squeeze factor of chapter 7, now appearing as the stretch of a lift.
 
@@ -77,10 +77,10 @@ A radial basis network is a sum of bell-shaped bumps, one centred at each
 of some chosen places, all of one width.
 
 A bump of width `width` is the unit bump squeezed sideways by
-`1 / width` (`bump_eq_compress`). So chapter 7 applies with `1 / width`
+`1 / width` (`bump_is_the_unit_bump_squeezed`). So chapter 7 applies with `1 / width`
 as the squeeze factor. Narrow bumps are steep, with slope up to
 `1 / width`, and reach every label: once the bumps hardly overlap, they
-fit any labels exactly (`exists_heights_of_gap`). Wide bumps of modest height
+fit any labels exactly (`bumps_fit_when_narrower_than_the_gap`). Wide bumps of modest height
 are gentle and cannot follow labels that change quickly. They can still
 fit them, but only with very large heights (**measured**, below).
 
@@ -95,7 +95,7 @@ Use many frequencies at once, drawn from a bell curve with variance
 exp(−variance × gap² / 2)
 ```
 
-which is the bump (`integral_liftKernel_fourierLift`). So a wide layer of
+which is the bump (`random_fourier_kernel_is_the_bump_kernel`). So a wide layer of
 random waves and a radial basis network have the same kernel on
 average, and by chapter 10 they are then the same learner. This is the
 idea behind random Fourier features.

@@ -25,19 +25,19 @@ Such a model works in two moves.
 
 The second move is a flat function of the features: its value at a blend of
 two feature lists is the same blend of the two values (**proved**:
-`flatModel_blend`). Its graph is a flat plane in the space of features, which
+`flat_model_of_a_blend_is_the_blend`). Its graph is a flat plane in the space of features, which
 this note calls upstairs.
 
 The model is that flat function after the lift (**proved**:
-`liftedModel_eq_comp`). So:
+`lifted_model_is_flat_model_after_the_lift`). So:
 
 > A point is on the squiggly line downstairs exactly when its lift is on the
 > flat plane upstairs.
 
-(**proved**: `embed_mem_curve_liftedModel_iff`.) The same holds for a
+(**proved**: `point_is_on_the_line_exactly_when_its_lift_is_on_the_plane`.) The same holds for a
 classifier. The inputs it scores zero form a squiggly boundary downstairs, and
 their lifts lie on a flat plane through the origin upstairs (**proved**:
-`boundary_eq_preimage`). This is the picture behind support vector machines
+`squiggly_boundary_is_a_flat_boundary_upstairs`). This is the picture behind support vector machines
 (**recalled**: Boser, Guyon and Vapnik 1992).
 
 One sine wave shows it. The lift `x ↦ (cos wx, sin wx)` winds the input round
@@ -50,7 +50,7 @@ The plane is flat, so the squiggle is all in the lift. The plane only has a
 tilt, which is the size of the weights.
 
 If the lift stretches distances by at most `K`, the line is no steeper than
-the size of the weights times `K` (**proved**: `lipschitzWith_liftedModel`).
+the size of the weights times `K` (**proved**: `lifted_model_slope_is_at_most_tilt_times_stretch`).
 
 ```
 slope of the line  ≤  tilt of the plane × stretch of the lift
@@ -58,7 +58,7 @@ slope of the line  ≤  tilt of the plane × stretch of the lift
 
 The slope sandwich of the theorem then reads in those two numbers. The line
 can be nearer to a data point than its vertical error only by the factor
-`√(1 + (tilt × stretch)²)` (**proved**: `verticalDist_liftedModel_le`).
+`√(1 + (tilt × stretch)²)` (**proved**: `vertical_error_of_lifted_model_is_at_most_stretch_times_nearest_distance`).
 
 So there are two ways to buy a squigglier line: a lift that stretches more,
 or bigger weights. Raising the frequency of the Fourier features is the
@@ -76,21 +76,21 @@ old prediction + Σ cᵢ × kernel(data point i, new input)
 ```
 
 where the kernel of two inputs is the overlap of their lifts (**proved**:
-`liftedModel_add_sum`). The lift itself is never needed, only the kernel. That
+`kernel_trick`). The lift itself is never needed, only the kernel. That
 is the kernel trick: the plane upstairs can have any number of dimensions,
 even infinitely many, and the work stays downstairs.
 
 A kernel that comes from a lift is symmetric, and summed over all pairs of
 data points with any weights it is never negative, because the sum is the
-squared length of a vector upstairs (**proved**: `liftKernel_comm`,
-`sum_sum_liftKernel_nonneg`). The converse, that every such kernel comes from
+squared length of a vector upstairs (**proved**: `lift_kernel_is_symmetric`,
+`lift_kernel_over_all_pairs_is_at_least_zero`). The converse, that every such kernel comes from
 some lift, is a known theorem (**recalled**: Mercer, Moore and Aronszajn) and
 is not proved here.
 
 ## The catch
 
 Any function at all is flat in some lift: take the function itself as the one
-feature (**proved**: `exists_lift_eq`). So "it is flat upstairs" says nothing
+feature (**proved**: `any_function_is_flat_in_some_lift`). So "it is flat upstairs" says nothing
 unless the lift is fixed before the labels are seen.
 
 With a fixed lift into `m` dimensions, the model can match arbitrary labels
@@ -118,5 +118,5 @@ linear layer).
 - **The sine wave picture** is now in [`FourierLift.lean`](../../lean/SquigglyLine/Networks/FourierLift.lean); see
   `docs/networks/fourier-lift.md`.
 - **How much stretch a given lift has.** For the Fourier lift of one
-  frequency `w` it is at most `w` (`lipschitzWith_fourierLift`). Other lifts
+  frequency `w` it is at most `w` (`fourier_lift_stretches_at_most_by_its_frequency`). Other lifts
   are not computed.

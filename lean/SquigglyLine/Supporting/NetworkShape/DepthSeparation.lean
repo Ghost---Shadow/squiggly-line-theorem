@@ -389,7 +389,7 @@ theorem depth_separation
         ((grid_index : ℝ) / 2 ^ (layer_count + 1)) < 1 / 2 := by
     intro grid_index index_on_grid index_even
     have closeness := follows_zigzag grid_index index_on_grid
-    rw [iterate_tent_dyadic (layer_count + 1) grid_index index_on_grid,
+    rw [tent_layers_zigzag_on_the_grid (layer_count + 1) grid_index index_on_grid,
       ite_eq_left index_even, sub_zero] at closeness
     exact (abs_lt.mp closeness).2
   -- ... and at odd grid points the tent is 1, so it is above one half.
@@ -399,7 +399,7 @@ theorem depth_separation
         ((grid_index : ℝ) / 2 ^ (layer_count + 1)) := by
     intro grid_index index_on_grid index_odd
     have closeness := follows_zigzag grid_index index_on_grid
-    rw [iterate_tent_dyadic (layer_count + 1) grid_index index_on_grid,
+    rw [tent_layers_zigzag_on_the_grid (layer_count + 1) grid_index index_on_grid,
       ite_eq_right index_odd] at closeness
     have lower_side := (abs_lt.mp closeness).1
     linarith
@@ -671,13 +671,13 @@ theorem depth_separation_with_nothing_to_spare
   · -- At even grid points the tent is 0, so the network is below one half.
     intro grid_index index_on_grid index_even
     have closeness := follows_zigzag grid_index index_on_grid
-    rw [iterate_tent_dyadic (layer_count + 1) grid_index index_on_grid,
+    rw [tent_layers_zigzag_on_the_grid (layer_count + 1) grid_index index_on_grid,
       ite_eq_left index_even, sub_zero] at closeness
     exact (abs_lt.mp closeness).2
   · -- At odd grid points the tent is 1, so it is above one half.
     intro grid_index index_on_grid index_odd
     have closeness := follows_zigzag grid_index index_on_grid
-    rw [iterate_tent_dyadic (layer_count + 1) grid_index index_on_grid,
+    rw [tent_layers_zigzag_on_the_grid (layer_count + 1) grid_index index_on_grid,
       ite_eq_right index_odd] at closeness
     have lower_side := (abs_lt.mp closeness).1
     linarith

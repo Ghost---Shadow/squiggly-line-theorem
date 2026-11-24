@@ -134,7 +134,7 @@ then `lake build` in the `lean` folder. Nothing in this book needs that.
 Here is a statement from chapter 15.
 
 ```lean
-theorem one_le_slope_mul_dist_of_count
+theorem sharp_count_costs_slope
     {Inputs : Type*} [PseudoMetricSpace Inputs]
     {model : Model Inputs}
     {slope_limit : SlopeLimit}

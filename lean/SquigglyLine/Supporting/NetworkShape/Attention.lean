@@ -177,7 +177,7 @@ theorem inner_gradientStep_zero
       learning_rate * inner ℝ (predict query_features) labels
     prediction = kernel_weighted_labels := by
   unfold_named_pieces
-  rw [inner_gradientStep]
+  rw [gradient_step_moves_a_prediction_through_the_kernel]
   simp [GET_RESIDUAL]
 
 variable {Examples : Type*} [Fintype Examples]
@@ -227,7 +227,7 @@ theorem prediction_step_eq_linearAttention
           labels weights i
     new_prediction = old_prediction + head_output := by
   unfold_named_pieces
-  rw [inner_gradientStep]
+  rw [gradient_step_moves_a_prediction_through_the_kernel]
   simp [ATTEND_LINEARLY, PiLp.inner_apply, mul_comm]
 
 end InContext

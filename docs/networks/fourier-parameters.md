@@ -122,12 +122,12 @@ Chizat and Bach 2019). It is not a new result.
 Slide the parameters in a straight line from the random start to the nearest
 fit. At fraction `t` of the way, the error left is `1 − t` times the starting
 error. This is the same at every model size (**proved**:
-`residual_along` in [`LinearModel.lean`](../../lean/SquigglyLine/Networks/LinearModel.lean)).
+`residual_along_the_path_is_a_share_of_the_start` in [`LinearModel.lean`](../../lean/SquigglyLine/Networks/LinearModel.lean)).
 
 So every model walks the same loss curve. What differs is how long the walk
 is. Loss gap equals distance times steepness: a model whose fit is at distance
 `d` removes the fraction `ε / d` of its error by moving a distance `ε`
-(**proved**: `exists_within_budget`).
+(**proved**: `budget_of_travel_buys_its_share_of_the_loss`).
 
 This gives the form in which the original idea is true:
 
@@ -135,7 +135,7 @@ This gives the form in which the original idea is true:
 > data. At any positive budget, it is closer.
 
 Adding parameters never moves the nearest fit further away (**proved**:
-`travel_coprod_le`, for new parameters that start at zero).
+`more_weights_never_move_the_fit_away`, for new parameters that start at zero).
 
 ## The exchange rate
 
@@ -146,11 +146,11 @@ then
 travel = (size of the error) / √c
 ```
 
-exactly (**proved**: `TightFeatures.travel_eq` in [`ExchangeRate.lean`](../../lean/SquigglyLine/Networks/ExchangeRate.lean)).
+exactly (**proved**: `TightFeatures.travel_equals_residual_over_root_of_squared_length` in [`ExchangeRate.lean`](../../lean/SquigglyLine/Networks/ExchangeRate.lean)).
 
 With as many orthonormal features as data points, `c = 1`. Then parameter
 space is data space and travel equals the error (**proved**:
-`travel_eq_norm_residual`).
+`travel_equals_residual_for_orthonormal_features`).
 
 Random Fourier features on scattered points are nearly orthogonal when there
 are many more terms than points, with `c = m + 1`. That predicts

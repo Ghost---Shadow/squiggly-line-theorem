@@ -64,12 +64,12 @@ Chapter 10 defined the kernel as `predict (adjoint predict ...)`. For
 pruning, `whole_predict` is the model with all its weights, `kept_predict`
 is the model with the weights you keep, and `dropped_predict` is the model
 with the weights you cut. `IS_KERNEL_SUM` says the whole kernel is the
-kept kernel plus the dropped kernel. `kernel_eigen_add` says that along a
+kept kernel plus the dropped kernel. `strengths_add` says that along a
 direction where the kept weights have one **strength** (chapter 10) and
 the dropped weights have another, the whole model has the sum.
 
 ```lean
-theorem pruned_share_ge
+theorem pruning_slows_a_direction_down
     {learning_rate : ℝ}
     {kept_strength : ℝ}
     {dropped_strength : ℝ}
@@ -92,7 +92,7 @@ model does not overshoot.
 Two more results finish the pruning half. `winning_ticket` says that if
 the dropped weights have no strength along a direction, the pruned and
 whole models keep the same error along it at every step, given the same
-starting error. `travel_mul_sqrt_pruned` says that with tight features
+starting error. `pruning_moves_the_fit_farther` says that with tight features
 (chapter 9) on both sides, the travel of the pruned model times
 `√kept_strength` equals the travel of the whole model times
 `√(kept_strength + dropped_strength)`.
@@ -101,7 +101,7 @@ For forgetting there is one set of weights and two tasks. The old task has
 `predict` and `labels`. The new task has `new_predict` and `new_labels`.
 
 ```lean
-theorem residual_gradientStep_other
+theorem forgetting_goes_through_the_cross_kernel
     (predict : Weights →L[ℝ] Outputs)
     (new_predict : Weights →L[ℝ] NewOutputs)
     (labels : Outputs)
@@ -126,7 +126,7 @@ kernel, but with the old inputs on one side and the new inputs on the
 other. The weights do not appear.
 
 ```lean
-theorem forgetting_le_travel
+theorem forgetting_is_at_most_predict_size_times_travel
     (predict : Weights →L[ℝ] Outputs)
     (new_predict : Weights →L[ℝ] NewOutputs)
     (labels : Outputs)
@@ -157,9 +157,9 @@ changed by at most the size of the old features times the new task's
 travel. `‖predict‖` is the most that `predict` can stretch a move of the
 weights.
 
-Other results in `Forgetting.lean`: `inner_forgetting_step` reads the
+Other results in `Forgetting.lean`: `forgetting_along_one_direction` reads the
 change along one direction of the old labels, and
-`residual_iterate_of_cross_kernel_eq_zero` says that if the cross kernel
+`separate_features_forget_nothing` says that if the cross kernel
 is zero, any number of steps on the new task leave the old errors exactly
 where they were.
 
@@ -195,7 +195,7 @@ the cross kernel applied to the new error. If the cross kernel is zero,
 every step adds nothing, and an induction on the step count finishes it.
 
 **The ceiling.** Moving the weights by a distance changes the old outputs
-by at most `‖predict‖` times that distance (`forgetting_le_dist`).
+by at most `‖predict‖` times that distance (`forgetting_is_at_most_predict_size_times_distance`).
 Gradient descent that fits the new task has moved no further than the
 nearest fit (chapter 13, `gradientDescent_fit_is_nearest`). The distance to
 the nearest fit is the travel. Put the two together.
@@ -222,7 +222,7 @@ budget.
 ## How this meets the squiggly line
 
 Travel (chapter 9) is the main idea. In pruning, cutting weights raises
-the travel by the exchange rate of `travel_mul_sqrt_pruned`. In
+the travel by the exchange rate of `pruning_moves_the_fit_farther`. In
 forgetting, the travel of the new task becomes the ceiling on what the old
 task can lose. Both use the kernel and the strength of chapter 10, and
 pruning uses the one factor per step of chapter 13.
@@ -299,9 +299,9 @@ The ceiling holds but is loose here: the measured change is well under it. Run i
 
 **Answers.** (1) They have the same error, from `winning_ticket`, given
 the same starting error. (2) The whole strength is 5, and
-`0.1 × 5 = 0.5` is at most 1, so `pruned_share_ge` applies. The whole
+`0.1 × 5 = 0.5` is at most 1, so `pruning_slows_a_direction_down` applies. The whole
 model has `0.5² = 0.25` left and the pruned model has
 `(1 − 0.1)² = 0.81` left. (3) At most `3 × 0.5 = 1.5`, from
-`forgetting_le_travel`, if gradient descent fits the new task.
+`forgetting_is_at_most_predict_size_times_travel`, if gradient descent fits the new task.
 
 Previous: [44. Benign overfitting](44-benign-overfitting.md) · Next: [46. The dimpled manifold](46-the-dimpled-manifold.md)

@@ -35,7 +35,7 @@ for the outer chain. The "action" is the distance moved in parameter space.
 
 It also says what kind of function comes out. Least travel from a start means
 the fitted function stays as close as possible to the starting function, which
-is what `exists_fit_near_start` in the double-descent work already used.
+is what `fit_near_the_start_is_tame_everywhere` in the double-descent work already used.
 
 ## Through the layers: the evenest path
 

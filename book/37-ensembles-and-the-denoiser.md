@@ -53,7 +53,7 @@ shares, `sum(shares[i] * predictions[i] for i in member_set)` in Python.
 
 ```lean
 /-- **The error of the average is the average error minus the spread.** -/
-theorem sq_blend_sub
+theorem error_of_the_average_equals_average_error_minus_spread
     (shares_sum_to_one : ∑ i ∈ member_set, shares i = 1)
     (label : ℝ) :
     let blend_error   := (BLEND member_set shares predictions - label) ^ 2
@@ -70,9 +70,9 @@ equals the share-weighted squared error of the members, minus the
 share-weighted squared distance of the members from the blend.
 
 The spread is a sum of squares, so it is never negative. That gives
-`sq_blend_sub_le`: when the shares are also positive, the blend is at
+`ensemble_error_is_at_most_average_member_error`: when the shares are also positive, the blend is at
 least as good as the members are on average. The blend is also no steeper
-than its steepest member (`lipschitzWith_blend`).
+than its steepest member (`average_slope_is_at_most_steepest_member`).
 
 The ideal denoiser.
 
@@ -99,7 +99,7 @@ is minus the squared distance divided by twice the squared noise level.
 /-- **No other guess is better.** Among all outputs `other_output`, the ideal
 denoiser has the least squared distance to the examples, weighted by how
 likely each is to be the clean one. -/
-theorem idealDenoiser_isBest
+theorem ideal_denoiser_is_the_best_guess
     (noise_level : ℝ)
     (examples : Examples → Space)
     (noisy_input : Space)
@@ -116,13 +116,13 @@ theorem idealDenoiser_isBest
 *Read aloud:* with those shares, no other output is closer to the
 examples, on the share-weighted squared distance, than the ideal denoiser.
 
-The file also has `idealDenoiser_mem_convexHull`: the output never leaves
+The file also has `ideal_denoiser_stays_inside_the_examples`: the output never leaves
 the region the training examples span.
 
 ## Why it is true
 
 **The ensemble.** Write the squared error of any centre as the weighted
-sum of squares, minus a cross term, plus a centre term (`sum_mul_sq_sub`).
+sum of squares, minus a cross term, plus a centre term (`weighted_squared_distance_to_a_centre_expanded`).
 Do it twice, once with the label as the centre and once with the blend as
 the centre. Both share the same sum of squares. With the blend as centre
 the cross and centre terms collapse to the blend squared, so the spread is
@@ -130,18 +130,18 @@ the sum of squares minus the blend squared. Subtract that from the average
 error and what is left is the squared error of the blend.
 
 **Weight averaging.** For a model linear in its weights, averaging the
-weights is averaging the lines (`liftedModel_sum_smul`). So the same
-bound holds for averaged weights (`sq_liftedModel_soup_sub_le`).
+weights is averaging the lines (`averaging_weights_is_averaging_lines`). So the same
+bound holds for averaged weights (`averaged_weights_error_is_at_most_average_member_error`).
 
 **The best guess.** The weighted squared distance to any point splits
 into the weighted squared distance to the weighted mean plus the squared
-distance from the mean to that point (`sum_mul_norm_sub_sq`). The first
+distance from the mean to that point (`weighted_squared_distance_splits_at_the_mean`). The first
 part does not depend on the point. The second is never negative and is
-zero at the mean. So the mean is the best guess (`weightedMean_isBest`).
+zero at the mean. So the mean is the best guess (`weighted_mean_is_the_best_single_guess`).
 The cross term vanishes because the offsets from the mean cancel
-(`sum_smul_sub_weightedMean`).
+(`offsets_from_the_weighted_mean_cancel`).
 
-**The denoiser.** By definition (`idealDenoiser_eq_weightedMean`) it is
+**The denoiser.** By definition (`ideal_denoiser_equals_weighted_mean_of_examples`) it is
 that weighted mean, with the softmax of the scores as shares. Apply the
 best-guess result. The hull statement is `attend_mem_convexHull`.
 
@@ -238,10 +238,10 @@ Run it with `jupyter nbconvert --to notebook --execute --inplace experiments/par
    smallest to the largest training example?
 
 **Answers.** (1) The blend is 3, so the error of the blend is 0. The
-average error is `(4 + 1 + 9) / 3 = 14/3`. By `sq_blend_sub` the spread is
+average error is `(4 + 1 + 9) / 3 = 14/3`. By `error_of_the_average_equals_average_error_minus_spread` the spread is
 `14/3`, about 4.67. Check: `((1 − 3)² + (2 − 3)² + (6 − 3)²) / 3` is the
 same. (2) The two scores are equal, so the shares are one half each, and
 the output is 2 (`attend_of_const_score`). (3) No, by
-`idealDenoiser_mem_convexHull`.
+`ideal_denoiser_stays_inside_the_examples`.
 
 Previous: [36. Attention](36-attention.md) · Next: [38. Mixing: graphs, noise schedules and guidance](38-mixing.md)

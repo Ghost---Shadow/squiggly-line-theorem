@@ -6,16 +6,16 @@ One set of weights, two tasks. The old task has features `predict` and labels
 cross kernel is `predict new_predict†`: how alike the model finds the old
 inputs and the new ones.
 
-* `residual_gradientStep_other` : a gradient step on the new task changes the
+* `forgetting_goes_through_the_cross_kernel` : a gradient step on the new task changes the
   old errors by `learning_rate` times the cross kernel applied to the new
   errors.
-* `inner_forgetting_step` : the same, read along one direction of the old
+* `forgetting_along_one_direction` : the same, read along one direction of the old
   labels.
-* `residual_iterate_of_cross_kernel_eq_zero` : if the cross kernel is zero,
+* `separate_features_forget_nothing` : if the cross kernel is zero,
   training on the new task never changes the old errors.
-* `forgetting_le_dist` : moving the weights changes the old errors by at most
+* `forgetting_is_at_most_predict_size_times_distance` : moving the weights changes the old errors by at most
   `‖predict‖` times the distance moved.
-* `forgetting_le_travel` : so if gradient descent fits the new task, the old
+* `forgetting_is_at_most_predict_size_times_travel` : so if gradient descent fits the new task, the old
   errors change by at most `‖predict‖` times the new task's travel.
 -/
 import SquigglyLine.Supporting.Training.LeastAction
@@ -36,7 +36,7 @@ omit [CompleteSpace Outputs] in
 /-- **Forgetting goes through the cross kernel.** A gradient step on the new
 task changes the old errors by `learning_rate` times `predict new_predict†`
 applied to the new errors. -/
-theorem residual_gradientStep_other
+theorem forgetting_goes_through_the_cross_kernel
     (predict : Weights →L[ℝ] Outputs)
     (new_predict : Weights →L[ℝ] NewOutputs)
     (labels : Outputs)
@@ -60,7 +60,7 @@ theorem residual_gradientStep_other
 /-- **Forgetting along one direction.** The old error along `direction`
 changes by `learning_rate` times the new task's view of `direction`, matched
 against the new errors. -/
-theorem inner_forgetting_step
+theorem forgetting_along_one_direction
     (predict : Weights →L[ℝ] Outputs)
     (new_predict : Weights →L[ℝ] NewOutputs)
     (labels : Outputs)
@@ -88,7 +88,7 @@ theorem inner_forgetting_step
           - learning_rate • predict (adjoint new_predict
             (GET_RESIDUAL (new_predict : Weights →ₗ[ℝ] NewOutputs) new_labels
               weights)) :=
-    residual_gradientStep_other predict new_predict labels new_labels
+    forgetting_goes_through_the_cross_kernel predict new_predict labels new_labels
       learning_rate weights
   rw [step, inner_sub_right, real_inner_smul_right,
     ← adjoint_inner_left predict, adjoint_inner_right]
@@ -97,7 +97,7 @@ omit [CompleteSpace Outputs] in
 /-- **Separate features, nothing forgotten.** If the cross kernel is zero, any
 number of gradient steps on the new task leave the old errors exactly where
 they were. -/
-theorem residual_iterate_of_cross_kernel_eq_zero
+theorem separate_features_forget_nothing
     (predict : Weights →L[ℝ] Outputs)
     (new_predict : Weights →L[ℝ] NewOutputs)
     (cross_kernel_zero : ∀ vector, predict (adjoint new_predict vector) = 0)
@@ -131,7 +131,7 @@ theorem residual_iterate_of_cross_kernel_eq_zero
                 new_labels
                 ((TAKE_GRADIENT_STEP new_predict new_labels learning_rate)^[
                   previous_count] start_weights))) :=
-      residual_gradientStep_other predict new_predict labels new_labels
+      forgetting_goes_through_the_cross_kernel predict new_predict labels new_labels
         learning_rate _
     rw [Function.iterate_succ_apply', step, cross_kernel_zero, smul_zero,
       sub_zero, earlier_case]
@@ -139,7 +139,7 @@ theorem residual_iterate_of_cross_kernel_eq_zero
 omit [CompleteSpace Weights] [CompleteSpace Outputs] in
 /-- Moving the weights changes the old errors by at most `‖predict‖` times the
 distance moved. -/
-theorem forgetting_le_dist
+theorem forgetting_is_at_most_predict_size_times_distance
     (predict : Weights →L[ℝ] Outputs)
     (labels : Outputs)
     (weights : Weights)
@@ -165,7 +165,7 @@ omit [CompleteSpace Outputs] in
 /-- **A ceiling on forgetting.** If gradient descent arrives at a fit of the
 new task, the old errors have changed by at most `‖predict‖` times the distance
 from the start to the nearest fit of the new task. -/
-theorem forgetting_le_travel
+theorem forgetting_is_at_most_predict_size_times_travel
     (predict : Weights →L[ℝ] Outputs)
     (new_predict : Weights →L[ℝ] NewOutputs)
     (labels : Outputs)
@@ -209,7 +209,7 @@ theorem forgetting_le_travel
         ≤ ‖predict‖
           * ‖(TAKE_GRADIENT_STEP new_predict new_labels learning_rate)^[
               step_count] start_weights - start_weights‖ :=
-    forgetting_le_dist predict labels start_weights _
+    forgetting_is_at_most_predict_size_times_distance predict labels start_weights _
   exact change_le.trans
     (mul_le_mul_of_nonneg_left trained_is_near (norm_nonneg predict))
 

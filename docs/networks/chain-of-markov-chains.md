@@ -34,7 +34,7 @@ states: **alive** or **absorbed**. At a plate turned by `θ` from the last:
 - an absorbed photon stays absorbed.
 
 So after `n` plates the probability of still being alive is `cⁿ`
-(**proved**: `plateMatrix_pow`). This is the square of the length we proved earlier,
+(**proved**: `photon_chain_after_many_plates`). This is the square of the length we proved earlier,
 `cos(θ)ⁿ`: brightness is length squared.
 
 "Absorbed" is a state the chain never leaves. That is the photon's version of
@@ -50,7 +50,7 @@ facts we met separately are all this one fact.
   `merged_stays_merged`).
 - **The flock never spreads over more places.** Count the distinct places the
   flock occupies. That count can fall from layer to layer. It can never rise
-  (**proved**: `card_image_runLayers_append_le`).
+  (**proved**: `flock_never_spreads_over_more_places`).
 - **Dead stays dead.** If every layer leaves the dead state where it is, a
   bird that reaches it stays there (**proved**: `dead_stays_dead`). A blocked photon stays
   blocked, and a bird at the origin stays at the origin under any fan with no
@@ -68,7 +68,7 @@ model that is linear in its weights we proved the rule for the error:
 error ← error − η · K · error
 ```
 
-(**proved**: `residual_gradientStep`.) The next error depends only on the
+(**proved**: `gradient_step_changes_residual_by_the_kernel`.) The next error depends only on the
 current error. That is a chain with no memory.
 
 When the features are orthogonal with squared length `c`, the kernel `K` just
@@ -78,11 +78,11 @@ multiplies by `c`, and the chain can be solved in closed form:
 error after t steps = (1 − η·c)ᵗ × error at the start
 ```
 
-(**proved**: `TightFeatures.residual_iterate_gradientStep`.) Three things
+(**proved**: `HAS_TIGHT_FEATURES.residual_after_many_gradient_steps`.) Three things
 follow at once.
 
 - With the step size `η = 1/c`, the factor is zero. **One step lands on a
-  fit** (**proved**: `TightFeatures.residual_gradientStep_inv`). This is why the 513-parameter Fourier model trained in
+  fit** (**proved**: `HAS_TIGHT_FEATURES.one_gradient_step_fits`). This is why the 513-parameter Fourier model trained in
   3 steps: its features are nearly orthogonal.
 - With a smaller step the error shrinks by the same factor every step.
 - With a step larger than `2/c` the factor is bigger than 1 in size and the
