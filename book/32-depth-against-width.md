@@ -104,7 +104,7 @@ theorem relu_network_close
     (input_le_one : input ≤ 1) :
     let approximation_error :=
       |INTERPOLATE_WITH_RELU model piece_count piece_count input - model input|
-    let error_bound := 2 * slope_limit / piece_count  -- from `reluInterp_spec`
+    let error_bound := 2 * slope_limit / piece_count  -- from `ramps_follow_the_function_piece_by_piece`
     approximation_error ≤ error_bound := by
 ```
 
@@ -114,7 +114,7 @@ network with `2 × piece_count` units that follows it piece by piece.
 
 `INTERPOLATE_WITH_RELU model piece_count piece_count` is that network.
 From it, `universal_approximation` says that for any `tolerance > 0` some
-number of pieces is enough. And `abs_kanNode_sub_le` says the same for a
+number of pieces is enough. And `edge_curve_is_a_few_folds` says the same for a
 node that adds one learnable curve per input: its ReLU version is within
 `2 × (sum of the slope limits) / piece_count` of it. The statement is a
 sum over the inputs, so it needs the sum of the slope limits of the
@@ -123,14 +123,14 @@ curves.
 ## Why it is true
 
 **Below.** A ReLU unit is flat on one side of a point, its kink, and a
-straight slope on the other (`affineOn_reluUnit`). So on any stretch with
+straight slope on the other (`relu_unit_is_straight_away_from_its_kink`). So on any stretch with
 no kink in it, every unit is a straight line, and so is their sum. A
 straight line cannot be lower at both ends of a stretch than in the
 middle (`not_zigzag`). So a stretch where the network goes up and then
-down holds the kink of some unit (`exists_kink_of_zigzag`). A zigzag with
+down holds the kink of some unit (`every_up_and_down_holds_a_kink`). A zigzag with
 `turn_count` ups and downs has that many stretches that do not overlap,
 and a unit has one kink. So each needs a different unit
-(`card_ge_of_zigzag`). The stacked tent has `2 ^ layer_count` turns on
+(`one_unit_per_turn`). The stacked tent has `2 ^ layer_count` turns on
 the grid, and the network is allowed an error of one half, so it must go
 up and down at each (`depth_separation`).
 
@@ -150,7 +150,7 @@ After it, its ramp adds the full rise, so the network sits exactly on
 `model` at the end of each piece. Inside a piece the network runs
 straight between two values of `model`, and `model` cannot stray far
 from either end, because its slope is at most `slope_limit`. Going
-piece by piece along the interval gives the bound `reluInterp_spec`.
+piece by piece along the interval gives the bound `ramps_follow_the_function_piece_by_piece`.
 
 **From the formula**: the largest error of the ramp network (built by the theorem's recipe, not fitted) against the number of pieces,
 for two targets, with the bound of the theorem. The control, `sin(30 x)` judged
@@ -210,7 +210,7 @@ formula or construction was evaluated. An experiment is evidence, not a proof.
   `layer_count` 1, 2 and 3. The theorem `depth_separation` is **not tight** in these runs: the fewest
   kinks found within one half were 3 and 7 for `layer_count` 1 and 2, against
   the bounds 2 and 4. A straight piece crosses the level one half once, and the
-  grid values alternate around it, so every interior grid point needs a kink. This explanation was **argued** when the notebook was written. It is now **proved**: `depth_separation_with_nothing_to_spare` says that a network with one hidden layer that stays within one half of `layer_count + 1` tent layers at the grid points has at least `2 ^ (layer_count + 1) - 1` units, one for every grid point strictly inside. For `layer_count` 1 and 2 that is 3 and 7, the numbers found. The proof counts the places where the network crosses one half and finds a kink between every two of them (`card_ge_of_alternating_sides`). The fewest kinks found for 4 to 6 kinks come from a coarser candidate grid than those for 0 to 3, so they are the fewest *found*, not proved needed.
+  grid values alternate around it, so every interior grid point needs a kink. This explanation was **argued** when the notebook was written. It is now **proved**: `depth_separation_with_nothing_to_spare` says that a network with one hidden layer that stays within one half of `layer_count + 1` tent layers at the grid points has at least `2 ^ (layer_count + 1) - 1` units, one for every grid point strictly inside. For `layer_count` 1 and 2 that is 3 and 7, the numbers found. The proof counts the places where the network crosses one half and finds a kink between every two of them (`one_unit_per_crossing_less_one`). The fewest kinks found for 4 to 6 kinks come from a coarser candidate grid than those for 0 to 3, so they are the fewest *found*, not proved needed.
 - **Closeness** (the ramp network is built by the theorem's recipe, so it is **from the formula**; the errors are measured on it). It stayed within `2 * slope_limit / piece_count`
   for 1 to 640 pieces for `sin(3 x)`, `2 |x - 0.33|` and the three-layer tent
   stack. The largest `error × piece_count / slope_limit` was 0.31, 0.48 and
@@ -260,6 +260,6 @@ jupyter nbconvert --to notebook --execute --inplace experiments/part5/ch32_depth
 units. (2) The error bound is `2 × 3 / piece_count = 6 / piece_count`.
 For this to be at most 0.1 you need `piece_count` of at least 60, which
 means `2 × 60 = 120` units. (3) At most `2 × (1 + 2 + 3) / 100 = 0.12`, by
-`abs_kanNode_sub_le`.
+`edge_curve_is_a_few_folds`.
 
 Previous: [31. Skips and normalisation](31-skips-and-normalisation.md) · Next: [33. Convolution](33-convolution.md)

@@ -13,7 +13,7 @@ that is the worst kind of function for the models in this project.
   at least one over their distance.
 
 The fourth fact, that a stack of local layers cannot see the whole input, is
-`iterate_convolution_congr` in `Convolution.lean`.
+`convolution_stack_reads_only_its_window` in `Convolution.lean`.
 
 These show that counting is hard for such models. They do not show that
 this is why a real image model draws the wrong number of fingers.
@@ -70,7 +70,7 @@ theorem equal_scores_give_the_point_half_way
   have plain_average :
       ATTEND (fun _ : Fin 2 => equal_score) values
         = (Fintype.card (Fin 2) : ℝ)⁻¹ • ∑ i, values i :=
-    attend_of_const_score equal_score values
+    attention_with_equal_scores_is_the_plain_average equal_score values
   rw [plain_average, Fin.sum_univ_two, Fintype.card_fin]
   norm_num
 

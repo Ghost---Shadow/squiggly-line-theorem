@@ -26,20 +26,20 @@ one step of training.
 
 A weighted average of some values lies among them. So if every value sits
 inside a region with no dents, the output sits inside it too (**proved**:
-`attend_mem_of_convex`, `attend_mem_convexHull`).
+`attention_stays_inside_a_region_with_no_dents`, `attention_output_lies_among_the_values`).
 
 Three consequences.
 
 - **Merged stays merged.** If every token carries the same value, every query
-  gets that value back, whatever the scores (**proved**: `attend_const`).
+  gets that value back, whatever the scores (**proved**: `attention_keeps_merged_tokens_merged`).
   This is the rule of [`MarkovChains.lean`](../../../lean/SquigglyLine/Networks/MarkovChains.lean) again.
 - **At the start it is the plain average.** With equal scores every token
-  gets the same share (**proved**: `softmax_const`, `attend_of_const_score`).
+  gets the same share (**proved**: `equal_scores_give_equal_shares`, `attention_with_equal_scores_is_the_plain_average`).
   A fresh head with scores near zero is close to this.
 - **Depth does not help.** Stack any number of attention layers, with scores
   that may depend on the tokens in any way. Every token stays inside any
   dent-free region that held all the tokens at the start (**proved**:
-  `iterate_attentionLayer_mem`).
+  `attention_alone_never_spreads_the_tokens`).
 
 The shares in one layer form a table with positive rows that each add up to
 one. That is the table of a Markov chain on the tokens (**argued**: it is the
@@ -59,17 +59,17 @@ read-out of them.
 
 - **Every token gets a share.** If every score is at most `B` in size, every
   share of the softmax is at least `exp(-2B) / n`, for `n` tokens
-  (**proved**: `exp_neg_div_card_le_softmax`).
+  (**proved**: `every_token_gets_a_share`).
 - **Two queries agree on that much.** Two averages whose weights all sit
   above a floor `m` differ by at most `1 - n * m` times the range of the
-  values (**proved**: `abs_sum_mul_sub_sum_mul_le`). The floor is the part of
+  values (**proved**: `two_weighted_averages_differ_by_at_most_the_spread`). The floor is the part of
   the two averages that is the same.
 - **One layer shrinks the spread.** With the floor `exp(-2B) / n`, two
   queries give answers that differ by at most `1 - exp(-2B)` times the range
-  of the values (**proved**: `abs_attend_sub_attend_le`).
+  of the values (**proved**: `one_attention_layer_shrinks_the_spread`).
 - **Depth merges at a geometric rate.** After `L` layers of attention alone,
   any two tokens differ by at most `(1 - exp(-2B))^L` times the range they
-  started in (**proved**: `abs_iterate_attentionLayer_sub_le`).
+  started in (**proved**: `depth_merges_the_tokens_at_a_geometric_rate`).
 
 So attention alone loses the differences between its tokens geometrically
 in depth. The rate depends only on how large the scores are allowed to be.
@@ -84,13 +84,13 @@ and one step of gradient descent. Its prediction at a new input is
 step size × Σ (overlap of example i with the new input) × (label of example i)
 ```
 
-(**proved**: `inner_gradientStep_zero`.) Now read that as an attention head.
+(**proved**: `one_gradient_step_from_zero_weights`.) Now read that as an attention head.
 The tokens are the examples. The score of a token is its overlap with the
 query. Its value is its label. Leave out the softmax. Then the head's output
-is that prediction (**proved**: `prediction_one_step_eq_linearAttention`).
+is that prediction (**proved**: `one_gradient_step_is_a_linear_attention_head`).
 
 A second step does the same with one change: each example's value is the
-error still left on it (**proved**: `prediction_step_eq_linearAttention`).
+error still left on it (**proved**: `further_gradient_step_is_a_head_that_reads_the_errors`).
 
 So a stack of such heads can run gradient descent on the examples in its
 prompt, one step per layer, without changing any of its own weights. This is
@@ -111,18 +111,18 @@ Some layers have to pick: round a number, or take the top score. A pick is
 a step, and a step is the limit of a squiggle: all its slope is at the jump.
 
 - **A hard step sends no gradient back.** Away from its jump the step
-  function has slope zero (**proved**: `hasDerivAt_step_of_pos`). Training
+  function has slope zero (**proved**: `hard_step_sends_no_gradient_back`). Training
   by gradient cannot see through it.
 - **The straight-through trick.** Write
   `(hard - soft).detach() + soft`, where `soft` is a gentle stand-in for the
   hard step and `detach` means "treat as a fixed number". Forward, this is
-  the hard step (**proved**: `straightThrough_self`). Backward, it has the
-  slope of the stand-in (**proved**: `hasDerivAt_straightThrough`). The
+  the hard step (**proved**: `straight_through_forward_is_the_hard_step`). Backward, it has the
+  slope of the stand-in (**proved**: `straight_through_backward_has_the_stand_in_slope`). The
   value of a step is kept and the slope of a line is borrowed.
 - **A cold softmax picks.** A softmax at temperature `τ` is the usual
   stand-in for taking the top score. If the top score leads the rest by
   `gap`, its share is within `(n - 1) * exp(-gap / τ)` of one (**proved**:
-  `one_sub_softmax_div_le`). So as `τ` falls the softmax tends to the pick
+  `cold_softmax_picks_the_top_score`). So as `τ` falls the softmax tends to the pick
   itself. Dividing the scores by `τ` multiplies their slope by `1 / τ`
   (`network-slope.md`), so the nearer to a pick, the steeper. That is the
   trade in Gumbel-softmax. The Gumbel noise, which makes the pick a random
@@ -131,7 +131,7 @@ a step, and a step is the limit of a squiggle: all its slope is at the jump.
   updates its state to an attention-weighted average of them, scored by
   overlap with the state. For patterns and a state of length one that
   update is the ideal denoiser of `averaging.md` (**proved**:
-  `hopfield_eq_denoiser`). Recall is denoising: the state moves toward the
+  `hopfield_recall_equals_ideal_denoiser`). Recall is denoising: the state moves toward the
   stored patterns nearest to it and never leaves the region they span. The
   classic network of 1982, with its energy that only falls, is not shown.
 

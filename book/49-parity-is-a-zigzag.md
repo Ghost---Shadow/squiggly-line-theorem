@@ -153,8 +153,8 @@ A ReLU unit is flat on one side of its kink and straight on the other, so on a
 stretch with no kink the whole sum is a straight line, and a straight line cannot
 be lower at both ends than in the middle (`not_zigzag`). The stretch from count
 `2 × turn` to count `2 × turn + 2` is low, high, low, so it holds the kink of some
-unit (`exists_kink_of_zigzag`). These stretches do not overlap and a unit has one
-kink, so each needs a different unit (`card_ge_of_zigzag`): one for every two bits.
+unit (`every_up_and_down_holds_a_kink`). These stretches do not overlap and a unit has one
+kink, so each needs a different unit (`one_unit_per_turn`): one for every two bits.
 
 **The sharper bound.** Count crossings, not tops. From each count to the next the
 network goes from one side of one half to the other, so it crosses one half
@@ -162,7 +162,7 @@ somewhere in between: `n` crossings. Between two crossings next to each other
 there is a count, where the network is off one half. A straight line that is at
 one half at two places is at one half everywhere between them, so the network
 bends between the two crossings. These stretches do not overlap: `n − 1` kinks
-(`card_ge_of_alternating_sides`).
+(`one_unit_per_crossing_less_one`).
 
 **Half of all functions.** The fourth statement, named and not quoted:
 `half_of_all_functions_change_at_any_flip` says that, among all functions of bits,
@@ -176,7 +176,7 @@ at the flip is paired with one that did not, and back, so the groups are equal.
 |---|---|---|
 | The squiggly function | a zigzag with `2^L` teeth | parity of `n` bits |
 | The weak model | one hidden layer | AND, OR, NOT gates in a fixed number of layers |
-| The lower bound | one unit per turn (`card_ge_of_zigzag`) | a size exponential in a root of the number of bits (Håstad 1986, **cited**) |
+| The lower bound | one unit per turn (`one_unit_per_turn`) | a size exponential in a root of the number of bits (Håstad 1986, **cited**) |
 | The strong model | `L` tent layers | circuits with more layers |
 
 Håstad's proof is not a count of turns. It uses a tool called the switching lemma:

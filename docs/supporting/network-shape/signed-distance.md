@@ -21,21 +21,21 @@ There are two ways to store a line.
 
 The theorem of this repository is about the distance from a data point to the
 nearest point of the line. That distance is the field, read at the data
-points (**proved**: `nearestDist_eq_distanceField`). So the project has been
+points (**proved**: `nearest_distance_equals_distance_field_at_the_data`). So the project has been
 about signed distance functions from the start, without the sign.
 
 ## The field is never steep
 
 However squiggly the line is, its field changes by at most the distance
 moved. Its slope is never more than one (**proved**:
-`lipschitzWith_distanceField`).
+`distance_field_slope_is_at_most_one`).
 
 The height can be as steep as you like. The field of the same line cannot.
 The squiggle has moved from the size of the slope into the layout of the
 field: where it is zero and where it has creases.
 
 For a continuous line the field is zero exactly on the line (**proved**:
-`distanceField_eq_zero_iff`). So the field stores the whole line and loses
+`distance_field_is_zero_exactly_on_the_line`). So the field stores the whole line and loses
 nothing.
 
 ## Sphere tracing
@@ -43,7 +43,7 @@ nothing.
 To find where a ray meets a shape, graphics programs step along the ray. At
 each point they read the field and step forward by that amount. The step is
 safe: no point nearer than the field's value is on the line (**proved**:
-`notMem_curve_of_dist_lt`). This is sphere tracing (**recalled**: Hart 1996).
+`step_shorter_than_the_field_cannot_reach_the_line`). This is sphere tracing (**recalled**: Hart 1996).
 
 ## The sandwich, read as a statement about fields
 
@@ -55,12 +55,12 @@ the theorem says how wrong that is.
 |signed distance|  ≤  |height above the line|  ≤  √(1 + K²) × |signed distance|
 ```
 
-for a line of slope at most `K` (**proved**: `abs_signedDist`,
-`abs_signedDist_le_verticalDist`, `verticalDist_le_abs_signedDist`).
+for a line of slope at most `K` (**proved**: `signed_distance_has_the_size_of_nearest_distance`,
+`height_overstates_the_distance`, `height_overstates_by_at_most_the_stretch`).
 
 So the height overstates the distance, by at most the slope factor. Stepping
 by the height would overshoot. Stepping by the height divided by `√(1 + K²)`
-is safe again (**proved**: `notMem_curve_of_dist_lt_verticalDist_div`).
+is safe again (**proved**: `safe_step_from_the_height_alone`).
 Dividing by a bound on the slope is the usual fix in sphere tracing
 (**recalled**: Hart 1996).
 
@@ -72,22 +72,22 @@ Notes from 13 Nov 2026. Proofs in
 "At most one" cannot be improved. Stand at any point of space, and walk in a
 straight line toward a nearest point of the line. A fraction `t` of the way
 there, the field is the fraction `1 - t` of what it was (**proved**:
-`infDist_toward_nearest`, and `distanceField_toward_nearest` for the
+`distance_falls_at_rate_one_toward_the_nearest_point`, and `distance_field_falls_at_rate_one_toward_the_line` for the
 squiggly line). So the field falls by exactly the distance walked
-(**proved**: `infDist_sub_infDist_toward_nearest`).
+(**proved**: `fall_in_distance_equals_length_walked`).
 
 Two things follow.
 
 - **No smaller slope limit holds.** If any point off the set has a nearest
   point in it, the field has no slope limit below one (**proved**:
-  `not_lipschitzWith_infDist_of_lt_one`).
+  `slope_of_distance_cannot_be_less_than_one`).
 - **A sphere-tracing step is as long as it can be.** A step of the full
   field value, taken toward the nearest point, lands on the line. A longer
   safe step does not exist.
 
 A nearest point exists for every point when the set is closed and the space
 is one where closed balls are compact, such as the plane (**proved**:
-`exists_nearest_with_unit_rate`).
+`every_point_has_a_nearest_point_with_rate_one`).
 
 This is the part of the eikonal equation that needs no derivative. The
 steepness of the line does not enter: the field of a very squiggly line and
@@ -100,7 +100,7 @@ the field of a flat one both fall at rate one.
   theorem.
 - **The tube is a level set.** The tube of radius `r` round the line, used in
   [`Coverage.lean`](../../../lean/SquigglyLine/Theorem/Coverage.lean), is the region where the field is below `r` (**proved**:
-  `distanceField_lt_iff_mem_thickening`).
+  `tube_is_where_the_field_is_less_than_radius`).
 - **Why a field can be easier to learn than a height.** Training learns
   gentle functions first (`docs/supporting/training/spectral-bias.md`). The
   height of a squiggly line is steep. Its field is not. (**argued**; the

@@ -2,17 +2,17 @@
 Mode connectivity: when two fits are joined by a straight line.
 
 For a model that is linear in its weights:
-* `residual_along_between` : on the straight line between two settings of the
+* `residual_on_the_line_between_two_settings` : on the straight line between two settings of the
   weights, the error is the matching blend of the two errors.
-* `fit_along` : the line between two fits is all fits.
+* `line_between_two_fits_is_all_fits` : the line between two fits is all fits.
 * `no_barrier` : the error on the line is never larger than at the worse end.
 
 For the smallest model with depth, output `first_weight * second_weight`:
-* `twoLayer_along` : on the line between two fits the output is off by
+* `two_layer_hill_exactly` : on the line between two fits the output is off by
   exactly `fraction * (1 - fraction)
   * ((first_a - second_a) * (first_b - second_b))`.
-* `twoLayer_flip` : flipping both signs gives the same function.
-* `twoLayer_midpoint_mirror` : halfway between a fit and its mirror image the
+* `mirror_image_is_the_same_function` : flipping both signs gives the same function.
+* `halfway_to_the_mirror_image_everything_is_lost` : halfway between a fit and its mirror image the
   output is zero. The hill comes from writing one function in two ways.
 -/
 import Mathlib.Tactic.LinearCombination
@@ -32,7 +32,7 @@ variable {Weights Outputs : Type*}
 
 /-- On the straight line between two settings of the weights, the error is the
 matching blend of the two errors. -/
-theorem residual_along_between
+theorem residual_on_the_line_between_two_settings
     (fraction : ℝ) :
     let weights_on_path  := MOVE_ALONG start_weights end_weights fraction
     let residual_on_path := GET_RESIDUAL predict labels weights_on_path
@@ -47,7 +47,7 @@ theorem residual_along_between
   module
 
 /-- **The line between two fits is all fits.** -/
-theorem fit_along
+theorem line_between_two_fits_is_all_fits
     (start_fits : predict start_weights = labels)
     (end_fits : predict end_weights = labels)
     (fraction : ℝ) :
@@ -76,7 +76,7 @@ theorem no_barrier
           (MOVE_ALONG start_weights end_weights fraction)
         = (1 - fraction) • GET_RESIDUAL predict labels start_weights
           + fraction • GET_RESIDUAL predict labels end_weights :=
-    residual_along_between predict labels start_weights end_weights fraction
+    residual_on_the_line_between_two_settings predict labels start_weights end_weights fraction
   rw [error_is_blend]
   -- The size of a blend is at most the blend of the sizes, and a blend of two
   -- numbers is at most the larger of them.
@@ -113,7 +113,7 @@ fraction `fraction` of the way along the straight line between them, the
 output is off by
 `fraction * (1 - fraction) * ((first_a - second_a) * (first_b - second_b))`.
 -/
-theorem twoLayer_along
+theorem two_layer_hill_exactly
     {first_a first_b second_a second_b target : ℝ}
     (first_fits : first_a * first_b = target)
     (second_fits : second_a * second_b = target)
@@ -130,7 +130,7 @@ theorem twoLayer_along
   linear_combination (1 - fraction) * first_fits + fraction * second_fits
 
 /-- **A mirror image is the same function.** -/
-theorem twoLayer_flip
+theorem mirror_image_is_the_same_function
     (first_weight : ℝ)
     (second_weight : ℝ) :
     let flipped_output := -first_weight * -second_weight  -- both signs flipped
@@ -141,7 +141,7 @@ theorem twoLayer_flip
 
 /-- **Halfway to the mirror image, everything is lost.** The output is zero,
 whatever the target was. -/
-theorem twoLayer_midpoint_mirror
+theorem halfway_to_the_mirror_image_everything_is_lost
     (first_weight : ℝ)
     (second_weight : ℝ) :
     let fraction : ℝ := 1 / 2  -- halfway along the line

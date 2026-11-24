@@ -19,9 +19,9 @@ Gates, codes and a narrow last layer.
 | `HiddenVectors`     | one row of hidden numbers for each item              |
 | `GET_CODE_PENALTY`  | the penalty of a code of a given centre and width    |
 
-Theorems: `abs_mixture_sub_le`, `half_sq_le_codePenalty`,
-`codePenalty_nonneg`, `codePenalty_eq_zero_iff`, `rank_scoreTable_le`,
-`scoreTable_ne_one`.
+Theorems: `gate_adds_slope_only_through_the_spread`, `code_penalty_charges_for_travel`,
+`code_penalty_is_at_least_zero`, `code_penalty_is_zero_exactly_for_the_code_that_ignores_its_input`, `softmax_bottleneck`,
+`some_score_table_cannot_be_matched`.
 -/
 import Mathlib.Analysis.SpecialFunctions.Log.Basic
 import Mathlib.LinearAlgebra.Matrix.Rank
@@ -38,7 +38,7 @@ experts' outputs with gates that are not negative and add to one. Between two
 inputs, the blend changes by at most `max_expert_change`, the most any expert
 changes, plus the spread `high - low` of the experts times the total change in
 the gates. -/
-theorem abs_mixture_sub_le
+theorem gate_adds_slope_only_through_the_spread
     {gates : Expert → ℝ}
     {other_gates : Expert → ℝ}
     {outputs : Expert → ℝ}
@@ -118,7 +118,7 @@ noncomputable def GET_CODE_PENALTY
 
 /-- **The penalty charges for travel.** It is at least half the squared
 distance of the code's centre from the origin. -/
-theorem half_sq_le_codePenalty
+theorem code_penalty_charges_for_travel
     (centre : ℝ)
     {width : ℝ}
     (width_ne_zero : width ≠ 0) :
@@ -134,7 +134,7 @@ theorem half_sq_le_codePenalty
   linarith
 
 /-- The penalty is never negative. -/
-theorem codePenalty_nonneg
+theorem code_penalty_is_at_least_zero
     (centre : ℝ)
     {width : ℝ}
     (width_ne_zero : width ≠ 0) :
@@ -143,12 +143,12 @@ theorem codePenalty_nonneg
     no_penalty ≤ penalty := by
   unfold_named_pieces
   have half_sq_le : centre ^ 2 / 2 ≤ GET_CODE_PENALTY centre width :=
-    half_sq_le_codePenalty centre width_ne_zero
+    code_penalty_charges_for_travel centre width_ne_zero
   exact (by positivity : (0 : ℝ) ≤ centre ^ 2 / 2).trans half_sq_le
 
 /-- **It is zero only for the code that ignores its input**: centre zero and
 width one, the same for every input. -/
-theorem codePenalty_eq_zero_iff
+theorem code_penalty_is_zero_exactly_for_the_code_that_ignores_its_input
     (centre : ℝ)
     {width : ℝ}
     (width_ne_zero : width ≠ 0) :
@@ -192,7 +192,7 @@ omit [Fintype Context] in
 /-- **The softmax bottleneck.** A table of scores, one row per context and one
 column per word, made from `hidden_size` hidden numbers per context and
 `hidden_size` per word, has rank at most `hidden_size`. -/
-theorem rank_scoreTable_le
+theorem softmax_bottleneck
     (context_vectors : HiddenVectors Context hidden_size)
     (word_vectors : HiddenVectors Word hidden_size) :
     let score_table := context_vectors * word_vectors.transpose
@@ -207,7 +207,7 @@ theorem rank_scoreTable_le
 /-- So with more contexts than hidden numbers, some table cannot be made: for
 one, the table that scores each context's own word one and every other word
 zero. -/
-theorem scoreTable_ne_one
+theorem some_score_table_cannot_be_matched
     {context_count : ℕ}
     (hidden_size_lt : hidden_size < context_count)
     (context_vectors : HiddenVectors (Fin context_count) hidden_size)
@@ -219,7 +219,7 @@ theorem scoreTable_ne_one
   intro same_table
   have rank_bound :
       (context_vectors * word_vectors.transpose).rank ≤ hidden_size :=
-    rank_scoreTable_le context_vectors word_vectors
+    softmax_bottleneck context_vectors word_vectors
   rw [same_table, Matrix.rank_one, Fintype.card_fin] at rank_bound
   omega
 

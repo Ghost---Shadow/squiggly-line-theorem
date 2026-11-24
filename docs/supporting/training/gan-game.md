@@ -57,9 +57,9 @@ That is the known trouble with the original game: a critic that is too good
 gives the maker nothing to learn from (**recalled**: Arjovsky and Bottou
 2017). The Wasserstein version answers it by holding the critic to slope
 one. Then the gap it reports between a real sample and a made one is at most
-their distance (**proved**: `sum_critic_gap_le` in [`NetworkSlope.lean`](../../../lean/SquigglyLine/Supporting/NetworkShape/NetworkSlope.lean)), and
+their distance (**proved**: `critic_of_slope_one_reports_at_most_the_distance` in [`NetworkSlope.lean`](../../../lean/SquigglyLine/Supporting/NetworkShape/NetworkSlope.lean)), and
 a distance field is such a critic (**proved**:
-`lipschitzWith_distanceField` in [`SignedDistance.lean`](../../../lean/SquigglyLine/Supporting/NetworkShape/SignedDistance.lean)).
+`distance_field_slope_is_at_most_one` in [`SignedDistance.lean`](../../../lean/SquigglyLine/Supporting/NetworkShape/SignedDistance.lean)).
 
 ## The two players spiral outward
 

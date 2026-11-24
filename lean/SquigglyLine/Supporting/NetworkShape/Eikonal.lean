@@ -9,14 +9,14 @@ of sphere tracing along that path is as long as it can safely be.
 
 Theorems:
 
-* `infDist_toward_nearest` : a `fraction` of the way to a nearest point, the
+* `distance_falls_at_rate_one_toward_the_nearest_point` : a `fraction` of the way to a nearest point, the
   distance is the fraction `1 - fraction` of what it was;
-* `infDist_sub_infDist_toward_nearest` : the fall in distance is the length
+* `fall_in_distance_equals_length_walked` : the fall in distance is the length
   walked;
-* `exists_nearest_with_unit_rate` : in a space with compact closed balls
+* `every_point_has_a_nearest_point_with_rate_one` : in a space with compact closed balls
   such a nearest point exists;
-* `not_lipschitzWith_infDist_of_lt_one` : no slope limit below one holds;
-* `distanceField_toward_nearest` : the same, for the squiggly line.
+* `slope_of_distance_cannot_be_less_than_one` : no slope limit below one holds;
+* `distance_field_falls_at_rate_one_toward_the_line` : the same, for the squiggly line.
 -/
 import Mathlib.Analysis.Normed.Module.Basic
 import Mathlib.Tactic.Module
@@ -32,7 +32,7 @@ variable {Space : Type*} [NormedAddCommGroup Space] [NormedSpace ℝ Space]
 /-- **Rate exactly one.** On the straight path from `start_point` to a nearest
 point of the set, a fraction of the way along, the distance to the set is the
 fraction `1 - fraction` of what it was. -/
-theorem infDist_toward_nearest
+theorem distance_falls_at_rate_one_toward_the_nearest_point
     (nearest_is_in_set : nearest_point ∈ target_set)
     (nearest_is_closest :
       Metric.infDist start_point target_set = dist start_point nearest_point)
@@ -82,7 +82,7 @@ theorem infDist_toward_nearest
     linarith
 
 /-- The fall in distance equals the length walked. -/
-theorem infDist_sub_infDist_toward_nearest
+theorem fall_in_distance_equals_length_walked
     (nearest_is_in_set : nearest_point ∈ target_set)
     (nearest_is_closest :
       Metric.infDist start_point target_set = dist start_point nearest_point)
@@ -110,14 +110,14 @@ theorem infDist_sub_infDist_toward_nearest
       Metric.infDist (start_point + fraction • (nearest_point - start_point))
           target_set
         = (1 - fraction) * Metric.infDist start_point target_set :=
-    infDist_toward_nearest nearest_is_in_set nearest_is_closest
+    distance_falls_at_rate_one_toward_the_nearest_point nearest_is_in_set nearest_is_closest
       fraction_nonneg fraction_le_one
   rw [rate_one, length_walked, nearest_is_closest]
   ring
 
 /-- In a space where closed balls are compact, every point has a nearest point
 of a closed set, and the distance falls at rate one on the way to it. -/
-theorem exists_nearest_with_unit_rate [ProperSpace Space]
+theorem every_point_has_a_nearest_point_with_rate_one [ProperSpace Space]
     (set_is_closed : IsClosed target_set)
     (set_is_nonempty : target_set.Nonempty)
     (start_point : Space) :
@@ -133,14 +133,14 @@ theorem exists_nearest_with_unit_rate [ProperSpace Space]
     set_is_closed.exists_infDist_eq_dist set_is_nonempty start_point
   exact ⟨nearest_point, nearest_is_in_set,
     fun fraction fraction_nonneg fraction_le_one =>
-      infDist_toward_nearest nearest_is_in_set nearest_is_closest
+      distance_falls_at_rate_one_toward_the_nearest_point nearest_is_in_set nearest_is_closest
         fraction_nonneg fraction_le_one⟩
 
 omit [NormedSpace ℝ Space] in
 /-- **The bound "slope at most one" cannot be improved.** If some point off the
 set has a nearest point in it, the distance to the set has no slope limit
 below one. -/
-theorem not_lipschitzWith_infDist_of_lt_one
+theorem slope_of_distance_cannot_be_less_than_one
     (nearest_is_in_set : nearest_point ∈ target_set)
     (nearest_is_closest :
       Metric.infDist start_point target_set = dist start_point nearest_point)
@@ -170,7 +170,7 @@ variable {Inputs : Type*} [NormedAddCommGroup Inputs] [NormedSpace ℝ Inputs]
 
 /-- **For the squiggly line.** From a point of space toward a nearest point of
 the line, the distance field falls by exactly the distance walked. -/
-theorem distanceField_toward_nearest
+theorem distance_field_falls_at_rate_one_toward_the_line
     {start_point nearest_point : Ambient Inputs}
     (nearest_is_on_line : nearest_point ∈ GET_GRAPH model)
     (nearest_is_closest :
@@ -185,7 +185,7 @@ theorem distanceField_toward_nearest
     let fraction_ahead := 1 - fraction  -- the part of the path still to walk
     field_now = fraction_ahead * field_before := by
   unfold_named_pieces
-  exact infDist_toward_nearest nearest_is_on_line nearest_is_closest
+  exact distance_falls_at_rate_one_toward_the_nearest_point nearest_is_on_line nearest_is_closest
     fraction_nonneg fraction_le_one
 
 end Line

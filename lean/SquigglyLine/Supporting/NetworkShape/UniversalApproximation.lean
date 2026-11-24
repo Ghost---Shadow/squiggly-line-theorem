@@ -14,10 +14,10 @@ Definitions:
 
 Theorems:
 
-* `ramp_of_le`, `ramp_of_mem`, `ramp_of_ge` : the three stretches of a ramp.
+* `ramp_is_zero_before_its_piece`, `ramp_rises_inside_its_piece`, `ramp_stays_at_full_height_after_its_piece` : the three stretches of a ramp.
 * `slope_nonneg` : a slope bound is never negative.
-* `reluInterp_succ` : adding one more ramp.
-* `reluInterp_spec` : after `ramp_count` ramps the network is within
+* `adding_one_more_ramp` : adding one more ramp.
+* `ramps_follow_the_function_piece_by_piece` : after `ramp_count` ramps the network is within
   `2 * slope_limit / piece_count` of `model` on the first `ramp_count` pieces,
   and sits exactly on `model (ramp_count / piece_count)` beyond them.
 * `relu_network_close` : so `2 * piece_count` units are within
@@ -48,7 +48,7 @@ noncomputable def EVALUATE_RAMP
 variable {piece_count piece_index : ℕ} {input : ℝ}
 
 /-- Before its piece, a ramp is zero. -/
-theorem ramp_of_le
+theorem ramp_is_zero_before_its_piece
     (piece_count_pos : (0 : ℝ) < piece_count)
     (input_before_piece : input ≤ piece_index / piece_count) :
     let ramp_value := EVALUATE_RAMP piece_count piece_index input
@@ -60,7 +60,7 @@ theorem ramp_of_le
     max_eq_right (by linarith), sub_self]
 
 /-- Inside its piece, a ramp rises with slope one. -/
-theorem ramp_of_mem
+theorem ramp_rises_inside_its_piece
     (input_after_start : (piece_index : ℝ) / piece_count ≤ input)
     (input_before_end : input ≤ (piece_index + 1) / piece_count) :
     let ramp_value := EVALUATE_RAMP piece_count piece_index input
@@ -71,7 +71,7 @@ theorem ramp_of_mem
     sub_zero]
 
 /-- After its piece, a ramp stays at its full height. -/
-theorem ramp_of_ge
+theorem ramp_stays_at_full_height_after_its_piece
     (piece_count_pos : (0 : ℝ) < piece_count)
     (input_after_piece : ((piece_index : ℝ) + 1) / piece_count ≤ input) :
     let ramp_value  := EVALUATE_RAMP piece_count piece_index input
@@ -118,7 +118,7 @@ theorem slope_nonneg
   exact (abs_nonneg _).trans unit_step_bound
 
 /-- Adding one more ramp. -/
-theorem reluInterp_succ
+theorem adding_one_more_ramp
     (model : RealFunction)
     (piece_count : ℕ)
     (ramp_count : ℕ)
@@ -139,7 +139,7 @@ theorem reluInterp_succ
 /-- **Piece by piece.** After `ramp_count` ramps the network is within
 `2 * slope_limit / piece_count` of `model` on the first `ramp_count` pieces,
 and sits exactly on `model (ramp_count / piece_count)` beyond them. -/
-theorem reluInterp_spec
+theorem ramps_follow_the_function_piece_by_piece
     (slope_is_bounded :
       ∀ input other_input,
         |model input - model other_input|
@@ -180,7 +180,7 @@ theorem reluInterp_spec
       rcases le_total input (ramp_count / piece_count) with
         input_in_covered | input_in_new_piece
       · -- The new ramp is still flat here, so nothing changes.
-        rw [reluInterp_succ, ramp_of_le piece_count_pos input_in_covered,
+        rw [adding_one_more_ramp, ramp_is_zero_before_its_piece piece_count_pos input_in_covered,
           mul_zero, add_zero]
         exact close_on_covered input input_nonneg input_in_covered
       · -- Inside the new piece the old network is flat, and the new ramp
@@ -233,8 +233,8 @@ theorem reluInterp_spec
                     (mul_nonneg slope_limit_nonneg piece_width_pos.le))
             _ = slope_limit * (1 / piece_count) := by
                 field_simp
-        rw [reluInterp_succ, flat_beyond input input_in_new_piece,
-          ramp_of_mem input_in_new_piece input_le_end]
+        rw [adding_one_more_ramp, flat_beyond input input_in_new_piece,
+          ramp_rises_inside_its_piece input_in_new_piece input_le_end]
         calc |model (ramp_count / piece_count)
                 + piece_count * (model (((ramp_count : ℝ) + 1) / piece_count)
                   - model (ramp_count / piece_count))
@@ -263,8 +263,8 @@ theorem reluInterp_spec
       have input_after_covered : (ramp_count : ℝ) / piece_count ≤ input := by
         rw [add_div] at input_after_new_piece
         linarith
-      rw [reluInterp_succ, flat_beyond input input_after_covered,
-        ramp_of_ge piece_count_pos input_after_new_piece]
+      rw [adding_one_more_ramp, flat_beyond input input_after_covered,
+        ramp_stays_at_full_height_after_its_piece piece_count_pos input_after_new_piece]
       field_simp
       ring
 
@@ -281,10 +281,10 @@ theorem relu_network_close
     (input_le_one : input ≤ 1) :
     let approximation_error :=
       |INTERPOLATE_WITH_RELU model piece_count piece_count input - model input|
-    let error_bound := 2 * slope_limit / piece_count  -- from `reluInterp_spec`
+    let error_bound := 2 * slope_limit / piece_count  -- from `ramps_follow_the_function_piece_by_piece`
     approximation_error ≤ error_bound := by
   unfold_named_pieces
-  exact (reluInterp_spec slope_is_bounded piece_count_pos piece_count).1
+  exact (ramps_follow_the_function_piece_by_piece slope_is_bounded piece_count_pos piece_count).1
     input input_nonneg (by rwa [div_self piece_count_pos.ne'])
 
 /-- **Universal approximation.** A function on `[0, 1]` with slope at most

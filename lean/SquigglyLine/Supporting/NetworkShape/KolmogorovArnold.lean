@@ -12,9 +12,9 @@ allowed.
 
 Theorems:
 
-* `abs_kanNode_sub_le` : with `piece_count` pieces per edge, the ReLU version
+* `edge_curve_is_a_few_folds` : with `piece_count` pieces per edge, the ReLU version
   of a node is within `2 * (Σ slope_limit i) / piece_count` of the node;
-* `exists_pieces_kanNode_close` : for any tolerance there is a number of
+* `folds_needed_go_as_slope_over_error` : for any tolerance there is a number of
   pieces that brings the ReLU version within it.
 -/
 import SquigglyLine.Supporting.NetworkShape.UniversalApproximation
@@ -26,7 +26,7 @@ variable {Inputs : Type*} [Fintype Inputs]
 /-- **An edge curve is a few folds.** Replace every edge curve of a node by its
 ReLU network with `piece_count` pieces. On the unit cube the node changes by at
 most `2 * (Σ slope_limit i) / piece_count`. -/
-theorem abs_kanNode_sub_le
+theorem edge_curve_is_a_few_folds
     {curve : Inputs → RealFunction}
     {slope_limit : Inputs → ℝ}
     (slopes_are_bounded :
@@ -61,7 +61,7 @@ theorem abs_kanNode_sub_le
 /-- **Folds needed go as total slope over error.** For any tolerance there is a
 number of pieces, the same on every edge, that brings the ReLU version of the
 node within the tolerance everywhere on the unit cube. -/
-theorem exists_pieces_kanNode_close
+theorem folds_needed_go_as_slope_over_error
     {curve : Inputs → RealFunction}
     {slope_limit : Inputs → ℝ}
     (slopes_are_bounded :
@@ -98,7 +98,7 @@ theorem exists_pieces_kanNode_close
             chosen_piece_count (inputs i)
           - ∑ i, curve i (inputs i)|
         ≤ 2 * (∑ i, slope_limit i) / chosen_piece_count :=
-    abs_kanNode_sub_le slopes_are_bounded piece_count_pos inputs_nonneg
+    edge_curve_is_a_few_folds slopes_are_bounded piece_count_pos inputs_nonneg
       inputs_le_one
   refine node_bound.trans ?_
   rw [div_le_iff₀ piece_count_pos]

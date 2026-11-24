@@ -88,7 +88,7 @@ A similar count, in the theory of circuits:
 |---|---|---|
 | The squiggly function | a zigzag with `2^L` teeth | parity of `n` bits |
 | The weak model | one hidden layer | AND, OR, NOT gates in a fixed number of layers `d` |
-| The lower bound | one unit per turn (`card_ge_of_zigzag`) | size `2^(c n^(1/(d-1)))` (Håstad 1986, **cited**) |
+| The lower bound | one unit per turn (`one_unit_per_turn`) | size `2^(c n^(1/(d-1)))` (Håstad 1986, **cited**) |
 | The strong model | `L` tent layers | circuits with more layers |
 
 Håstad's proof is not a count of turns. It uses a tool called the switching
@@ -306,7 +306,7 @@ network with one hidden layer of ReLU units that reads the count, and is
 below one half at every even count and above it at every odd count, has at
 least `n - 1` units
 (`shallow_network_needs_one_unit_per_bit_less_one`, **proved**; the general
-form is `card_ge_of_alternating_sides` in `DepthSeparation.lean`). The proof
+form is `one_unit_per_crossing_less_one` in `DepthSeparation.lean`). The proof
 is the argument above made exact: the network crosses one half once in each
 step from a count to the next, between two crossings next to each other it
 is off one half at a count, so it bends there, and these stretches do not

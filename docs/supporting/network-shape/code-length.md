@@ -22,20 +22,20 @@ subject and is not formalised here.
 ## Counting: bits and folds
 
 **A code of `b` binary digits names at most `2^b` things**
-(**proved**: `card_le_two_pow_of_code`). To tell `k` things apart you need at
+(**proved**: `digits_name_at_most_two_to_the_digits_things`). To tell `k` things apart you need at
 least `log₂ k` digits. With every outcome equally likely, that is the whole
 theory of compression.
 
 **A fold throws away one bit.** The tent layer folds the interval in half, so
 an input and its mirror image give the same output
-(**proved**: `tent_one_sub`), and nothing else is lost: two inputs with the
+(**proved**: `fold_merges_an_input_with_its_mirror`), and nothing else is lost: two inputs with the
 same output are equal or are mirror images
-(**proved**: `eq_or_eq_one_sub_of_tent_eq`). The bit that is lost is "which
+(**proved**: `fold_merges_nothing_else`). The bit that is lost is "which
 half was I in".
 
 **So `L` folds throw away at most `L` bits.** No more than `2^L` inputs can
 end up at the same output after `L` folds
-(**proved**: `card_le_two_pow_of_iterate_tent_eq`). And about that many do:
+(**proved**: `folds_throw_away_at_most_one_bit_each`). And about that many do:
 all the even grid points go to zero (**proved** earlier:
 `tent_layers_zigzag_on_the_grid`).
 
@@ -55,7 +55,7 @@ average log-loss of any model  ≥  entropy of the data
 
 (**proved**: `gibbs`.) The same inequality bounds any code at all. If the
 code lengths obey the rule that every decodable code obeys, the average
-length is at least the entropy (**proved**: `expected_length_ge_entropy`; the
+length is at least the entropy (**proved**: `no_code_beats_the_entropy`; the
 rule is Kraft's inequality, taken as an assumption). This is the limit a
 Huffman code comes within one digit of (**recalled**).
 
@@ -76,11 +76,11 @@ Then two results from this project read as statements about compression.
 
 - **Gradient descent finds the fit that is cheapest to describe.** It reaches
   the nearest fit, so no other fit has a shorter description
-  (**proved**: `descriptionLength_gradientDescent_le`).
+  (**proved**: `gradient_descent_finds_the_cheapest_fit_to_describe`).
 - **A bigger model's fit is cheaper to describe.** With orthogonal features of
   strength `c`, the description length of the nearest fit is the squared
   error at the start divided by `2σ²c` (**proved**:
-  `travel_sq_div_eq_of_tight`). It falls as `c` grows, and `c` grows with the
+  `bigger_model_fit_is_cheaper_to_describe`). It falls as `c` grows, and `c` grows with the
   number of parameters.
 
 This is the squiggly line theorem's "distance to move", counted in bits. A

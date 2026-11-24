@@ -42,7 +42,7 @@ standing brief for that port is [`PORTING.md`](PORTING.md).
   The files of `Theorem/`, `Networks/`, `Connections/` and
   `Supporting/NewInputs/` follow the rule. The files of
   `Supporting/NetworkShape/` and `Supporting/Training/` still have their
-  older, Mathlib-like names (`card_ge_of_zigzag`) until their turn comes.
+  older, Mathlib-like names (`one_unit_per_turn`) until their turn comes.
 - Names from Mathlib are not changed (`dist`, `Measurable`, `LipschitzWith`).
 - The circle constant is `PI`. A bare `pi` is not a name Lean knows.
 

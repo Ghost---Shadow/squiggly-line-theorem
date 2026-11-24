@@ -143,7 +143,7 @@ The cross term vanishes because the offsets from the mean cancel
 
 **The denoiser.** By definition (`ideal_denoiser_equals_weighted_mean_of_examples`) it is
 that weighted mean, with the softmax of the scores as shares. Apply the
-best-guess result. The hull statement is `attend_mem_convexHull`.
+best-guess result. The hull statement is `attention_output_lies_among_the_values`.
 
 ## What it explains
 
@@ -225,7 +225,7 @@ Run it with `jupyter nbconvert --to notebook --execute --inplace experiments/par
 - **Why real diffusion models make new images.** Open.
 - **Weight averaging for networks.** Only the linear case is proved. For
   two weights multiplied, the midpoint between a fit and its mirror image
-  outputs zero (`twoLayer_midpoint_mirror`, chapter 35).
+  outputs zero (`halfway_to_the_mirror_image_everything_is_lost`, chapter 35).
 - **Ensembles under other losses.** The split is for squared error.
 
 ## Check yourself
@@ -241,7 +241,7 @@ Run it with `jupyter nbconvert --to notebook --execute --inplace experiments/par
 average error is `(4 + 1 + 9) / 3 = 14/3`. By `error_of_the_average_equals_average_error_minus_spread` the spread is
 `14/3`, about 4.67. Check: `((1 − 3)² + (2 − 3)² + (6 − 3)²) / 3` is the
 same. (2) The two scores are equal, so the shares are one half each, and
-the output is 2 (`attend_of_const_score`). (3) No, by
+the output is 2 (`attention_with_equal_scores_is_the_plain_average`). (3) No, by
 `ideal_denoiser_stays_inside_the_examples`.
 
 Previous: [36. Attention](36-attention.md) · Next: [38. Mixing: graphs, noise schedules and guidance](38-mixing.md)

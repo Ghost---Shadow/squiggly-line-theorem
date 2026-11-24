@@ -94,7 +94,7 @@ feature (**proved**: `any_function_is_flat_in_some_lift`). So "it is flat upstai
 unless the lift is fixed before the labels are seen.
 
 With a fixed lift into `m` dimensions, the model can match arbitrary labels
-on at most `m` points (`exists_unfittable` in [`Capacity.lean`](../../lean/SquigglyLine/Supporting/NetworkShape/Capacity.lean)). That is the
+on at most `m` points (`too_few_weights_cannot_fit_something` in [`Capacity.lean`](../../lean/SquigglyLine/Supporting/NetworkShape/Capacity.lean)). That is the
 real content: a fixed lift buys a fixed amount of squiggle.
 
 ## What this says about networks

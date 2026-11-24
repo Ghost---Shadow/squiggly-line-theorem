@@ -4,7 +4,7 @@ Temperature trades quality for diversity; a codebook snaps to the nearest code.
 * **Temperature.** Sample from a softmax of the scores times
   `inverse_temperature`, which is one over the temperature. The average score
   of a sample never falls as `inverse_temperature` rises. So a colder sampler
-  picks better-scoring answers on average. `one_sub_softmax_div_le` in
+  picks better-scoring answers on average. `cold_softmax_picks_the_top_score` in
   `HardChoices.lean` is the other half: a cold softmax puts nearly all its
   share on the top score, so its samples are nearly all the same. Below,
   `lower` and `higher` are two values of `inverse_temperature`, with `lower`
@@ -16,13 +16,13 @@ Temperature trades quality for diversity; a codebook snaps to the nearest code.
 
 Theorems:
 
-* `sum_mul_exp_mul_sum_exp_le`  the cross-multiplied form of "the average
+* `average_score_rises_as_temperature_falls_cross_multiplied`  the cross-multiplied form of "the average
                                 score rises with `inverse_temperature`";
-* `expectedScore_softmax_mono`  a colder sampler picks better answers on
+* `colder_sampler_picks_better_on_average`  a colder sampler picks better answers on
                                 average;
-* `dist_decode_snap_le`         snapping moves the output by at most slope
+* `snapping_moves_output_at_most_slope_times_distance`         snapping moves the output by at most slope
                                 times distance;
-* `dist_snap_le_of_nearest`     the nearest entry is the gentlest snap.
+* `nearest_entry_is_the_gentlest_snap`     the nearest entry is the gentlest snap.
 -/
 import SquigglyLine.Supporting.Training.CrossEntropy
 import SquigglyLine.Theorem.Sandwich
@@ -35,7 +35,7 @@ variable {Answers : Type*} [Fintype Answers]
 
 /-- The cross-multiplied form of "the average score rises with
 `inverse_temperature`". -/
-theorem sum_mul_exp_mul_sum_exp_le
+theorem average_score_rises_as_temperature_falls_cross_multiplied
     (scores : Answers → ℝ)
     {lower higher : ℝ}
     (lower_le_higher : lower ≤ higher) :
@@ -109,7 +109,7 @@ theorem sum_mul_exp_mul_sum_exp_le
 /-- **A colder sampler picks better answers on average.** With
 `inverse_temperature` one over the temperature, the average score of a sample
 from the softmax never falls as `inverse_temperature` rises. -/
-theorem expectedScore_softmax_mono [Nonempty Answers]
+theorem colder_sampler_picks_better_on_average [Nonempty Answers]
     (scores : Answers → ℝ)
     {lower higher : ℝ}
     (lower_le_higher : lower ≤ higher) :
@@ -132,7 +132,7 @@ theorem expectedScore_softmax_mono [Nonempty Answers]
     exact Finset.sum_congr rfl fun i _ => by ring
   rw [average_form lower, average_form higher,
     div_le_div_iff₀ (total_pos lower) (total_pos higher)]
-  exact sum_mul_exp_mul_sum_exp_le scores lower_le_higher
+  exact average_score_rises_as_temperature_falls_cross_multiplied scores lower_le_higher
 
 variable {Entries Codes Outputs : Type*} [PseudoMetricSpace Codes]
   [PseudoMetricSpace Outputs]
@@ -140,7 +140,7 @@ variable {Entries Codes Outputs : Type*} [PseudoMetricSpace Codes]
 /-- **Snapping moves the output by at most slope times distance.** Replace a
 code by a codebook entry. The decoder's output moves by at most its slope times
 how far the entry is. -/
-theorem dist_decode_snap_le
+theorem snapping_moves_output_at_most_slope_times_distance
     {decoder : Codes → Outputs}
     {slope_limit : SlopeLimit}
     (slope_is_bounded : LipschitzWith slope_limit decoder)
@@ -156,7 +156,7 @@ theorem dist_decode_snap_le
 /-- **The nearest entry is the gentlest snap.** If `nearest_entry` is the
 nearest, the output moves by at most the slope times the distance to any
 entry. -/
-theorem dist_snap_le_of_nearest
+theorem nearest_entry_is_the_gentlest_snap
     {decoder : Codes → Outputs}
     {slope_limit : SlopeLimit}
     (slope_is_bounded : LipschitzWith slope_limit decoder)

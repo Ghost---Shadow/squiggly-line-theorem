@@ -141,7 +141,7 @@ From this, `balanced_stays_balanced` says equal layers stay equal, and
 `balanced_layers_have_the_same_size` says each then carries the same share of the
 slope. Two more results: `shuffling_hidden_units_gives_the_same_function` says shuffling the
 hidden units of a one-layer network gives the same function, and for
-RMSNorm, `normalizeByRms_smul` says it forgets the scale.
+RMSNorm, `rms_norm_forgets_the_scale` says it forgets the scale.
 
 ## Why it is true
 
@@ -165,8 +165,8 @@ rest.
 
 **RMSNorm.** It divides a vector by its root mean square, so doubling the
 vector doubles the divisor, and the output is unchanged.
-`isScaleInvariant_comp_normalizeByRms` then feeds this into the right
-angles result, giving `inner_gradient_self_eq_zero_of_rmsNorm`.
+`loss_through_rms_norm_is_scale_invariant` then feeds this into the right
+angles result, giving `gradient_through_rms_norm_is_at_right_angles_to_weights`.
 
 ## What it explains
 
@@ -179,10 +179,10 @@ angles result, giving `inner_gradient_self_eq_zero_of_rmsNorm`.
   step never shortens them. The size of those weights then stops meaning
   slope. That weight decay on them sets the step size is **argued**
   (**recalled**: van Laarhoven 2017; Hoffer et al. 2018).
-- **Pre-norm against post-norm.** `preNormBlock_smul` and
-  `preNormBlock_sub_smul` say a pre-norm branch adds what it always
+- **Pre-norm against post-norm.** `pre_norm_leaves_the_skip_path_alone` and
+  `pre_norm_branch_ignores_the_stream_size` say a pre-norm branch adds what it always
   added, and the skip path carries the scale through.
-  `rootMeanSquare_postNormBlock` says post-norm resets the size at every
+  `post_norm_resets_the_size` says post-norm resets the size at every
   block. That is the usual reason given for why pre-norm trains more
   easily at depth (**recalled**: Xiong et al. 2020).
 - **Layers stay in balance.** The law behind deep linear networks

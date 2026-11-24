@@ -17,10 +17,10 @@ Four small facts about how the pieces of a network treat slope.
 | `APPLY_LEAKY_RELU`      | `max(input, leak * input)`                      |
 | `NORMALIZE_SPECTRALLY`  | a layer divided by its own size                 |
 
-Theorems: `sigmoid_mul_one_sub_le`, `lipschitzWith_sigmoid`,
-`lipschitzWith_iterate_sigmoid`, `leakyRelu_sub_le`, `le_leakyRelu_sub`,
-`strictMono_leakyRelu`, `lipschitzWith_max`, `norm_spectralNormalize_le`,
-`norm_spectralNormalize`, `lipschitzWith_spectralNormalize`.
+Theorems: `sigmoid_slope_is_at_most_one_quarter`, `sigmoid_is_no_steeper_than_one_quarter`,
+`sigmoid_layers_shrink_differences`, `leaky_relu_slope_is_at_most_one`, `leaky_relu_slope_is_at_least_its_leak`,
+`leaky_relu_always_rises`, `pooling_never_steepens`, `normalised_layer_size_is_at_most_one`,
+`normalised_layer_size_equals_one`, `normalised_layer_slope_is_at_most_one`.
 -/
 import Mathlib.Analysis.Calculus.MeanValue
 import Mathlib.Analysis.Normed.Operator.Basic
@@ -34,7 +34,7 @@ open Real NNReal
 
 /-- The slope of a sigmoid, `sigmoid * (1 - sigmoid)`, is at most one
 quarter. -/
-theorem sigmoid_mul_one_sub_le
+theorem sigmoid_slope_is_at_most_one_quarter
     (input : ℝ) :
     let slope   := sigmoid input * (1 - sigmoid input)
     let quarter : ℝ := 1 / 4  -- the product `s * (1 - s)` peaks at `s = 1 / 2`
@@ -43,7 +43,7 @@ theorem sigmoid_mul_one_sub_le
   nlinarith [sq_nonneg (sigmoid input - 1 / 2)]
 
 /-- **A sigmoid is never steeper than one quarter.** -/
-theorem lipschitzWith_sigmoid :
+theorem sigmoid_is_no_steeper_than_one_quarter :
     let slope_limit : SlopeLimit := 1 / 4  -- the biggest value of the sigmoid's slope
     LipschitzWith slope_limit sigmoid := by
   unfold_named_pieces
@@ -55,18 +55,18 @@ theorem lipschitzWith_sigmoid :
     mul_nonneg (sigmoid_pos input).le
       (sub_nonneg.mpr (sigmoid_lt_one input).le)
   rw [abs_of_nonneg slope_nonneg]
-  have slope_le_quarter := sigmoid_mul_one_sub_le input
+  have slope_le_quarter := sigmoid_slope_is_at_most_one_quarter input
   simpa using slope_le_quarter
 
 /-- **Sigmoid layers shrink differences.** `layer_count` sigmoids in a row have
 slope at most `(1 / 4) ^ layer_count`. -/
-theorem lipschitzWith_iterate_sigmoid
+theorem sigmoid_layers_shrink_differences
     (layer_count : ℕ) :
     let stack_slope_limit : SlopeLimit := (1 / 4) ^ layer_count  -- each sigmoid shrinks by at least 4
     let stack := sigmoid^[layer_count]
     LipschitzWith stack_slope_limit stack := by
   unfold_named_pieces
-  have one_layer : LipschitzWith (1 / 4) sigmoid := lipschitzWith_sigmoid
+  have one_layer : LipschitzWith (1 / 4) sigmoid := sigmoid_is_no_steeper_than_one_quarter
   exact one_layer.iterate layer_count
 
 /-- A leaky ReLU: the input where it is positive, and a share `leak` of it
@@ -80,7 +80,7 @@ def APPLY_LEAKY_RELU
 variable {leak : ℝ}
 
 /-- A leaky ReLU is no steeper than one. -/
-theorem leakyRelu_sub_le
+theorem leaky_relu_slope_is_at_most_one
     (leak_le_one : leak ≤ 1)
     {input : ℝ}
     {other_input : ℝ}
@@ -94,7 +94,7 @@ theorem leakyRelu_sub_le
   split_ifs <;> nlinarith
 
 /-- **A leaky ReLU keeps a slope of at least its leak.** -/
-theorem le_leakyRelu_sub
+theorem leaky_relu_slope_is_at_least_its_leak
     (leak_le_one : leak ≤ 1)
     {input : ℝ}
     {other_input : ℝ}
@@ -110,7 +110,7 @@ theorem le_leakyRelu_sub
 
 /-- With a positive leak it is always rising: it merges no two inputs and is
 never dead. -/
-theorem strictMono_leakyRelu
+theorem leaky_relu_always_rises
     (leak_pos : 0 < leak)
     (leak_le_one : leak ≤ 1) :
     let layer := APPLY_LEAKY_RELU leak
@@ -120,14 +120,14 @@ theorem strictMono_leakyRelu
   have gap_bound :
       leak * (other_input - input)
         ≤ APPLY_LEAKY_RELU leak other_input - APPLY_LEAKY_RELU leak input :=
-    le_leakyRelu_sub leak_le_one input_lt_other.le
+    leaky_relu_slope_is_at_least_its_leak leak_le_one input_lt_other.le
   have gap_pos : 0 < leak * (other_input - input) :=
     mul_pos leak_pos (sub_pos.mpr input_lt_other)
   linarith
 
 /-- **Pooling never steepens.** The higher of two lines is no steeper than the
 steeper of them. -/
-theorem lipschitzWith_max
+theorem pooling_never_steepens
     {Inputs : Type*} [PseudoEMetricSpace Inputs]
     {slope_limit : SlopeLimit}
     {model : Model Inputs}
@@ -152,7 +152,7 @@ noncomputable def NORMALIZE_SPECTRALLY
   ‖weights‖⁻¹ • weights
 
 /-- After spectral normalisation a layer has size at most one. -/
-theorem norm_spectralNormalize_le
+theorem normalised_layer_size_is_at_most_one
     (weights : Inputs →L[ℝ] Outputs) :
     let size := ‖NORMALIZE_SPECTRALLY weights‖  -- kept whole: naming the layer first changes how Lean reads the norm
     let unit_size : ℝ := 1
@@ -164,7 +164,7 @@ theorem norm_spectralNormalize_le
   · rw [inv_mul_cancel₀ size_ne_zero]
 
 /-- For a layer that is not zero, the size is exactly one. -/
-theorem norm_spectralNormalize
+theorem normalised_layer_size_equals_one
     {weights : Inputs →L[ℝ] Outputs}
     (weights_ne_zero : weights ≠ 0) :
     let size := ‖NORMALIZE_SPECTRALLY weights‖  -- kept whole: naming the layer first changes how Lean reads the norm
@@ -175,7 +175,7 @@ theorem norm_spectralNormalize
     inv_mul_cancel₀ (norm_ne_zero_iff.mpr weights_ne_zero)]
 
 /-- **A spectrally normalised layer has slope at most one.** -/
-theorem lipschitzWith_spectralNormalize
+theorem normalised_layer_slope_is_at_most_one
     (weights : Inputs →L[ℝ] Outputs) :
     let slope_limit : SlopeLimit := 1
     LipschitzWith slope_limit (NORMALIZE_SPECTRALLY weights) := by
@@ -183,7 +183,7 @@ theorem lipschitzWith_spectralNormalize
   refine (NORMALIZE_SPECTRALLY weights).lipschitzWith.weaken ?_
   rw [← NNReal.coe_le_coe]
   have size_le_one : ‖NORMALIZE_SPECTRALLY weights‖ ≤ 1 :=
-    norm_spectralNormalize_le weights
+    normalised_layer_size_is_at_most_one weights
   exact size_le_one
 
 end SquigglyLine

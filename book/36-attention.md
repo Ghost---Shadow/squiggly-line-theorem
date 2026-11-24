@@ -58,7 +58,7 @@ First, the output of a head lies among its values.
 
 ```lean
 /-- The output lies among the values. -/
-theorem attend_mem_convexHull
+theorem attention_output_lies_among_the_values
     (score : Tokens → ℝ)
     (value : Tokens → Values) :
     let output := ATTEND score value
@@ -76,15 +76,15 @@ to one, and every output sits inside the stretch from −2 to 7.
 ![Left, a heat map of the shares each of six queries gives the six tokens; right, the six token values on a line with the six outputs, all inside the band from the smallest to the largest value](figures/36-weights-and-outputs.png)
 
 The **convex hull** of some points is every blend of them. For numbers it
-is the stretch from the smallest to the largest. The file also has `attend_mem_of_convex`, for any region with
-no dents, and `iterate_attentionLayer_mem`: through any number of layers,
+is the stretch from the smallest to the largest. The file also has `attention_stays_inside_a_region_with_no_dents`, for any region with
+no dents, and `attention_alone_never_spreads_the_tokens`: through any number of layers,
 with any scores, tokens stay inside the region they started in.
 
 Second, the rate, with its comment left out. The tokens here are numbers:
 read them as one coordinate of the tokens.
 
 ```lean
-theorem abs_iterate_attentionLayer_sub_le
+theorem depth_merges_the_tokens_at_a_geometric_rate
     (score : TokenScorer Tokens ℝ)
     {score_bound : ℝ}
     (scores_are_bounded :
@@ -128,7 +128,7 @@ Third, attention as learning.
 by its overlap `predict query_features i` with the query, and let its value be
 its label. Then one head of linear attention gives the prediction of one step
 of gradient descent on those examples. -/
-theorem prediction_one_step_eq_linearAttention
+theorem one_gradient_step_is_a_linear_attention_head
     (predict : Weights →L[ℝ] ExampleScores Examples)
     (labels : ExampleScores Examples)
     (learning_rate : ℝ)
@@ -148,7 +148,7 @@ with the query and returns the labels.
 `ATTEND_LINEARLY` is attention without the softmax: the sum of score times
 value. `TAKE_GRADIENT_STEP` is the step of chapter 10, from weights `0`. A
 second step does the same with each value replaced by the error still left
-(`prediction_step_eq_linearAttention`).
+(`further_gradient_step_is_a_head_that_reads_the_errors`).
 
 ## Why it is true
 
@@ -165,18 +165,18 @@ size, then `exp(score)` lies between `exp(−score_bound)` and
 `exp(score_bound)`. A share is `exp(score)` over the sum of all of them,
 and that sum is at most `token_count × exp(score_bound)`. So every share
 is at least `exp(−2 × score_bound) / token_count`
-(`exp_neg_div_card_le_softmax`).
+(`every_token_gets_a_share`).
 
 Second, two queries share that much. Two averages whose weights all sit
 above a `floor` have `token_count × floor` of their weight in common, and
 the common part cancels. What can differ is `1 − token_count × floor` of
 the weights, times the range of the values
-(`abs_sum_mul_sub_sum_mul_le`). With the floor from the first step,
+(`two_weighted_averages_differ_by_at_most_the_spread`). With the floor from the first step,
 `token_count × floor` is `exp(−2 × score_bound)`.
 
 Third, one layer. The new tokens are answers to queries, so two of them
 differ by at most `1 − exp(−2 × score_bound)` times the old range
-(`abs_attend_sub_attend_le`).
+(`one_attention_layer_shrinks_the_spread`).
 
 Fourth, depth. Carry a band from the lowest to the highest token through
 the layers. Each layer shrinks its width by the factor, so after
@@ -186,7 +186,7 @@ This is the one-factor rule of chapter 13 again.
 **Attention as learning.** From zero weights, a gradient step adds
 `learning_rate × transpose × labels` to the weights (chapter 10). Take the
 inner product with the query's features: that is the overlap of each
-example with the query, times its label (`inner_gradientStep_zero`). As a
+example with the query, times its label (`one_gradient_step_from_zero_weights`). As a
 sum over examples, it is `ATTEND_LINEARLY`.
 
 ## What it explains
@@ -260,10 +260,10 @@ jupyter nbconvert --to notebook --execute --inplace experiments/part6/ch36_atten
    new input and label 2. The learning rate is 0.5. What does one gradient
    step from zero weights predict at the new input?
 
-**Answers.** (1) No. By `attend_mem_convexHull` the output lies between 1
+**Answers.** (1) No. By `attention_output_lies_among_the_values` the output lies between 1
 and 3. (2) The factor is `1 − exp(−2 × score_bound)`
-(`abs_attend_sub_attend_le`), here `1 − exp(−2)`, about
-`1 − 0.135 = 0.865`. (3) By `prediction_one_step_eq_linearAttention` it is
+(`one_attention_layer_shrinks_the_spread`), here `1 − exp(−2)`, about
+`1 − 0.135 = 0.865`. (3) By `one_gradient_step_is_a_linear_attention_head` it is
 `0.5 × (4 × 2) = 4`.
 
 Previous: [35. The landscape: connected fits and collapsed classes](35-the-landscape.md) · Next: [37. Ensembles and the ideal denoiser](37-ensembles-and-the-denoiser.md)

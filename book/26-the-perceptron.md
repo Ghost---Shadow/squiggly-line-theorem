@@ -208,7 +208,7 @@ jupyter nbconvert --to notebook --execute --inplace experiments/part4/ch26_the_p
 
 - **A perceptron with a moving lift.** The bound is for fixed features.
 - **Margins for boundaries that are not flat.** For a score of bounded
-  slope the matching statement is `le_mul_dist_of_flip` in
+  slope the matching statement is `flipping_a_classifier_needs_a_move_of_score_over_slope` in
   `NetworkSlope.lean`.
 - **How large the margin of real data is** after a network's lift. This
   is **open**.

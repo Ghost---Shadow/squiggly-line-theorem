@@ -118,7 +118,7 @@ distance to get the slope bound.
 
 Two more results are named. `equal_scores_give_the_point_half_way` says an attention
 head that scores two examples equally returns the midpoint of their
-values. `iterate_convolution_congr` says that after some layers of
+values. `convolution_stack_reads_only_its_window` says that after some layers of
 convolution an output depends only on the inputs within a window.
 
 ## Why it is true

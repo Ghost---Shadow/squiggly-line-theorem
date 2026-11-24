@@ -127,7 +127,7 @@ content (`docs/supporting/new-inputs/`).
 
 - **A perceptron with a moving lift.** The bound is for fixed features.
 - **Margins for boundaries that are not flat.** For a score of slope `K` the
-  matching statement is `le_mul_dist_of_flip` in [`NetworkSlope.lean`](../../../lean/SquigglyLine/Supporting/NetworkShape/NetworkSlope.lean).
+  matching statement is `flipping_a_classifier_needs_a_move_of_score_over_slope` in [`NetworkSlope.lean`](../../../lean/SquigglyLine/Supporting/NetworkShape/NetworkSlope.lean).
 - **How large the margin of real data is** after a network's lift. **open**
 - **A bound on test error from the margin.** Known (**recalled**: Vapnik),
   not formalised.

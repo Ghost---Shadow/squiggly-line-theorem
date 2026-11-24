@@ -6,23 +6,23 @@ shares with a softmax, and returns the values of the tokens averaged with
 those shares.
 
 Attention as an average:
-* `attend_mem_convexHull` : the output lies among the values.
-* `attend_mem_of_convex` : values inside a region with no dents stay inside.
-* `attend_const` : tokens that carry the same value come out with that value.
-* `attend_of_const_score` : with equal scores it is the plain average.
-* `iterate_attentionLayer_mem` : so any number of attention layers, with any
+* `attention_output_lies_among_the_values` : the output lies among the values.
+* `attention_stays_inside_a_region_with_no_dents` : values inside a region with no dents stay inside.
+* `attention_keeps_merged_tokens_merged` : tokens that carry the same value come out with that value.
+* `attention_with_equal_scores_is_the_plain_average` : with equal scores it is the plain average.
+* `attention_alone_never_spreads_the_tokens` : so any number of attention layers, with any
   scores, keep every token inside the region the tokens started in.
 
 Attention as learning:
-* `inner_gradientStep_zero` : one step of gradient descent from zero weights
+* `one_gradient_step_from_zero_weights` : one step of gradient descent from zero weights
   predicts the labels weighted by the kernel between the query and the data.
-* `prediction_one_step_eq_linearAttention` : that is an attention head
+* `one_gradient_step_is_a_linear_attention_head` : that is an attention head
   without the softmax, with the examples as tokens and their labels as values.
-* `prediction_step_eq_linearAttention` : a further step is the same head
+* `further_gradient_step_is_a_head_that_reads_the_errors` : a further step is the same head
   reading the errors left so far.
 
 Definitions: `ATTEND`, `APPLY_ATTENTION_LAYER`, `ATTEND_LINEARLY`.
-Theorems also include `softmax_const` : equal scores give equal shares.
+Theorems also include `equal_scores_give_equal_shares` : equal scores give equal shares.
 -/
 import Mathlib.Analysis.Convex.Combination
 import SquigglyLine.Supporting.NewInputs.SameKernel
@@ -55,7 +55,7 @@ noncomputable def ATTEND
 
 /-- **Attention averages.** Values inside a region with no dents give an
 output inside it. -/
-theorem attend_mem_of_convex
+theorem attention_stays_inside_a_region_with_no_dents
     {region : Set Values}
     (region_is_convex : Convex ℝ region)
     (score : Tokens → ℝ)
@@ -68,19 +68,19 @@ theorem attend_mem_of_convex
     (softmax_shares_add_to_one score) fun i _ => values_in_region i
 
 /-- The output lies among the values. -/
-theorem attend_mem_convexHull
+theorem attention_output_lies_among_the_values
     (score : Tokens → ℝ)
     (value : Tokens → Values) :
     let output := ATTEND score value
     let hull   := convexHull ℝ (Set.range value)
     output ∈ hull := by
   unfold_named_pieces
-  exact attend_mem_of_convex (convex_convexHull ℝ _) score fun i =>
+  exact attention_stays_inside_a_region_with_no_dents (convex_convexHull ℝ _) score fun i =>
     subset_convexHull ℝ _ (Set.mem_range_self i)
 
 /-- **Merged stays merged.** Tokens that all carry the value `shared_value`
 give `shared_value`, whatever the scores. -/
-theorem attend_const
+theorem attention_keeps_merged_tokens_merged
     (score : Tokens → ℝ)
     (shared_value : Values) :
     let same_values : Tokens → Values := fun _ => shared_value
@@ -90,7 +90,7 @@ theorem attend_const
   rw [ATTEND, ← Finset.sum_smul, softmax_shares_add_to_one, one_smul]
 
 /-- With equal scores every token gets the same share. -/
-theorem softmax_const
+theorem equal_scores_give_equal_shares
     (equal_score : ℝ)
     (chosen_token : Tokens) :
     let scores : Tokens → ℝ := fun _ => equal_score
@@ -106,7 +106,7 @@ theorem softmax_const
   field_simp
 
 /-- **With equal scores, attention is the plain average.** -/
-theorem attend_of_const_score
+theorem attention_with_equal_scores_is_the_plain_average
     (equal_score : ℝ)
     (value : Tokens → Values) :
     let scores : Tokens → ℝ := fun _ => equal_score
@@ -117,7 +117,7 @@ theorem attend_of_const_score
   have equal_shares (i : Tokens) :
       APPLY_SOFTMAX (fun _ : Tokens => equal_score) i
         = (Fintype.card Tokens : ℝ)⁻¹ :=
-    softmax_const equal_score i
+    equal_scores_give_equal_shares equal_score i
   simp only [ATTEND, equal_shares, Finset.smul_sum]
 
 /-- A layer of attention: every token is a query. The scores may depend on
@@ -130,7 +130,7 @@ noncomputable def APPLY_ATTENTION_LAYER
 /-- **Attention alone never spreads the tokens.** After any number of layers,
 with any scores, every token is still inside any dent-free region that held
 them all at the start. -/
-theorem iterate_attentionLayer_mem
+theorem attention_alone_never_spreads_the_tokens
     {region : Set Values}
     (region_is_convex : Convex ℝ region)
     (score : TokenScorer Tokens Values)
@@ -146,7 +146,7 @@ theorem iterate_attentionLayer_mem
   | succ previous_depth previous_in_region =>
     -- One more layer is an average of the tokens one layer earlier.
     rw [Function.iterate_succ_apply']
-    exact attend_mem_of_convex region_is_convex _ previous_in_region
+    exact attention_stays_inside_a_region_with_no_dents region_is_convex _ previous_in_region
 
 end Average
 
@@ -165,7 +165,7 @@ variable {Weights Outputs : Type*}
 /-- One step of gradient descent from zero weights predicts, at a new input
 with features `query_features`, the labels weighted by the kernel between the
 data and `query_features`. -/
-theorem inner_gradientStep_zero
+theorem one_gradient_step_from_zero_weights
     (predict : Weights →L[ℝ] Outputs)
     (labels : Outputs)
     (learning_rate : ℝ)
@@ -193,7 +193,7 @@ def ATTEND_LINEARLY
 by its overlap `predict query_features i` with the query, and let its value be
 its label. Then one head of linear attention gives the prediction of one step
 of gradient descent on those examples. -/
-theorem prediction_one_step_eq_linearAttention
+theorem one_gradient_step_is_a_linear_attention_head
     (predict : Weights →L[ℝ] ExampleScores Examples)
     (labels : ExampleScores Examples)
     (learning_rate : ℝ)
@@ -205,13 +205,13 @@ theorem prediction_one_step_eq_linearAttention
       learning_rate * ATTEND_LINEARLY (predict query_features) labels
     prediction = head_output := by
   unfold_named_pieces
-  rw [inner_gradientStep_zero]
+  rw [one_gradient_step_from_zero_weights]
   simp [ATTEND_LINEARLY, PiLp.inner_apply, mul_comm]
 
 /-- **A further layer reads the errors.** From any weights, one more step
 changes the prediction by the same head, with each example's value now the
 error still left on it. -/
-theorem prediction_step_eq_linearAttention
+theorem further_gradient_step_is_a_head_that_reads_the_errors
     (predict : Weights →L[ℝ] ExampleScores Examples)
     (labels : ExampleScores Examples)
     (learning_rate : ℝ)

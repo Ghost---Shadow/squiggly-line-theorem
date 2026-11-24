@@ -17,11 +17,11 @@ This file proves five things.
   of bits that are on.
 * `shallow_network_needs_one_unit_per_two_bits`: a network with one hidden
   layer that reads the same count needs at least one unit for every two
-  bits. This is `card_ge_of_zigzag` of `DepthSeparation.lean`, read for
+  bits. This is `one_unit_per_turn` of `DepthSeparation.lean`, read for
   parity.
 * `shallow_network_needs_one_unit_per_bit_less_one`: in fact it needs one
   unit for every bit, less one, and that cannot be improved. This is
-  `card_ge_of_alternating_sides`, read for parity.
+  `one_unit_per_crossing_less_one`, read for parity.
 
 * `half_of_all_functions_change_at_any_flip`: among all functions of bits,
   exactly half change at any given flip. So being squiggly is common.
@@ -223,7 +223,7 @@ theorem shallow_network_needs_one_unit_per_two_bits
     linarith
   -- Along the counts 0, 1, 2, ... the network goes up and down once per
   -- two bits, and each up-and-down needs a unit.
-  refine card_ge_of_zigzag units unit_gain unit_slope unit_bias
+  refine one_unit_per_turn units unit_gain unit_slope unit_bias
     (checkpoints := fun ones_count : ℕ => (ones_count : ℝ))
     Nat.strictMono_cast ?_
   intro turn turn_lt_turn_count
@@ -255,7 +255,7 @@ theorem shallow_network_on_right_side_of_half_needs_one_unit_per_two_bits
     let unit_count   := units.card
     units_needed ≤ unit_count := by
   unfold_named_pieces
-  refine card_ge_of_zigzag units unit_gain unit_slope unit_bias
+  refine one_unit_per_turn units unit_gain unit_slope unit_bias
     (checkpoints := fun ones_count : ℕ => (ones_count : ℝ))
     Nat.strictMono_cast ?_
   intro turn turn_lt_turn_count
@@ -273,7 +273,7 @@ This is about twice the bound above, and it cannot be improved: a zigzag
 with a kink at each count from 1 to `bit_count - 1` computes the parity.
 The proof counts the places where the network crosses one half, one in each
 step from a count to the next, and finds a kink between every two crossings
-next to each other (`card_ge_of_alternating_sides`). -/
+next to each other (`one_unit_per_crossing_less_one`). -/
 theorem shallow_network_needs_one_unit_per_bit_less_one
     {Index : Type*}
     (units : Finset Index)
@@ -293,7 +293,7 @@ theorem shallow_network_needs_one_unit_per_bit_less_one
     let unit_count   := units.card
     units_needed ≤ unit_count := by
   unfold_named_pieces
-  exact card_ge_of_alternating_sides units unit_gain unit_slope unit_bias
+  exact one_unit_per_crossing_less_one units unit_gain unit_slope unit_bias
     (checkpoints := fun ones_count : ℕ => (ones_count : ℝ))
     Nat.strictMono_cast is_low_at_even_counts is_high_at_odd_counts
 

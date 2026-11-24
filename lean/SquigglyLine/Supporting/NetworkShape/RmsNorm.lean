@@ -17,18 +17,18 @@ Definitions: `GET_ROOT_MEAN_SQUARE`, `NORMALIZE_BY_RMS`,
 
 Theorems:
 
-* `rootMeanSquare_eq`            it is the root of the mean of the squares;
-* `rootMeanSquare_smul`          scaling a vector scales its root mean square;
-* `normalizeByRms_smul`          RMSNorm forgets the scale;
-* `rootMeanSquare_normalizeByRms`  after RMSNorm the root mean square is one;
-* `isScaleInvariant_comp_normalizeByRms`  any loss read through an RMSNorm is
+* `root_mean_square_written_out`            it is the root of the mean of the squares;
+* `scaling_a_vector_scales_its_root_mean_square`          scaling a vector scales its root mean square;
+* `rms_norm_forgets_the_scale`          RMSNorm forgets the scale;
+* `root_mean_square_after_rms_norm_equals_one`  after RMSNorm the root mean square is one;
+* `loss_through_rms_norm_is_scale_invariant`  any loss read through an RMSNorm is
                                  scale invariant;
-* `inner_gradient_self_eq_zero_of_rmsNorm`  so its gradient is at right angles
+* `gradient_through_rms_norm_is_at_right_angles_to_weights`  so its gradient is at right angles
                                  to the weights;
-* `preNormBlock_smul`            pre-norm leaves the skip path alone;
-* `preNormBlock_sub_smul`        what a pre-norm branch adds does not depend on
+* `pre_norm_leaves_the_skip_path_alone`            pre-norm leaves the skip path alone;
+* `pre_norm_branch_ignores_the_stream_size`        what a pre-norm branch adds does not depend on
                                  the size of the stream;
-* `rootMeanSquare_postNormBlock` post-norm resets the size.
+* `post_norm_resets_the_size` post-norm resets the size.
 -/
 import Mathlib.Analysis.InnerProductSpace.PiL2
 import SquigglyLine.Supporting.Training.Symmetry
@@ -57,7 +57,7 @@ noncomputable def GET_ROOT_MEAN_SQUARE
   ‖vector‖ / √(Fintype.card Entries)
 
 /-- It is the root of the mean of the squares. -/
-theorem rootMeanSquare_eq
+theorem root_mean_square_written_out
     (vector : EntryVector Entries) :
     let root_mean_square := GET_ROOT_MEAN_SQUARE vector
     let root_of_mean     := √((∑ i, vector i ^ 2) / Fintype.card Entries)
@@ -68,7 +68,7 @@ theorem rootMeanSquare_eq
   simp [Real.norm_eq_abs, sq_abs]
 
 /-- Scaling a vector scales its root mean square. -/
-theorem rootMeanSquare_smul
+theorem scaling_a_vector_scales_its_root_mean_square
     {scale : ℝ}
     (scale_nonneg : 0 ≤ scale)
     (vector : EntryVector Entries) :
@@ -86,7 +86,7 @@ noncomputable def NORMALIZE_BY_RMS
   (GET_ROOT_MEAN_SQUARE vector)⁻¹ • vector
 
 /-- **RMSNorm forgets the scale.** -/
-theorem normalizeByRms_smul
+theorem rms_norm_forgets_the_scale
     {scale : ℝ}
     (scale_pos : 0 < scale)
     (vector : EntryVector Entries) :
@@ -97,14 +97,14 @@ theorem normalizeByRms_smul
   have scaled_rms :
       GET_ROOT_MEAN_SQUARE (scale • vector)
         = scale * GET_ROOT_MEAN_SQUARE vector :=
-    rootMeanSquare_smul scale_pos.le vector
+    scaling_a_vector_scales_its_root_mean_square scale_pos.le vector
   rw [NORMALIZE_BY_RMS, NORMALIZE_BY_RMS, scaled_rms, smul_smul]
   congr 1
   rw [mul_inv, mul_comm scale⁻¹, mul_assoc, inv_mul_cancel₀ scale_pos.ne',
     mul_one]
 
 /-- After RMSNorm the root mean square is one. -/
-theorem rootMeanSquare_normalizeByRms
+theorem root_mean_square_after_rms_norm_equals_one
     [Nonempty Entries]
     {vector : EntryVector Entries}
     (vector_ne_zero : vector ≠ 0) :
@@ -119,11 +119,11 @@ theorem rootMeanSquare_normalizeByRms
   have scaled_rms :
       GET_ROOT_MEAN_SQUARE ((GET_ROOT_MEAN_SQUARE vector)⁻¹ • vector)
         = (GET_ROOT_MEAN_SQUARE vector)⁻¹ * GET_ROOT_MEAN_SQUARE vector :=
-    rootMeanSquare_smul (inv_nonneg.mpr rms_pos.le) vector
+    scaling_a_vector_scales_its_root_mean_square (inv_nonneg.mpr rms_pos.le) vector
   rw [NORMALIZE_BY_RMS, scaled_rms, inv_mul_cancel₀ rms_pos.ne']
 
 /-- **Any loss read through an RMSNorm is scale invariant.** -/
-theorem isScaleInvariant_comp_normalizeByRms
+theorem loss_through_rms_norm_is_scale_invariant
     (loss : EntryVector Entries → ℝ) :
     let loss_through_norm : EntryVector Entries → ℝ :=
       fun weights => loss (NORMALIZE_BY_RMS weights)
@@ -134,11 +134,11 @@ theorem isScaleInvariant_comp_normalizeByRms
     = loss (NORMALIZE_BY_RMS weights)
   have same_normalised :
       NORMALIZE_BY_RMS (scale • weights) = NORMALIZE_BY_RMS weights :=
-    normalizeByRms_smul scale_pos weights
+    rms_norm_forgets_the_scale scale_pos weights
   rw [same_normalised]
 
 /-- **So its gradient is at right angles to the weights.** -/
-theorem inner_gradient_self_eq_zero_of_rmsNorm
+theorem gradient_through_rms_norm_is_at_right_angles_to_weights
     (loss : EntryVector Entries → ℝ)
     {weights gradient : EntryVector Entries}
     (gradient_gives_the_rate :
@@ -150,7 +150,7 @@ theorem inner_gradient_self_eq_zero_of_rmsNorm
     rate_along_the_weights = 0 := by
   unfold_named_pieces
   exact gradient_is_at_right_angles_to_the_weights
-    (isScaleInvariant_comp_normalizeByRms loss) gradient_gives_the_rate
+    (loss_through_rms_norm_is_scale_invariant loss) gradient_gives_the_rate
 
 /-- A pre-norm block: the branch reads the normalised stream, and its output is
 added to the stream as it was.
@@ -169,7 +169,7 @@ noncomputable def APPLY_POST_NORM_BLOCK
 
 /-- **Pre-norm leaves the skip path alone.** Scale the stream and the skip path
 carries the scale through, while the branch adds what it added before. -/
-theorem preNormBlock_smul
+theorem pre_norm_leaves_the_skip_path_alone
     (branch : NormBranch Entries)
     {scale : ℝ}
     (scale_pos : 0 < scale)
@@ -180,11 +180,11 @@ theorem preNormBlock_smul
   unfold_named_pieces
   have same_normalised :
       NORMALIZE_BY_RMS (scale • stream) = NORMALIZE_BY_RMS stream :=
-    normalizeByRms_smul scale_pos stream
+    rms_norm_forgets_the_scale scale_pos stream
   rw [APPLY_PRE_NORM_BLOCK, same_normalised]
 
 /-- What a pre-norm branch adds does not depend on the size of the stream. -/
-theorem preNormBlock_sub_smul
+theorem pre_norm_branch_ignores_the_stream_size
     (branch : NormBranch Entries)
     {scale : ℝ}
     (scale_pos : 0 < scale)
@@ -197,13 +197,13 @@ theorem preNormBlock_sub_smul
   have scaled_block :
       APPLY_PRE_NORM_BLOCK branch (scale • stream)
         = scale • stream + branch (NORMALIZE_BY_RMS stream) :=
-    preNormBlock_smul branch scale_pos stream
+    pre_norm_leaves_the_skip_path_alone branch scale_pos stream
   rw [scaled_block, APPLY_PRE_NORM_BLOCK, add_sub_cancel_left,
     add_sub_cancel_left]
 
 /-- **Post-norm resets the size.** Its output always has root mean square
 one. -/
-theorem rootMeanSquare_postNormBlock
+theorem post_norm_resets_the_size
     [Nonempty Entries]
     (branch : NormBranch Entries)
     {stream : EntryVector Entries}
@@ -211,6 +211,6 @@ theorem rootMeanSquare_postNormBlock
     let block_rms := GET_ROOT_MEAN_SQUARE (APPLY_POST_NORM_BLOCK branch stream)
     block_rms = 1 := by
   unfold_named_pieces
-  exact rootMeanSquare_normalizeByRms sum_ne_zero
+  exact root_mean_square_after_rms_norm_equals_one sum_ne_zero
 
 end SquigglyLine

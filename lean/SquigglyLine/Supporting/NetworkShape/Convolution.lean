@@ -16,9 +16,9 @@ Convolution, stride and upsampling.
 | `Kernel`              | the weights of a convolution: one for each offset |
 | `APPLY_CONVOLUTION`   | one convolution layer on a signal                 |
 
-Theorems: `abs_convolution_sub_le`, `convolution_congr`,
-`iterate_convolution_congr`, `stride_eq_compress`, `upsample_eq_compress`,
-`compress_compress`, `stride_upsample`, `lipschitzWith_stride`.
+Theorems: `convolution_slope_is_at_most_summed_kernel`, `convolution_reads_only_under_its_kernel`,
+`convolution_stack_reads_only_its_window`, `stride_is_squeezing`, `upsampling_is_squeezing_by_one_half`,
+`squeezing_twice_multiplies_the_factors`, `stride_after_upsampling_gives_the_signal_back`, `stride_doubles_the_slope`.
 -/
 import SquigglyLine.Theorem.Compression
 
@@ -50,7 +50,7 @@ def APPLY_CONVOLUTION
 differ by at most `max_gap` everywhere, their outputs differ by at most
 `max_gap` times the summed sizes of the kernel weights. The length of the
 signal does not enter. -/
-theorem abs_convolution_sub_le
+theorem convolution_slope_is_at_most_summed_kernel
     (kernel_width : ℕ)
     (kernel : Kernel)
     {signal : Signal}
@@ -83,7 +83,7 @@ theorem abs_convolution_sub_le
 
 /-- **A convolution is local.** An output depends only on the `kernel_width`
 inputs under the kernel. -/
-theorem convolution_congr
+theorem convolution_reads_only_under_its_kernel
     (kernel_width : ℕ)
     (kernel : Kernel)
     {signal : Signal}
@@ -104,7 +104,7 @@ theorem convolution_congr
 /-- **After `layer_count` layers an output sees only the inputs within
 `layer_count * kernel_width` of it.** Two signals that agree on that window
 give the same output there, whatever they do elsewhere. -/
-theorem iterate_convolution_congr
+theorem convolution_stack_reads_only_its_window
     (kernel_width : ℕ)
     (kernel : Kernel)
     (layer_count : ℕ) :
@@ -126,7 +126,7 @@ theorem iterate_convolution_congr
   | succ layer_count earlier_layers_congr =>
     intro signal other_signal position signals_agree
     rw [Function.iterate_succ_apply', Function.iterate_succ_apply']
-    refine convolution_congr kernel_width kernel
+    refine convolution_reads_only_under_its_kernel kernel_width kernel
       fun index index_ge index_lt => ?_
     -- The window of one more layer is the earlier window plus the kernel.
     have window_split :
@@ -142,7 +142,7 @@ So each layer reaches `kernel_width - 1` further, and after `layer_count`
 layers an output depends only on the inputs from its position up to
 `layer_count * (kernel_width - 1)` beyond it. That is
 `layer_count * (kernel_width - 1) + 1` positions, which is the reach the
-notebook of chapter 33 measured. `iterate_convolution_congr` above allows a
+notebook of chapter 33 measured. `convolution_stack_reads_only_its_window` above allows a
 wider window and is a consequence of this one. -/
 theorem convolution_stack_reads_only_its_exact_window
     (kernel_width : ℕ)
@@ -167,7 +167,7 @@ theorem convolution_stack_reads_only_its_exact_window
   | succ layer_count earlier_layers_congr =>
     intro signal other_signal position signals_agree
     rw [Function.iterate_succ_apply', Function.iterate_succ_apply']
-    refine convolution_congr kernel_width kernel
+    refine convolution_reads_only_under_its_kernel kernel_width kernel
       fun index index_ge index_lt => ?_
     -- The window of one more layer is the earlier window plus the reach of
     -- one kernel.
@@ -182,7 +182,7 @@ variable {model : RealFunction}
 
 /-- **Stride is squeezing.** Reading a signal at every second position is
 squeezing it sideways by two. -/
-theorem stride_eq_compress
+theorem stride_is_squeezing
     (model : RealFunction) :
     let strided_model : RealFunction := fun input => model (2 * input)  -- every second position
     let squeezed_model := COMPRESS 2 model
@@ -192,7 +192,7 @@ theorem stride_eq_compress
   simp [COMPRESS]
 
 /-- Upsampling is squeezing by one half: a stretch. -/
-theorem upsample_eq_compress
+theorem upsampling_is_squeezing_by_one_half
     (model : RealFunction) :
     let upsampled_model : RealFunction := fun input => model (input / 2)  -- each position read twice
     let squeezed_model := COMPRESS (1 / 2) model
@@ -202,7 +202,7 @@ theorem upsample_eq_compress
   simp [COMPRESS, div_eq_inv_mul]
 
 /-- Squeezing twice multiplies the factors. -/
-theorem compress_compress
+theorem squeezing_twice_multiplies_the_factors
     (outer_factor : ℝ)
     (inner_factor : ℝ)
     (model : RealFunction) :
@@ -214,7 +214,7 @@ theorem compress_compress
   simp [COMPRESS, mul_assoc]
 
 /-- A stride of two after an upsampling by two gives the signal back. -/
-theorem stride_upsample
+theorem stride_after_upsampling_gives_the_signal_back
     (model : RealFunction) :
     let upsampled_model := COMPRESS (1 / 2) model
     let restored_model  := COMPRESS 2 upsampled_model
@@ -223,13 +223,13 @@ theorem stride_upsample
   -- The two factors multiply to one.
   have squeezed_twice :
       COMPRESS 2 (COMPRESS (1 / 2) model) = COMPRESS (1 / 2 * 2) model :=
-    compress_compress 2 (1 / 2) model
+    squeezing_twice_multiplies_the_factors 2 (1 / 2) model
   rw [squeezed_twice]
   funext input
   simp [COMPRESS]
 
 /-- **Each stride doubles the slope** of what the later layers see. -/
-theorem lipschitzWith_stride
+theorem stride_doubles_the_slope
     {slope_limit : SlopeLimit}
     (slope_is_bounded : LipschitzWith slope_limit model) :
     let strided_slope_limit := 2 * slope_limit  -- the same climb over half the run
@@ -238,7 +238,7 @@ theorem lipschitzWith_stride
   unfold_named_pieces
   have as_compress :
       (fun input => model (2 * input)) = COMPRESS 2 model :=
-    stride_eq_compress model
+    stride_is_squeezing model
   rw [as_compress]
   have compressed_bound := squeezing_multiplies_the_slope_limit slope_is_bounded 2
   simpa using compressed_bound

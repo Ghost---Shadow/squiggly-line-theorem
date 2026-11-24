@@ -140,7 +140,7 @@ notes under `docs/`, grouped the same way.
    formalised**)
    If the truth crosses a band of height `2ε` more times than the network has
    straight pieces, the network misses it by more than `ε` somewhere. For a
-   network with one hidden layer this is now `card_ge_of_zigzag` and
+   network with one hidden layer this is now `one_unit_per_turn` and
    `depth_separation` in [`DepthSeparation.lean`](../lean/SquigglyLine/Supporting/NetworkShape/DepthSeparation.lean): a unit per up-and-down, so
    fewer than `2^L` units cannot stay within one half of `L + 1` tent layers.
    See `docs/supporting/network-shape/depth-separation.md`. For deeper networks it needs the bound on
@@ -285,8 +285,8 @@ change of link or loss. Added 12 Nov 2026.
     example at a time, 12 Nov 2026; across a batch still **open**)
     Rescaling one example after each plate is an amplifier: the light arrives
     at full strength after any turn short of a right angle, and a blocked
-    beam stays blocked (`renorm_plate`, `throughNormedPlates_eq`,
-    `renorm_plate_of_crossed` in [`SkipAndNorm.lean`](../lean/SquigglyLine/Supporting/NetworkShape/SkipAndNorm.lean); see `docs/supporting/network-shape/skip-and-norm.md`).
+    beam stays blocked (`plate_and_amplifier_turn_without_loss`, `amplified_plates_lose_nothing`,
+    `amplifier_cannot_raise_the_dead` in [`SkipAndNorm.lean`](../lean/SquigglyLine/Supporting/NetworkShape/SkipAndNorm.lean); see `docs/supporting/network-shape/skip-and-norm.md`).
     That is closest to layer normalisation. What follows is the earlier note,
     which is about the batch.
     A first reading: gain control. Batch norm rescales and recentres the flock
@@ -300,8 +300,8 @@ change of link or loss. Added 12 Nov 2026.
 22. **What is a residual layer, in the polarizer picture?** (**proved** for
     plates, 12 Nov 2026; for ReLU layers still **open**)
     A plate with a bypass never dims the light, does nothing when crossed, and
-    turns the light only part of the way (`norm_le_norm_skipPlate`,
-    `skipPlate_of_crossed`, `inner_skipPlate` in [`SkipAndNorm.lean`](../lean/SquigglyLine/Supporting/NetworkShape/SkipAndNorm.lean); see
+    turns the light only part of the way (`plate_with_bypass_never_dims`,
+    `crossed_plate_with_bypass_does_nothing`, `part_along_the_axis_doubles` in [`SkipAndNorm.lean`](../lean/SquigglyLine/Supporting/NetworkShape/SkipAndNorm.lean); see
     `docs/supporting/network-shape/skip-and-norm.md`). What follows is the earlier note.
     A first reading: a bypass. Split the beam, send one part through the plate
     and one part around it, and add them. The result keeps the part the plate

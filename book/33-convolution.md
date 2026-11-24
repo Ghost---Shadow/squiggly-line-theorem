@@ -55,7 +55,7 @@ most 6.
 differ by at most `max_gap` everywhere, their outputs differ by at most
 `max_gap` times the summed sizes of the kernel weights. The length of the
 signal does not enter. -/
-theorem abs_convolution_sub_le
+theorem convolution_slope_is_at_most_summed_kernel
     (kernel_width : ℕ)
     (kernel : Kernel)
     {signal : Signal}
@@ -85,7 +85,7 @@ its few weights.
 ```lean
 /-- **Stride is squeezing.** Reading a signal at every second position is
 squeezing it sideways by two. -/
-theorem stride_eq_compress
+theorem stride_is_squeezing
     (model : RealFunction) :
     let strided_model : RealFunction := fun input => model (2 * input)  -- every second position
     let squeezed_model := COMPRESS 2 model
@@ -100,7 +100,7 @@ is the slope claim.
 
 ```lean
 /-- **Each stride doubles the slope** of what the later layers see. -/
-theorem lipschitzWith_stride
+theorem stride_doubles_the_slope
     {slope_limit : SlopeLimit}
     (slope_is_bounded : LipschitzWith slope_limit model) :
     let strided_slope_limit := 2 * slope_limit  -- the same climb over half the run
@@ -111,14 +111,14 @@ theorem lipschitzWith_stride
 *Read aloud:* if `model` has slope at most `slope_limit`, then `model`
 read at every second position has slope at most `2 × slope_limit`.
 
-Two more results are named here. `convolution_congr` says an output
+Two more results are named here. `convolution_reads_only_under_its_kernel` says an output
 depends only on the `kernel_width` inputs under the kernel, and
-`iterate_convolution_congr` says that after `layer_count` layers it
+`convolution_stack_reads_only_its_window` says that after `layer_count` layers it
 depends only on the inputs within `layer_count * kernel_width` of it.
 `convolution_stack_reads_only_its_exact_window` is tighter: it depends
 only on the inputs within `layer_count * (kernel_width - 1)` of it.
-`upsample_eq_compress` says stretching by two is squeezing by one half,
-and `stride_upsample` says a stride of two after an upsampling gives the
+`upsampling_is_squeezing_by_one_half` says stretching by two is squeezing by one half,
+and `stride_after_upsampling_gives_the_signal_back` says a stride of two after an upsampling gives the
 signal back.
 
 ## Why it is true
@@ -144,11 +144,11 @@ beyond the window.
 
 **Stride.** The function `fun input => model (2 * input)` and
 `COMPRESS 2 model` are the same function, by unfolding the definition. So
-everything proved about squeezing applies. In particular `lipschitzWith_stride` is
+everything proved about squeezing applies. In particular `stride_doubles_the_slope` is
 the squeeze theorem of chapter 7 read for a factor of two: the same climb
 over half the run. Upsampling is `model(input / 2)`, which is a squeeze
 by one half, and two squeezes multiply their factors
-(`compress_compress`), so `2 × 1/2 = 1` and the signal comes back.
+(`squeezing_twice_multiplies_the_factors`), so `2 × 1/2 = 1` and the signal comes back.
 
 ## What it explains
 
@@ -232,15 +232,15 @@ Run it with
 1. A kernel has weights `0.5, 0.5, −1`. Two signals differ by at most 2
    everywhere. How far apart can their outputs be?
 2. After four layers with kernels of width 5, how many positions can an
-   output depend on, by `iterate_convolution_congr`?
+   output depend on, by `convolution_stack_reads_only_its_window`?
 3. A model has slope at most 1.5. What is the slope limit after two
    strides of two in a row?
 
 **Answers.** (1) The summed sizes are `0.5 + 0.5 + 1 = 2`, so at most
-`2 × 2 = 4`, by `abs_convolution_sub_le`. (2) The window is
-`4 × 5 = 20` positions further on by `iterate_convolution_congr`, and
+`2 × 2 = 4`, by `convolution_slope_is_at_most_summed_kernel`. (2) The window is
+`4 × 5 = 20` positions further on by `convolution_stack_reads_only_its_window`, and
 `4 × 4 = 16` further on by the tighter theorem. (3) One stride gives `2 × 1.5 = 3`
-by `lipschitzWith_stride`. A second stride is applied to the strided
+by `stride_doubles_the_slope`. A second stride is applied to the strided
 model, which has slope at most 3, so it gives `2 × 3 = 6`.
 
 Previous: [32. Depth against width](32-depth-against-width.md) · Next: [34. Capacity and compression](34-capacity-and-compression.md)

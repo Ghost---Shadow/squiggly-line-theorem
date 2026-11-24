@@ -4,16 +4,16 @@ The information bottleneck, by counting.
 Send a finite flock through the layers and count the distinct places it
 occupies after each one. `readout` turns the last layer's place into an answer.
 
-* `label_eq_of_merged` : a network that is right on two inputs cannot merge
+* `different_labels_must_stay_apart` : a network that is right on two inputs cannot merge
   them at any layer unless they have the same label.
-* `card_image_label_le` : so every layer keeps at least as many places as
+* `every_layer_keeps_at_least_as_many_places_as_labels` : so every layer keeps at least as many places as
   there are labels.
 * `bottleneck` : the count lies between the number of labels and the number
   of inputs. (It never goes up: `flock_never_spreads_over_more_places`.)
-* `merged_iff_label_eq` : a layer squeezed down to exactly as many places as
+* `full_compression_merges_exactly_equal_labels` : a layer squeezed down to exactly as many places as
   labels merges two inputs exactly when they share a label.
 
-The helper `image_label_eq` says that the labels of a flock the network gets
+The helper `labels_are_read_off_the_places` says that the labels of a flock the network gets
 right are read off the places after the early layers.
 -/
 import SquigglyLine.Networks.MarkovChains
@@ -25,7 +25,7 @@ variable {State Label : Type*}
 /-- **Different labels must stay apart.** If the network is right on `input`
 and on `other_input`, and some layer puts them at the same place, they have the
 same label. -/
-theorem label_eq_of_merged
+theorem different_labels_must_stay_apart
     (early_layers : LayerStack State)
     (late_layers : LayerStack State)
     (readout : State → Label)
@@ -54,7 +54,7 @@ theorem label_eq_of_merged
 
 /-- The labels of a flock the network gets right are read off the places it
 occupies after the early layers. -/
-theorem image_label_eq
+theorem labels_are_read_off_the_places
     [DecidableEq State]
     [DecidableEq Label]
     (early_layers : LayerStack State)
@@ -82,7 +82,7 @@ theorem image_label_eq
 
 /-- **The lower wall.** Every layer keeps at least as many places as there are
 labels. -/
-theorem card_image_label_le
+theorem every_layer_keeps_at_least_as_many_places_as_labels
     [DecidableEq State]
     [DecidableEq Label]
     (early_layers : LayerStack State)
@@ -102,7 +102,7 @@ theorem card_image_label_le
       flock.image label
         = (flock.image (RUN_LAYERS early_layers)).image
             (readout ∘ RUN_LAYERS late_layers) :=
-    image_label_eq early_layers late_layers readout label flock
+    labels_are_read_off_the_places early_layers late_layers readout label flock
       network_is_right
   -- The labels are the image of the places, and an image is never bigger.
   rw [labels_eq]
@@ -130,12 +130,12 @@ theorem bottleneck
     let at_most_inputs  := place_count ≤ input_count
     at_least_labels ∧ at_most_inputs := by
   unfold_named_pieces
-  exact ⟨card_image_label_le early_layers late_layers readout label flock
+  exact ⟨every_layer_keeps_at_least_as_many_places_as_labels early_layers late_layers readout label flock
     network_is_right, Finset.card_image_le⟩
 
 /-- **Full compression.** If a layer has exactly as many places as there are
 labels, two inputs share a place there exactly when they share a label. -/
-theorem merged_iff_label_eq
+theorem full_compression_merges_exactly_equal_labels
     [DecidableEq State]
     [DecidableEq Label]
     (early_layers : LayerStack State)
@@ -157,10 +157,10 @@ theorem merged_iff_label_eq
     let same_label := label input = label other_input
     merged ↔ same_label := by
   unfold_named_pieces
-  refine ⟨label_eq_of_merged early_layers late_layers readout label
+  refine ⟨different_labels_must_stay_apart early_layers late_layers readout label
     (network_is_right input input_in_flock)
     (network_is_right other_input other_input_in_flock), fun same_label => ?_⟩
-  have labels_eq := image_label_eq early_layers late_layers readout label
+  have labels_eq := labels_are_read_off_the_places early_layers late_layers readout label
     flock network_is_right
   -- The read-out map has as many places as labels, so it cannot merge two
   -- places: it is injective on them.

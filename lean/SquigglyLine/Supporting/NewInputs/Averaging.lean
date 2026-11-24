@@ -345,7 +345,7 @@ theorem ideal_denoiser_stays_inside_the_examples
     let hull     := convexHull ℝ (Set.range examples)
     denoised ∈ hull := by
   unfold_named_pieces
-  exact attend_mem_convexHull _ examples
+  exact attention_output_lies_among_the_values _ examples
 
 end Denoiser
 

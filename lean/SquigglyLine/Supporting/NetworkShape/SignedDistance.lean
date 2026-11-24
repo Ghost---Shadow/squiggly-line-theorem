@@ -13,18 +13,18 @@ read at the data points.
 
 Theorems:
 
-* `nearestDist_eq_distanceField` : the theorem's distance is the field.
-* `lipschitzWith_distanceField` : the field never changes faster than one,
+* `nearest_distance_equals_distance_field_at_the_data` : the theorem's distance is the field.
+* `distance_field_slope_is_at_most_one` : the field never changes faster than one,
   however steep the line is.
-* `distanceField_eq_zero_iff` : it is zero exactly on the line.
-* `notMem_curve_of_dist_lt` : a step shorter than the field's value cannot
+* `distance_field_is_zero_exactly_on_the_line` : it is zero exactly on the line.
+* `step_shorter_than_the_field_cannot_reach_the_line` : a step shorter than the field's value cannot
   reach the line. This is what sphere tracing relies on.
-* `notMem_curve_of_dist_lt_verticalDist_div` : the height above the line,
+* `safe_step_from_the_height_alone` : the height above the line,
   divided by `√(1 + slope_limit²)`, is a safe step too.
-* `distanceField_lt_iff_mem_thickening` : the tube of radius `radius` round
+* `tube_is_where_the_field_is_less_than_radius` : the tube of radius `radius` round
   the line is where the field is below `radius`.
-* `abs_signedDist` : the signed distance has the size of the field.
-* `abs_signedDist_le_verticalDist`, `verticalDist_le_abs_signedDist` : the
+* `signed_distance_has_the_size_of_nearest_distance` : the signed distance has the size of the field.
+* `height_overstates_the_distance`, `height_overstates_by_at_most_the_stretch` : the
   slope sandwich, as a statement about how far the height above the line is
   from a true signed distance.
 -/
@@ -48,7 +48,7 @@ noncomputable def GET_DISTANCE_FIELD
   Metric.infDist ambient_point (GET_GRAPH model)
 
 /-- **The theorem's distance is the field, read at the data.** -/
-theorem nearestDist_eq_distanceField
+theorem nearest_distance_equals_distance_field_at_the_data
     (model : Model Inputs)
     (data_point : DataPoint Inputs) :
     let nearest_distance := GET_NEAREST_DISTANCE model data_point
@@ -58,7 +58,7 @@ theorem nearestDist_eq_distanceField
   rfl
 
 /-- The field is never negative: a distance is not. -/
-theorem distanceField_nonneg
+theorem distance_field_is_at_least_zero
     (model : Model Inputs)
     (ambient_point : Ambient Inputs) :
     let field_value := GET_DISTANCE_FIELD model ambient_point
@@ -69,7 +69,7 @@ theorem distanceField_nonneg
 omit [SeminormedAddCommGroup Inputs] in
 /-- The line is never empty: it has a point above or below any point of
 space. -/
-theorem curve_nonempty_of
+theorem line_is_never_empty
     (model : Model Inputs)
     (ambient_point : Ambient Inputs) :
     let line := GET_GRAPH model
@@ -79,7 +79,7 @@ theorem curve_nonempty_of
 
 /-- **The field is never steep.** It changes by at most the distance moved,
 however squiggly the line is. -/
-theorem lipschitzWith_distanceField
+theorem distance_field_slope_is_at_most_one
     (model : Model Inputs) :
     let field := GET_DISTANCE_FIELD model
     LipschitzWith 1 field := by  -- one unit of field per unit moved
@@ -88,7 +88,7 @@ theorem lipschitzWith_distanceField
 
 /-- Moving from one point of space to another changes the field by at most
 the distance between them. -/
-theorem abs_distanceField_sub_le
+theorem distance_field_changes_at_most_by_the_distance_moved
     (model : Model Inputs)
     (ambient_point : Ambient Inputs)
     (other_point : Ambient Inputs) :
@@ -99,12 +99,12 @@ theorem abs_distanceField_sub_le
     change_in_field ≤ distance_moved := by
   unfold_named_pieces
   simpa [Real.dist_eq] using
-    (lipschitzWith_distanceField model :
+    (distance_field_slope_is_at_most_one model :
       LipschitzWith 1 (GET_DISTANCE_FIELD model)).dist_le_mul
       ambient_point other_point
 
 /-- The graph of a continuous function is closed. -/
-theorem isClosed_curve
+theorem graph_of_a_continuous_function_is_closed
     (model_is_continuous : Continuous model) :
     let line := GET_GRAPH model
     IsClosed line := by
@@ -124,7 +124,7 @@ theorem isClosed_curve
       (continuous_fst.comp (WithLp.prod_continuous_ofLp 2 Inputs ℝ)))
 
 /-- **The field is zero exactly on the line.** -/
-theorem distanceField_eq_zero_iff
+theorem distance_field_is_zero_exactly_on_the_line
     (model_is_continuous : Continuous model)
     (ambient_point : Ambient Inputs) :
     let field_value     := GET_DISTANCE_FIELD model ambient_point
@@ -134,14 +134,14 @@ theorem distanceField_eq_zero_iff
     field_is_zero ↔ is_on_the_line := by
   unfold_named_pieces
   exact
-    ((isClosed_curve model_is_continuous : IsClosed (GET_GRAPH model)
+    ((graph_of_a_continuous_function_is_closed model_is_continuous : IsClosed (GET_GRAPH model)
       ).mem_iff_infDist_zero
-      (curve_nonempty_of model ambient_point)).symm
+      (line_is_never_empty model ambient_point)).symm
 
 /-- **A step shorter than the field cannot reach the line.** From
 `ambient_point`, every point nearer than the field's value there is off the
 line. -/
-theorem notMem_curve_of_dist_lt
+theorem step_shorter_than_the_field_cannot_reach_the_line
     {ambient_point : Ambient Inputs}
     {other_point : Ambient Inputs}
     (step_is_short :
@@ -157,7 +157,7 @@ theorem notMem_curve_of_dist_lt
 /-- **A safe step from the height alone.** For a line of slope at most
 `slope_limit`, a step shorter than the height above the line divided by
 `√(1 + slope_limit²)` cannot reach the line. -/
-theorem notMem_curve_of_dist_lt_verticalDist_div
+theorem safe_step_from_the_height_alone
     {slope_limit : SlopeLimit}
     (slope_is_bounded : LipschitzWith slope_limit model)
     {data_point : DataPoint Inputs}
@@ -169,13 +169,13 @@ theorem notMem_curve_of_dist_lt_verticalDist_div
     let line := GET_GRAPH model
     other_point ∉ line := by
   unfold_named_pieces
-  refine notMem_curve_of_dist_lt (step_is_short.trans_le ?_)
+  refine step_shorter_than_the_field_cannot_reach_the_line (step_is_short.trans_le ?_)
   rw [div_le_iff₀' (by positivity)]
   exact vertical_error_is_at_most_stretch_times_nearest_distance slope_is_bounded data_point
 
 /-- The tube of radius `radius` round the line is where the field is below
 `radius`. -/
-theorem distanceField_lt_iff_mem_thickening
+theorem tube_is_where_the_field_is_less_than_radius
     (model : Model Inputs)
     (ambient_point : Ambient Inputs)
     (radius : ℝ) :
@@ -187,7 +187,7 @@ theorem distanceField_lt_iff_mem_thickening
   unfold_named_pieces
   exact
     (Metric.mem_thickening_iff_infDist_lt
-      (curve_nonempty_of model ambient_point)).symm
+      (line_is_never_empty model ambient_point)).symm
 
 /-! ### With a sign -/
 
@@ -202,7 +202,7 @@ noncomputable def GET_SIGNED_DISTANCE
     * GET_NEAREST_DISTANCE model data_point
 
 /-- The signed distance has the size of the nearest-point distance. -/
-theorem abs_signedDist
+theorem signed_distance_has_the_size_of_nearest_distance
     (model : Model Inputs)
     (data_point : DataPoint Inputs) :
     let signed_distance  := GET_SIGNED_DISTANCE model data_point
@@ -229,7 +229,7 @@ theorem abs_signedDist
       abs_of_nonneg distance_nonneg]
 
 /-- **The height above the line overstates the distance.** -/
-theorem abs_signedDist_le_verticalDist
+theorem height_overstates_the_distance
     (model : Model Inputs)
     (data_point : DataPoint Inputs) :
     let signed_distance := GET_SIGNED_DISTANCE model data_point
@@ -239,7 +239,7 @@ theorem abs_signedDist_le_verticalDist
   have abs_is_nearest :
       |GET_SIGNED_DISTANCE model data_point|
         = GET_NEAREST_DISTANCE model data_point :=
-    abs_signedDist model data_point
+    signed_distance_has_the_size_of_nearest_distance model data_point
   have nearest_le_vertical :
       GET_NEAREST_DISTANCE model data_point
         ≤ GET_VERTICAL_ERROR model data_point :=
@@ -250,7 +250,7 @@ theorem abs_signedDist_le_verticalDist
 /-- **And by no more than the slope allows.** For a line of slope at most
 `slope_limit`, the height is at most `√(1 + slope_limit²)` times the signed
 distance. -/
-theorem verticalDist_le_abs_signedDist
+theorem height_overstates_by_at_most_the_stretch
     {slope_limit : SlopeLimit}
     (slope_is_bounded : LipschitzWith slope_limit model)
     (data_point : DataPoint Inputs) :
@@ -262,7 +262,7 @@ theorem verticalDist_le_abs_signedDist
   have abs_is_nearest :
       |GET_SIGNED_DISTANCE model data_point|
         = GET_NEAREST_DISTANCE model data_point :=
-    abs_signedDist model data_point
+    signed_distance_has_the_size_of_nearest_distance model data_point
   have vertical_le_stretched :
       GET_VERTICAL_ERROR model data_point
         ≤ √(1 + (slope_limit : ℝ) ^ 2)

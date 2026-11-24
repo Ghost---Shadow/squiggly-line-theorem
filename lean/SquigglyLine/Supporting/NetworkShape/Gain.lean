@@ -6,17 +6,17 @@ A gain per step: where it should be one, and where it should be below one.
 choices of that gain.
 
 He initialisation, which sets the gain of a fold to one:
-* `relu_sq_add_relu_neg_sq` : a fold keeps the squared size of the positive
+* `fold_splits_the_squared_size_in_two` : a fold keeps the squared size of the positive
   part and drops the rest: the two parts add up to the whole.
-* `integral_relu_sq_of_symmetric` : so for a signal that is as often negative
+* `fold_keeps_half_of_a_symmetric_signal` : so for a signal that is as often negative
   as positive, a fold keeps exactly half the mean squared size.
 * `he_gain` : `input_count` inputs with weights of variance `2 / input_count`
   make up for the half.
 
 The Bellman update of reinforcement learning, whose gain is below one:
-* `lipschitzWith_bellman` : one sweep of value updates has slope at most the
+* `sweep_slope_is_at_most_the_discount` : one sweep of value updates has slope at most the
   discount.
-* `dist_iterate_bellman_le` : so after `sweep_count` sweeps any two guesses
+* `repeated_sweeps_pull_every_guess_to_one_answer` : so after `sweep_count` sweeps any two guesses
   are within `discount ^ sweep_count` of their starting distance.
 
 | Name                    | Meaning                                         |
@@ -57,7 +57,7 @@ section He
 
 /-- **A fold splits the squared size in two.** The part a ReLU keeps and the
 part it would have kept of the mirror image add up to the whole. -/
-theorem relu_sq_add_relu_neg_sq
+theorem fold_splits_the_squared_size_in_two
     (signal : ℝ) :
     let kept_square   := max signal 0 ^ 2                          -- a fold lets the signal through if positive, else gives 0
     let mirror_square := max (-signal) 0 ^ 2                       -- the same fold on the mirror image keeps the negative part
@@ -78,7 +78,7 @@ variable {Outcomes : Type*} [MeasurableSpace Outcomes]
 /-- **A fold keeps half.** If a signal is as often negative as positive, in
 the sense that its mirror image has the same mean squared size after the
 fold, then the fold keeps exactly half of the mean squared size. -/
-theorem integral_relu_sq_of_symmetric
+theorem fold_keeps_half_of_a_symmetric_signal
     {signal : RandomSignal Outcomes}
     (kept_square_has_mean :                                        -- `Integrable`: its average exists
       Integrable (fun outcome => max (signal outcome) 0 ^ 2)
@@ -103,7 +103,7 @@ theorem integral_relu_sq_of_symmetric
               ∂outcome_distribution := by
     rw [← integral_add kept_square_has_mean mirror_square_has_mean]
     refine integral_congr_ae (ae_of_all _ fun outcome => ?_)
-    exact (relu_sq_add_relu_neg_sq (signal outcome)).symm
+    exact (fold_splits_the_squared_size_in_two (signal outcome)).symm
   rw [whole_is_sum_of_parts, mirror_keeps_as_much]
   ring
 
@@ -114,7 +114,7 @@ theorem he_gain
     {input_count : ℝ}
     (input_count_ne_zero : input_count ≠ 0) :
     let weight_variance : ℝ := 2 / input_count                     -- He's choice: the 2 is there to pay for the fold
-    let kept_by_fold : ℝ    := 1 / 2                               -- a fold keeps half: `integral_relu_sq_of_symmetric`
+    let kept_by_fold : ℝ    := 1 / 2                               -- a fold keeps half: `fold_keeps_half_of_a_symmetric_signal`
     let gain := input_count * weight_variance * kept_by_fold       -- each input adds its variance, then the fold halves it
     gain = 1 := by
   unfold_named_pieces
@@ -147,7 +147,7 @@ variable {move_chances : MoveChances States}
 /-- **A sweep has slope at most the discount.** Two guesses at the values are
 brought closer by the factor `discount`, measured by their largest
 disagreement. -/
-theorem lipschitzWith_bellman
+theorem sweep_slope_is_at_most_the_discount
     (chances_nonneg :
       ∀ state next_state, 0 ≤ move_chances state next_state)
     (chances_add_up_to_one :
@@ -193,7 +193,7 @@ theorem lipschitzWith_bellman
 /-- **Repeated sweeps pull every guess to one answer.** After `sweep_count`
 sweeps, two guesses differ by at most `discount ^ sweep_count` times what
 they differed by at the start. -/
-theorem dist_iterate_bellman_le
+theorem repeated_sweeps_pull_every_guess_to_one_answer
     (chances_nonneg :
       ∀ state next_state, 0 ≤ move_chances state next_state)
     (chances_add_up_to_one :
@@ -211,7 +211,7 @@ theorem dist_iterate_bellman_le
     gap_after_sweeps ≤ shrink_factor * gap_at_start := by
   unfold_named_pieces
   simpa using
-    ((lipschitzWith_bellman chances_nonneg chances_add_up_to_one
+    ((sweep_slope_is_at_most_the_discount chances_nonneg chances_add_up_to_one
       discount rewards).iterate sweep_count).dist_le_mul
         values other_values
 

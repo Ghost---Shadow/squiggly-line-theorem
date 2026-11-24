@@ -63,7 +63,7 @@ is 2: the slope of the stand-in.
 /-- **A cold softmax picks the top score.** If score `top` leads every other
 by at least `gap`, then at temperature `temperature` its share is within
 `(choice_count - 1) * exp (-gap / temperature)` of one. -/
-theorem one_sub_softmax_div_le
+theorem cold_softmax_picks_the_top_score
     [DecidableEq Choices] [Nonempty Choices]
     {scores : Choices → ℝ}
     {top : Choices}
@@ -96,7 +96,7 @@ right:
 /-- **A colder sampler picks better answers on average.** With
 `inverse_temperature` one over the temperature, the average score of a sample
 from the softmax never falls as `inverse_temperature` rises. -/
-theorem expectedScore_softmax_mono [Nonempty Answers]
+theorem colder_sampler_picks_better_on_average [Nonempty Answers]
     (scores : Answers → ℝ)
     {lower higher : ℝ}
     (lower_le_higher : lower ≤ higher) :
@@ -123,17 +123,17 @@ not about every share:
 
 ![Left, average score against inverse temperature for five lists, never falling and levelling at each top score; right, the runner-up share for one list, rising then falling](figures/39-average-against-inverse-temperature.png)
 
-The other results of the two files are named here. `hasDerivAt_step_of_pos`
+The other results of the two files are named here. `hard_step_sends_no_gradient_back`
 says a hard step has slope zero away from its jump.
-`straightThrough_self` says the trick `APPLY_STRAIGHT_THROUGH` has the
-value of the hard step. `hasDerivAt_straightThrough` says it has the
-slope of the stand-in. `hopfield_eq_denoiser` says that for patterns and
+`straight_through_forward_is_the_hard_step` says the trick `APPLY_STRAIGHT_THROUGH` has the
+value of the hard step. `straight_through_backward_has_the_stand_in_slope` says it has the
+slope of the stand-in. `hopfield_recall_equals_ideal_denoiser` says that for patterns and
 a state of length one, the update of a modern Hopfield network is the
 ideal denoiser of chapter 37.
 `hopfield_recall_equals_ideal_denoiser_for_any_state` says the same with
 less assumed: the state may have any length, and the patterns need only
-have the same length as each other. `dist_decode_snap_le` and
-`dist_snap_le_of_nearest` say that replacing a code by an entry of a
+have the same length as each other. `snapping_moves_output_at_most_slope_times_distance` and
+`nearest_entry_is_the_gentlest_snap` say that replacing a code by an entry of a
 codebook moves a decoder's output by at most its slope times the distance
 to the entry, and that the nearest entry gives the smallest bound.
 
@@ -156,7 +156,7 @@ multiply both sides out. Then the claim is about a double sum over every
 pair of answers. For one pair, the better answer gains more weight from
 the larger `inverse_temperature` than the worse one does, and that gain
 is the non-negative term `pair_gain`. Adding the terms over all pairs
-gives `sum_mul_exp_mul_sum_exp_le`, and the theorem follows.
+gives `average_score_rises_as_temperature_falls_cross_multiplied`, and the theorem follows.
 
 **The straight-through trick.** Forward, the two stand-in terms cancel
 and leave the hard value. Backward, the first two terms are constants, so
@@ -258,9 +258,9 @@ Run it with
    at the point 0.3?
 
 **Answers.** (1) The gap is 2 and there is one other choice, so the miss
-is at most `exp(−2) = 0.135` (`one_sub_softmax_div_le`). The top score
+is at most `exp(−2) = 0.135` (`cold_softmax_picks_the_top_score`). The top score
 has at least 0.86. (2) The miss is at most `exp(−4)`, about 0.018, so the
-top share is at least 0.98. (3) The value is 1, by `straightThrough_self`,
-and the slope is 2, by `hasDerivAt_straightThrough`.
+top share is at least 0.98. (3) The value is 1, by `straight_through_forward_is_the_hard_step`,
+and the slope is 2, by `straight_through_backward_has_the_stand_in_slope`.
 
 Previous: [38. Mixing: graphs, noise schedules and guidance](38-mixing.md) · Next: [40. Neighbours](40-neighbours.md)

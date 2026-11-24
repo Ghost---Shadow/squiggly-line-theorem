@@ -20,11 +20,11 @@ A residual layer is `input + branch input`. If the branch has slope at most
 | `UPDATE_CELL`           | one step of the memory cell of an LSTM          |
 | `RUN_CELL`              | the cell after several steps                    |
 
-Theorems: `lipschitzWith_addSkip`, `le_dist_addSkip`, `addSkip_injective`,
-`strictMono_addSkip`, `neverTurns_addSkip`, `one_add_div_pow_le_exp`,
-`lipschitzWith_runResidualLayers`, `dist_runResidualLayers_le_exp`,
-`abs_updateCell_sub`, `abs_updateCell_sub_le`, `updateCell_sub_of_open_gate`,
-`runCell_sub`.
+Theorems: `residual_layer_slope_is_at_most_one_plus_branch`, `skip_keeps_points_apart`, `residual_layer_merges_no_two_inputs`,
+`residual_layer_always_rises`, `residual_layer_never_turns`, `compound_growth_is_at_most_the_exponential`,
+`residual_stack_slope_is_at_most_compound_growth`, `depth_does_not_blow_up_the_slope`,
+`cell_slope_is_the_forget_gate`, `gate_never_moves_two_memories_apart`, `open_gate_is_a_skip_through_time`,
+`memory_gap_after_many_steps_is_product_of_gates`.
 -/
 import Mathlib.Analysis.SpecialFunctions.Exp
 import Mathlib.Topology.MetricSpace.Lipschitz
@@ -46,7 +46,7 @@ def ADD_SKIP
   input + branch input
 
 /-- A residual layer is no steeper than one plus its branch. -/
-theorem lipschitzWith_addSkip
+theorem residual_layer_slope_is_at_most_one_plus_branch
     (slope_is_bounded : LipschitzWith slope_limit branch) :
     let layer_slope_limit := 1 + slope_limit  -- the input passes through, the branch adds its own slope
     let layer             := ADD_SKIP branch
@@ -65,7 +65,7 @@ theorem lipschitzWith_addSkip
 
 /-- **A skip keeps points apart.** Two outputs are at least `1 - slope_limit`
 of the distance between their inputs. -/
-theorem le_dist_addSkip
+theorem skip_keeps_points_apart
     (slope_is_bounded : LipschitzWith slope_limit branch)
     (input : Space)
     (other_input : Space) :
@@ -92,14 +92,14 @@ theorem le_dist_addSkip
 
 /-- With a branch of slope below one, a residual layer never merges two
 inputs. -/
-theorem addSkip_injective
+theorem residual_layer_merges_no_two_inputs
     (slope_is_bounded : LipschitzWith slope_limit branch)
     (slope_limit_lt_one : slope_limit < 1) :
     let layer := ADD_SKIP branch
     Function.Injective layer := by
   unfold_named_pieces
   intro input other_input same_output
-  have gap_le := le_dist_addSkip slope_is_bounded input other_input
+  have gap_le := skip_keeps_points_apart slope_is_bounded input other_input
   rw [same_output, dist_self] at gap_le
   have slope_limit_lt_one' : (slope_limit : ℝ) < 1 := by
     exact_mod_cast slope_limit_lt_one
@@ -109,7 +109,7 @@ theorem addSkip_injective
 
 /-- With one input and a branch of slope below one, a residual layer is always
 rising. -/
-theorem strictMono_addSkip
+theorem residual_layer_always_rises
     {branch : RealFunction}
     (slope_is_bounded : LipschitzWith slope_limit branch)
     (slope_limit_lt_one : slope_limit < 1) :
@@ -133,18 +133,18 @@ theorem strictMono_addSkip
 
 /-- **A turn has to be bought in the branch.** With a branch of slope below
 one, a residual layer never turns. -/
-theorem neverTurns_addSkip
+theorem residual_layer_never_turns
     {branch : RealFunction}
     (slope_is_bounded : LipschitzWith slope_limit branch)
     (slope_limit_lt_one : slope_limit < 1) :
     let layer := ADD_SKIP branch
     NEVER_TURNS layer := by
   unfold_named_pieces
-  exact Or.inl (strictMono_addSkip slope_is_bounded slope_limit_lt_one).monotone
+  exact Or.inl (residual_layer_always_rises slope_is_bounded slope_limit_lt_one).monotone
 
 /-- `(1 + exponent / layer_count) ^ layer_count` never passes
 `e ^ exponent`. -/
-theorem one_add_div_pow_le_exp
+theorem compound_growth_is_at_most_the_exponential
     {exponent : ℝ}
     (exponent_nonneg : 0 ≤ exponent)
     (layer_count : ℕ) :
@@ -181,7 +181,7 @@ def RUN_RESIDUAL_LAYERS
 
 /-- `layer_count` residual layers with branches of slope at most
 `slope_limit` have slope at most `(1 + slope_limit) ^ layer_count`. -/
-theorem lipschitzWith_runResidualLayers
+theorem residual_stack_slope_is_at_most_compound_growth
     {branches : ℕ → Space → Space}
     (slopes_are_bounded :
       ∀ layer_index, LipschitzWith slope_limit (branches layer_index))
@@ -195,14 +195,14 @@ theorem lipschitzWith_runResidualLayers
   | succ layer_count earlier_layers_bounded =>
     have layer_step : LipschitzWith (1 + slope_limit)
         (ADD_SKIP (branches layer_count)) :=
-      lipschitzWith_addSkip (slopes_are_bounded layer_count)
+      residual_layer_slope_is_at_most_one_plus_branch (slopes_are_bounded layer_count)
     have composed := layer_step.comp earlier_layers_bounded
     rwa [← pow_succ'] at composed
 
 /-- **Depth does not blow up the slope.** If each of `layer_count` branches has
 slope at most `exponent / layer_count`, the whole stack has slope at most
 `e ^ exponent`, whatever `layer_count` is. -/
-theorem dist_runResidualLayers_le_exp
+theorem depth_does_not_blow_up_the_slope
     {branches : ℕ → Space → Space}
     {exponent : ℝ≥0}
     {layer_count : ℕ}
@@ -217,13 +217,13 @@ theorem dist_runResidualLayers_le_exp
     let growth_limit := Real.exp exponent  -- the most that `layer_count` layers can stretch a gap
     output_gap ≤ growth_limit * input_gap := by
   unfold_named_pieces
-  have stack_gap := (lipschitzWith_runResidualLayers slopes_are_bounded
+  have stack_gap := (residual_stack_slope_is_at_most_compound_growth slopes_are_bounded
     layer_count).dist_le_mul input other_input
   have growth_bound :
       (((1 + exponent / layer_count : ℝ≥0) ^ layer_count : ℝ≥0) : ℝ)
         ≤ Real.exp exponent := by
     push_cast
-    exact one_add_div_pow_le_exp exponent.coe_nonneg layer_count
+    exact compound_growth_is_at_most_the_exponential exponent.coe_nonneg layer_count
   exact stack_gap.trans (mul_le_mul_of_nonneg_right growth_bound dist_nonneg)
 
 /-- One step of the memory cell of an LSTM: keep the share `forget_gate` of the
@@ -237,7 +237,7 @@ def UPDATE_CELL
   forget_gate * cell + input_gate * candidate
 
 /-- **The slope of the cell is the forget gate.** -/
-theorem abs_updateCell_sub
+theorem cell_slope_is_the_forget_gate
     {forget_gate : ℝ}
     (forget_gate_nonneg : 0 ≤ forget_gate)
     (input_gate : ℝ)
@@ -257,7 +257,7 @@ theorem abs_updateCell_sub
     abs_mul, abs_of_nonneg forget_gate_nonneg]
 
 /-- A gate between zero and one never makes two memories differ by more. -/
-theorem abs_updateCell_sub_le
+theorem gate_never_moves_two_memories_apart
     {forget_gate : ℝ}
     (forget_gate_nonneg : 0 ≤ forget_gate)
     (forget_gate_le_one : forget_gate ≤ 1)
@@ -274,13 +274,13 @@ theorem abs_updateCell_sub_le
       |UPDATE_CELL forget_gate input_gate candidate cell
         - UPDATE_CELL forget_gate input_gate candidate other_cell|
         = forget_gate * |cell - other_cell| :=
-    abs_updateCell_sub forget_gate_nonneg input_gate candidate cell other_cell
+    cell_slope_is_the_forget_gate forget_gate_nonneg input_gate candidate cell other_cell
   rw [gap_eq]
   exact mul_le_of_le_one_left (abs_nonneg _) forget_gate_le_one
 
 /-- **With the gate open the cell is a skip through time.** The difference
 between two memories is carried forward unchanged. -/
-theorem updateCell_sub_of_open_gate
+theorem open_gate_is_a_skip_through_time
     (input_gate : ℝ)
     (candidate : ℝ)
     (cell : ℝ)
@@ -306,7 +306,7 @@ def RUN_CELL
 
 /-- After `step_count` steps the difference between two memories has been
 multiplied by every forget gate on the way. -/
-theorem runCell_sub
+theorem memory_gap_after_many_steps_is_product_of_gates
     (forget_gates : ℕ → ℝ)
     (input_gates : ℕ → ℝ)
     (candidates : ℕ → ℝ)

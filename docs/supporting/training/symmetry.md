@@ -53,16 +53,16 @@ Notes from 14 Nov 2026. Proofs in
 [`lean/SquigglyLine/Supporting/NetworkShape/RmsNorm.lean`](../../../lean/SquigglyLine/Supporting/NetworkShape/RmsNorm.lean).
 
 RMSNorm divides a vector by its root mean square: the root of the mean of
-the squares of its entries (**proved**: `rootMeanSquare_eq`). It does not
+the squares of its entries (**proved**: `root_mean_square_written_out`). It does not
 subtract the mean, as layer normalisation does.
 
 - **It forgets the scale.** Multiply the vector by any positive number and
-  the output is the same (**proved**: `normalizeByRms_smul`). The output has
-  root mean square one (**proved**: `rootMeanSquare_normalizeByRms`).
+  the output is the same (**proved**: `rms_norm_forgets_the_scale`). The output has
+  root mean square one (**proved**: `root_mean_square_after_rms_norm_equals_one`).
 - **So everything above applies.** Any loss read through an RMSNorm is scale
-  invariant (**proved**: `isScaleInvariant_comp_normalizeByRms`), and its
+  invariant (**proved**: `loss_through_rms_norm_is_scale_invariant`), and its
   gradient is at right angles to the weights (**proved**:
-  `inner_gradient_self_eq_zero_of_rmsNorm`). Subtracting the mean was not
+  `gradient_through_rms_norm_is_at_right_angles_to_weights`). Subtracting the mean was not
   needed for this.
 
 Where the normalisation sits in a residual block matters.
@@ -70,10 +70,10 @@ Where the normalisation sits in a residual block matters.
 - **Pre-norm**: the branch reads the normalised stream and its output is
   added to the stream as it was. Scale the stream, and the skip path carries
   the scale through while the branch adds exactly what it added before
-  (**proved**: `preNormBlock_smul`, `preNormBlock_sub_smul`). The skip path
+  (**proved**: `pre_norm_leaves_the_skip_path_alone`, `pre_norm_branch_ignores_the_stream_size`). The skip path
   is left alone.
 - **Post-norm**: the sum is normalised. The output always has root mean
-  square one (**proved**: `rootMeanSquare_postNormBlock`), so the skip path
+  square one (**proved**: `post_norm_resets_the_size`), so the skip path
   is rescaled at every block and there is no untouched path from input to
   output.
 

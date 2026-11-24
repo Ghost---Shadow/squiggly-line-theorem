@@ -4,16 +4,16 @@ Vanishing and exploding signals.
 If each layer multiplies the size of the signal by a gain, then `layer_count`
 layers multiply it by `gain ^ layer_count`.
 
-* `gain_pow_le_exp` : below one it dies, at least as fast as
+* `gain_below_one_dies` : below one it dies, at least as fast as
   `exp (-(layer_count * (1 - gain)))`.
-* `one_add_mul_le_gain_pow` : above one it grows, at least as fast as
+* `gain_above_one_blows_up` : above one it grows, at least as fast as
   `1 + layer_count * (gain - 1)`.
-* `norm_plate_le`, `plates_vanish` : a polarizer plate never lengthens the
+* `plate_never_lengthens_the_light`, `plates_vanish` : a polarizer plate never lengthens the
   light, and a stack with a fixed turn dims it exponentially.
-* `inner_plate_comm`, `inner_runPlates` : the gradient is the read-out sent
+* `plate_acts_the_same_forwards_and_backwards`, `gradient_comes_back_through_the_same_plates` : the gradient is the read-out sent
   back through the same plates in the opposite order, so it is dimmed by the
   same plates.
-* `le_norm_iterate_skipPlate` : plates with a bypass make the light at least
+* `bypass_plates_blow_up` : plates with a bypass make the light at least
   `2 ^ plate_count` times as long as its first overlap with the axis.
 -/
 import SquigglyLine.Networks.MarkovChains
@@ -27,7 +27,7 @@ namespace SquigglyLine
 section Gain
 
 /-- **A gain below one dies.** The loss is exponential in the depth. -/
-theorem gain_pow_le_exp
+theorem gain_below_one_dies
     {gain : ℝ}
     (gain_nonneg : 0 ≤ gain)
     (layer_count : ℕ) :
@@ -39,7 +39,7 @@ theorem gain_pow_le_exp
   rwa [sub_sub_cancel] at step
 
 /-- **A gain above one blows up.** -/
-theorem one_add_mul_le_gain_pow
+theorem gain_above_one_blows_up
     {gain : ℝ}
     (gain_at_least_one : 1 ≤ gain)
     (layer_count : ℕ) :
@@ -60,7 +60,7 @@ theorem plates_vanish
     let decay_bound := Real.exp (-(layer_count * (1 - pass_fraction)))
     signal_after_layers ≤ decay_bound := by
   unfold_named_pieces
-  exact gain_pow_le_exp cos_nonneg layer_count
+  exact gain_below_one_dies cos_nonneg layer_count
 
 end Gain
 
@@ -72,7 +72,7 @@ variable {Space : Type*} [NormedAddCommGroup Space] [InnerProductSpace ℝ Space
   {axis : Space}
 
 /-- **A plate never lengthens the light.** -/
-theorem norm_plate_le
+theorem plate_never_lengthens_the_light
     (axis_has_length_one : ‖axis‖ = 1)
     (light : Space) :
     let strength_after  := ‖PASS_THROUGH_PLATE axis light‖
@@ -81,14 +81,14 @@ theorem norm_plate_le
   unfold_named_pieces
   have plate_strength :
       ‖PASS_THROUGH_PLATE axis light‖ = |inner ℝ axis light| :=
-    norm_plate axis_has_length_one light
+    plate_keeps_length_of_the_overlap axis_has_length_one light
   rw [plate_strength]
   -- Cauchy-Schwarz: the overlap is at most the product of the lengths.
   calc |inner ℝ axis light| ≤ ‖axis‖ * ‖light‖ := abs_real_inner_le_norm _ _
     _ = ‖light‖ := by rw [axis_has_length_one, one_mul]
 
 /-- **A plate acts the same way forwards and backwards.** -/
-theorem inner_plate_comm
+theorem plate_acts_the_same_forwards_and_backwards
     (axis light other_light : Space) :
     let plate_on_left  := inner ℝ (PASS_THROUGH_PLATE axis light) other_light
     let plate_on_right := inner ℝ light (PASS_THROUGH_PLATE axis other_light)
@@ -101,7 +101,7 @@ theorem inner_plate_comm
 /-- **The gradient comes back through the same plates.** Reading the output of a
 stack of plates along `other_light` is the same as reading the input along
 `other_light` sent through the plates in the opposite order. -/
-theorem inner_runPlates
+theorem gradient_comes_back_through_the_same_plates
     (axes : List Space)
     (light other_light : Space) :
     let forward_plates  := axes.map PASS_THROUGH_PLATE
@@ -128,12 +128,12 @@ theorem inner_runPlates
           = RUN_LAYERS (later_axes.map PASS_THROUGH_PLATE)
               (PASS_THROUGH_PLATE first_axis light) := by
       simp [RUN_LAYERS]
-    rw [backward_step, forward_step, ih, inner_plate_comm]
+    rw [backward_step, forward_step, ih, plate_acts_the_same_forwards_and_backwards]
 
 /-- **Plates with a bypass blow up.** After `plate_count` of them on one axis the
 light is at least `2 ^ plate_count` times as long as its first overlap with the
 axis. -/
-theorem le_norm_iterate_skipPlate
+theorem bypass_plates_blow_up
     (axis_has_length_one : ‖axis‖ = 1)
     (light : Space)
     (plate_count : ℕ) :
@@ -145,7 +145,7 @@ theorem le_norm_iterate_skipPlate
   have overlap_after :
       inner ℝ axis ((PASS_THROUGH_SKIP_PLATE axis)^[plate_count] light)
         = 2 ^ plate_count * inner ℝ axis light :=
-    inner_iterate_skipPlate axis_has_length_one light plate_count
+    part_along_the_axis_after_many_bypass_plates axis_has_length_one light plate_count
   -- The overlap with the axis is a lower bound for the length (Cauchy-Schwarz).
   calc 2 ^ plate_count * |inner ℝ axis light|
       = |inner ℝ axis ((PASS_THROUGH_SKIP_PLATE axis)^[plate_count] light)| := by

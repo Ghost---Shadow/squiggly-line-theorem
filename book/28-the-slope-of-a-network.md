@@ -45,7 +45,7 @@ its weight: up, down, up. The score changes by
 
 ```lean
 /-- **A network is no steeper than the product of its layers.** -/
-theorem lipschitzWith_runLayers
+theorem network_slope_is_at_most_product_of_layer_slopes
     {layers : LayerStack State}
     {slopes : List SlopeLimit}
     (each_layer_has_its_slope :
@@ -72,7 +72,7 @@ slopes match up one to one. `slopes.prod` is the product of the list.
 /-- **Flipping a classifier takes a move of at least score over slope.** If the
 score at `input` is positive and the score at `other_input` is not, then
 `other_input` is at least `score / slope_limit` away. -/
-theorem le_mul_dist_of_flip
+theorem flipping_a_classifier_needs_a_move_of_score_over_slope
     {Inputs : Type*} [PseudoMetricSpace Inputs]
     {model : Inputs → ℝ}
     {slope_limit : SlopeLimit}
@@ -95,17 +95,17 @@ Dividing both sides by `slope_limit` gives the move of at least
 
 ![Two panels of the distance moved to flip an answer against score over the slope bound. Left: random ReLU networks, all flips above the line distance = score over bound. Right: a network with a slope-2 activation and a too-small claimed bound, flips below the line](figures/28-flip-distance.png)
 
-The rest of the file is named here. `lipschitzWith_relu` says a ReLU has
-slope at most one. `lipschitzWith_activation_comp` says a layer made of
+The rest of the file is named here. `relu_slope_is_at_most_one` says a ReLU has
+slope at most one. `layer_slope_is_at_most_weight_size` says a layer made of
 weights followed by such an activation is no steeper than the size of its
-weights. `verticalDist_network_le` is the chapter 3 sandwich with the
-product of slopes in place of the slope limit. `adjoint_comp_reverse`
+weights. `vertical_error_of_network_is_at_most_stretch_times_nearest_distance` is the chapter 3 sandwich with the
+product of slopes in place of the slope limit. `backpropagation_runs_the_layers_in_reverse`
 says the transpose of a two-step map is the two transposes in reverse
-order. `norm_adjoint_comp_le` says its size is at most the product of
+order. `gradient_coming_back_is_at_most_the_same_product` says its size is at most the product of
 the two sizes. `GET_LINEAR_SCORE` is the score of a linear model, and
-`score_add_sign` and `abs_score_add_sub_le` are the nudge result of the
-example. `softmax_le_softmax_iff` and `softmax_temperature_order` are
-about temperature, and `sum_critic_gap_le` is about a critic of slope
+`worst_small_nudge_moves_the_score_by_size_times_summed_weights` and `no_nudge_moves_the_score_by_more` are the nudge result of the
+example. `larger_score_has_larger_share` and `temperature_never_changes_the_ranking` are
+about temperature, and `critic_of_slope_one_reports_at_most_the_distance` is about a critic of slope
 one. Chapter 39 comes back to temperature.
 
 ## Why it is true
@@ -220,10 +220,10 @@ it. These are measurements of random networks, not a proof; the proofs are in
    input is nudged by 0.01 in the worst direction. By how much does the
    score move?
 
-**Answers.** (1) By `lipschitzWith_runLayers` the product, `0.5 × 4 × 2`,
-which is 4. (2) By `le_mul_dist_of_flip`, `2 ≤ 4 × dist`, so at least
-0.5. (3) By `score_add_sign`, the nudge times the sum of the sizes of the
-weights: `0.01 × (100 × 0.02) = 0.01 × 2 = 0.02`. By `abs_score_add_sub_le`
+**Answers.** (1) By `network_slope_is_at_most_product_of_layer_slopes` the product, `0.5 × 4 × 2`,
+which is 4. (2) By `flipping_a_classifier_needs_a_move_of_score_over_slope`, `2 ≤ 4 × dist`, so at least
+0.5. (3) By `worst_small_nudge_moves_the_score_by_size_times_summed_weights`, the nudge times the sum of the sizes of the
+weights: `0.01 × (100 × 0.02) = 0.01 × 2 = 0.02`. By `no_nudge_moves_the_score_by_more`
 no nudge of that size does more.
 
 Previous: [27. Two players: the GAN game](27-two-players.md) · Next: [29. The distance field](29-the-distance-field.md)

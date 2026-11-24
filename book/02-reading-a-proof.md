@@ -54,7 +54,7 @@ or no, `MAKE_…` and `DRAW_…` build something. A theorem name is a
 sentence that says what is true
 (`nearest_distance_is_at_most_vertical_distance`). In the later chapters
 many theorems still have older, shorter names in the style of Lean's
-library (`card_ge_of_zigzag`). Treat those as labels.
+library (`one_unit_per_turn`). Treat those as labels.
 
 ## The symbols you will meet
 

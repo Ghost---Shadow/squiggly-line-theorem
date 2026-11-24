@@ -23,9 +23,9 @@ is short.
 
 Take a model that is linear in its weights, with `m` weights. If it can fit
 every possible set of labels on its data points, there are at most `m` data
-points (**proved**: `finrank_le_of_fits_all`). With more points than weights,
+points (**proved**: `fitting_everything_needs_one_parameter_per_number`). With more points than weights,
 some set of labels cannot be fitted, whatever the weights
-(**proved**: `exists_unfittable`).
+(**proved**: `too_few_weights_cannot_fit_something`).
 
 This is the threshold in the travel table: 20 points, and no fit until there
 are 20 parameters. It is also where double descent has its peak. At the
@@ -37,7 +37,7 @@ Now let the weights be anything at all, but written down in `b` bits. Then
 there are at most `2^b` settings of the weights, so the network computes at
 most `2^b` different functions. To memorise every yes-or-no labelling of `n`
 inputs it must compute `2^n` different functions on them. So `n ≤ b`
-(**proved**: `card_le_bits_of_memorises`).
+(**proved**: `memorising_needs_one_bit_per_stored_bit`).
 
 No design of network gets around this. A network cannot store more bits than
 it is made of.
@@ -46,7 +46,7 @@ it is made of.
 
 For a ReLU network with one hidden layer there is a third count. Labels that
 alternate along a line, low, high, low, high, need a unit for every
-up-and-down (**proved** earlier: `card_ge_of_zigzag` in
+up-and-down (**proved** earlier: `one_unit_per_turn` in
 [`DepthSeparation.lean`](../../../lean/SquigglyLine/Supporting/NetworkShape/DepthSeparation.lean)). So `m` units can follow at most about `m` turns.
 
 ## Depth buys pattern, not storage
@@ -76,7 +76,7 @@ Notes from 14 Nov 2026. Proofs in
   is the experts blended with those shares. Between two inputs the output
   changes by at most the most any expert changes, plus the spread of the
   experts times the total change in the shares (**proved**:
-  `abs_mixture_sub_le`). So a gate adds slope only through how far apart
+  `gate_adds_slope_only_through_the_spread`). So a gate adds slope only through how far apart
   the experts are. Where they agree the gate adds none, however fast it
   switches. Attention with scores that depend on the input is a gate of
   this kind.
@@ -86,9 +86,9 @@ Notes from 14 Nov 2026. Proofs in
   `(centre² + width² - 1 - log(width²)) / 2` (**recalled**: Kingma and
   Welling 2014; the closed form is taken as the definition here). It is at
   least half the squared distance of the centre from the origin
-  (**proved**: `half_sq_le_codePenalty`), so it is never negative
-  (**proved**: `codePenalty_nonneg`). It is zero only when the centre is
-  zero and the width is one (**proved**: `codePenalty_eq_zero_iff`): the
+  (**proved**: `code_penalty_charges_for_travel`), so it is never negative
+  (**proved**: `code_penalty_is_at_least_zero`). It is zero only when the centre is
+  zero and the width is one (**proved**: `code_penalty_is_zero_exactly_for_the_code_that_ignores_its_input`): the
   code that is the same for every input. In the terms of
   `code-length.md`, the penalty charges the code for its travel from the
   origin, and a code that travels nowhere says nothing.
@@ -96,9 +96,9 @@ Notes from 14 Nov 2026. Proofs in
   each word by the overlap of the context's `d` hidden numbers with the
   word's `d` numbers. The table of scores, one row per context and one
   column per word, has rank at most `d` (**proved**:
-  `rank_scoreTable_le`). With more contexts than `d` it cannot be every
+  `softmax_bottleneck`). With more contexts than `d` it cannot be every
   table; for one, it cannot score each context's own word one and every
-  other word zero (**proved**: `scoreTable_ne_one`). A lift into `d`
+  other word zero (**proved**: `some_score_table_cannot_be_matched`). A lift into `d`
   dimensions fits any labels on `d` points and no more.
 
 Not shown: that the penalty is the coding distance between two bell curves,

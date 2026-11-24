@@ -61,7 +61,7 @@ The first statement says what the bypass does to length.
 
 ```lean
 /-- The squared length after a plate with a bypass. -/
-theorem norm_skipPlate_sq
+theorem squared_length_after_a_plate_with_bypass
     (axis_has_length_one : ‖axis‖ = 1)
     (light : Space) :
     let overlap                 := inner ℝ axis light
@@ -78,8 +78,8 @@ light is what it was, plus three times the squared overlap.
 `Space` is any space of vectors with lengths and dot products, so the
 statement holds for a flock of any number of activations. `inner ℝ axis
 light` is the dot product. `‖light‖` is the length. Because the extra
-term is never negative, `norm_le_norm_skipPlate` follows: a plate with a
-bypass never dims the light. `skipPlate_of_crossed` says a crossed plate
+term is never negative, `plate_with_bypass_never_dims` follows: a plate with a
+bypass never dims the light. `crossed_plate_with_bypass_does_nothing` says a crossed plate
 with a bypass does nothing.
 
 The second statement is about the amplifier.
@@ -88,7 +88,7 @@ The second statement is about the amplifier.
 /-- **A plate and an amplifier turn the light without loss.** For any turn
 short of a right angle, the light comes out along the axis at full
 strength. -/
-theorem renorm_plate
+theorem plate_and_amplifier_turn_without_loss
     (axis_has_length_one : ‖axis‖ = 1)
     (turn_is_under_a_right_angle : 0 < inner ℝ axis light) :       -- a positive overlap: less than 90 degrees from the axis
     let light_after_plate     := PASS_THROUGH_PLATE axis light
@@ -100,16 +100,16 @@ theorem renorm_plate
 after the plate and the amplifier it is exactly the axis.
 
 `RENORMALIZE light` is the light divided by its own length. The theorem
-`throughNormedPlates_eq` stacks this: with an amplifier after each plate,
+`amplified_plates_lose_nothing` stacks this: with an amplifier after each plate,
 full-strength light comes out along the last axis, whatever the sizes of
-the turns. And `renorm_plate_of_crossed` says the amplifier cannot revive
+the turns. And `amplifier_cannot_raise_the_dead` says the amplifier cannot revive
 light that a crossed plate blocked.
 
 The third statement leaves the picture. It is about slope.
 
 ```lean
 /-- A residual layer is no steeper than one plus its branch. -/
-theorem lipschitzWith_addSkip
+theorem residual_layer_slope_is_at_most_one_plus_branch
     (slope_is_bounded : LipschitzWith slope_limit branch) :
     let layer_slope_limit := 1 + slope_limit  -- the input passes through, the branch adds its own slope
     let layer             := ADD_SKIP branch
@@ -120,10 +120,10 @@ theorem lipschitzWith_addSkip
 `input + branch(input)` has slope at most `1 + slope_limit`.
 
 `ADD_SKIP branch input` is the Python `input + branch(input)`. The
-matching lower bound is `le_dist_addSkip`: two outputs are at least
+matching lower bound is `skip_keeps_points_apart`: two outputs are at least
 `1 − slope_limit` times as far apart as their inputs. When `slope_limit`
-is below one, `addSkip_injective` says no two inputs give the same
-output, and `neverTurns_addSkip` says a one-input layer never turns.
+is below one, `residual_layer_merges_no_two_inputs` says no two inputs give the same
+output, and `residual_layer_never_turns` says a one-input layer never turns.
 
 The fourth statement is depth.
 
@@ -131,7 +131,7 @@ The fourth statement is depth.
 /-- **Depth does not blow up the slope.** If each of `layer_count` branches has
 slope at most `exponent / layer_count`, the whole stack has slope at most
 `e ^ exponent`, whatever `layer_count` is. -/
-theorem dist_runResidualLayers_le_exp
+theorem depth_does_not_blow_up_the_slope
     {branches : ℕ → Space → Space}
     {exponent : ℝ≥0}
     {layer_count : ℕ}
@@ -161,9 +161,9 @@ skip adds it back. So the part of the light along the axis is counted
 twice and the part across the axis is counted once. The squared length
 is the squared length of the across part plus four times the squared
 along part. That is the old squared length plus three times the squared
-overlap, which is `norm_skipPlate_sq`. A repeat of the plates doubles
+overlap, which is `squared_length_after_a_plate_with_bypass`. A repeat of the plates doubles
 the along part each time and leaves the across part alone
-(`inner_iterate_skipPlate`, `iterate_skipPlate_sub_plate`).
+(`part_along_the_axis_after_many_bypass_plates`, `bypass_plates_get_closer_and_never_arrive`).
 
 **Measured**, the length of light through 30 plates, each axis turned 0.5
 radian from the last: a bare plate loses light, a plate with a bypass never
@@ -174,7 +174,7 @@ does, and a plate with an amplifier holds it at 1 by construction.
 **The amplifier.** After a plate the light is the overlap times the axis,
 and its length is the size of the overlap. The amplifier divides by that
 length. If the overlap is positive, what is left is the axis itself. This
-is one line in the Lean proof, and `throughNormedPlates_eq` is an
+is one line in the Lean proof, and `amplified_plates_lose_nothing` is an
 induction on it: the light arrives on the last axis, so one more plate
 and amplifier put it on the next.
 
@@ -187,7 +187,7 @@ it.
 **The depth.** One layer with branch slope `exponent / layer_count`
 stretches a gap by at most `1 + exponent / layer_count`. The stack
 stretches by at most that, raised to the power `layer_count`. The proof
-`one_add_div_pow_le_exp` shows that this is never more than
+`compound_growth_is_at_most_the_exponential` shows that this is never more than
 `e ^ exponent`. A plain stack of layers with slope `exponent /
 layer_count` each would multiply to a power of a number that can be far
 below one.
@@ -215,8 +215,8 @@ says what each piece does, not that this is why designers chose both.
 
 The same fact holds through time. The memory cell of an LSTM keeps a share
 of itself at every step. Its slope per step is that share, never above
-one (`abs_updateCell_sub_le`), and exactly one with the gate fully open
-(`updateCell_sub_of_open_gate`). An open gate is a skip through time.
+one (`gate_never_moves_two_memories_apart`), and exactly one with the gate fully open
+(`open_gate_is_a_skip_through_time`). An open gate is a skip through time.
 
 ## How this meets the squiggly line
 
@@ -290,9 +290,9 @@ jupyter nbconvert --to notebook --execute --inplace experiments/part5/ch31_skips
 
 **Answers.** (1) The overlap is 1, the shadow is `(1, 0)`, so the output
 is `(2, 2)`. Its squared length is 8, and `‖(1, 2)‖² + 3 × 1² = 5 + 3 =
-8`, as `norm_skipPlate_sq` says. (2) By `lipschitzWith_addSkip` and
-`le_dist_addSkip` the gap is between `0.5 × 4 = 2` and `1.5 × 4 = 6`.
-(3) At most `e ^ 2`, about 7.39, by `dist_runResidualLayers_le_exp`. (The
+8`, as `squared_length_after_a_plate_with_bypass` says. (2) By `residual_layer_slope_is_at_most_one_plus_branch` and
+`skip_keeps_points_apart` the gap is between `0.5 × 4 = 2` and `1.5 × 4 = 6`.
+(3) At most `e ^ 2`, about 7.39, by `depth_does_not_blow_up_the_slope`. (The
 plain product bound is `1.5 ^ 4`, about 5.06, which is smaller here:
 the theorem gives a bound that holds for every `layer_count`, not the best
 one for four.)

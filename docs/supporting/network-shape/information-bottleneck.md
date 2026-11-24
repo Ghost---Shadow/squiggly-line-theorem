@@ -35,7 +35,7 @@ Three facts pin the count down.
 - **It never goes below the number of labels.** If the network gets every
   label in the flock right, then at every layer there are at least as many
   places as there are different labels
-  (**proved**: `card_image_label_le`).
+  (**proved**: `every_layer_keeps_at_least_as_many_places_as_labels`).
 
 Together:
 
@@ -51,13 +51,13 @@ the data goes deeper. That is the bottleneck.
 If two inputs with different labels land on the same place at some layer, they
 stay together, so they get the same answer, so one of them is wrong. A network
 that is right on both must keep them apart at every layer
-(**proved**: `label_eq_of_merged`).
+(**proved**: `different_labels_must_stay_apart`).
 
 ## What full compression means
 
 Suppose a layer has squeezed all the way: it has exactly as many places as
 there are labels. Then two inputs share a place at that layer exactly when
-they share a label (**proved**: `merged_iff_label_eq`).
+they share a label (**proved**: `full_compression_merges_exactly_equal_labels`).
 
 Such a layer knows the label and nothing else about the input. That is the
 ideal the bottleneck view describes: everything the label does not need is

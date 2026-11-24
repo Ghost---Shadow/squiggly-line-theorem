@@ -2,26 +2,26 @@
 Compression: folds, code length and travel.
 
 Counting:
-* `card_le_two_pow_of_code` : `digit_count` binary digits name at most
+* `digits_name_at_most_two_to_the_digits_things` : `digit_count` binary digits name at most
   `2 ^ digit_count` things.
-* `tent_one_sub`, `eq_or_eq_one_sub_of_tent_eq` : a fold merges an input with
+* `fold_merges_an_input_with_its_mirror`, `fold_merges_nothing_else` : a fold merges an input with
   its mirror image and with nothing else. It throws away one bit.
-* `card_le_two_pow_of_iterate_tent_eq` : `fold_count` folds send at most
+* `folds_throw_away_at_most_one_bit_each` : `fold_count` folds send at most
   `2 ^ fold_count` inputs to the same output.
 
 Loss:
 * `gibbs` : the average log-loss of any model is at least the entropy of the
   data.
-* `expected_length_ge_entropy` : so is the average length of any code whose
+* `no_code_beats_the_entropy` : so is the average length of any code whose
   lengths satisfy Kraft's inequality.
 
 Distance (description length taken as squared distance over
 `2 * noise_scale ^ 2`):
 * `GET_DESCRIPTION_LENGTH` : the cost of describing the weights to someone who
   has the starting weights.
-* `descriptionLength_gradientDescent_le` : gradient descent reaches the fit
+* `gradient_descent_finds_the_cheapest_fit_to_describe` : gradient descent reaches the fit
   that is cheapest to describe.
-* `travel_sq_div_eq_of_tight` : with orthogonal features of strength
+* `bigger_model_fit_is_cheaper_to_describe` : with orthogonal features of strength
   `strength` that cost is the squared error at the start over
   `2 * noise_scale ^ 2 * strength`.
 -/
@@ -36,7 +36,7 @@ namespace SquigglyLine
 section Counting
 
 /-- **`digit_count` binary digits name at most `2 ^ digit_count` things.** -/
-theorem card_le_two_pow_of_code
+theorem digits_name_at_most_two_to_the_digits_things
     {Items : Type*}
     (items : Finset Items)
     {digit_count : ℕ}
@@ -55,7 +55,7 @@ theorem card_le_two_pow_of_code
         rw [Fintype.card_fun, Fintype.card_bool, Fintype.card_fin]
 
 /-- **A fold merges an input with its mirror image.** -/
-theorem tent_one_sub
+theorem fold_merges_an_input_with_its_mirror
     {input : ℝ}
     (input_nonneg : 0 ≤ input)
     (input_le_one : input ≤ 1) :
@@ -73,7 +73,7 @@ theorem tent_one_sub
 
 /-- **And with nothing else.** Two inputs with the same output are equal or
 are mirror images. -/
-theorem eq_or_eq_one_sub_of_tent_eq
+theorem fold_merges_nothing_else
     {input other_input : ℝ}
     (input_mem : input ∈ Set.Icc (0 : ℝ) 1)
     (other_input_mem : other_input ∈ Set.Icc (0 : ℝ) 1)
@@ -98,7 +98,7 @@ theorem eq_or_eq_one_sub_of_tent_eq
 
 /-- **`fold_count` folds throw away at most `fold_count` bits.** At most
 `2 ^ fold_count` inputs are sent to the same output. -/
-theorem card_le_two_pow_of_iterate_tent_eq
+theorem folds_throw_away_at_most_one_bit_each
     (fold_count : ℕ)
     (inputs : Finset ℝ)
     (inputs_in_unit : ∀ input ∈ inputs, input ∈ Set.Icc (0 : ℝ) 1)
@@ -140,7 +140,7 @@ theorem card_le_two_pow_of_iterate_tent_eq
             ⊆ {base_input, 1 - base_input} := by
         intro input input_mem
         obtain ⟨input_in_inputs, same_output⟩ := Finset.mem_filter.mp input_mem
-        rcases eq_or_eq_one_sub_of_tent_eq (inputs_in_unit base_input base_mem)
+        rcases fold_merges_nothing_else (inputs_in_unit base_input base_mem)
             (inputs_in_unit input input_in_inputs) same_output with equal | mirror
         · rw [equal]
           exact Finset.mem_insert_self _ _
@@ -198,7 +198,7 @@ theorem gibbs
 /-- **No code beats the entropy.** If the code lengths satisfy Kraft's
 inequality (here in natural units), the average length is at least the
 entropy. -/
-theorem expected_length_ge_entropy
+theorem no_code_beats_the_entropy
     (data_prob : Outcomes → ℝ)
     (code_length : Outcomes → ℝ)
     (data_prob_nonneg : ∀ i, 0 ≤ data_prob i)
@@ -237,7 +237,7 @@ variable {Weights Outputs : Type*}
   [CompleteSpace Outputs]
 
 /-- **Gradient descent finds the fit that is cheapest to describe.** -/
-theorem descriptionLength_gradientDescent_le
+theorem gradient_descent_finds_the_cheapest_fit_to_describe
     (predict : Weights →L[ℝ] Outputs)
     (labels : Outputs)
     (learning_rate : ℝ)
@@ -268,7 +268,7 @@ theorem descriptionLength_gradientDescent_le
 /-- **A bigger model's fit is cheaper to describe.** With orthogonal features
 of strength `strength`, the description length of the nearest fit is the
 squared error at the start over `2 * noise_scale ^ 2 * strength`. -/
-theorem travel_sq_div_eq_of_tight
+theorem bigger_model_fit_is_cheaper_to_describe
     {predict : Weights →L[ℝ] Outputs}
     {strength : ℝ}
     (features_are_tight : HAS_TIGHT_FEATURES predict strength)

@@ -49,7 +49,7 @@ The gain is `100 × 0.02 × 1/2 = 1`.
 
 ```lean
 /-- **A gain below one dies.** The loss is exponential in the depth. -/
-theorem gain_pow_le_exp
+theorem gain_below_one_dies
     {gain : ℝ}
     (gain_nonneg : 0 ≤ gain)
     (layer_count : ℕ) :
@@ -83,7 +83,7 @@ theorem he_gain
     {input_count : ℝ}
     (input_count_ne_zero : input_count ≠ 0) :
     let weight_variance : ℝ := 2 / input_count                     -- He's choice: the 2 is there to pay for the fold
-    let kept_by_fold : ℝ    := 1 / 2                               -- a fold keeps half: `integral_relu_sq_of_symmetric`
+    let kept_by_fold : ℝ    := 1 / 2                               -- a fold keeps half: `fold_keeps_half_of_a_symmetric_signal`
     let gain := input_count * weight_variance * kept_by_fold       -- each input adds its variance, then the fold halves it
     gain = 1 := by
 ```
@@ -97,7 +97,7 @@ and here it measures how large the weights are on average.
 ```lean
 /-- **Sigmoid layers shrink differences.** `layer_count` sigmoids in a row have
 slope at most `(1 / 4) ^ layer_count`. -/
-theorem lipschitzWith_iterate_sigmoid
+theorem sigmoid_layers_shrink_differences
     (layer_count : ℕ) :
     let stack_slope_limit : SlopeLimit := (1 / 4) ^ layer_count  -- each sigmoid shrinks by at least 4
     let stack := sigmoid^[layer_count]
@@ -112,19 +112,19 @@ limit, while a stack of `tanh` layers, the control, does not:
 
 ![Largest slope of a stack of sigmoid layers against the number of layers, on a log axis, below the one quarter to the power layers limit, with a tanh stack staying near one](figures/30-sigmoid-stack-slope.png)
 
-The rest is named here. `one_add_mul_le_gain_pow` says a gain of at
+The rest is named here. `gain_above_one_blows_up` says a gain of at
 least one gives at least `1 + layer_count × (gain − 1)`.
-`norm_plate_le` says a polarizer plate never lengthens the light, and
+`plate_never_lengthens_the_light` says a polarizer plate never lengthens the light, and
 `plates_vanish` says a stack with a fixed turn dims it exponentially.
-`inner_plate_comm` and `inner_runPlates` say the gradient comes back
-through the same plates in the opposite order. `le_norm_iterate_skipPlate`
+`plate_acts_the_same_forwards_and_backwards` and `gradient_comes_back_through_the_same_plates` say the gradient comes back
+through the same plates in the opposite order. `bypass_plates_blow_up`
 says plates with a bypass make the light at least `2 ^ plate_count` times
-its first overlap with the axis. `relu_sq_add_relu_neg_sq` and
-`integral_relu_sq_of_symmetric` are the fold facts of the example.
-`lipschitzWith_sigmoid`, `leakyRelu_sub_le`, `le_leakyRelu_sub`,
-`strictMono_leakyRelu`, `lipschitzWith_max` and
-`lipschitzWith_spectralNormalize` are the other activation results.
-`lipschitzWith_bellman` and `dist_iterate_bellman_le` are the gain below
+its first overlap with the axis. `fold_splits_the_squared_size_in_two` and
+`fold_keeps_half_of_a_symmetric_signal` are the fold facts of the example.
+`sigmoid_is_no_steeper_than_one_quarter`, `leaky_relu_slope_is_at_most_one`, `leaky_relu_slope_is_at_least_its_leak`,
+`leaky_relu_always_rises`, `pooling_never_steepens` and
+`normalised_layer_slope_is_at_most_one` are the other activation results.
+`sweep_slope_is_at_most_the_discount` and `repeated_sweeps_pull_every_guess_to_one_answer` are the gain below
 one on purpose, in reinforcement learning.
 
 ## Why it is true
@@ -142,7 +142,7 @@ plate never lengthens it. For a stack with a fixed turn, each plate keeps
 the cosine of the turn, a gain below one, and the first bound applies.
 
 **Forwards and backwards.** A plate acts the same way read from either
-side: `inner_plate_comm`. For a stack, one plate at a time is moved
+side: `plate_acts_the_same_forwards_and_backwards`. For a stack, one plate at a time is moved
 across the inner product, and each move swaps the order. So the output of
 a stack read along one direction equals the input read along that
 direction sent back through the plates in reverse. The gradient is dimmed
@@ -155,7 +155,7 @@ length.
 
 **The fold.** If the signal is positive the kept square is the whole and
 the mirror's is zero. If it is negative it is the other way round. Either
-way the two add up to the whole, which is `relu_sq_add_relu_neg_sq`. Under
+way the two add up to the whole, which is `fold_splits_the_squared_size_in_two`. Under
 the symmetry assumption the two average to the same number, so each is half.
 A unit that adds `input_count` inputs multiplies the squared size by
 `input_count` times the weight variance, and then the fold halves it. That
@@ -188,7 +188,7 @@ The plates give the full picture of why the usual recipe has both parts.
 | Plate with a bypass and an amplifier | held at one | survives |
 
 The last row is the normalisation of chapter 14. The proof for it is
-`throughNormedPlates_eq` in `SkipAndNorm.lean`, which chapter 31 goes
+`amplified_plates_lose_nothing` in `SkipAndNorm.lean`, which chapter 31 goes
 through.
 
 ## How this meets the squiggly line
@@ -254,16 +254,16 @@ jupyter nbconvert --to notebook --execute --inplace experiments/part5/ch30_signa
 
 ## Check yourself
 
-1. Each of 10 layers has gain 0.8. What does `gain_pow_le_exp` bound the
+1. Each of 10 layers has gain 0.8. What does `gain_below_one_dies` bound the
    signal by?
 2. Four sigmoid layers are stacked. What is the largest slope the stack
    can have?
 3. A unit adds up 200 inputs, followed by a fold. What weight variance
    makes the gain one?
 
-**Answers.** (1) By `gain_pow_le_exp` the signal is at most
+**Answers.** (1) By `gain_below_one_dies` the signal is at most
 `exp(−10 × 0.2) = exp(−2)`, about 0.14. The true value `0.8 ^ 10` is
-about 0.107, which is below that. (2) By `lipschitzWith_iterate_sigmoid`
+about 0.107, which is below that. (2) By `sigmoid_layers_shrink_differences`
 at most `(1/4) ^ 4 = 1/256`. (3) By `he_gain` it is `2 / 200 = 0.01`:
 `200 × 0.01 × 1/2 = 1`.
 

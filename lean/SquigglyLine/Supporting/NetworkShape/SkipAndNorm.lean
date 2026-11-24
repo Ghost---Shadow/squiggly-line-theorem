@@ -9,20 +9,20 @@ written `‖light‖`.
 
 A skip connection is a plate with a bypass,
 `PASS_THROUGH_SKIP_PLATE axis light = light + PASS_THROUGH_PLATE axis light`:
-* `norm_le_norm_skipPlate` : it never dims the light.
-* `skipPlate_of_crossed` : a crossed plate with a bypass does nothing, where a
-  bare crossed plate blocks (`plate_of_crossed`).
-* `inner_skipPlate`, `skipPlate_sub_plate` : it doubles the part along the
+* `plate_with_bypass_never_dims` : it never dims the light.
+* `crossed_plate_with_bypass_does_nothing` : a crossed plate with a bypass does nothing, where a
+  bare crossed plate blocks (`crossed_plate_blocks`).
+* `part_along_the_axis_doubles`, `rest_is_left_as_it_was` : it doubles the part along the
   axis and leaves the rest. The light turns part of the way.
-* `inner_iterate_skipPlate`, `iterate_skipPlate_sub_plate` : `plate_count` of
+* `part_along_the_axis_after_many_bypass_plates`, `bypass_plates_get_closer_and_never_arrive` : `plate_count` of
   them bring the light ever closer to the axis and never onto it.
 
 Normalisation is an amplifier, `RENORMALIZE light = ‖light‖⁻¹ • light`:
-* `renorm_plate` : after a plate and an amplifier the light lies along the
+* `plate_and_amplifier_turn_without_loss` : after a plate and an amplifier the light lies along the
   axis at full strength, for any turn short of a right angle.
-* `throughNormedPlates_eq` : so a whole stack of plates with amplifiers
+* `amplified_plates_lose_nothing` : so a whole stack of plates with amplifiers
   delivers full strength along the last axis.
-* `renorm_plate_of_crossed` : it cannot revive light that a crossed plate
+* `amplifier_cannot_raise_the_dead` : it cannot revive light that a crossed plate
   blocked.
 
 | Name                         | Meaning                                    |
@@ -63,7 +63,7 @@ noncomputable def PASS_THROUGH_PLATE
   inner ℝ axis light • axis                                        -- the overlap (a number) times the axis (a direction)
 
 /-- **Malus's law.** The shadow is as long as the overlap with the axis. -/
-theorem norm_plate
+theorem plate_keeps_length_of_the_overlap
     (axis_has_length_one : ‖axis‖ = 1)
     (light : Space) :
     let strength_after_plate := ‖PASS_THROUGH_PLATE axis light‖
@@ -74,7 +74,7 @@ theorem norm_plate
     Real.norm_eq_abs]
 
 /-- **Crossed plates block.** -/
-theorem plate_of_crossed
+theorem crossed_plate_blocks
     (light_is_crossed : inner ℝ axis light = 0) :                  -- no overlap: the light is at a right angle to the axis
     let light_after_plate := PASS_THROUGH_PLATE axis light
     light_after_plate = 0 := by
@@ -92,15 +92,15 @@ noncomputable def PASS_THROUGH_SKIP_PLATE
   light + PASS_THROUGH_PLATE axis light
 
 /-- **A crossed plate with a bypass does nothing.** -/
-theorem skipPlate_of_crossed
+theorem crossed_plate_with_bypass_does_nothing
     (light_is_crossed : inner ℝ axis light = 0) :
     let light_after_plate := PASS_THROUGH_SKIP_PLATE axis light
     light_after_plate = light := by                                -- nothing goes through, so only the bypassed light is left
   unfold_named_pieces
-  rw [PASS_THROUGH_SKIP_PLATE, plate_of_crossed light_is_crossed, add_zero]
+  rw [PASS_THROUGH_SKIP_PLATE, crossed_plate_blocks light_is_crossed, add_zero]
 
 /-- The squared length after a plate with a bypass. -/
-theorem norm_skipPlate_sq
+theorem squared_length_after_a_plate_with_bypass
     (axis_has_length_one : ‖axis‖ = 1)
     (light : Space) :
     let overlap                 := inner ℝ axis light
@@ -118,7 +118,7 @@ theorem norm_skipPlate_sq
   ring
 
 /-- **A plate with a bypass never dims the light.** -/
-theorem norm_le_norm_skipPlate
+theorem plate_with_bypass_never_dims
     (axis_has_length_one : ‖axis‖ = 1)
     (light : Space) :
     let strength_before := ‖light‖
@@ -128,11 +128,11 @@ theorem norm_le_norm_skipPlate
   -- Compare the squares: the square after is the square before plus
   -- something that is not negative.
   refine (sq_le_sq₀ (norm_nonneg _) (norm_nonneg _)).mp ?_
-  rw [norm_skipPlate_sq axis_has_length_one]
+  rw [squared_length_after_a_plate_with_bypass axis_has_length_one]
   nlinarith [sq_nonneg (inner ℝ axis light)]
 
 /-- **The part along the axis doubles.** -/
-theorem inner_skipPlate
+theorem part_along_the_axis_doubles
     (axis_has_length_one : ‖axis‖ = 1)
     (light : Space) :
     let overlap_before := inner ℝ axis light
@@ -145,7 +145,7 @@ theorem inner_skipPlate
   ring
 
 /-- **The rest is left as it was.** -/
-theorem skipPlate_sub_plate
+theorem rest_is_left_as_it_was
     (axis_has_length_one : ‖axis‖ = 1)
     (light : Space) :
     let light_after          := PASS_THROUGH_SKIP_PLATE axis light
@@ -154,13 +154,13 @@ theorem skipPlate_sub_plate
       light_after - PASS_THROUGH_PLATE axis light_after
     off_axis_part_after = off_axis_part_before := by
   unfold_named_pieces
-  rw [PASS_THROUGH_PLATE, inner_skipPlate axis_has_length_one,
+  rw [PASS_THROUGH_PLATE, part_along_the_axis_doubles axis_has_length_one,
     PASS_THROUGH_SKIP_PLATE, PASS_THROUGH_PLATE]
   module
 
 /-- After `plate_count` plates with a bypass on the same axis, the part along
 the axis has grown `2 ^ plate_count` times. -/
-theorem inner_iterate_skipPlate
+theorem part_along_the_axis_after_many_bypass_plates
     (axis_has_length_one : ‖axis‖ = 1)
     (light : Space)
     (plate_count : ℕ) :
@@ -173,13 +173,13 @@ theorem inner_iterate_skipPlate
   induction plate_count with
   | zero => simp
   | succ plates_so_far overlap_so_far =>
-    rw [Function.iterate_succ_apply', inner_skipPlate axis_has_length_one,
+    rw [Function.iterate_succ_apply', part_along_the_axis_doubles axis_has_length_one,
       overlap_so_far, pow_succ]
     ring
 
 /-- **Closer at every plate, never there.** After `plate_count` plates with a
 bypass the part of the light off the axis is exactly what it was. -/
-theorem iterate_skipPlate_sub_plate
+theorem bypass_plates_get_closer_and_never_arrive
     (axis_has_length_one : ‖axis‖ = 1)
     (light : Space)
     (plate_count : ℕ) :
@@ -194,7 +194,7 @@ theorem iterate_skipPlate_sub_plate
   | zero => rfl
   | succ plates_so_far off_axis_part_so_far =>
     rw [Function.iterate_succ_apply',
-      skipPlate_sub_plate axis_has_length_one, off_axis_part_so_far]
+      rest_is_left_as_it_was axis_has_length_one, off_axis_part_so_far]
 
 /-! ### Normalisation: an amplifier -/
 
@@ -205,7 +205,7 @@ noncomputable def RENORMALIZE
   ‖light‖⁻¹ • light                                                -- `⁻¹`: one over. Dividing by the length makes the length 1
 
 /-- **Full strength.** -/
-theorem norm_renorm
+theorem amplifier_gives_full_strength
     (light_is_not_zero : light ≠ 0) :                              -- there has to be some light to amplify
     let strength_after := ‖RENORMALIZE light‖
     strength_after = 1 := by
@@ -214,7 +214,7 @@ theorem norm_renorm
     inv_mul_cancel₀ (norm_ne_zero_iff.mpr light_is_not_zero)]
 
 /-- **Nothing in, nothing out.** -/
-theorem renorm_zero :
+theorem amplifier_of_nothing_is_nothing :
     let no_light : Space := 0
     RENORMALIZE no_light = 0 := by
   unfold_named_pieces
@@ -223,41 +223,41 @@ theorem renorm_zero :
 /-- **A plate and an amplifier turn the light without loss.** For any turn
 short of a right angle, the light comes out along the axis at full
 strength. -/
-theorem renorm_plate
+theorem plate_and_amplifier_turn_without_loss
     (axis_has_length_one : ‖axis‖ = 1)
     (turn_is_under_a_right_angle : 0 < inner ℝ axis light) :       -- a positive overlap: less than 90 degrees from the axis
     let light_after_plate     := PASS_THROUGH_PLATE axis light
     let light_after_amplifier := RENORMALIZE light_after_plate
     light_after_amplifier = axis := by
   unfold_named_pieces
-  rw [RENORMALIZE, norm_plate axis_has_length_one,
+  rw [RENORMALIZE, plate_keeps_length_of_the_overlap axis_has_length_one,
     abs_of_pos turn_is_under_a_right_angle, PASS_THROUGH_PLATE,
     inv_smul_smul₀ turn_is_under_a_right_angle.ne']
 
 /-- With any overlap at all, of either sign, the output has full strength. -/
-theorem norm_renorm_plate
+theorem plate_and_amplifier_give_full_strength
     (axis_has_length_one : ‖axis‖ = 1)
     (light_is_not_crossed : inner ℝ axis light ≠ 0) :
     let light_after_plate := PASS_THROUGH_PLATE axis light
     let strength_after    := ‖RENORMALIZE light_after_plate‖
     strength_after = 1 := by
   unfold_named_pieces
-  refine norm_renorm ?_
+  refine amplifier_gives_full_strength ?_
   -- Some light gets through the plate, because the overlap is not zero.
   have some_light_gets_through : 0 < ‖PASS_THROUGH_PLATE axis light‖ := by
-    rw [norm_plate axis_has_length_one]
+    rw [plate_keeps_length_of_the_overlap axis_has_length_one]
     exact abs_pos.mpr light_is_not_crossed
   exact norm_pos_iff.mp some_light_gets_through
 
 /-- **An amplifier cannot raise the dead.** After a crossed plate there is
 nothing to amplify. -/
-theorem renorm_plate_of_crossed
+theorem amplifier_cannot_raise_the_dead
     (light_is_crossed : inner ℝ axis light = 0) :
     let light_after_plate     := PASS_THROUGH_PLATE axis light
     let light_after_amplifier := RENORMALIZE light_after_plate
     light_after_amplifier = 0 := by
   unfold_named_pieces
-  rw [plate_of_crossed light_is_crossed, renorm_zero]
+  rw [crossed_plate_blocks light_is_crossed, amplifier_of_nothing_is_nothing]
 
 /-- A stack of plates with axes `axes 1, axes 2, …`, an amplifier after each,
 lit by full-strength light along `axes 0`. The result is the light after each
@@ -275,7 +275,7 @@ noncomputable def PASS_THROUGH_NORMED_PLATES
 /-- **With amplifiers the loss is gone.** If each plate is turned less than a
 right angle from the last, the light comes out along the last axis at full
 strength, whatever the sizes of the turns. -/
-theorem throughNormedPlates_eq
+theorem amplified_plates_lose_nothing
     {axes : PlateAxes Space}
     (axes_have_length_one : ∀ plate_index, ‖axes plate_index‖ = 1)
     (each_turn_is_under_a_right_angle :
@@ -292,7 +292,7 @@ theorem throughNormedPlates_eq
     -- The light arrives along the previous axis, so one more plate and
     -- amplifier turn it onto the next axis without loss.
     rw [PASS_THROUGH_NORMED_PLATES, light_so_far_is_on_axis,
-      renorm_plate (axes_have_length_one _)
+      plate_and_amplifier_turn_without_loss (axes_have_length_one _)
         (each_turn_is_under_a_right_angle plates_so_far)]
 
 end SquigglyLine

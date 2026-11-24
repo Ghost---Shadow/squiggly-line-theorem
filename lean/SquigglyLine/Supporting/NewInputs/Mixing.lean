@@ -85,7 +85,7 @@ theorem message_passing_layer_shrinks_the_spread
           - ∑ j, node_weights other_node j * node_values j|
         ≤ (1 - Fintype.card Nodes * weight_floor)
           * (upper_bound - lower_bound) :=
-    abs_sum_mul_sub_sum_mul_le (weights_above_floor node)
+    two_weighted_averages_differ_by_at_most_the_spread (weights_above_floor node)
       (weights_above_floor other_node) (rows_sum_to_one node)
       (rows_sum_to_one other_node) values_above_lower values_below_upper
   exact step

@@ -26,7 +26,7 @@ without saying anything about training.
 This is the counting result from `information-bottleneck.md`. A layer of a
 network that gets every label right has at least one place for each label. If
 it has squeezed down to exactly that many, then two inputs share a place
-exactly when they share a label (**proved** earlier: `merged_iff_label_eq` in
+exactly when they share a label (**proved** earlier: `full_compression_merges_exactly_equal_labels` in
 [`Bottleneck.lean`](../../../lean/SquigglyLine/Supporting/NetworkShape/Bottleneck.lean)). That is the first point above, in counting form.
 
 ## Part two: the simplex is as far apart as points can get
@@ -42,24 +42,24 @@ can every pair go at once?
 > For `K` arrows of length one, if every pair has overlap at most `c`, then
 > `c` is at least `−1 / (K − 1)`.
 
-(**proved**: `neg_one_le_of_inner_le`.) No arrangement gets every pair below
+(**proved**: `simplex_is_as_far_apart_as_arrows_get`.) No arrangement gets every pair below
 `−1 / (K − 1)`. For two classes that is `−1`, for three `−1/2`, for ten `−1/9`.
 
 The reason is one line. Add up all the arrows. The squared length of the sum
 is the `K` from each arrow's own length plus the overlaps of all the pairs
-(**proved**: `norm_sum_sq_eq_sum_inner`). A squared length cannot be negative,
+(**proved**: `squared_length_of_a_sum_is_the_sum_of_overlaps`). A squared length cannot be negative,
 so the overlaps cannot all be too negative.
 
 ## Part three: the best arrangement is centred
 
 Now suppose the arrows are evenly spread: every pair has the same overlap `c`.
 Then the squared length of their sum is exactly `K × (1 + (K − 1) c)`
-(**proved**: `norm_sum_sq_of_equiangular`). So:
+(**proved**: `squared_length_of_sum_of_evenly_spread_arrows`). So:
 
 > Evenly spread arrows reach the limit `−1 / (K − 1)` exactly when they add up
 > to zero.
 
-(**proved**: `sum_eq_zero_iff_of_equiangular`.) The farthest-apart arrangement
+(**proved**: `farthest_apart_arrangement_is_the_centred_one`.) The farthest-apart arrangement
 is the one balanced around the centre. That is the simplex, and it is why the
 reported shape has class points that sum to zero.
 

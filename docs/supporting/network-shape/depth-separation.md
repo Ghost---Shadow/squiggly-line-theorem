@@ -24,7 +24,7 @@ uses nothing but counting.
 **A ReLU unit bends once.** One unit is flat on one side of a point and a
 straight slope on the other. Call that point its kink. On any stretch of
 inputs that does not contain its kink, the unit is a straight line
-(**proved**: `affineOn_reluUnit`).
+(**proved**: `relu_unit_is_straight_away_from_its_kink`).
 
 **So a one-layer network is straight between kinks.** A network with one
 hidden layer adds up its units. On a stretch that contains no unit's kink,
@@ -33,12 +33,12 @@ every unit is a straight line, so the sum is a straight line.
 **A straight line cannot go up and come back down.** If a function is lower at
 both ends of a stretch than at a point in the middle, it is not a straight
 line there (**proved**: `AffineOn.not_zigzag`). So that stretch holds a kink
-of some unit (**proved**: `exists_kink_of_zigzag`).
+of some unit (**proved**: `every_up_and_down_holds_a_kink`).
 
 **Each up-and-down needs its own unit.** Take a zigzag that goes up and down
 `m` times. The `m` stretches do not overlap, and a unit has only one kink. So
 each stretch needs a different unit, and the network has at least `m` units
-(**proved**: `card_ge_of_zigzag`).
+(**proved**: `one_unit_per_turn`).
 
 ## The result
 

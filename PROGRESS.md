@@ -49,29 +49,29 @@ No ETA yet: the history covers 6.0 days, and no pace can be read from items tick
 - [x] Theorem names in the style of the rest of the code: `Networks/ThreePolarizers.lean`
 - [x] Theorem names in the style of the rest of the code: `Networks/TrainedPlate.lean`
 - [x] Theorem names in the style of the rest of the code: `Networks/TravellingLight.lean`
-- [ ] Theorem names in the style of the rest of the code: `Supporting/NetworkShape/Activations.lean`
-- [ ] Theorem names in the style of the rest of the code: `Supporting/NetworkShape/Attention.lean`
-- [ ] Theorem names in the style of the rest of the code: `Supporting/NetworkShape/AttentionRate.lean`
-- [ ] Theorem names in the style of the rest of the code: `Supporting/NetworkShape/Bottleneck.lean`
-- [ ] Theorem names in the style of the rest of the code: `Supporting/NetworkShape/Capacity.lean`
-- [ ] Theorem names in the style of the rest of the code: `Supporting/NetworkShape/CodeLength.lean`
-- [ ] Theorem names in the style of the rest of the code: `Supporting/NetworkShape/Convolution.lean`
-- [ ] Theorem names in the style of the rest of the code: `Supporting/NetworkShape/DepthSeparation.lean`
-- [ ] Theorem names in the style of the rest of the code: `Supporting/NetworkShape/Eikonal.lean`
-- [ ] Theorem names in the style of the rest of the code: `Supporting/NetworkShape/Gain.lean`
-- [ ] Theorem names in the style of the rest of the code: `Supporting/NetworkShape/HardChoices.lean`
-- [ ] Theorem names in the style of the rest of the code: `Supporting/NetworkShape/KolmogorovArnold.lean`
-- [ ] Theorem names in the style of the rest of the code: `Supporting/NetworkShape/Mixtures.lean`
-- [ ] Theorem names in the style of the rest of the code: `Supporting/NetworkShape/ModeConnectivity.lean`
-- [ ] Theorem names in the style of the rest of the code: `Supporting/NetworkShape/NetworkSlope.lean`
-- [ ] Theorem names in the style of the rest of the code: `Supporting/NetworkShape/NeuralCollapse.lean`
-- [ ] Theorem names in the style of the rest of the code: `Supporting/NetworkShape/Residual.lean`
-- [ ] Theorem names in the style of the rest of the code: `Supporting/NetworkShape/RmsNorm.lean`
-- [ ] Theorem names in the style of the rest of the code: `Supporting/NetworkShape/SignedDistance.lean`
-- [ ] Theorem names in the style of the rest of the code: `Supporting/NetworkShape/SkipAndNorm.lean`
-- [ ] Theorem names in the style of the rest of the code: `Supporting/NetworkShape/Temperature.lean`
-- [ ] Theorem names in the style of the rest of the code: `Supporting/NetworkShape/UniversalApproximation.lean`
-- [ ] Theorem names in the style of the rest of the code: `Supporting/NetworkShape/VanishingGradients.lean`
+- [x] Theorem names in the style of the rest of the code: `Supporting/NetworkShape/Activations.lean`
+- [x] Theorem names in the style of the rest of the code: `Supporting/NetworkShape/Attention.lean`
+- [x] Theorem names in the style of the rest of the code: `Supporting/NetworkShape/AttentionRate.lean`
+- [x] Theorem names in the style of the rest of the code: `Supporting/NetworkShape/Bottleneck.lean`
+- [x] Theorem names in the style of the rest of the code: `Supporting/NetworkShape/Capacity.lean`
+- [x] Theorem names in the style of the rest of the code: `Supporting/NetworkShape/CodeLength.lean`
+- [x] Theorem names in the style of the rest of the code: `Supporting/NetworkShape/Convolution.lean`
+- [x] Theorem names in the style of the rest of the code: `Supporting/NetworkShape/DepthSeparation.lean`
+- [x] Theorem names in the style of the rest of the code: `Supporting/NetworkShape/Eikonal.lean`
+- [x] Theorem names in the style of the rest of the code: `Supporting/NetworkShape/Gain.lean`
+- [x] Theorem names in the style of the rest of the code: `Supporting/NetworkShape/HardChoices.lean`
+- [x] Theorem names in the style of the rest of the code: `Supporting/NetworkShape/KolmogorovArnold.lean`
+- [x] Theorem names in the style of the rest of the code: `Supporting/NetworkShape/Mixtures.lean`
+- [x] Theorem names in the style of the rest of the code: `Supporting/NetworkShape/ModeConnectivity.lean`
+- [x] Theorem names in the style of the rest of the code: `Supporting/NetworkShape/NetworkSlope.lean`
+- [x] Theorem names in the style of the rest of the code: `Supporting/NetworkShape/NeuralCollapse.lean`
+- [x] Theorem names in the style of the rest of the code: `Supporting/NetworkShape/Residual.lean`
+- [x] Theorem names in the style of the rest of the code: `Supporting/NetworkShape/RmsNorm.lean`
+- [x] Theorem names in the style of the rest of the code: `Supporting/NetworkShape/SignedDistance.lean`
+- [x] Theorem names in the style of the rest of the code: `Supporting/NetworkShape/SkipAndNorm.lean`
+- [x] Theorem names in the style of the rest of the code: `Supporting/NetworkShape/Temperature.lean`
+- [x] Theorem names in the style of the rest of the code: `Supporting/NetworkShape/UniversalApproximation.lean`
+- [x] Theorem names in the style of the rest of the code: `Supporting/NetworkShape/VanishingGradients.lean`
 - [x] Theorem names in the style of the rest of the code: `Supporting/NewInputs/Averaging.lean`
 - [x] Theorem names in the style of the rest of the code: `Supporting/NewInputs/BenignOverfitting.lean`
 - [x] Theorem names in the style of the rest of the code: `Supporting/NewInputs/BiasVariance.lean`

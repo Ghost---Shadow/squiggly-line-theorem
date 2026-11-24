@@ -1,19 +1,19 @@
 /-
 Depth separation: a shallow network pays one unit per turn.
 
-* `affineOn_reluUnit` : a ReLU unit is a straight line on any stretch that
+* `relu_unit_is_straight_away_from_its_kink` : a ReLU unit is a straight line on any stretch that
   does not contain its kink.
 * `IS_AFFINE_ON.not_zigzag` : a straight line cannot be lower at both ends of
   a stretch than in the middle.
-* `exists_kink_of_zigzag` : so if a one-hidden-layer network goes up and comes
+* `every_up_and_down_holds_a_kink` : so if a one-hidden-layer network goes up and comes
   back down, some unit has its kink in between.
-* `card_ge_of_zigzag` : a zigzag with `turn_count` ups and downs needs
+* `one_unit_per_turn` : a zigzag with `turn_count` ups and downs needs
   `turn_count` units.
 * `depth_separation` : `layer_count + 1` tent layers (`2 (layer_count + 1)`
   neurons) draw a zigzag that no one-hidden-layer network with fewer than
   `2 ^ layer_count` units can follow, even to within one half at the grid
   points.
-* `card_ge_of_alternating_sides` : a network that is below a level at every
+* `one_unit_per_crossing_less_one` : a network that is below a level at every
   even checkpoint and above it at every odd one, over `step_count` steps,
   needs `step_count - 1` units. It counts crossings of the level, not tops.
 * `depth_separation_with_nothing_to_spare` : so the shallow network needs
@@ -25,8 +25,8 @@ Definitions:
 * `IS_AFFINE_ON`               a model is a straight line on a stretch;
 * `EVALUATE_SHALLOW_NETWORK`   the value of a one-hidden-layer ReLU network.
 
-Other lemmas: `IS_AFFINE_ON.const_mul`, `affineOn_sum` and
-`exists_zero_between` are the small steps on the way.
+Other lemmas: `IS_AFFINE_ON.const_mul`, `sum_of_straight_lines_is_a_straight_line` and
+`line_crosses_zero_between_two_signs` are the small steps on the way.
 -/
 import Mathlib.Tactic.Choose
 import Mathlib.Tactic.GCongr
@@ -94,7 +94,7 @@ theorem not_zigzag
 end IS_AFFINE_ON
 
 /-- A sum of straight lines is a straight line. -/
-theorem affineOn_sum
+theorem sum_of_straight_lines_is_a_straight_line
     {Index : Type*}
     (indices : Finset Index)
     (summand : Index → RealFunction)
@@ -130,7 +130,7 @@ theorem affineOn_sum
 /-- A line that is below zero at `input` and above zero at `middle` is zero
 somewhere strictly inside any stretch that holds `input` and has `middle` in
 its interior. -/
-theorem exists_zero_between
+theorem line_crosses_zero_between_two_signs
     {weight bias left right input middle : ℝ}
     (left_le_input : left ≤ input)
     (input_le_right : input ≤ right)
@@ -179,7 +179,7 @@ theorem exists_zero_between
 /-- **A ReLU unit is straight away from its kink.** If `weight * point + bias`
 is never zero strictly inside a stretch, the unit
 `max (weight * input + bias) 0` is a straight line on the whole stretch. -/
-theorem affineOn_reluUnit
+theorem relu_unit_is_straight_away_from_its_kink
     {weight bias left right : ℝ}
     (left_lt_right : left < right)
     (no_zero_inside :
@@ -200,7 +200,7 @@ theorem affineOn_reluUnit
       by_contra line_positive
       push Not at line_positive
       obtain ⟨crossing, after_left, before_right, crossing_is_zero⟩ :=
-        exists_zero_between (weight := -weight) (bias := -bias)
+        line_crosses_zero_between_two_signs (weight := -weight) (bias := -bias)
           input_in_stretch.1 input_in_stretch.2 left_lt_midpoint
           midpoint_lt_right (by linarith) (by linarith)
       exact no_zero_inside crossing after_left before_right
@@ -214,7 +214,7 @@ theorem affineOn_reluUnit
       by_contra line_negative
       push Not at line_negative
       obtain ⟨crossing, after_left, before_right, crossing_is_zero⟩ :=
-        exists_zero_between input_in_stretch.1 input_in_stretch.2
+        line_crosses_zero_between_two_signs input_in_stretch.1 input_in_stretch.2
           left_lt_midpoint midpoint_lt_right line_negative line_positive_inside
       exact no_zero_inside crossing after_left before_right crossing_is_zero
     exact max_eq_left line_nonneg
@@ -240,7 +240,7 @@ noncomputable def EVALUATE_SHALLOW_NETWORK
 /-- **Every up-and-down holds a kink.** If the network is lower at both ends of
 a stretch than at a point inside it, some unit has its kink strictly inside the
 stretch. -/
-theorem exists_kink_of_zigzag
+theorem every_up_and_down_holds_a_kink
     (units : Finset Index)
     (unit_gain : Index → ℝ)
     (unit_slope : Index → ℝ)
@@ -277,7 +277,7 @@ theorem exists_kink_of_zigzag
       (fun input => ∑ j ∈ units,
         unit_gain j * max (unit_slope j * input + unit_bias j) 0)
       (Set.Icc left right)
-    refine affineOn_sum units
+    refine sum_of_straight_lines_is_a_straight_line units
       (fun j input => unit_gain j * max (unit_slope j * input + unit_bias j) 0)
       (fun j j_in_units => ?_)
     refine IS_AFFINE_ON.const_mul
@@ -285,7 +285,7 @@ theorem exists_kink_of_zigzag
       (unit_gain j) ?_
     by_cases slope_is_zero : unit_slope j = 0
     · exact ⟨0, max (unit_bias j) 0, fun input _ => by simp [slope_is_zero]⟩
-    · exact affineOn_reluUnit (left_lt_middle.trans middle_lt_right)
+    · exact relu_unit_is_straight_away_from_its_kink (left_lt_middle.trans middle_lt_right)
         (no_kink_inside j j_in_units slope_is_zero)
   exact network_is_line.not_zigzag left_lt_middle middle_lt_right
     left_below_middle right_below_middle
@@ -293,7 +293,7 @@ theorem exists_kink_of_zigzag
 /-- **One unit per turn.** If the network goes up and comes back down
 `turn_count` times along an increasing run of inputs, it has at least
 `turn_count` units. -/
-theorem card_ge_of_zigzag
+theorem one_unit_per_turn
     (units : Finset Index)
     (unit_gain : Index → ℝ)
     (unit_slope : Index → ℝ)
@@ -322,7 +322,7 @@ theorem card_ge_of_zigzag
     intro i i_in_range
     obtain ⟨goes_up, comes_down⟩ :=
       zigzags_at_checkpoints i (Finset.mem_range.mp i_in_range)
-    exact exists_kink_of_zigzag units unit_gain unit_slope unit_bias
+    exact every_up_and_down_holds_a_kink units unit_gain unit_slope unit_bias
       (checkpoints_increase (by omega)) (checkpoints_increase (by omega))
       goes_up comes_down
   rcases Nat.eq_zero_or_pos turn_count with rfl | turn_count_pos
@@ -406,7 +406,7 @@ theorem depth_separation
   have two_pow_succ : 2 ^ (layer_count + 1) = 2 * 2 ^ layer_count := by
     rw [pow_succ, mul_comm]
   -- The grid points zigzag, so the network goes up and down once per pair.
-  refine card_ge_of_zigzag units unit_gain unit_slope unit_bias
+  refine one_unit_per_turn units unit_gain unit_slope unit_bias
     (checkpoints := fun step : ℕ => (step : ℝ) / 2 ^ (layer_count + 1)) ?_ ?_
   · intro step other_step step_lt_other_step
     show (step : ℝ) / 2 ^ (layer_count + 1)
@@ -421,7 +421,7 @@ theorem depth_separation
 
 /-! ### One unit per crossing: the bound that cannot be improved
 
-`card_ge_of_zigzag` counts the tops of a zigzag and finds one unit for each.
+`one_unit_per_turn` counts the tops of a zigzag and finds one unit for each.
 A zigzag that goes up and down `turn_count` times has about twice as many
 bends as tops, so that bound is about half of what is needed. This section
 counts the places where the network crosses a level instead. Between two
@@ -461,7 +461,7 @@ theorem shallow_network_is_continuous
 /-- **Between two crossings of a level there is a kink.** If the network is
 at `level` at both ends of a stretch and off it at a point between, some
 unit has its kink strictly inside the stretch. -/
-theorem exists_kink_between_two_crossings
+theorem two_crossings_hold_a_kink_between_them
     (units : Finset Index)
     (unit_gain : Index → ℝ)
     (unit_slope : Index → ℝ)
@@ -488,12 +488,12 @@ theorem exists_kink_between_two_crossings
     have negated :=
       evaluate_shallow_network_with_negated_gains units unit_gain unit_slope
         unit_bias
-    exact exists_kink_of_zigzag units (fun unit => -unit_gain unit)
+    exact every_up_and_down_holds_a_kink units (fun unit => -unit_gain unit)
       unit_slope unit_bias left_lt_middle middle_lt_right
       (by rw [negated left, negated middle]; linarith)
       (by rw [negated right, negated middle]; linarith)
   · -- The network rises above the level and comes back down.
-    exact exists_kink_of_zigzag units unit_gain unit_slope unit_bias
+    exact every_up_and_down_holds_a_kink units unit_gain unit_slope unit_bias
       left_lt_middle middle_lt_right (by linarith) (by linarith)
 
 /-- **One unit per crossing, less one.** Take an increasing run of inputs,
@@ -501,7 +501,7 @@ numbered from 0 to `step_count`. If the network is below `level` at every
 even one and above it at every odd one, it has at least `step_count - 1`
 units. The network crosses the level once in each of the `step_count`
 steps, and between two crossings next to each other it has to bend. -/
-theorem card_ge_of_alternating_sides
+theorem one_unit_per_crossing_less_one
     (units : Finset Index)
     (unit_gain : Index → ℝ)
     (unit_slope : Index → ℝ)
@@ -585,7 +585,7 @@ theorem card_ge_of_alternating_sides
       crossing_of_step_spec i (by omega)
     obtain ⟨second_after_checkpoint, -, second_at_level⟩ :=
       crossing_of_step_spec (i + 1) i_lt
-    exact exists_kink_between_two_crossings units unit_gain unit_slope
+    exact two_crossings_hold_a_kink_between_them units unit_gain unit_slope
       unit_bias first_before_checkpoint second_after_checkpoint
       first_at_level second_at_level
       (checkpoint_is_off_level (i + 1) i_lt.le)
@@ -661,7 +661,7 @@ theorem depth_separation_with_nothing_to_spare
     let unit_count := units.card
     units_needed ≤ unit_count := by
   unfold_named_pieces
-  refine card_ge_of_alternating_sides units unit_gain unit_slope unit_bias
+  refine one_unit_per_crossing_less_one units unit_gain unit_slope unit_bias
     (checkpoints := fun step : ℕ => (step : ℝ) / 2 ^ (layer_count + 1))
     (level := 1 / 2) ?_ ?_ ?_
   · intro step other_step step_lt_other_step

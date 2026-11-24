@@ -5,28 +5,28 @@ The theorem says a line is near the data only by being steep. These are the
 places where the slope of a network shows up in practice.
 
 Layers:
-* `lipschitzWith_runLayers` : a stack of layers is no steeper than the
+* `network_slope_is_at_most_product_of_layer_slopes` : a stack of layers is no steeper than the
   product of the slopes of its layers.
-* `lipschitzWith_activation_comp`, `lipschitzWith_relu` : a layer "weights,
+* `layer_slope_is_at_most_weight_size`, `relu_slope_is_at_most_one` : a layer "weights,
   then ReLU" is no steeper than the size of its weights.
-* `verticalDist_network_le` : so the slope sandwich reads in that product.
-* `adjoint_comp_reverse`, `norm_adjoint_comp_le` : the gradient comes back
+* `vertical_error_of_network_is_at_most_stretch_times_nearest_distance` : so the slope sandwich reads in that product.
+* `backpropagation_runs_the_layers_in_reverse`, `gradient_coming_back_is_at_most_the_same_product` : the gradient comes back
   through the layers in reverse and is bounded by the same product.
 
 Adversarial examples:
-* `le_mul_dist_of_flip` : to flip a classifier of slope `slope_limit` the
+* `flipping_a_classifier_needs_a_move_of_score_over_slope` : to flip a classifier of slope `slope_limit` the
   input must move at least `score / slope_limit`.
 * `GET_LINEAR_SCORE` : the score of a linear model.
-* `score_add_sign`, `abs_score_add_sub_le` : for a linear model, nudging each
+* `worst_small_nudge_moves_the_score_by_size_times_summed_weights`, `no_nudge_moves_the_score_by_more` : for a linear model, nudging each
   input by `nudge` in the worst direction moves the score by `nudge` times the
   sum of the sizes of the weights, and no nudge of that size does more.
 
 Temperature:
-* `softmax_le_softmax_iff`, `softmax_temperature_order` : dividing the scores
+* `larger_score_has_larger_share`, `temperature_never_changes_the_ranking` : dividing the scores
   by a temperature never changes their order.
 
 A critic of slope one:
-* `sum_critic_gap_le` : the gap such a critic reports between paired points
+* `critic_of_slope_one_reports_at_most_the_distance` : the gap such a critic reports between paired points
   is at most the distance between them.
 -/
 import Mathlib.Analysis.InnerProductSpace.Adjoint
@@ -45,7 +45,7 @@ section Layers
 variable {State : Type*} [PseudoEMetricSpace State]
 
 /-- **A network is no steeper than the product of its layers.** -/
-theorem lipschitzWith_runLayers
+theorem network_slope_is_at_most_product_of_layer_slopes
     {layers : LayerStack State}
     {slopes : List SlopeLimit}
     (each_layer_has_its_slope :
@@ -63,7 +63,7 @@ theorem lipschitzWith_runLayers
     exact ih.comp head_has_its_slope
 
 /-- A ReLU has slope at most one. -/
-theorem lipschitzWith_relu :
+theorem relu_slope_is_at_most_one :
     let slope_limit : SlopeLimit := 1
     LipschitzWith slope_limit fun input : ℝ => max input 0 := by
   unfold_named_pieces
@@ -71,7 +71,7 @@ theorem lipschitzWith_relu :
 
 /-- A layer "weights, then an activation of slope at most one" is no steeper
 than the size of the weights. -/
-theorem lipschitzWith_activation_comp
+theorem layer_slope_is_at_most_weight_size
     {Inputs Hidden Outputs : Type*}
     [SeminormedAddCommGroup Inputs] [NormedSpace ℝ Inputs]
     [SeminormedAddCommGroup Hidden] [NormedSpace ℝ Hidden]
@@ -88,7 +88,7 @@ theorem lipschitzWith_activation_comp
 /-- **The sandwich for a network.** With a readout of slope `readout_slope` on
 top, the network can be nearer to a data point than its vertical error only by
 the factor set by the product of the slopes. -/
-theorem verticalDist_network_le
+theorem vertical_error_of_network_is_at_most_stretch_times_nearest_distance
     {Features : Type*} [SeminormedAddCommGroup Features]
     {layers : LayerStack Features}
     {slopes : List SlopeLimit}
@@ -107,7 +107,7 @@ theorem verticalDist_network_le
     vertical_error ≤ stretch * nearest_distance := by
   unfold_named_pieces
   exact vertical_error_is_at_most_stretch_times_nearest_distance
-    (readout_is_bounded.comp (lipschitzWith_runLayers each_layer_has_its_slope))
+    (readout_is_bounded.comp (network_slope_is_at_most_product_of_layer_slopes each_layer_has_its_slope))
     data_point
 
 end Layers
@@ -124,7 +124,7 @@ variable {Source Middle Target : Type*}
 /-- **Backpropagation runs the layers in reverse.** The transpose of "first
 `first_map`, then `second_map`" is "first the transpose of `second_map`, then
 the transpose of `first_map`". -/
-theorem adjoint_comp_reverse
+theorem backpropagation_runs_the_layers_in_reverse
     (second_map : Middle →L[ℝ] Target)
     (first_map : Source →L[ℝ] Middle) :
     let transpose_of_both    := adjoint (second_map ∘L first_map)
@@ -136,7 +136,7 @@ theorem adjoint_comp_reverse
 omit [CompleteSpace Middle] in
 /-- The gradient coming back is bounded by the same product of sizes as the
 signal going forward. -/
-theorem norm_adjoint_comp_le
+theorem gradient_coming_back_is_at_most_the_same_product
     (second_map : Middle →L[ℝ] Target)
     (first_map : Source →L[ℝ] Middle) :
     let size_of_transpose := ‖adjoint (second_map ∘L first_map)‖
@@ -155,7 +155,7 @@ section Adversarial
 /-- **Flipping a classifier takes a move of at least score over slope.** If the
 score at `input` is positive and the score at `other_input` is not, then
 `other_input` is at least `score / slope_limit` away. -/
-theorem le_mul_dist_of_flip
+theorem flipping_a_classifier_needs_a_move_of_score_over_slope
     {Inputs : Type*} [PseudoMetricSpace Inputs]
     {model : Inputs → ℝ}
     {slope_limit : SlopeLimit}
@@ -182,7 +182,7 @@ def GET_LINEAR_SCORE
 /-- **The worst small nudge.** Move every input by `nudge_size` in the direction
 of the sign of its weight. The score moves by `nudge_size` times the sum of the
 sizes of the weights. -/
-theorem score_add_sign
+theorem worst_small_nudge_moves_the_score_by_size_times_summed_weights
     (weights : Coordinates → ℝ)
     (input : Coordinates → ℝ)
     (nudge_size : ℝ) :
@@ -200,7 +200,7 @@ theorem score_add_sign
   exact Finset.sum_congr rfl fun i _ => by rw [← self_mul_sign (weights i)]; ring
 
 /-- No nudge of at most `size_limit` per input moves the score by more. -/
-theorem abs_score_add_sub_le
+theorem no_nudge_moves_the_score_by_more
     (weights : Coordinates → ℝ)
     (input : Coordinates → ℝ)
     (nudge : Coordinates → ℝ)
@@ -234,7 +234,7 @@ section Temperature
 variable {Classes : Type*} [Fintype Classes] [Nonempty Classes]
 
 /-- A larger score has a larger share. -/
-theorem softmax_le_softmax_iff
+theorem larger_score_has_larger_share
     (scores : Classes → ℝ)
     (first_class second_class : Classes) :
     let first_share   := APPLY_SOFTMAX scores first_class
@@ -247,7 +247,7 @@ theorem softmax_le_softmax_iff
     div_le_div_iff_of_pos_right (sum_of_exponentials_is_greater_than_zero scores), Real.exp_le_exp]
 
 /-- **Temperature changes confidence, never the ranking.** -/
-theorem softmax_temperature_order
+theorem temperature_never_changes_the_ranking
     {temperature : ℝ}
     (temperature_pos : 0 < temperature)
     (scores : Classes → ℝ)
@@ -265,7 +265,7 @@ theorem softmax_temperature_order
       APPLY_SOFTMAX some_scores first_class
           ≤ APPLY_SOFTMAX some_scores second_class
         ↔ some_scores first_class ≤ some_scores second_class :=
-    softmax_le_softmax_iff some_scores first_class second_class
+    larger_score_has_larger_share some_scores first_class second_class
   rw [share_order_iff, share_order_iff,
     div_le_div_iff_of_pos_right temperature_pos]
 
@@ -280,7 +280,7 @@ variable {Inputs Pairs : Type*} [PseudoMetricSpace Inputs]
 /-- **A critic of slope one cannot report more than the distance.** Pair each
 real sample with a made one. The total gap in the critic's scores is at most the
 total distance between the pairs. -/
-theorem sum_critic_gap_le
+theorem critic_of_slope_one_reports_at_most_the_distance
     {critic : Inputs → ℝ}
     (critic_has_slope_one : LipschitzWith 1 critic)
     (pairs : Finset Pairs)

@@ -53,7 +53,7 @@ members are on average (**proved**: `averaged_weights_error_is_at_most_average_m
 
 For a real network they are not the same. With just two weights multiplied,
 the midpoint between a fit and its mirror image outputs zero
-(`twoLayer_midpoint_mirror` in [`ModeConnectivity.lean`](../../../lean/SquigglyLine/Supporting/NetworkShape/ModeConnectivity.lean)). Weight averaging
+(`halfway_to_the_mirror_image_everything_is_lost` in [`ModeConnectivity.lean`](../../../lean/SquigglyLine/Supporting/NetworkShape/ModeConnectivity.lean)). Weight averaging
 works for networks only when the copies are close enough for the network to
 behave like a linear model between them, which is the case when they share a
 starting point (**argued**; **recalled**: Neyshabur et al. 2020).

@@ -37,7 +37,7 @@ token inside the region the tokens started in.
 Stacked alone, attention also pulls the tokens together. If the scores
 are at most `score_bound` in size, each layer shrinks the spread of the
 tokens by a fixed factor below one, so `depth` layers shrink it by that
-factor to the power `depth` (`abs_iterate_attentionLayer_sub_le`). This
+factor to the power `depth` (`depth_merges_the_tokens_at_a_geometric_rate`). This
 is the one-factor rule of chapter 13, and the reason transformers need
 their skip connections.
 
@@ -64,7 +64,7 @@ learning_rate × Σ kernel(example, new input) × label of the example
 Read that as an attention head. The tokens are the examples. The score
 of a token is its overlap with the query. Its value is its label. Leave
 out the softmax. Then the head's output is that prediction
-(`prediction_one_step_eq_linearAttention`).
+(`one_gradient_step_is_a_linear_attention_head`).
 
 So a stack of such heads can run gradient descent on the examples in
 its prompt, one step per layer, without changing its own weights. This
@@ -119,8 +119,8 @@ draws six fingers. That needs experiments.
   what they disagree by.
 - **Temperature.** Sample from a softmax of scores divided by a
   temperature. As the temperature falls, the average score of a sample
-  never falls (`expectedScore_softmax_mono`), and the samples
-  concentrate on the top score (`one_sub_softmax_div_le`). One dial moves
+  never falls (`colder_sampler_picks_better_on_average`), and the samples
+  concentrate on the top score (`cold_softmax_picks_the_top_score`). One dial moves
   quality up and variety down.
 - **Nearest neighbours.** Copying the label of the nearest training input
   is wrong by at most the slope of the truth times the distance to that

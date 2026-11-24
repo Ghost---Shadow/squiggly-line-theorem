@@ -19,10 +19,10 @@ it to be exactly one. The other wants it below one.
 A ReLU keeps the positive part of its input and drops the rest. The squared
 size of what it keeps, and of what it would have kept of the mirror image,
 add up to the squared size of the input (**proved**:
-`relu_sq_add_relu_neg_sq`).
+`fold_splits_the_squared_size_in_two`).
 
 So if the input is as often negative as positive, the fold keeps exactly half
-of its mean squared size (**proved**: `integral_relu_sq_of_symmetric`).
+of its mean squared size (**proved**: `fold_keeps_half_of_a_symmetric_signal`).
 
 A unit adds up `n` inputs, each through a random weight. If the weights have
 variance `2 / n`, the factor `n × 2/n × 1/2` is one (**proved**: `he_gain`).
@@ -44,8 +44,8 @@ average value of where you go next (**recalled**: Bellman 1957).
 
 A sweep has slope at most `γ`. Two different guesses, after one sweep, differ
 by at most `γ` times what they did, measured by their largest disagreement
-(**proved**: `lipschitzWith_bellman`). After `n` sweeps the factor is `γ^n`
-(**proved**: `dist_iterate_bellman_le`).
+(**proved**: `sweep_slope_is_at_most_the_discount`). After `n` sweeps the factor is `γ^n`
+(**proved**: `repeated_sweeps_pull_every_guess_to_one_answer`).
 
 So every starting guess is pulled to the same answer. Here a gain below one
 is the point. The update forgets where it started, at the rate that

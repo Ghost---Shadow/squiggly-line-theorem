@@ -43,7 +43,7 @@ starts, its ramp is flat at zero and changes nothing. After a piece ends, its
 ramp is flat at its full height, and the network sits exactly on `f` at the
 end of that piece. Inside a piece the network is a straight line between two
 values of `f`, and `f` cannot stray far from either end, because its slope is
-at most `K` (**proved**: `reluInterp_spec`).
+at most `K` (**proved**: `ramps_follow_the_function_piece_by_piece`).
 
 ## What it costs
 
@@ -72,8 +72,8 @@ Each curve is a function of one number, so the result above applies to each
 edge on its own. Replace every edge curve by its ReLU network with `n`
 pieces. On the unit cube the node changes by at most `2 * (total slope) / n`,
 where the total slope is the sum of the slope limits of its curves
-(**proved**: `abs_kanNode_sub_le`). So for any tolerance some number of
-pieces is enough (**proved**: `exists_pieces_kanNode_close`).
+(**proved**: `edge_curve_is_a_few_folds`). So for any tolerance some number of
+pieces is enough (**proved**: `folds_needed_go_as_slope_over_error`).
 
 A learnable curve on an edge is therefore a few folds, and how many is set
 by slope over error, as everywhere in this note. A node with steep curves

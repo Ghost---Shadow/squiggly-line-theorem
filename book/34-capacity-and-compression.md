@@ -52,7 +52,7 @@ would share a place and one of them would be wrong.
 The first count is for models that are linear in their weights.
 
 ```lean
-theorem finrank_le_of_fits_all
+theorem fitting_everything_needs_one_parameter_per_number
     (predict : Weights →ₗ[ℝ] Outputs)                              -- `→ₗ[ℝ]`: linear, so twice the weights give twice the outputs
     (fits_every_labels : ∀ labels, ∃ weights, predict weights = labels) :
     let label_count  := finrank ℝ Outputs                          -- one label for each data point: the number of data points
@@ -64,7 +64,7 @@ theorem finrank_le_of_fits_all
 of labels, it has at least as many weights as data points.
 
 `finrank` is the number of independent numbers a space holds: 19 weights
-is a space with `finrank` 19. The theorem `exists_unfittable` is the same
+is a space with `finrank` 19. The theorem `too_few_weights_cannot_fit_something` is the same
 fact turned round: with fewer weights than data points, some labels have no
 fit.
 
@@ -79,7 +79,7 @@ The second count lets the weights be anything, but written in a fixed
 number of bits.
 
 ```lean
-theorem card_le_bits_of_memorises
+theorem memorising_needs_one_bit_per_stored_bit
     (network : YesNoNetwork Settings Inputs)
     (chosen_inputs : Finset Inputs)
     {bit_count : ℕ}
@@ -149,11 +149,11 @@ as many settings as labellings, `2 ^ input_count`. There are at most
 the same place at some layer, they stay together for every layer after it
 (`merged_stays_merged`, in an earlier file). So they get the same answer.
 If the network is right on both, they have the same label
-(`label_eq_of_merged`). That is the lower wall. The upper wall is that an
+(`different_labels_must_stay_apart`). That is the lower wall. The upper wall is that an
 image of a finite set is no bigger than the set.
 
 When a layer has squeezed all the way down to as many places as labels, two
-inputs share a place exactly when they share a label (`merged_iff_label_eq`).
+inputs share a place exactly when they share a label (`full_compression_merges_exactly_equal_labels`).
 
 ## What it explains
 
@@ -164,22 +164,22 @@ peak of double descent sits in chapter 10.
 
 **Compression.** The note `code-length.md` reads three earlier results as
 statements about writing things down briefly. A code of `digit_count`
-digits names at most `2 ^ digit_count` things (`card_le_two_pow_of_code`).
+digits names at most `2 ^ digit_count` things (`digits_name_at_most_two_to_the_digits_things`).
 A fold throws away one bit, and `fold_count` folds throw away at most
-`fold_count` bits (`card_le_two_pow_of_iterate_tent_eq`). A layer is one
+`fold_count` bits (`folds_throw_away_at_most_one_bit_each`). A layer is one
 digit, and depth is code length. No model has average log-loss below the
 entropy of the data (`gibbs`). And the travel of chapter 9, taken as a
 description length, is shortest for gradient descent
-(`descriptionLength_gradientDescent_le`) and falls as the model grows
-(`travel_sq_div_eq_of_tight`). That the description length goes as
+(`gradient_descent_finds_the_cheapest_fit_to_describe`) and falls as the model grows
+(`bigger_model_fit_is_cheaper_to_describe`). That the description length goes as
 squared distance is a definition here, taken from (**recalled**: Hinton
 and van Camp 1993).
 
 **Gates and bottlenecks.** `Mixtures.lean` adds two more results.
 Blending experts with a gate adds slope only through how far apart the
-experts are (`abs_mixture_sub_le`). And the table of scores of a last
+experts are (`gate_adds_slope_only_through_the_spread`). And the table of scores of a last
 layer with `hidden_count` hidden numbers has rank at most that many
-(`rank_scoreTable_le`), so it cannot be every table.
+(`softmax_bottleneck`), so it cannot be every table.
 
 **The information bottleneck.** The view that a network discards what the
 label does not need is (**recalled**: Tishby and Zaslavsky 2015). The
@@ -250,7 +250,7 @@ jupyter nbconvert --to notebook --execute --inplace experiments/part5/ch34_capac
 - **That training compresses.** Nothing here says gradient descent moves a
   network to the lower wall. **open**
 - **Huffman's method and Kraft's inequality itself.** Kraft's inequality is
-  an assumption in `expected_length_ge_entropy`.
+  an assumption in `no_code_beats_the_entropy`.
 
 ## Check yourself
 
@@ -261,8 +261,8 @@ jupyter nbconvert --to notebook --execute --inplace experiments/part5/ch34_capac
 3. A flock has 12 inputs and 3 labels, and the network gets all of them
    right. How many places can the flock occupy after the third layer?
 
-**Answers.** (1) At most 50, by `finrank_le_of_fits_all`. (2) At most 20,
-by `card_le_bits_of_memorises`. (3) At least 3 and at most 12, by
+**Answers.** (1) At most 50, by `fitting_everything_needs_one_parameter_per_number`. (2) At most 20,
+by `memorising_needs_one_bit_per_stored_bit`. (3) At least 3 and at most 12, by
 `bottleneck`. The count could be anywhere in that range, and it can only
 fall as the layers go on.
 

@@ -1,17 +1,17 @@
 /-
 Storage capacity: what a network can memorise.
 
-* `finrank_le_of_fits_all` : a model linear in its weights that can fit every
+* `fitting_everything_needs_one_parameter_per_number` : a model linear in its weights that can fit every
   set of labels has at least as many weights as data points.
-* `exists_unfittable` : with fewer weights than data points, some set of
+* `too_few_weights_cannot_fit_something` : with fewer weights than data points, some set of
   labels cannot be fitted.
-* `two_pow_card_le_of_memorises` : a family of networks that realises every
+* `memorising_needs_two_to_the_inputs_settings` : a family of networks that realises every
   yes-or-no labelling of `input_count` inputs has at least `2 ^ input_count`
   settings of its weights.
-* `card_le_bits_of_memorises` : so with `bit_count` bits of weights,
+* `memorising_needs_one_bit_per_stored_bit` : so with `bit_count` bits of weights,
   `input_count ≤ bit_count`.
 
-The third count, one ReLU unit for each turn, is `card_ge_of_zigzag` in
+The third count, one ReLU unit for each turn, is `one_unit_per_turn` in
 `DepthSeparation.lean`.
 
 | Name                           | Meaning                                  |
@@ -54,7 +54,7 @@ variable {Weights Outputs : Type*}
 /-- **One parameter for each stored number.** If a model that is linear in
 its weights can fit every set of labels, it has at least as many weights as
 data points. -/
-theorem finrank_le_of_fits_all
+theorem fitting_everything_needs_one_parameter_per_number
     (predict : Weights →ₗ[ℝ] Outputs)                              -- `→ₗ[ℝ]`: linear, so twice the weights give twice the outputs
     (fits_every_labels : ∀ labels, ∃ weights, predict weights = labels) :
     let label_count  := finrank ℝ Outputs                          -- one label for each data point: the number of data points
@@ -71,7 +71,7 @@ theorem finrank_le_of_fits_all
     _ ≤ finrank ℝ Weights := LinearMap.finrank_range_le predict
 
 /-- **Too few weights: something cannot be fitted.** -/
-theorem exists_unfittable
+theorem too_few_weights_cannot_fit_something
     (predict : Weights →ₗ[ℝ] Outputs)
     (too_few_weights : finrank ℝ Weights < finrank ℝ Outputs) :    -- fewer weights than data points
     ∃ labels : Outputs,
@@ -81,7 +81,7 @@ theorem exists_unfittable
   -- Otherwise every set of labels is fitted, and the count above applies.
   by_contra every_labels_fitted
   push Not at every_labels_fitted
-  exact absurd (finrank_le_of_fits_all predict every_labels_fitted)
+  exact absurd (fitting_everything_needs_one_parameter_per_number predict every_labels_fitted)
     (not_le.mpr too_few_weights)
 
 end Parameters
@@ -95,7 +95,7 @@ variable {Settings Inputs : Type*} [Fintype Settings]
 /-- **Memorising `input_count` answers takes `2 ^ input_count` settings.** If
 some setting of the weights realises every yes-or-no labelling of the chosen
 inputs, there are at least `2 ^ input_count` settings. -/
-theorem two_pow_card_le_of_memorises
+theorem memorising_needs_two_to_the_inputs_settings
     (network : YesNoNetwork Settings Inputs)
     (chosen_inputs : Finset Inputs)
     (memorises_every_labelling :
@@ -126,7 +126,7 @@ theorem two_pow_card_le_of_memorises
 
 /-- **One bit for each stored bit.** A network whose weights take `bit_count`
 bits cannot memorise every labelling of more than `bit_count` inputs. -/
-theorem card_le_bits_of_memorises
+theorem memorising_needs_one_bit_per_stored_bit
     (network : YesNoNetwork Settings Inputs)
     (chosen_inputs : Finset Inputs)
     {bit_count : ℕ}
@@ -140,7 +140,7 @@ theorem card_le_bits_of_memorises
   unfold_named_pieces
   -- `2 ^ input_count ≤ setting_count ≤ 2 ^ bit_count`, then compare powers.
   exact (Nat.pow_le_pow_iff_right (by norm_num)).mp
-    ((two_pow_card_le_of_memorises network chosen_inputs
+    ((memorising_needs_two_to_the_inputs_settings network chosen_inputs
       memorises_every_labelling).trans settings_fit_in_bits)
 
 end Bits

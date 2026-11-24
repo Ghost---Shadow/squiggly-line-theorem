@@ -16,13 +16,13 @@ Hard choices: the straight-through trick, a cold softmax, and Hopfield recall.
 Definitions: `APPLY_STRAIGHT_THROUGH`.
 
 Theorems:
-* `hasDerivAt_step_of_pos`        a hard step has slope zero away from its
+* `hard_step_sends_no_gradient_back`        a hard step has slope zero away from its
                                   jump;
-* `straightThrough_self`          forward, the trick is the hard step;
-* `hasDerivAt_straightThrough`    backward, it has the slope of the stand-in;
-* `one_sub_softmax_div_le`        a cold softmax gives the top score nearly
+* `straight_through_forward_is_the_hard_step`          forward, the trick is the hard step;
+* `straight_through_backward_has_the_stand_in_slope`    backward, it has the slope of the stand-in;
+* `cold_softmax_picks_the_top_score`        a cold softmax gives the top score nearly
                                   all the share;
-* `hopfield_eq_denoiser`          Hopfield recall is the ideal denoiser.
+* `hopfield_recall_equals_ideal_denoiser`          Hopfield recall is the ideal denoiser.
 * `hopfield_recall_equals_ideal_denoiser_for_any_state`  the same for a
                                   state of any length and patterns of one
                                   common length.
@@ -35,7 +35,7 @@ open Real
 
 /-- **A hard step sends no gradient back.** Away from its jump, the step
 function has slope zero. -/
-theorem hasDerivAt_step_of_pos
+theorem hard_step_sends_no_gradient_back
     {point : ℝ}
     (point_pos : 0 < point) :
     let step : RealFunction := fun input => if 0 ≤ input then 1 else 0  -- jumps from 0 to 1 at the origin
@@ -60,7 +60,7 @@ def APPLY_STRAIGHT_THROUGH
   fun input => hard anchor - soft anchor + soft input
 
 /-- **Forward, it is the hard step.** -/
-theorem straightThrough_self
+theorem straight_through_forward_is_the_hard_step
     (hard soft : RealFunction)
     (anchor : ℝ) :
     let forward    := APPLY_STRAIGHT_THROUGH hard soft anchor anchor
@@ -70,7 +70,7 @@ theorem straightThrough_self
   simp [APPLY_STRAIGHT_THROUGH]
 
 /-- **Backward, it has the slope of the stand-in.** -/
-theorem hasDerivAt_straightThrough
+theorem straight_through_backward_has_the_stand_in_slope
     (hard : RealFunction)
     {soft : RealFunction}
     {slope anchor : ℝ}
@@ -85,7 +85,7 @@ variable {Choices : Type*} [Fintype Choices]
 /-- **A cold softmax picks the top score.** If score `top` leads every other
 by at least `gap`, then at temperature `temperature` its share is within
 `(choice_count - 1) * exp (-gap / temperature)` of one. -/
-theorem one_sub_softmax_div_le
+theorem cold_softmax_picks_the_top_score
     [DecidableEq Choices] [Nonempty Choices]
     {scores : Choices → ℝ}
     {top : Choices}
@@ -155,7 +155,7 @@ omit [Nonempty Choices] in
 updates its state to an attention-weighted average of the stored patterns,
 scored by overlap with the state. For patterns and a state of length one, that
 is the ideal denoiser at noise level `√temperature`. -/
-theorem hopfield_eq_denoiser
+theorem hopfield_recall_equals_ideal_denoiser
     {query : Space}
     {keys : Choices → Space}
     (query_is_unit : ‖query‖ = 1)

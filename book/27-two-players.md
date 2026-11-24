@@ -138,8 +138,8 @@ maker nothing to learn from (**recalled**: Arjovsky and Bottou 2017).
 
 **The Wasserstein critic.** The remedy holds the critic to slope one.
 Then the gap it reports between a real sample and a made one is at most
-their distance (`sum_critic_gap_le`), and a distance field is such a
-critic (`lipschitzWith_distanceField`). This is the slope sandwich of
+their distance (`critic_of_slope_one_reports_at_most_the_distance`), and a distance field is such a
+critic (`distance_field_slope_is_at_most_one`). This is the slope sandwich of
 chapter 3 at work: a critic of slope one can report a distance and no
 more.
 

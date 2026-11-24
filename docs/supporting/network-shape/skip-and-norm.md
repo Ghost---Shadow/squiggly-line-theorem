@@ -27,21 +27,21 @@ Call this a plate with a bypass.
 
 - **It never dims the light.** The squared length after a plate with a bypass
   is the squared length before, plus three times the squared shadow
-  (**proved**: `norm_skipPlate_sq`, `norm_le_norm_skipPlate`). A bare plate
+  (**proved**: `squared_length_after_a_plate_with_bypass`, `plate_with_bypass_never_dims`). A bare plate
   can only lose length. A plate with a bypass can only gain it.
 - **A crossed plate does nothing.** A bare plate at a right angle kills the
   light. With a bypass the light passes unchanged
-  (**proved**: `plate_of_crossed`, `skipPlate_of_crossed`). So the rule "dead
+  (**proved**: `crossed_plate_blocks`, `crossed_plate_with_bypass_does_nothing`). So the rule "dead
   stays dead" stops being a danger: no single layer can kill the signal.
 - **It turns the light part of the way.** A bare plate snaps the light onto
   its axis. A plate with a bypass doubles the part of the light along the axis
-  and leaves the rest as it was (**proved**: `inner_skipPlate`,
-  `skipPlate_sub_plate`). So the light leans towards the axis without landing
+  and leaves the rest as it was (**proved**: `part_along_the_axis_doubles`,
+  `rest_is_left_as_it_was`). So the light leans towards the axis without landing
   on it. The tangent of the angle left to turn is halved.
 - **Many of them never quite arrive.** After `k` such plates with the same
   axis, the part along the axis has grown `2^k` times and the rest has not
-  changed (**proved**: `inner_iterate_skipPlate`,
-  `iterate_skipPlate_sub_plate`). The light gets closer to the axis at every
+  changed (**proved**: `part_along_the_axis_after_many_bypass_plates`,
+  `bypass_plates_get_closer_and_never_arrive`). The light gets closer to the axis at every
   plate and never reaches it. Each layer makes a small turn.
 
 That last point is the wind tunnel again. A network with skip connections
@@ -56,16 +56,16 @@ amplifier after the plate that brings the light back to full brightness.
 - **Full brightness after any turn short of a right angle.** If the light has
   any shadow at all on the plate's axis, then after the plate and the
   amplifier it lies along the axis at full strength
-  (**proved**: `renorm_plate`, `norm_renorm_plate`).
+  (**proved**: `plate_and_amplifier_turn_without_loss`, `plate_and_amplifier_give_full_strength`).
 - **So the loss is gone.** Send full-strength light through any number of
   plates, each turned less than a right angle from the last, with an amplifier
   after each. It comes out along the last axis at full strength
-  (**proved**: `throughNormedPlates_eq`). Without amplifiers the length left
+  (**proved**: `amplified_plates_lose_nothing`). Without amplifiers the length left
   is the product of the cosines. With them the size of each turn stops
   mattering.
 - **It cannot raise the dead.** After a crossed plate there is nothing to
   amplify, and the output is still nothing
-  (**proved**: `renorm_plate_of_crossed`).
+  (**proved**: `amplifier_cannot_raise_the_dead`).
 
 So the two tricks fix different things. A bypass makes sure no plate can kill
 the light. An amplifier makes sure light that survives does not fade. A
@@ -81,30 +81,30 @@ A residual layer is `input + branch(input)`. Say the branch has slope at
 most `K`.
 
 - **The layer's slope is between `1 - K` and `1 + K`.** It is no steeper
-  than `1 + K` (**proved**: `lipschitzWith_addSkip`), and two outputs are at
+  than `1 + K` (**proved**: `residual_layer_slope_is_at_most_one_plus_branch`), and two outputs are at
   least `1 - K` of the distance between their inputs (**proved**:
-  `le_dist_addSkip`).
+  `skip_keeps_points_apart`).
 - **With `K < 1` nothing is merged.** No two inputs give the same output
-  (**proved**: `addSkip_injective`). A fold merges inputs; a skip with a
+  (**proved**: `residual_layer_merges_no_two_inputs`). A fold merges inputs; a skip with a
   gentle branch cannot.
 - **A turn has to be bought in the branch.** With one input and `K < 1` the
   layer is always rising, so it never turns (**proved**:
-  `strictMono_addSkip`, `neverTurns_addSkip`). A residual layer adds a turn
+  `residual_layer_always_rises`, `residual_layer_never_turns`). A residual layer adds a turn
   only where its branch is steeper than one.
 - **Depth does not blow up the slope.** `L` layers with branches of slope
   `c / L` have total slope at most `e^c`, whatever `L` is (**proved**:
-  `dist_runResidualLayers_le_exp`). A plain stack of slope `K` has `K^L`.
+  `depth_does_not_blow_up_the_slope`). A plain stack of slope `K` has `K^L`.
 
 So a residual network keeps the signal by default and makes squiggle only
 through steep branches.
 
 The memory cell of an LSTM is the same thing through time. One step keeps a
 share `forget` of the cell and adds something new. The slope of the cell per
-step is that share (**proved**: `abs_updateCell_sub`). It is never above
-one (**proved**: `abs_updateCell_sub_le`), and with the gate fully open it
+step is that share (**proved**: `cell_slope_is_the_forget_gate`). It is never above
+one (**proved**: `gate_never_moves_two_memories_apart`), and with the gate fully open it
 is exactly one: the difference between two memories is carried forward
-unchanged (**proved**: `updateCell_sub_of_open_gate`). Over `n` steps the
-slopes multiply (**proved**: `runCell_sub`). An open gate is a skip through
+unchanged (**proved**: `open_gate_is_a_skip_through_time`). Over `n` steps the
+slopes multiply (**proved**: `memory_gap_after_many_steps_is_product_of_gates`). An open gate is a skip through
 time, which is how an LSTM avoids the fading of `vanishing-gradients.md`.
 
 ## What is not shown

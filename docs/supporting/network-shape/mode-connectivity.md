@@ -25,12 +25,12 @@ other shows the smallest hill there is, and what removes it.
 Take a model that is linear in its weights and any two settings of the
 weights. On the straight line between them the error is a blend of the two
 errors: at a fraction `t` of the way it is `(1 − t)` of the first plus `t` of
-the second (**proved**: `residual_along_between`).
+the second (**proved**: `residual_on_the_line_between_two_settings`).
 
 So:
 
 - **The line between two fits is all fits.** Every point on it fits the data
-  exactly (**proved**: `fit_along`).
+  exactly (**proved**: `line_between_two_fits_is_all_fits`).
 - **There is never a hill.** Anywhere on the line, the error is no larger than
   the larger of the two ends (**proved**: `no_barrier`).
 
@@ -47,13 +47,13 @@ exactly
 t (1 − t) × (a₁ − a₂) × (b₁ − b₂)
 ```
 
-(**proved**: `twoLayer_along`.) The hill is the product of how much the two
+(**proved**: `two_layer_hill_exactly`.) The hill is the product of how much the two
 fits differ in each weight. It is zero only when they agree in one of them.
 
 The worst case is a fit and its mirror image. If `(a, b)` fits, so does
-`(−a, −b)`, because the two signs cancel (**proved**: `twoLayer_flip`). Halfway
+`(−a, −b)`, because the two signs cancel (**proved**: `mirror_image_is_the_same_function`). Halfway
 between them both weights are zero and the output is zero, whatever the target
-was (**proved**: `twoLayer_midpoint_mirror`). The whole target is lost.
+was (**proved**: `halfway_to_the_mirror_image_everything_is_lost`). The whole target is lost.
 
 But the mirror image is the same function. Flip its signs back and the two
 fits are the same point, and there is no line to walk. The hill came entirely

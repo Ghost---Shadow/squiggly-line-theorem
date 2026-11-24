@@ -15,12 +15,12 @@ as any one read-out of them.
 
 Theorems:
 
-* `sum_mul_sub_sum_mul_le` : two averages with a common floor under their
+* `two_weighted_averages_are_close` : two averages with a common floor under their
   weights differ by at most the rest times the range of the values;
-* `abs_sum_mul_sub_sum_mul_le` : the same, for the size of the difference;
-* `exp_neg_div_card_le_softmax` : every token gets a share of the softmax;
-* `abs_attend_sub_attend_le` : one layer shrinks the spread;
-* `abs_iterate_attentionLayer_sub_le` : depth merges the tokens at a
+* `two_weighted_averages_differ_by_at_most_the_spread` : the same, for the size of the difference;
+* `every_token_gets_a_share` : every token gets a share of the softmax;
+* `one_attention_layer_shrinks_the_spread` : one layer shrinks the spread;
+* `depth_merges_the_tokens_at_a_geometric_rate` : depth merges the tokens at a
   geometric rate.
 -/
 import SquigglyLine.Supporting.NetworkShape.Attention
@@ -33,7 +33,7 @@ variable {Tokens : Type*} [Fintype Tokens]
 
 /-- Two weighted averages whose weights all sit above a common floor differ by
 at most the part they do not share times the range of the values. -/
-theorem sum_mul_sub_sum_mul_le
+theorem two_weighted_averages_are_close
     {weights other_weights values : Tokens → ℝ}
     {weight_floor lower_bound upper_bound : ℝ}
     (weights_above_floor : ∀ i, weight_floor ≤ weights i)
@@ -83,7 +83,7 @@ theorem sum_mul_sub_sum_mul_le
   linarith
 
 /-- The same, for the size of the difference. -/
-theorem abs_sum_mul_sub_sum_mul_le
+theorem two_weighted_averages_differ_by_at_most_the_spread
     {weights other_weights values : Tokens → ℝ}
     {weight_floor lower_bound upper_bound : ℝ}
     (weights_above_floor : ∀ i, weight_floor ≤ weights i)
@@ -106,11 +106,11 @@ theorem abs_sum_mul_sub_sum_mul_le
         ∑ i, other_weights i * values i - ∑ i, weights i * values i
           ≤ (1 - Fintype.card Tokens * weight_floor)
             * (upper_bound - lower_bound) :=
-      sum_mul_sub_sum_mul_le other_weights_above_floor weights_above_floor
+      two_weighted_averages_are_close other_weights_above_floor weights_above_floor
         other_weights_sum_to_one weights_sum_to_one values_above_lower
         values_below_upper
     linarith
-  · exact sum_mul_sub_sum_mul_le weights_above_floor other_weights_above_floor
+  · exact two_weighted_averages_are_close weights_above_floor other_weights_above_floor
       weights_sum_to_one other_weights_sum_to_one values_above_lower
       values_below_upper
 
@@ -118,7 +118,7 @@ variable [Nonempty Tokens]
 
 /-- **Every token gets a share.** If every score is at most `score_bound` in
 size, every share of the softmax is at least `exp (-2 * score_bound) / n`. -/
-theorem exp_neg_div_card_le_softmax
+theorem every_token_gets_a_share
     {scores : Tokens → ℝ}
     {score_bound : ℝ}
     (scores_are_bounded : ∀ i, |scores i| ≤ score_bound)
@@ -162,7 +162,7 @@ theorem exp_neg_div_card_le_softmax
 /-- **One layer shrinks the spread.** Two queries whose scores are all at most
 `score_bound` in size give answers that differ by at most
 `1 - exp (-2 * score_bound)` times the range of the values. -/
-theorem abs_attend_sub_attend_le
+theorem one_attention_layer_shrinks_the_spread
     {scores other_scores values : Tokens → ℝ}
     {score_bound lower_bound upper_bound : ℝ}
     (scores_are_bounded : ∀ i, |scores i| ≤ score_bound)
@@ -184,12 +184,12 @@ theorem abs_attend_sub_attend_le
         ≤ (1 - Fintype.card Tokens
             * (exp (-2 * score_bound) / Fintype.card Tokens))
           * (upper_bound - lower_bound) :=
-    abs_sum_mul_sub_sum_mul_le
+    two_weighted_averages_differ_by_at_most_the_spread
       (weights := APPLY_SOFTMAX scores)
       (other_weights := APPLY_SOFTMAX other_scores)
       (weight_floor := exp (-2 * score_bound) / Fintype.card Tokens)
-      (exp_neg_div_card_le_softmax scores_are_bounded)
-      (exp_neg_div_card_le_softmax other_scores_are_bounded)
+      (every_token_gets_a_share scores_are_bounded)
+      (every_token_gets_a_share other_scores_are_bounded)
       (softmax_shares_add_to_one scores) (softmax_shares_add_to_one other_scores)
       values_above_lower values_below_upper
   rw [mul_div_cancel₀ _ card_ne_zero] at shared_bound
@@ -200,7 +200,7 @@ theorem abs_attend_sub_attend_le
 any two tokens differ by at most
 `(1 - exp (-2 * score_bound)) ^ layer_count` times the range they started
 in. -/
-theorem abs_iterate_attentionLayer_sub_le
+theorem depth_merges_the_tokens_at_a_geometric_rate
     (score : TokenScorer Tokens ℝ)
     {score_bound : ℝ}
     (scores_are_bounded :
@@ -267,7 +267,7 @@ theorem abs_iterate_attentionLayer_sub_le
             |APPLY_ATTENTION_LAYER score old_tokens highest_token
                 - APPLY_ATTENTION_LAYER score old_tokens lowest_token|
               ≤ (1 - exp (-2 * score_bound)) * (old_upper - old_lower) :=
-          abs_attend_sub_attend_le
+          one_attention_layer_shrinks_the_spread
             (scores_are_bounded old_tokens highest_token)
             (scores_are_bounded old_tokens lowest_token)
             tokens_above_old tokens_below_old

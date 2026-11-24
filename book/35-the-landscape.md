@@ -52,7 +52,7 @@ the limit for three classes is `−1 / 2`.
 Here is the hill for two weights multiplied.
 
 ```lean
-theorem twoLayer_along
+theorem two_layer_hill_exactly
     {first_a first_b second_a second_b target : ℝ}
     (first_fits : first_a * first_b = target)
     (second_fits : second_a * second_b = target)
@@ -75,12 +75,12 @@ The names `first_a` and `first_b` are the two weights of the first fit, and
 `second_a` and `second_b` those of the second. For a model that is linear
 in its weights there is no such term. The theorem `no_barrier` says the
 error anywhere on the line is no larger than at the worse end, and
-`fit_along` says the line between two fits is all fits.
+`line_between_two_fits_is_all_fits` says the line between two fits is all fits.
 
 Here is the limit on how far apart the classes can be.
 
 ```lean
-theorem neg_one_le_of_inner_le
+theorem simplex_is_as_far_apart_as_arrows_get
     [Nonempty Classes]
     {arrows : ClassArrows Classes Space}
     (arrows_have_length_one : ∀ this_class, ‖arrows this_class‖ = 1)
@@ -101,14 +101,14 @@ at least minus one.
 `inner ℝ` is the overlap of two arrows: 1 if they point the same way, 0 at
 a right angle, minus 1 if opposite. `ClassArrows` is one arrow for each
 class. The arrangement that reaches the limit is the **simplex**, and
-`sum_eq_zero_iff_of_equiangular` says that evenly spread arrows reach the
+`farthest_apart_arrangement_is_the_centred_one` says that evenly spread arrows reach the
 limit exactly when they add up to zero.
 
 ## Why it is true
 
 **No hill.** The model is linear, so its outputs blend like the weights do.
 Midway along the line the error is the same blend of the two errors
-(`residual_along_between`). A blend of two zero errors is zero, and a
+(`residual_on_the_line_between_two_settings`). A blend of two zero errors is zero, and a
 blend is never larger than the larger of the two.
 
 **The hill.** Write the output at the blended weights and multiply it out.
@@ -118,13 +118,13 @@ differences. The Lean proof is one `linear_combination` of the two
 statements that the fits fit.
 
 **The mirror.** If `(a, b)` fits, so does `(−a, −b)`, because the two signs
-cancel (`twoLayer_flip`). Halfway between them both weights are zero
-(`twoLayer_midpoint_mirror`). But the mirror is the same function. The hill
+cancel (`mirror_image_is_the_same_function`). Halfway between them both weights are zero
+(`halfway_to_the_mirror_image_everything_is_lost`). But the mirror is the same function. The hill
 comes from writing one function in two ways.
 
 **The arrows.** Add up all the arrows. The squared length of the sum is the
 number of arrows, one from each arrow's own length, plus the overlaps of
-every pair (`norm_sum_sq_eq_sum_inner`). A squared length is never
+every pair (`squared_length_of_a_sum_is_the_sum_of_overlaps`). A squared length is never
 negative. So if every overlap is at most `overlap_limit`, the sum is at most
 `class_count × (1 + other_class_count × overlap_limit)`, and that cannot be
 below zero.
@@ -141,7 +141,7 @@ it stays **open**.
 
 **Why the class points sum to zero.** Part of the shape in neural collapse
 is plain geometry. The farthest-apart arrangement is the centred one. And
-the counting result of chapter 34, `merged_iff_label_eq`, gives the first
+the counting result of chapter 34, `full_compression_merges_exactly_equal_labels`, gives the first
 part in counting form: a layer squeezed to as many places as labels has one
 place for each class.
 
@@ -212,9 +212,9 @@ jupyter nbconvert --to notebook --execute --inplace experiments/part5/ch35_the_l
    between them?
 
 **Answers.** (1) The halfway weights are `(2, 4)`, so the output is 8. By
-`twoLayer_along` it is `6 − 0.25 × (1 − 3) × (6 − 2)`, which is
-`6 + 2 = 8`. (2) By `neg_one_le_of_inner_le`, four times the limit is at
-least `−1`, so it is `−1 / 4`. (3) Zero, by `fit_along`: the line between
+`two_layer_hill_exactly` it is `6 − 0.25 × (1 − 3) × (6 − 2)`, which is
+`6 + 2 = 8`. (2) By `simplex_is_as_far_apart_as_arrows_get`, four times the limit is at
+least `−1`, so it is `−1 / 4`. (3) Zero, by `line_between_two_fits_is_all_fits`: the line between
 two fits is all fits.
 
 Previous: [34. Capacity and compression](34-capacity-and-compression.md) · Next: [36. Attention](36-attention.md)

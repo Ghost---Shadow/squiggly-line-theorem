@@ -152,7 +152,7 @@ length (`random_directions_are_nearly_at_right_angles`).
 **Graph layer.** Two weighted sums whose weights all sit above a floor
 share `node_count × weight_floor` of their weight, and the shared part
 cancels. The rest is `1 − node_count × weight_floor`, times the range of
-the values. This is the lemma behind chapter 36, `abs_sum_mul_sub_sum_mul_le`.
+the values. This is the lemma behind chapter 36, `two_weighted_averages_differ_by_at_most_the_spread`.
 Depth is the same induction on bands as there.
 
 **Noising.** One step multiplies the signal by `1 − noise_rate`. Do it

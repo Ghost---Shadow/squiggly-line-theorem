@@ -51,7 +51,7 @@ project says slope has to be paid for.
 ## A local layer cannot see the whole picture
 
 After `L` convolution layers an output depends only on the inputs within a
-window (**proved**: `iterate_convolution_congr` in [`Convolution.lean`](../../../lean/SquigglyLine/Supporting/NetworkShape/Convolution.lean)). Two
+window (**proved**: `convolution_stack_reads_only_its_window` in [`Convolution.lean`](../../../lean/SquigglyLine/Supporting/NetworkShape/Convolution.lean)). Two
 images that agree inside the window get the same output there, however many
 cats there are outside it. A count is a fact about the whole image.
 

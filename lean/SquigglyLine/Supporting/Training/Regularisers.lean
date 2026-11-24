@@ -164,7 +164,7 @@ theorem worst_nudge_costs_at_most_size_times_summed_weights
       |GET_LINEAR_SCORE weights (fun i => input i + nudge i)
           - GET_LINEAR_SCORE weights input|
         ≤ size_limit * ∑ i, |weights i| :=
-    abs_score_add_sub_le weights input nudge nudge_is_small
+    no_nudge_moves_the_score_by_more weights input nudge nudge_is_small
   linarith [neg_abs_le (GET_LINEAR_SCORE weights (fun i => input i + nudge i)
     - GET_LINEAR_SCORE weights input)]
 
@@ -187,7 +187,7 @@ theorem worst_nudge_costs_exactly_that
           (fun i => input i + -nudge_size * SignType.sign (weights i))
         = GET_LINEAR_SCORE weights input
           + -nudge_size * ∑ i, |weights i| :=
-    score_add_sign weights input (-nudge_size)
+    worst_small_nudge_moves_the_score_by_size_times_summed_weights weights input (-nudge_size)
   rw [nudge_against_sign]
   ring
 

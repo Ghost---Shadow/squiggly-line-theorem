@@ -6,15 +6,15 @@ number of classes. The overlap of two arrows is their dot product, written
 `inner ℝ`. For arrows of length one it is the cosine of the angle between
 them.
 
-* `norm_sum_sq_eq_sum_inner` : the squared length of the sum of the arrows is
+* `squared_length_of_a_sum_is_the_sum_of_overlaps` : the squared length of the sum of the arrows is
   the sum of all their overlaps.
-* `neg_one_le_of_inner_le` : if every pair of arrows has overlap at most
+* `simplex_is_as_far_apart_as_arrows_get` : if every pair of arrows has overlap at most
   `overlap_limit`, then `(class_count - 1) * overlap_limit ≥ -1`. No
   arrangement is farther apart than the simplex.
-* `norm_sum_sq_of_equiangular` : if every pair has overlap exactly `overlap`,
+* `squared_length_of_sum_of_evenly_spread_arrows` : if every pair has overlap exactly `overlap`,
   the squared length of the sum is
   `class_count * (1 + (class_count - 1) * overlap)`.
-* `sum_eq_zero_iff_of_equiangular` : so evenly spread arrows reach the limit
+* `farthest_apart_arrangement_is_the_centred_one` : so evenly spread arrows reach the limit
   exactly when they add up to zero.
 
 | Name                         | Meaning                                    |
@@ -39,7 +39,7 @@ variable {Space Classes : Type*}
   [NormedAddCommGroup Space] [InnerProductSpace ℝ Space] [Fintype Classes]
 
 /-- The squared length of a sum is the sum of all the overlaps. -/
-theorem norm_sum_sq_eq_sum_inner
+theorem squared_length_of_a_sum_is_the_sum_of_overlaps
     (arrows : ClassArrows Classes Space) :
     let sum_of_arrows         := ∑ i, arrows i
     let squared_length_of_sum := ‖sum_of_arrows‖ ^ 2
@@ -53,7 +53,7 @@ theorem norm_sum_sq_eq_sum_inner
 variable [DecidableEq Classes]
 
 /-- All the classes but one: there are `class_count - 1` of them. -/
-theorem card_erase_univ_add_one
+theorem all_classes_but_one
     (this_class : Classes) :
     let other_classes     := (univ : Finset Classes).erase this_class
     let other_class_count : ℝ := other_classes.card
@@ -64,7 +64,7 @@ theorem card_erase_univ_add_one
 
 /-- One arrow's overlaps with all the arrows: its own length, then the
 others. -/
-theorem sum_inner_eq_one_add
+theorem overlaps_of_one_arrow_with_all_arrows
     {arrows : ClassArrows Classes Space}
     (arrows_have_length_one : ∀ this_class, ‖arrows this_class‖ = 1)
     (this_class : Classes) :
@@ -80,7 +80,7 @@ theorem sum_inner_eq_one_add
 
 /-- If every pair of arrows has overlap at most `overlap_limit`, their sum is
 short. -/
-theorem norm_sum_sq_le_of_inner_le
+theorem sum_of_arrows_is_short_when_overlaps_are_small
     {arrows : ClassArrows Classes Space}
     (arrows_have_length_one : ∀ this_class, ‖arrows this_class‖ = 1)
     {overlap_limit : ℝ}
@@ -93,7 +93,7 @@ theorem norm_sum_sq_le_of_inner_le
       1 + (class_count - 1) * overlap_limit                        -- 1 with itself, at most the limit with each of the others
     squared_length_of_sum ≤ class_count * overlaps_of_one_arrow := by  -- the same bound for each of the `class_count` arrows
   unfold_named_pieces
-  rw [norm_sum_sq_eq_sum_inner]
+  rw [squared_length_of_a_sum_is_the_sum_of_overlaps]
   calc ∑ i, ∑ j, inner ℝ (arrows i) (arrows j)
       ≤ ∑ _i : Classes,
           (1 + (Fintype.card Classes - 1) * overlap_limit) := by
@@ -110,12 +110,12 @@ theorem norm_sum_sq_le_of_inner_le
         have other_count_add_one :
             (((univ : Finset Classes).erase this_class).card : ℝ) + 1
               = Fintype.card Classes :=
-          card_erase_univ_add_one this_class
+          all_classes_but_one this_class
         rw [sum_const, nsmul_eq_mul,
           show (((univ : Finset Classes).erase this_class).card : ℝ)
               = Fintype.card Classes - 1 by linarith]
           at others_at_most_limit
-        rw [sum_inner_eq_one_add arrows_have_length_one this_class]
+        rw [overlaps_of_one_arrow_with_all_arrows arrows_have_length_one this_class]
         linarith
     _ = Fintype.card Classes
           * (1 + (Fintype.card Classes - 1) * overlap_limit) := by
@@ -124,7 +124,7 @@ theorem norm_sum_sq_le_of_inner_le
 /-- **The simplex is as far apart as arrows can get.** For `class_count`
 arrows of length one, if every pair has overlap at most `overlap_limit`, then
 `(class_count - 1) * overlap_limit ≥ -1`. -/
-theorem neg_one_le_of_inner_le
+theorem simplex_is_as_far_apart_as_arrows_get
     [Nonempty Classes]
     {arrows : ClassArrows Classes Space}
     (arrows_have_length_one : ∀ this_class, ‖arrows this_class‖ = 1)
@@ -142,7 +142,7 @@ theorem neg_one_le_of_inner_le
   have sum_is_short :
       ‖∑ i, arrows i‖ ^ 2 ≤ Fintype.card Classes
         * (1 + (Fintype.card Classes - 1) * overlap_limit) :=
-    norm_sum_sq_le_of_inner_le arrows_have_length_one overlaps_at_most_limit
+    sum_of_arrows_is_short_when_overlaps_are_small arrows_have_length_one overlaps_at_most_limit
   -- Below -1, the bound on the squared length of the sum would be negative.
   by_contra limit_is_below
   have overlaps_of_one_arrow_neg :
@@ -154,7 +154,7 @@ theorem neg_one_le_of_inner_le
 
 /-- If every pair of arrows has overlap exactly `overlap`, the squared length
 of their sum is `class_count * (1 + (class_count - 1) * overlap)`. -/
-theorem norm_sum_sq_of_equiangular
+theorem squared_length_of_sum_of_evenly_spread_arrows
     {arrows : ClassArrows Classes Space}
     (arrows_have_length_one : ∀ this_class, ‖arrows this_class‖ = 1)
     {overlap : ℝ}
@@ -167,7 +167,7 @@ theorem norm_sum_sq_of_equiangular
       1 + (class_count - 1) * overlap                              -- 1 with itself, `overlap` with each of the others
     squared_length_of_sum = class_count * overlaps_of_one_arrow := by
   unfold_named_pieces
-  rw [norm_sum_sq_eq_sum_inner]
+  rw [squared_length_of_a_sum_is_the_sum_of_overlaps]
   calc ∑ i, ∑ j, inner ℝ (arrows i) (arrows j)
       = ∑ _i : Classes, (1 + (Fintype.card Classes - 1) * overlap) := by
         -- Add up the overlaps of one arrow at a time.
@@ -183,12 +183,12 @@ theorem norm_sum_sq_of_equiangular
         have other_count_add_one :
             (((univ : Finset Classes).erase this_class).card : ℝ) + 1
               = Fintype.card Classes :=
-          card_erase_univ_add_one this_class
+          all_classes_but_one this_class
         rw [sum_const, nsmul_eq_mul,
           show (((univ : Finset Classes).erase this_class).card : ℝ)
               = Fintype.card Classes - 1 by linarith]
           at others_all_equal
-        rw [sum_inner_eq_one_add arrows_have_length_one this_class,
+        rw [overlaps_of_one_arrow_with_all_arrows arrows_have_length_one this_class,
           others_all_equal]
     _ = Fintype.card Classes
           * (1 + (Fintype.card Classes - 1) * overlap) := by
@@ -197,7 +197,7 @@ theorem norm_sum_sq_of_equiangular
 /-- **The farthest-apart arrangement is the centred one.** Evenly spread
 arrows of length one reach the limit `(class_count - 1) * overlap = -1`
 exactly when they add up to zero. -/
-theorem sum_eq_zero_iff_of_equiangular
+theorem farthest_apart_arrangement_is_the_centred_one
     [Nonempty Classes]
     {arrows : ClassArrows Classes Space}
     (arrows_have_length_one : ∀ this_class, ‖arrows this_class‖ = 1)
@@ -215,7 +215,7 @@ theorem sum_eq_zero_iff_of_equiangular
   have squared_length_of_sum :
       ‖∑ i, arrows i‖ ^ 2 = Fintype.card Classes
         * (1 + (Fintype.card Classes - 1) * overlap) :=
-    norm_sum_sq_of_equiangular arrows_have_length_one overlaps_all_equal
+    squared_length_of_sum_of_evenly_spread_arrows arrows_have_length_one overlaps_all_equal
   constructor
   · -- A zero sum has zero length, and `class_count` is not zero.
     intro sum_is_zero
