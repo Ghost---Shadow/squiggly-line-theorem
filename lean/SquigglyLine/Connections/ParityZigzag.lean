@@ -8,7 +8,7 @@ when an odd number are. Turn the bits on one at a time and the parity goes
 known proofs that small circuits of a weak kind cannot compute some function
 count squiggles of this sort, and parity is the standard hard case.
 
-This file proves three things.
+This file proves four things.
 
 * `flipping_any_bit_flips_parity`: every single bit changes the parity. No
   function of bits changes more often.
@@ -19,6 +19,9 @@ This file proves three things.
   layer that reads the same count needs at least one unit for every two
   bits. This is `card_ge_of_zigzag` of `DepthSeparation.lean`, read for
   parity.
+
+* `half_of_all_functions_change_at_any_flip`: among all functions of bits,
+  exactly half change at any given flip. So being squiggly is common.
 
 So for `2 ^ layer_count` bits a deep network uses `2 * layer_count`
 neurons and a shallow one needs `2 ^ layer_count / 2` units.
@@ -226,5 +229,73 @@ theorem shallow_network_needs_one_unit_per_two_bits
     (by rw [Nat.not_even_iff_odd]; exact odd_two_mul_add_one turn)
   have low_at_end := low_at_even (2 * turn + 2) (by omega) ⟨turn + 1, by ring⟩
   exact ⟨low_at_start.trans high_at_middle, low_at_end.trans high_at_middle⟩
+
+/-! ## Being squiggly is common -/
+
+/-- **Exactly half of all functions change at any given flip.** Fix a string
+of bits and a position. Among all the functions from strings to a bit, as
+many change their value when that bit is flipped as keep it. So a function
+drawn at random changes at half of all flips: being squiggly is the usual
+case, not a rare one.
+
+The proof pairs the functions up. Change one function's value at the
+string, and a function that changed at the flip becomes one that does not,
+and the other way round. -/
+theorem half_of_all_functions_change_at_any_flip
+    {bit_count : ℕ}
+    (bits : BitString bit_count)
+    (position : Fin bit_count) :
+    let flipped_bits := Function.update bits position (!bits position)
+    let functions_that_change :=
+      (Finset.univ : Finset (BitString bit_count → Bool)).filter
+        (fun bit_function => bit_function flipped_bits ≠ bit_function bits)
+    let functions_that_stay :=
+      (Finset.univ : Finset (BitString bit_count → Bool)).filter
+        (fun bit_function => bit_function flipped_bits = bit_function bits)
+    functions_that_change.card = functions_that_stay.card := by
+  unfold_named_pieces
+  -- The flipped string is a different string.
+  have flipped_is_different :
+      Function.update bits position (!bits position) ≠ bits := by
+    intro flipped_eq
+    have same_at_position := congrFun flipped_eq position
+    simp at same_at_position
+  -- The pairing: change the value of the function at `bits`.
+  let change_value_at_bits :
+      (BitString bit_count → Bool) → (BitString bit_count → Bool) :=
+    fun bit_function =>
+      Function.update bit_function bits (!bit_function bits)
+  have pairing_undoes_itself : ∀ bit_function,
+      change_value_at_bits (change_value_at_bits bit_function)
+        = bit_function := by
+    intro bit_function
+    simp [change_value_at_bits]
+  have value_at_flipped_is_kept : ∀ bit_function,
+      change_value_at_bits bit_function
+          (Function.update bits position (!bits position))
+        = bit_function (Function.update bits position (!bits position)) :=
+    fun bit_function =>
+      Function.update_of_ne flipped_is_different _ _
+  have value_at_bits_is_changed : ∀ bit_function,
+      change_value_at_bits bit_function bits = !bit_function bits :=
+    fun bit_function => Function.update_self _ _ _
+  refine Finset.card_nbij' change_value_at_bits change_value_at_bits
+    ?_ ?_ (fun bit_function _ => pairing_undoes_itself bit_function)
+    (fun bit_function _ => pairing_undoes_itself bit_function)
+  · -- A function that changed at the flip no longer does.
+    intro bit_function function_changes
+    simp only [Finset.coe_filter, Finset.mem_univ, true_and,
+      Set.mem_ofPred_eq] at function_changes ⊢
+    rw [value_at_flipped_is_kept, value_at_bits_is_changed]
+    cases value_at_flipped :
+      bit_function (Function.update bits position (!bits position)) <;>
+      cases value_at_bits : bit_function bits <;>
+      simp_all
+  · -- A function that did not change at the flip now does.
+    intro bit_function function_stays
+    simp only [Finset.coe_filter, Finset.mem_univ, true_and,
+      Set.mem_ofPred_eq] at function_stays ⊢
+    rw [value_at_flipped_is_kept, value_at_bits_is_changed, function_stays]
+    cases bit_function bits <;> simp
 
 end SquigglyLine

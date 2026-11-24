@@ -101,8 +101,11 @@ neighbouring inputs, has many ups and downs, has its weight on high
 frequencies.
 
 - It can be read off the table of values quickly. (**my reading**)
-- A random function has it. For a random function of bits, flipping a bit
-  changes the value half the time. (**recalled**)
+- A random function has it. Among all functions of bits, exactly half
+  change their value at any given flip of one bit
+  (`half_of_all_functions_change_at_any_flip`, **proved**). So a function
+  drawn at random changes at half of all flips. Parity changes at all of
+  them, and a function with no squiggles changes at none.
 
 So "is squiggly" is natural. By the barrier it is not useful against
 circuits of polynomial size, unless pseudorandom functions do not exist.
@@ -155,6 +158,6 @@ descent trains every day.
 ## Open
 
 - A shallow network on the bits themselves.
-- A Lean statement that a random function of bits is squiggly: on average,
-  half of the single-bit flips change its value.
+- How the share of flips that change a function is spread round one half,
+  for a function drawn at random. The Lean statement gives the average.
 - Whether any of this belongs in the book is the author's decision.
