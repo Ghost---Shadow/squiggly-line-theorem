@@ -11,11 +11,14 @@ same:
 The burn-down chart plots the items still to do against the date. Its points
 come from git: the checklist as it stood in each commit that changed it, and
 one more point for today when the file has changes that are not committed
-yet. The pace is the number of items ticked per day. It counts only commits
+yet. The project is worked on one day a week (WORKING_DAYS_PER_WEEK), so the
+pace is the number of items ticked per working day: a working day is a date
+on which at least one item was ticked. It counts only commits
 that left the number of items as it was, because a commit that adds or
 splits items changes "items left" without any work being done or undone. The
-ETA is the items left divided by that pace. It is rough, and the page says
-how many days it rests on.
+ETA is the items left divided by that pace, in working days, spread over the
+calendar at that many working days a week. It is rough, and the page says
+how many working days it rests on.
 
 Run it after ticking an item:
 
@@ -35,7 +38,7 @@ README = REPOSITORY / "README.md"
 CHECKLIST = REPOSITORY / "PROGRESS.md"
 CHART = REPOSITORY / "docs" / "burndown.svg"
 BAR_CELLS = 20
-MIN_DAYS_FOR_ETA = 0.25  # a shorter history says nothing about the pace
+WORKING_DAYS_PER_WEEK = 1  # the project is worked on one day a week
 
 BAR_BLOCK = re.compile(
     r"(<!-- progress-bar:start -->\n).*?(<!-- progress-bar:end -->)", re.S
@@ -142,11 +145,28 @@ def count_ticked_items(points: list[Point]) -> float:
     return ticked
 
 
-def items_per_day(points: list[Point]) -> float | None:
-    if history_days(points) < MIN_DAYS_FOR_ETA:
+def count_working_days(points: list[Point]) -> int:
+    """The number of dates on which at least one item was ticked."""
+    working_dates = set()
+    for earlier, later in zip(points, points[1:]):
+        if earlier.item_count == later.item_count and later.items_left < earlier.items_left:
+            working_dates.add(later.moment.date())
+    return len(working_dates)
+
+
+def items_per_working_day(points: list[Point]) -> float | None:
+    working_days = count_working_days(points)
+    if working_days == 0:
         return None
-    pace = count_ticked_items(points) / history_days(points)
-    return pace if pace > 0 else None
+    return count_ticked_items(points) / working_days
+
+
+def items_per_day(points: list[Point]) -> float | None:
+    """Items per calendar day, at WORKING_DAYS_PER_WEEK working days a week."""
+    pace = items_per_working_day(points)
+    if pace is None:
+        return None
+    return pace * WORKING_DAYS_PER_WEEK / 7
 
 
 def eta_of(points: list[Point]) -> datetime | None:
@@ -243,16 +263,19 @@ def draw_chart_block(points: list[Point]) -> str:
     eta = eta_of(points)
     as_of = read_now(points).date()
     if eta is None:
-        verdict = (f"No ETA yet: the history covers {history_days(points):.1f} "
-                   f"days, and no pace can be read from items ticked in it.")
+        verdict = ("No ETA yet: no item has been ticked in a commit that left "
+                   "the number of items as it was, so there is no pace to read.")
     else:
         verdict = (
             f"**ETA {eta:%Y-%m-%d}.** {points[-1].items_left:.1f} items are "
-            f"left, and the pace so far is {pace:.1f} items a day "
-            f"({count_ticked_items(points):.0f} items ticked in "
-            f"{history_days(points):.1f} days). That is a short history, and "
-            f"the items are not of equal size, so treat it as a guess, not a "
-            f"promise."
+            f"left. The pace so far is {items_per_working_day(points):.0f} "
+            f"items per working day ({count_ticked_items(points):.0f} items "
+            f"ticked on {count_working_days(points)} working "
+            f"{'day' if count_working_days(points) == 1 else 'days'}), and the "
+            f"project is worked on {WORKING_DAYS_PER_WEEK} day a week, so that "
+            f"is {points[-1].items_left / items_per_working_day(points):.1f} "
+            f"more working days. That is a short history, and the items are "
+            f"not of equal size, so treat it as a guess, not a promise."
         )
     return (
         "![Burn-down chart: items still to do against the date, with the "
