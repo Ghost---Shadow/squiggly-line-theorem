@@ -11,6 +11,14 @@ today, and the work planned for the existing book in
 plan are not counted. To change the bar, tick an item here and run
 [`scripts/readme_progress.py`](scripts/readme_progress.py).
 
+## Burn-down
+
+<!-- burndown:start -->
+![Burn-down chart: items still to do against the date, with the straight line to zero](docs/burndown.svg)
+
+**ETA 2027-02-06.** 13.0 items are left, and the pace so far is 0.2 items a day. That rests on only 5.7 days of history, so treat it as a guess, not a promise. As of 2026-11-24. The blue line is read from git (every commit that changed this list); the dashed line is the straight line to zero at that pace. When items are added to the list the blue line goes up.
+<!-- burndown:end -->
+
 ## Proofs
 
 - [x] The squiggly line theorem, checked by Lean and rebuilt on every push
