@@ -190,6 +190,69 @@ descent trains every day.
   exist. That is believed and not proved. Proving it would itself show that
   P is not NP. (**recalled**)
 
+## The measurement: how many units does a shallow network really need?
+
+This section was written and pushed on 24 Nov 2026 **before** the notebook
+`experiments/connections/parity_zigzag.ipynb` was run. The verdicts are
+added below it afterwards and the predictions are not edited.
+
+**A claim that is not in Lean.** Statement 3 says a shallow network needs at
+least `n / 2` units for `n` bits. I think the true number is `n - 1`. The
+reason: the network is a curve made of straight pieces, and it has at most
+one more piece than it has units. To be below one half at every even count
+and above one half at every odd count, the curve must turn between every two
+neighbouring counts from 1 to `n - 1`, and a straight piece cannot turn. So
+it needs at least `n` pieces and so at least `n - 1` units. The Lean proof
+counts only the turns at the tops, which is why it gets half of this. This
+argument is mine, is not checked by Lean, and could be wrong. The
+measurement is there to try to break it.
+
+**What is measured.** For `n` = 8 bits the network reads the count of bits
+that are on, a whole number from 0 to 8, and has `k` ReLU units in one
+hidden layer, with no extra constant added at the output (the same network
+as in the Lean statement). It "computes parity" if its output is below one
+half at every even count and above one half at every odd count. For each
+`k` from 1 to 8 the notebook searches for such a network: 200 random
+starting points, each trained by gradient descent on a loss that is zero
+exactly when every count is on the right side of one half by a margin of
+0.05. It records, for each `k`, the best margin found.
+
+- **Z1, the theorem.** For `k` = 1, 2, 3 (fewer than `n / 2` = 4 units) no
+  start finds a network that computes parity. This is statement 3, proved in
+  Lean, so a failure here would mean a mistake in the notebook, not in the
+  theorem.
+- **Z2, the claim above.** For `k` = 4, 5, 6 (at least `n / 2` and fewer than
+  `n - 1` = 7 units) no start finds a network that computes parity either.
+  The prediction fails if any single start, for any of these `k`, does. A
+  failure would refute the argument above.
+- **Z3, enough units.** For `k` = 7 a network that computes parity exists: a
+  zigzag with a kink at each count from 1 to 7. The notebook builds it and
+  checks it (this check holds by construction and is not evidence). I
+  predict that the search also finds one for `k` = 7 and for `k` = 8, from at
+  least one of the 200 starts. This prediction is about the search, not
+  about the mathematics: if it fails, the search is too weak, and then Z2 is
+  not good evidence either. The verdict on Z2 will say so.
+- **Z4, deep against shallow.** `L` tent layers applied to the share of bits
+  that are on give exactly the parity for every count from 0 to `2^L`, for
+  `L` from 1 to 10. This is statement 2, proved in Lean; the notebook checks
+  it in floating point. A failure would mean a mistake in the notebook.
+
+**Stop rule.** 200 starts for each `k`, 3,000 steps of gradient descent for
+each start, one fixed seed, no more. No setting is changed after a result is
+seen. If Z3 fails, nothing is tuned to rescue it: the result is reported as
+"the search could not find the network that is known to exist".
+
+**What a search can and cannot show.** A search that finds nothing does not
+prove that nothing exists. Z2 can refute the claim above. It cannot prove
+it.
+
+**What I had already seen when writing this.** One calculation, done to check
+that Z3 does not rest on a false statement: with kinks fixed at the counts 1
+to 7, a linear programme finds output weights for 7 units that compute
+parity. With kinks fixed at 1.5, 2.5, ..., 6.5 it finds none for 6 units.
+That second result is for one placement of the kinks and is not the search
+of Z2.
+
 ## Open
 
 - A shallow network on the bits themselves.
