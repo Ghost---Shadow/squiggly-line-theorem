@@ -310,8 +310,14 @@ form is `one_unit_per_crossing_less_one` in `DepthSeparation.lean`). The proof
 is the argument above made exact: the network crosses one half once in each
 step from a count to the next, between two crossings next to each other it
 is off one half at a count, so it bends there, and these stretches do not
-overlap. The bound cannot be improved, because a network with exactly
-`n - 1` units exists (the notebook builds one for 8 bits). For 1,024 bits
+overlap. Whether `n - 1` units are also enough is **not proved**. For 8
+bits a network with exactly 7 units exists (the notebook builds one). For
+very few bits `n - 1` units are not enough (**argued**, 24 Nov 2026, not in
+Lean: the network has no constant added at its output, so the first and
+the last straight piece each need two units to be on the right side of
+one half, which makes four units the least for any `n`). An earlier
+version of this note said the bound could not be improved. That was wrong
+as a general statement and is withdrawn. For 1,024 bits
 that is 1,023 units against 20 neurons for the deep network. The failed
 search stays in the record as it was: it showed nothing either way.
 

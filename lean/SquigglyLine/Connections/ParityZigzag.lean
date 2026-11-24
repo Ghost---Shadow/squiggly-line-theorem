@@ -20,7 +20,7 @@ This file proves five things.
   bits. This is `one_unit_per_turn` of `DepthSeparation.lean`, read for
   parity.
 * `shallow_network_needs_one_unit_per_bit_less_one`: in fact it needs one
-  unit for every bit, less one, and that cannot be improved. This is
+  unit for every bit, less one. This is
   `one_unit_per_crossing_less_one`, read for parity.
 
 * `half_of_all_functions_change_at_any_flip`: among all functions of bits,
@@ -269,8 +269,10 @@ theorem shallow_network_on_right_side_of_half_needs_one_unit_per_two_bits
 
 /-- **A shallow network needs one unit for every bit, less one.** The same
 network, with the same weak hypothesis, has at least `bit_count - 1` units.
-This is about twice the bound above, and it cannot be improved: a zigzag
-with a kink at each count from 1 to `bit_count - 1` computes the parity.
+This is about twice the bound above. Whether this many units are also
+enough is not proved here. For 8 bits a network with 7 units was found by a
+linear programme. For very few bits it is not enough, because this network
+has no constant added at its output.
 The proof counts the places where the network crosses one half, one in each
 step from a count to the next, and finds a kink between every two crossings
 next to each other (`one_unit_per_crossing_less_one`). -/

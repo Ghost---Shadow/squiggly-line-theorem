@@ -128,12 +128,14 @@ is a finite set of unit names, `units.card` is how many there are, and `|...|` i
 the absolute value. `bit_count / 2` is whole-number division: 9 bits give 4. For
 `2^L` bits the bound is `2^L / 2`: for 1,024 bits, 512 units against 20 neurons.
 
-The bound can be about doubled, and then it cannot be improved.
+The bound can be about doubled.
 `shallow_network_needs_one_unit_per_bit_less_one` (**proved**, after the
 measurement below) says that the same network has at least `n − 1` units. It asks
 less of the network: only that the output is below one half at every even count
-and above one half at every odd count. A zigzag with a kink at each count from 1
-to `n − 1` computes the parity, so `n − 1` units are also enough. For 1,024 bits
+and above one half at every odd count. Whether `n − 1` units are also enough
+is not proved: for 8 bits the notebook builds a network with 7 units, and for
+very few bits `n − 1` are not enough, because this network adds no constant at
+its output (**argued**, not in Lean). For 1,024 bits
 that is 1,023 units against 20 neurons.
 
 ## Why it is true

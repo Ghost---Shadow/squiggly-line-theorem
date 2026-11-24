@@ -547,3 +547,6 @@ norm_plate_le plate_never_lengthens_the_light
 inner_plate_comm plate_acts_the_same_forwards_and_backwards
 inner_runPlates gradient_comes_back_through_the_same_plates
 le_norm_iterate_skipPlate bypass_plates_blow_up
+#
+# 24 Nov 2026: the old name claimed that the bound cannot be improved, which is not proved.
+depth_separation_with_nothing_to_spare depth_separation_one_unit_per_inner_grid_point

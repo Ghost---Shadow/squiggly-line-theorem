@@ -16,9 +16,10 @@ Depth separation: a shallow network pays one unit per turn.
 * `one_unit_per_crossing_less_one` : a network that is below a level at every
   even checkpoint and above it at every odd one, over `step_count` steps,
   needs `step_count - 1` units. It counts crossings of the level, not tops.
-* `depth_separation_with_nothing_to_spare` : so the shallow network needs
+* `depth_separation_one_unit_per_inner_grid_point` : so the shallow network needs
   `2 ^ (layer_count + 1) - 1` units, one for every grid point strictly
-  inside. That is about twice `depth_separation`, and it cannot be improved.
+  inside. That is about twice `depth_separation`. That this many units are
+  also enough is not proved here.
 
 Definitions:
 
@@ -419,7 +420,7 @@ theorem depth_separation
     have low_at_end := low_at_even (2 * i + 2) (by omega) ⟨i + 1, by ring⟩
     exact ⟨low_at_start.trans high_at_middle, low_at_end.trans high_at_middle⟩
 
-/-! ### One unit per crossing: the bound that cannot be improved
+/-! ### One unit per crossing: a bound about twice as large
 
 `one_unit_per_turn` counts the tops of a zigzag and finds one unit for each.
 A zigzag that goes up and down `turn_count` times has about twice as many
@@ -639,13 +640,13 @@ theorem one_unit_per_crossing_less_one
           (fun gap gap_in_range => (kink_unit_spec gap gap_in_range).1)
           kink_unit_injective
 
-/-- **Depth separation, with nothing to spare.** A network with one hidden
+/-- **Depth separation, counted by crossings.** A network with one hidden
 layer that stays within one half of `layer_count + 1` tent layers at the
 grid points has at least `2 ^ (layer_count + 1) - 1` units. That is one for
 every grid point strictly inside, twice the bound of `depth_separation` less
-one. A zigzag through those grid points with a kink at each of them shows
-that fewer will not do and that this many is enough for the turning. -/
-theorem depth_separation_with_nothing_to_spare
+one. Whether this many units are also enough is not proved here: the network
+has no constant added at its output, and that matters for small grids. -/
+theorem depth_separation_one_unit_per_inner_grid_point
     (units : Finset Index)
     (unit_gain : Index → ℝ)
     (unit_slope : Index → ℝ)
