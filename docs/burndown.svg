@@ -17,12 +17,12 @@
 <text x="48" y="81.6" text-anchor="end" fill="#555">12</text>
 <line x1="56" x2="616" y1="44.5" y2="44.5" stroke="#e4e4e4"/>
 <text x="48" y="48.5" text-anchor="end" fill="#555">14</text>
-<text x="142.1" y="298" text-anchor="middle" fill="#555">01 Dec</text>
-<text x="232.9" y="298" text-anchor="middle" fill="#555">14 Dec</text>
-<text x="323.8" y="298" text-anchor="middle" fill="#555">27 Dec</text>
-<text x="414.6" y="298" text-anchor="middle" fill="#555">09 Jan</text>
-<text x="505.5" y="298" text-anchor="middle" fill="#555">22 Jan</text>
-<text x="596.4" y="298" text-anchor="middle" fill="#555">04 Feb</text>
+<text x="142.0" y="298" text-anchor="middle" fill="#555">01 Dec</text>
+<text x="232.8" y="298" text-anchor="middle" fill="#555">14 Dec</text>
+<text x="323.6" y="298" text-anchor="middle" fill="#555">27 Dec</text>
+<text x="414.5" y="298" text-anchor="middle" fill="#555">09 Jan</text>
+<text x="505.3" y="298" text-anchor="middle" fill="#555">22 Jan</text>
+<text x="596.1" y="298" text-anchor="middle" fill="#555">04 Feb</text>
 <line x1="95.9" y1="60.6" x2="616.0" y2="276.0" stroke="#dd8452" stroke-width="2" stroke-dasharray="6 4"/>
 <text x="610.0" y="256.0" text-anchor="end" fill="#dd8452" font-weight="bold">ETA 06 Feb 2027</text>
 <polyline points="56.0,44.0 58.8,60.6 95.9,60.6" fill="none" stroke="#4c72b0" stroke-width="2.5"/>

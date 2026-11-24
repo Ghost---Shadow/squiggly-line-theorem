@@ -274,9 +274,16 @@ def main() -> None:
                      "run scripts/readme_progress.py")
         print("up to date:", bar_line.strip())
         return
-    README.write_text(new_readme, encoding="utf-8", newline="\n")
-    CHECKLIST.write_text(new_checklist, encoding="utf-8", newline="\n")
-    CHART.write_text(chart_svg, encoding="utf-8", newline="\n")
+    # Write a file only when its text changes. A file watcher (the FileChanged
+    # hook on PROGRESS.md) runs this script on every write, so a write that
+    # changes nothing would run it again, for ever.
+    for path, old_text, new_text in (
+        (README, readme_text, new_readme),
+        (CHECKLIST, checklist_text, new_checklist),
+        (CHART, old_chart, chart_svg),
+    ):
+        if new_text != old_text:
+            path.write_text(new_text, encoding="utf-8", newline="\n")
     print(bar_line.strip())
 
 
