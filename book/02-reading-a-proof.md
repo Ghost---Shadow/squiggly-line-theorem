@@ -52,9 +52,8 @@ most the vertical error.*
 Functions are verbs. `GET_…` returns a value, `IS_…` and `HAS_…` answer yes
 or no, `MAKE_…` and `DRAW_…` build something. A theorem name is a
 sentence that says what is true
-(`nearest_distance_is_at_most_vertical_distance`). In the later chapters
-many theorems still have older, shorter names in the style of Lean's
-library (`one_unit_per_turn`). Treat those as labels.
+(`nearest_distance_is_at_most_vertical_distance`). A few well-known
+results keep a short name, such as `squiggly_line_theorem`.
 
 ## The symbols you will meet
 
