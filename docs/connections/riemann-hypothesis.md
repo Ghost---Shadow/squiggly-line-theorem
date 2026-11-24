@@ -199,6 +199,62 @@ statement proved here for two primes.
   "move the input" mean points of a graph in this repository and functions
   on a window in Voronin's theorem.
 
+## The measurement: how far must the clocks run?
+
+The Lean statement says a good height exists. It does not say how high. The
+notebook `experiments/connections/prime_clocks.ipynb` measures that. This
+section was written and pushed on 24 Nov 2026 **before** the notebook was
+run. The verdicts are added below it afterwards and the predictions are not
+edited.
+
+**What is measured.** The clock of the prime `p` is at the angle `t log p`,
+taken round the circle. For the first `N` primes the clocks together are a
+point on a torus with `N` angles, and the height `t` draws a line on it. The
+distance from that point to a target is the usual straight-line distance
+between the `N` angles, each difference taken the short way round.
+
+**What I had already seen when writing this:** the two numbers in "What is
+proved here" (the smallest values of the two sums of waves up to height
+20,000), and nothing else.
+
+- **M1, two clocks, the rate.** Let `gap(T)` be the largest distance from
+  any point of the torus to the line drawn up to height `T`, for the primes
+  2 and 3. A line of length `T` on a torus of fixed area leaves strips of
+  width about `area / length`, so I predict `gap(T)` falls like `1 / T`:
+  the fitted slope of `log gap` against `log T`, for `T` from 30 to 30,000,
+  is between -1.3 and -0.7. The prediction fails if the slope is outside
+  that range.
+- **M2, the control.** For frequencies 1 and 2 the line closes after one
+  turn, and the nearest it comes to the target `(π, π)` is
+  `π * sqrt(0.2) = 1.405` (from the formula: minimise
+  `(t - π)^2 + (2t - π)^2`). I predict the measured nearest distance stays
+  at or above 1.40 for every `T` up to 30,000, while for the primes 2 and 3
+  it is below 0.01 by `T` = 30,000. The prediction fails if either number is
+  on the wrong side.
+- **M3, more primes cost more.** For the first `N` primes, `N` from 2 to 5,
+  take 40 random targets and for each the first height at which all `N`
+  clocks are within distance 0.3 of the target. A ball of radius 0.3 is a
+  smaller share of the torus for each added prime, so I predict the median
+  first height grows by a factor of at least 3 with each added prime. I also
+  predict each median is within a factor of 3 of the volume estimate
+  `torus volume / (cross-section of the ball * speed) * ln 2`, where the
+  speed is `sqrt(sum of (log p)^2)` and the cross-section is the volume of a
+  ball of radius 0.3 in `N - 1` dimensions. The prediction fails if any
+  factor between neighbours is below 3, or any median is off the estimate by
+  more than a factor of 3.
+
+**Stop rule.** No height above 5,000,000 is searched. A target not reached
+by then is reported as not reached, and a median that would need such a
+target is reported as not measured, not as a number. The sampling step in
+height is chosen so that the answer does not change by more than 2% when the
+step is halved; the notebook prints that check. The same rule is used for
+every `N` and every pair of frequencies. No setting is tuned after seeing a
+result.
+
+**Why this matters for the connection.** If M3 holds, the height needed
+grows fast with the number of primes. That is the measured side of the
+statement that Voronin's theorem gives no useful bound on the height.
+
 ## Open
 
 - The same for any finite number of primes. Mathlib has no Kronecker
