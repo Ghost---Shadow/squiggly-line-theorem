@@ -34,7 +34,9 @@ theorem nearestDist_le_verticalDist
 - Each `let` names one quantity. Nothing is claimed yet.
 - The last line before `:= by` is the **claim**. It only combines names.
 - A comment after `--` says why, where a line needs a reason.
-- Everything after `:= by` is the proof. You may stop reading here.
+- Everything after `:= by` is the proof. This chapter shows only the
+  statement. The full proof is in
+  [`Sandwich.lean`](../lean/SquigglyLine/Theorem/Sandwich.lean).
 
 Read aloud: *for any model and any data point, the nearest distance is at
 most the vertical error.*
@@ -99,7 +101,7 @@ they say.
 
 ## If you do read a proof
 
-The proofs are written as a list of named steps. Six words cover most of
+The proofs are written as a list of named steps. Seven words cover most of
 them.
 
 | In the proof | What it does |
@@ -109,7 +111,8 @@ them.
 | `calc a ≤ b := ... _ ≤ c := ...` | a chain: `a ≤ b`, and `b ≤ c`, so `a ≤ c` |
 | `rw [fact]` | rewrites the goal using an equation |
 | `exact fact` | this fact is the goal; done |
-| `linarith`, `nlinarith`, `ring`, `simp`, `positivity` | arithmetic the checker finishes by itself |
+| `simp` | tidies the goal: it applies a stored list of simplification rules, over and over, until none applies |
+| `linarith`, `nlinarith`, `ring`, `positivity` | arithmetic the checker finishes by itself |
 
 A good way to read a proof is to read only the names after `have`. They
 are the outline of the argument.

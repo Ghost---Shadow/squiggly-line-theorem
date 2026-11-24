@@ -49,12 +49,12 @@ build_page() {
 
 build_page README.md index.html
 
-for source in [0-9][0-9]-*.md glossary.md how-to-cite.md; do
+for source in [0-9][0-9]-*.md glossary.md references.md how-to-cite.md; do
   build_page "$source" "${source%.md}.html"
 done
 
 # Copy only the images the book uses.
-grep -oh '(\.\./graphs/[^)]*)' [0-9][0-9]-*.md glossary.md how-to-cite.md README.md \
+grep -oh '(\.\./graphs/[^)]*)' [0-9][0-9]-*.md glossary.md references.md how-to-cite.md README.md \
   | sed 's/^(\.\.\///; s/)$//' | sort -u \
   | while read -r image; do
       cp "../$image" "$site/$image"
@@ -62,7 +62,7 @@ grep -oh '(\.\./graphs/[^)]*)' [0-9][0-9]-*.md glossary.md how-to-cite.md README
 
 # Figures drawn for the book live in book/figures and are linked as figures/x.png.
 mkdir -p "$site/figures"
-grep -oh '(figures/[^)]*)' [0-9][0-9]-*.md glossary.md how-to-cite.md README.md \
+grep -oh '(figures/[^)]*)' [0-9][0-9]-*.md glossary.md references.md how-to-cite.md README.md \
   | sed 's/^(//; s/)$//' | sort -u \
   | while read -r image; do
       cp "$image" "$site/$image"

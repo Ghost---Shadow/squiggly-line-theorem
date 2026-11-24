@@ -32,7 +32,7 @@ The output is `main.pdf`. `latexmk -c` removes the intermediate files.
 | `main.tex` | preamble, title, abstract |
 | `sections/01_introduction.tex` ... `06_discussion.tex` | main text |
 | `sections/A_appendix.tex` | proofs, the record of earlier errors, experimental details |
-| `references.bib` | bibliography (natbib, `plainnat`) |
+| `../references.bib` | bibliography (natbib, `plainnat`). It is at the root of the repository and is the one file that the paper and the book both read; build the paper from a checkout of the whole repository |
 | `neurips_2026.sty` | official style file, unmodified |
 
 The four figures are read from `../graphs/readme_*.png`, which

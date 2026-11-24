@@ -56,4 +56,4 @@ was Claude Fable 5.2). Claude wrote the text of this book and the Lean
 proofs it describes. Souradeep Nanda had the idea, set the style the
 proofs are written in, chose what to prove, and directed the work.
 
-Previous: [Glossary](glossary.md)
+Previous: [References](references.md)

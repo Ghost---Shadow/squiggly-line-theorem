@@ -127,6 +127,8 @@ step towards solving its problem, and each says so.
 
 - [Glossary](glossary.md): every name the book uses, with the chapter
   that introduces it.
+- [References](references.md): the papers cited, from the one
+  bibliography file that the book and the paper share.
 - [How to cite this book](how-to-cite.md)
 
 ## Building the PDF yourself

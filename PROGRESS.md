@@ -405,9 +405,9 @@ No ETA yet: the history covers 5.9 days, and no pace can be read from items tick
 - [ ] Chapter 44: under each open item, what stood in the way of a proof
 - [ ] Chapter 47: under each open item, what stood in the way of a proof
 - [ ] BibTeX: every citation of the book gathered in one shared file
-- [ ] BibTeX: the book builds from the shared file
-- [ ] BibTeX: the paper builds from the shared file
-- [ ] Chapter 2: the planned edits
+- [x] BibTeX: the book builds from the shared file
+- [x] BibTeX: the paper builds from the shared file
+- [x] Chapter 2: the planned edits
 - [ ] Chapter 6: the planned edits
 - [ ] Chapter 7: the planned edits
 - [ ] Chapter 8: the planned edits

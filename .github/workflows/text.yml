@@ -14,6 +14,8 @@ on:
       - 'lean/**'
       - 'README.md'
       - 'scripts/check_docs_lean.py'
+      - 'scripts/make_references_page.py'
+      - 'references.bib'
       - '.github/workflows/text.yml'
   pull_request:
     paths:
@@ -33,3 +35,5 @@ jobs:
         run: python3 book/tools/check_book.py | grep -v '^checked' ; exit ${PIPESTATUS[0]}
       - name: docs/ and the README against the Lean sources
         run: python3 scripts/check_docs_lean.py | grep -v '^checked' ; exit ${PIPESTATUS[0]}
+      - name: The references page is made from references.bib
+        run: python3 scripts/make_references_page.py --check

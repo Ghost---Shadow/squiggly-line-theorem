@@ -22,6 +22,6 @@ pandoc \
   --number-sections \
   --toc --toc-depth 1 \
   --output build/the-squiggly-line-theorem-book.pdf \
-  [0-9][0-9]-*.md glossary.md how-to-cite.md
+  [0-9][0-9]-*.md glossary.md references.md how-to-cite.md
 
 echo "built book/build/the-squiggly-line-theorem-book.pdf (version ${version})"
