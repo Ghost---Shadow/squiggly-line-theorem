@@ -12,8 +12,9 @@ This file proves seven things about the waves of two different primes.
   period. This is unique factorisation: `p ^ a = q ^ b` is impossible.
 * `two_prime_clocks_reach_every_pair_of_phases`: so the two waves can be
   brought as near as wanted to any pair of phases at the same height. This
-  is Kronecker's theorem for two frequencies, and the first step in the
-  proof of Voronin's universality theorem.
+  is Kronecker's theorem for two frequencies, in the form that says such a
+  height exists. The proof of Voronin's universality theorem uses a
+  stronger form of it, for all the primes at once.
 * `two_prime_wave_takes_every_label_inside_its_band`: so the sum of the two
   waves takes every label strictly inside its band. In the words of
   `Oscillation.lean`, it covers its band.
@@ -270,7 +271,10 @@ theorem two_prime_wave_stays_inside_its_band
             second_amplitude_nonneg)
     _ = first_amplitude + second_amplitude := by ring
 
-/-- **The sum of two prime waves takes every label inside its band.** At
+/-- **The sum of two prime waves takes every label inside its band.** The
+band meant is from `-(first_amplitude + second_amplitude)` to
+`first_amplitude + second_amplitude`. It is the full band of the wave when
+the first amplitude is not negative. At
 height 0 both waves are at their top. Because the two clocks reach every
 pair of phases, at some height both are as near the bottom as wanted. The
 wave is continuous, so on the way it passes through every label between. -/
@@ -517,7 +521,8 @@ theorem two_prime_clocks_reach_every_pair_of_phases_within_a_fixed_distance
 reach.** Take any band strictly inside the full band of the wave. There is a
 `reach` such that within `reach` of every height the wave takes every label
 of the narrower band. This is `COVERS_WITHIN` of `Oscillation.lean`, the
-hypothesis of the covering bound and of the warp theorem. -/
+hypothesis of the covering bound and of the warp theorem. If `inner_edge`
+is negative the narrower band is empty and the statement says nothing. -/
 theorem two_prime_wave_covers_a_narrower_band
     {first_prime second_prime : ℕ}
     (first_is_prime : first_prime.Prime)
@@ -627,8 +632,8 @@ theorem two_prime_wave_covers_a_narrower_band
 /-- **Any target in the narrower band is fitted exactly after a bounded
 warp.** This is `exists_warp_of_coversWithin` for the sum of two prime
 waves: move each input by at most `reach`, and the wave has exactly the
-target's value there. It is this project's small counterpart of
-universality: the nearness is used by moving the input. -/
+target's value there. The warp may be any function; no smoothness is
+asked of it, and the reach has no number. -/
 theorem two_prime_wave_fits_any_target_after_a_bounded_warp
     {first_prime second_prime : ℕ}
     (first_is_prime : first_prime.Prime)
@@ -774,8 +779,9 @@ theorem two_prime_wave_is_near_the_data_and_pays_the_slope_tax
 
 /-- **A wave whose two frequencies have a common period misses part of its
 band.** With frequencies 1 and 2 and both amplitudes 1, the band is from -2
-to 2, and the sum never goes below `-9/8`. So the theorem above does need
-the two frequencies to be those of different primes. -/
+to 2, and the sum never goes below `-9/8`. So
+`two_prime_wave_takes_every_label_inside_its_band` is false for these two
+frequencies: it needs a ratio of frequencies that is not a fraction. -/
 theorem commensurate_wave_misses_part_of_its_band
     (height : ℝ) :
     let slow_wave := cos height

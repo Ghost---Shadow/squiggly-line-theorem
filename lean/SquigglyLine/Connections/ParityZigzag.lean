@@ -4,9 +4,9 @@ Parity is a zigzag: a first link to circuit lower bounds and P versus NP.
 `docs/connections/p-versus-np.md` has the plain account. In short: the
 parity of a string of bits is 0 when an even number of bits are on and 1
 when an odd number are. Turn the bits on one at a time and the parity goes
-0, 1, 0, 1, ... It is the squiggliest thing a function of bits can do. The
-known proofs that small circuits of a weak kind cannot compute some function
-count squiggles of this sort, and parity is the standard hard case.
+0, 1, 0, 1, ... It is the squiggliest thing a function of bits can do.
+Several known proofs that small circuits of a weak kind cannot compute some
+function have a similar shape, and parity is their standard hard case.
 
 This file proves four things.
 
@@ -177,8 +177,8 @@ theorem deep_narrow_network_computes_parity
 
 /-- **A shallow network needs one unit for every two bits.** Take a network
 with one hidden layer of ReLU units that reads the count of bits that are
-on. If it is within one half of the parity for every string of `bit_count`
-bits, it has at least `bit_count / 2` units (rounded down). The parity goes
+on. If it is closer than one half to the parity for every string of
+`bit_count` bits, it has at least `bit_count / 2` units (rounded down). The parity goes
 up and down once for every two bits, and each up-and-down needs a unit. -/
 theorem shallow_network_needs_one_unit_per_two_bits
     {Index : Type*}

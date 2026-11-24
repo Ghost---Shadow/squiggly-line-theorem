@@ -5,8 +5,9 @@
 Written 24 Nov 2026. This note looks for a connection between the squiggly
 line theorem and the question whether P equals NP. It does not say the two
 are equivalent, and nothing here is a step towards the question. The
-strongest connection found is a known reason why the method of this
-repository **cannot** settle it. The section "What the connection does not
+strongest connection found is a known reason, resting on an unproved
+assumption, why a method like this repository's is **not expected** to
+settle it. The section "What the connection does not
 say" is part of the result.
 
 Each statement is marked:
@@ -16,6 +17,16 @@ Each statement is marked:
   (encyclopedia pages, lecture notes, abstracts), not the papers themselves;
 - **recalled**: from memory, not checked against a source;
 - **my reading**: an interpretation of mine, not a theorem.
+
+## Words used
+
+- A **bit** is a 0 or a 1. A **function of bits** takes a string of bits and
+  gives one bit.
+- To **flip** a bit is to change it from 0 to 1 or from 1 to 0.
+- A **circuit** is a network of gates. Each gate takes one or two bits and
+  gives one: AND, OR or NOT. Its **size** is its number of gates.
+- A **unit** is one neuron of a network. A **tent layer** is the two-neuron
+  layer of `Depth.lean`, whose graph is a tent.
 
 ## The question
 
@@ -31,12 +42,15 @@ show that P is not NP it would be enough to show that some problem in NP
 needs very large circuits. Results of that kind are called lower bounds.
 (**recalled**)
 
-## Lower bounds are proved by counting squiggles
+## One way lower bounds are proved: by something like counting squiggles
 
-The lower bounds that are known, for weak kinds of circuit, all work in one
-way. Find something that a small circuit of that kind cannot do much of, and
-a function that does a lot of it. The standard function is **parity**: 0 if
-an even number of the input bits are on, 1 if an odd number are.
+Several of the lower bounds that are known, for weak kinds of circuit, have
+this shape. Find something that a small circuit of that kind cannot do much
+of, and a function that does a lot of it. (**my reading** of the results
+cited below. Other known lower bounds, such as those for circuits without
+NOT gates, use different ideas, and I do not claim they fit.) The standard
+hard function is **parity**: 0 if an even number of the input bits are on, 1
+if an odd number are.
 
 Parity is the squiggliest function of bits. Turn the bits on one at a time
 and it goes 0, 1, 0, 1, ...
@@ -54,34 +68,50 @@ What is proved here, in
    [`Depth.lean`](../../lean/SquigglyLine/Networks/Depth.lean): each layer
    doubles the number of turns.
 3. **A shallow network needs one unit for every two bits**
-   (`shallow_network_needs_one_unit_per_two_bits`, **proved**). A network
-   with one hidden layer of ReLU units that reads the same count, and is
-   within one half of the parity for every input, has at least `n / 2` units
-   for `n` bits. The parity goes up and down `n / 2` times, and each
-   up-and-down needs a unit.
+   (`shallow_network_needs_one_unit_per_two_bits`, **proved**). Take a
+   network with one hidden layer of ReLU units that reads the same count. If
+   its output is closer than one half to the parity for every input, it has
+   at least `n / 2` units for `n` bits. The parity goes up and down `n / 2`
+   times, and each up-and-down needs a unit.
+4. **Being squiggly is common**
+   (`half_of_all_functions_change_at_any_flip`, **proved**). Fix an input
+   and one of its bits. Among all functions of bits, exactly half change
+   their value when that bit is flipped.
 
 So for `2^L` bits the deep network has `2 L` neurons and the shallow one
 needs `2^L / 2`. For 1,024 bits that is 20 neurons against 512.
 
-The same count, in the theory of circuits:
+A similar count, in the theory of circuits:
 
 | | In this repository | In the theory of circuits |
 |---|---|---|
 | The squiggly function | a zigzag with `2^L` teeth | parity of `n` bits |
 | The weak model | one hidden layer | AND, OR, NOT gates in a fixed number of layers `d` |
 | The lower bound | one unit per turn (`card_ge_of_zigzag`) | size `2^(c n^(1/(d-1)))` (Håstad 1986, **cited**) |
-| Why | a straight piece cannot go up and down | such circuits put almost all their weight on low frequencies (Linial, Mansour and Nisan 1993, **cited**) |
 | The strong model | `L` tent layers | circuits with more layers |
 
-The theorem of Linial, Mansour and Nisan says that a function computed by a
-small circuit with few layers is close to a polynomial of low degree. In the
-words of chapter 18 of the book: such a circuit is made almost entirely of
-low frequencies. Parity is the one wave of the highest frequency. For
-networks the matching result is Telgarsky's (2016, **cited**): a few layers
-make a function with many oscillations, and adding units at a fixed depth
-makes few. `DepthSeparation.lean` is a proof of that statement.
+Håstad's proof is not a count of turns. It uses a tool called the switching
+lemma: fix most of the input bits at random, and a small circuit with few
+layers becomes a very simple function, while parity stays parity on the bits
+that are left. I put it beside the count of turns because the two have the
+same shape, not because they are the same proof. (**my reading**)
 
-## The barrier: counting squiggles cannot settle P versus NP
+Linial, Mansour and Nisan (1993, **cited**) built on Håstad's tool and
+showed that a function computed by a small circuit with few layers is close
+to a polynomial of low degree. A function of bits can be written as a sum of
+simple waves, one for each set of bits; the wave of a set is the parity of
+those bits, and the size of the set plays the part of a frequency. Their
+theorem says that such a circuit is made almost entirely of low
+frequencies. Parity of all the bits is the single wave of the highest
+frequency. Chapter 18 of the book has a statement of the same flavour for
+training: strong, low-frequency directions are learned first.
+
+For networks the matching result is Telgarsky's (2016, **cited**): a few
+layers make a function with many oscillations, and adding units at a fixed
+depth makes few. `DepthSeparation.lean` proves the case of one hidden layer.
+Telgarsky's theorem is for any fixed depth, and that is not proved here.
+
+## The barrier: why this kind of counting is not expected to settle P versus NP
 
 **The natural proofs barrier** (Razborov and Rudich 1997, **cited**). Call a
 property of functions *natural* if
@@ -90,36 +120,40 @@ property of functions *natural* if
   function, and
 - a large enough share of all functions have it.
 
-Call it *useful* if no function with small circuits has it. A lower bound by
-counting needs a property that is useful. The theorem: if pseudorandom
-functions exist (functions with small circuits that no fast test can tell
-from random ones, as cryptography assumes), then no natural property is
-useful against circuits of polynomial size.
+Call it *useful* if no function with small circuits has it. A lower bound of
+the shape above needs a property that is useful. The theorem: **if**
+pseudorandom functions of sufficient strength exist (functions with small
+circuits that no fast test can tell from random ones, as cryptography
+assumes), then no natural property is useful against circuits of polynomial
+size. The "if" matters. It is believed and not proved.
 
-Now look at "is squiggly", in any of the senses above: changes at many
-neighbouring inputs, has many ups and downs, has its weight on high
-frequencies.
+Now look at "is squiggly" in the plainest sense: changes at many flips of
+one bit.
 
-- It can be read off the table of values quickly. (**my reading**)
-- A random function has it. Among all functions of bits, exactly half
-  change their value at any given flip of one bit
-  (`half_of_all_functions_change_at_any_flip`, **proved**). So a function
-  drawn at random changes at half of all flips. Parity changes at all of
-  them, and a function with no squiggles changes at none.
+- It can be read off the table of values quickly: go through the table and
+  count the flips that change the value. (**my reading**)
+- A large share of functions have it. By statement 4, a function drawn at
+  random changes at half of all flips on average.
 
-So "is squiggly" is natural. By the barrier it is not useful against
-circuits of polynomial size, unless pseudorandom functions do not exist.
-**The method of this repository, counting squiggles, is the kind of method
-that is known not to be able to separate P from NP.** That is the
-connection, and it is a negative one.
+So "is squiggly" in this sense is natural (**my reading**; the barrier is
+stated for exact definitions of "quickly" and "large enough" that I have not
+checked this against).
 
-Why this should be so is already in the repository (**my reading**).
-`Depth.lean` says that depth makes squiggles cheap: `L` layers give `2^L`
-turns. Statement 2 above is the same fact for parity. A counting argument
-beats a shallow model because a shallow model pays one unit per turn. A deep
-model does not pay that price, so counting turns cannot bound it. A
-pseudorandom function is the extreme case: a small deep circuit that is as
-squiggly as a random function, as far as any fast test can tell.
+For this plain sense no barrier is needed. Parity is as squiggly as a
+function can be (statement 1), and it has small circuits. So "is squiggly" is
+simply not useful against circuits of polynomial size. Statement 2 is that
+fact for networks: depth makes squiggles cheap, `L` layers give `2^L` turns.
+A count of turns beats a shallow model because a shallow model pays one unit
+per turn. A deep model does not pay that price, so a count of turns cannot
+bound it.
+
+What the barrier adds is that a cleverer count will not help either, as
+long as it stays natural. **So, if pseudorandom functions exist, a method
+like this repository's, which measures how squiggly a function is in a way
+that is quick to check and common among all functions, cannot separate P
+from NP.** That is the connection. It is a negative one, it is conditional,
+and the step from "this repository's method" to "a natural property" is my
+reading, not a theorem.
 
 ## A second, weaker link: finding the weights
 
@@ -136,16 +170,17 @@ descent trains every day.
 
 ## What the connection does not say
 
-- **It is not progress on P versus NP.** The one firm connection is a
-  barrier: it says arguments of this repository's kind will not settle the
-  question.
+- **It is not progress on P versus NP.** The main connection is a barrier.
+  If its assumption holds, arguments of this repository's kind will not
+  settle the question.
 - **Parity is easy.** It is in P. A program computes it in one pass over the
   bits. The Lean statements compare two kinds of small network on an easy
   function. They say nothing about a hard problem.
 - **The Lean networks see only the count.** Both read how many bits are on,
   not which. A shallow network that reads the bits themselves is not covered.
-- **Håstad's theorem, the theorem of Linial, Mansour and Nisan, and the
-  barrier are cited, not proved here.** Mathlib has no switching lemma and
+- **Håstad's theorem, the theorem of Linial, Mansour and Nisan,
+  Telgarsky's theorem beyond one hidden layer, and the barrier are cited,
+  not proved here.** Mathlib has no switching lemma and
   no pseudorandom functions.
 - **"Squiggly" is used in more than one sense.** For a curve it means slope
   and reach. For a function of bits it means sensitivity or high frequency.

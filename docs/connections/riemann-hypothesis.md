@@ -15,6 +15,20 @@ Each statement is marked:
 - **checked**: a number computed for this note;
 - **recalled**: from memory, not checked against a source.
 
+## Words used
+
+- A **label** is a value on the vertical axis: a height that a curve may or
+  may not pass through.
+- The **band** of a wave is the range of labels between its lowest and its
+  highest possible value.
+- A curve **covers** a band **within a reach** if, near every input and for
+  every label of the band, there is an input at most the reach away where
+  the curve has exactly that label.
+- A **warp** moves each input to another input. Nothing else is asked of it:
+  it need not be smooth or even continuous.
+- A **torus** here is the set of positions of several clock hands at once.
+  With two hands it is a square whose opposite edges are joined.
+
 ## The picture: the zeta function is a sum of waves
 
 The Riemann zeta function is the sum
@@ -52,7 +66,8 @@ depends on the height only through the hand of the clock of `p`.
 
 All eight statements are in
 [`PrimeWaves.lean`](../../lean/SquigglyLine/Connections/PrimeWaves.lean).
-They are about the waves of two different primes `p` and `q`.
+They are about the waves of two different primes `p` and `q`. The
+amplitudes `A` and `B` below are not negative.
 
 1. **The two clocks never line up again**
    (`ratio_of_prime_logs_is_irrational`, **proved**). The ratio
@@ -65,7 +80,8 @@ They are about the waves of two different primes `p` and `q`.
    is exactly at its position and the second is within the tolerance of its
    position. This is Kronecker's theorem of 1884 for two frequencies. The
    proof uses a theorem already in Mathlib: steps of an irrational size
-   round a circle come near every point.
+   round a circle come near every point. It says that such a height
+   exists. It does not say how often such heights occur.
 
 3. **The sum of the two waves takes every label inside its band**
    (`two_prime_wave_takes_every_label_inside_its_band`, **proved**). Take
@@ -82,7 +98,9 @@ They are about the waves of two different primes `p` and `q`.
 
 4. **It does so within a fixed distance of every height**
    (`two_prime_wave_covers_a_narrower_band`, **proved**). Take any band
-   strictly inside the full band, say from `-c` to `c` with `c < A + B`.
+   strictly inside the full band, from `-c` to `c` with `0 <= c < A + B`.
+   (The Lean statement also allows a negative `c`, for which the band is
+   empty and the statement says nothing.)
    There is a distance, the reach, such that within the reach of every
    height the wave takes every label of that band. This is exactly
    `COVERS_WITHIN`, the hypothesis that the covering bound and the warp
@@ -94,34 +112,43 @@ They are about the waves of two different primes `p` and `q`.
    any function whose values lie in the narrower band. Move each input by at
    most the reach, and the sum of the two prime waves has exactly the
    target's value there. This is
-   `exists_warp_of_coversWithin` applied to the primes. It is this
-   repository's small counterpart of universality.
+   `exists_warp_of_coversWithin` applied to the primes. It adds little to
+   statement 4: the warp may be any function, with no smoothness asked,
+   and the reach has no number. It has the same shape as universality
+   (a target is matched by moving the input) and is far weaker.
 
 6. **The wave is as steep as its frequencies**
    (`two_prime_wave_slope_is_at_most_amplitudes_times_frequencies`,
    **proved**). Its slope is at most `|A| log p + |B| log q`. A larger prime
-   has a larger frequency, so its wave is squigglier.
+   has a larger frequency, so its wave may be steeper. Nothing here proves
+   that a larger prime brings the wave closer to data.
 
 7. **The squiggly line sandwich holds for the prime wave**
    (`two_prime_wave_is_near_the_data_and_pays_the_slope_tax`, **proved**).
    For data whose labels lie in the narrower band, the wave passes within
    the reach of every data point, and the vertical error is at most
    `sqrt(1 + slope^2)` times that nearest distance. These are the two bounds
-   of the squiggly line theorem, with the primes put in.
+   of the squiggly line theorem, with the primes put in. The reach here is
+   one fixed number with no formula. The theorem for a single wave says
+   more: its reach is `π / frequency`, so it shrinks as the wave gets
+   squigglier. That part is not proved for the prime wave.
 
 8. **The control: clocks that do line up miss part of their band**
    (`commensurate_wave_misses_part_of_its_band`, **proved**). With
    frequencies 1 and 2 the sum `cos t + cos 2t` never goes below `-9/8`,
-   though its band goes down to `-2`. So statements 3 to 5 and 7 need the frequencies
-   to be those of different primes. It fails for frequencies with a common
-   period.
+   though its band goes down to `-2`. So statement 3 is false for these two
+   frequencies. What statements 2 to 5 and 7 use about the primes is only
+   that the ratio of the two frequencies is not a fraction (statement 1).
+   The control is one inequality about one pair of frequencies. It is not
+   a theorem about every pair with a common period.
 
 Two numbers to go with this (**checked**, by evaluating the waves on a fine
-grid): the smallest value of `cos t + cos 2t` is `-1.125`. The smallest value
-of `cos(t log 2) + cos(t log 3)` for heights up to 20,000 is `-1.999998`, at
-a height near 16,457.
+grid with a one-off script; they are not in the notebook): the smallest
+value of `cos t + cos 2t` is `-1.125`. The smallest value of
+`cos(t log 2) + cos(t log 3)` for heights up to 20,000 is `-1.999998`, at a
+height near 16,457.
 
-## What this is the first step of: Voronin's theorem
+## Where the prime clocks are used: Voronin's theorem
 
 **Voronin's universality theorem** (**cited**; Voronin 1975, as stated in
 Theorem 1 of Matsumoto's survey, arXiv 1407.4216, and on Wikipedia, "Zeta
@@ -142,9 +169,14 @@ every such target.
 
 The proof moves the prime clocks. The survey's words: "since {log p} is
 linearly independent over Q, we can apply the Kronecker-Weyl approximation
-theorem." That is statement 2 above for all the primes at once, in place of
-two. So the Lean file holds the two-prime case of the first step of the
-proof. It holds nothing of the other steps.
+theorem." That theorem is stronger than statement 2 in two ways. It is for
+all the primes at once, in place of two. And it says that the good heights
+are a positive share of all heights, where statement 2 says only that one
+exists. So the Lean file holds a small special case of one tool that the
+proof uses. The proof needs much more: the stronger form of that tool, a
+step that replaces the zeta function by a finite product over primes, and
+a step about rearranging series in a space of functions. None of that is
+here.
 
 ### How this sits beside the squiggly line theorem
 
@@ -157,9 +189,11 @@ proof. It holds nothing of the other steps.
 | The move | a different small move for each input | one shift for the whole window |
 | How far | at most `π / w`, shorter for a squigglier wave | no small bound is known |
 
-Both say that nearness is used by moving the input, not the output. In this
-repository the move is small and is different for each input. In Voronin's
-theorem the move is one shift for the whole window, and it is not small. One
+Both say that nearness is used by moving the input, not the output. For a
+single wave in this repository the move is small and is different for each
+input. (For the sum of two prime waves the move is bounded, with no number
+for the bound.) In Voronin's theorem the move is one shift for the whole
+window, and it is not small. One
 effective result (**cited**, from the same Wikipedia page, credited there to
 Garunkštis) bounds the first good height for a tiny disc by
 `exp(exp(10 / ε^13))`.
@@ -170,14 +204,18 @@ The Riemann hypothesis says that the zeta function has no zero whose real
 part is above 1/2. (The zeros of interest lie in the strip between 0 and 1,
 and the hypothesis puts them all on the line 1/2.)
 
-**The target must have no zeros, and that is the hypothesis showing
-through.** A function that is close enough to a function with a zero has a
-zero too. So if the zeta function came close, at a positive share of
-heights, to a target with a zero in the strip, it would have many zeros to
-the right of 1/2. Wikipedia puts it this way: under the Riemann hypothesis
-the zeta function has no zeros in the strip, so it could not approximate
-such a function. (**cited** for the conclusion; the step from "close" to
-"has a zero" is Rouché's theorem, **recalled**.)
+**The target must have no zeros, and the reason is about zeros of the zeta
+function.** A function that is close enough to a function with a zero
+inside the window has a zero there too. So if the zeta function came close,
+at a positive share of heights, to a target with a zero, it would have very
+many zeros to the right of 1/2. It is known, without assuming the Riemann
+hypothesis, that it has too few zeros there for that. So the condition on
+the target holds whether or not the hypothesis is true; it does not depend
+on it. (**recalled**: the first step is Rouché's or Hurwitz's theorem, and
+the count of zeros is the kind of result proved by Bohr and Landau. I have
+not checked either against a source. Wikipedia makes the weaker remark that
+under the hypothesis the zeta function has no zeros in the strip and so
+could not approximate such a target.)
 
 **Bagchi's theorem** (**cited**; B. Bagchi, thesis, Indian Statistical
 Institute, 1981, and "Recurrence in topological dynamics and the Riemann
@@ -196,17 +234,20 @@ zero in the strip, so it is itself an allowed target in Voronin's theorem.
 (**recalled** reasoning; the other direction uses known bounds on how many
 zeros can lie to the right of 1/2.)
 
-So here is the connection in one sentence. **The Riemann hypothesis is
-equivalent to a statement about nearness for one squiggly curve: the curve
-of the zeta function passes close to itself again and again.** And the first
-step in proving that this curve passes close to anything at all is the
-statement proved here for two primes.
+So here is the connection in one sentence. **By Bagchi's theorem, the
+Riemann hypothesis can be restated as a statement about nearness for one
+squiggly curve: the curve of the zeta function passes close to itself again
+and again.** The restatement is as hard as the hypothesis. What this
+repository shares with it is the kind of statement (a squiggly curve, a
+target, nearness reached by moving the input) and one elementary tool, the
+prime clocks of statement 2. It shares no route to a proof.
 
 ## What the connection does not say
 
 - **It is not progress on the Riemann hypothesis.** What is proved here is
-  Kronecker's theorem for two frequencies, which is from 1884, and a
-  consequence of it for a sum of two waves. Voronin's and Bagchi's theorems
+  Kronecker's theorem for two frequencies, which is from 1884, in the form
+  that says a good height exists, and consequences of it for a sum of two
+  waves. Voronin's and Bagchi's theorems
   are cited, not proved here. Bagchi's theorem restates the hypothesis. It
   has not led to a proof.
 - **The squiggly line theorem is about something else.** It compares a
@@ -321,11 +362,12 @@ was run.
   rough.
 
 **What this does and does not show.** Each added prime made the wait about
-ten to thirty times longer, at a tolerance of 0.3. The proof of Voronin's
-theorem needs many primes and a small tolerance, so by this measure the
-heights it needs are far beyond any search. That agrees with the bound cited
-above. It is a measurement for five primes and one tolerance, and it says
-nothing about the zeta function itself. The checks that the sampling step is
+ten to thirty times longer, at a tolerance of 0.3. That is all that was
+measured: five primes and one tolerance. It says nothing about the zeta
+function itself. It cannot be compared with the bound cited above, which is
+about a small tolerance for a fixed window, not about the number of primes.
+That many primes and a small tolerance would need far greater heights is a
+guess from these numbers, not a measurement. The checks that the sampling step is
 fine enough are printed in the notebook; the helper notes that one of them
 (halving the step for M3) cannot fail, because the first hit is found by a
 closed formula, and that an independent coarse search agrees with it.
