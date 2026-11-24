@@ -58,6 +58,7 @@ In `SquigglyLine/Networks/`.
 | `ExchangeRate`    | tight features: `travel = ‖residual‖ / √c`                            |
 | `Kernel`          | same kernel: same gradient-descent path and same travel               |
 | `DoubleDescent`   | a near fit is tame; travel is large only where the kernel is weak     |
+| `Initialisation`  | one hidden layer: the expected squared error at the start has no width in it |
 | `Lift`            | squiggly below is flat above; slope ≤ tilt × stretch; kernel trick   |
 | `FourierLift`     | the Fourier lift stretches by at most `w`; its kernel sees only gaps  |
 | `RadialBasis`     | a bump of width `σ` has slope ≤ `1 / σ`; narrow bumps fit anything   |
@@ -187,6 +188,7 @@ import SquigglyLine.Networks.FourierLift
 import SquigglyLine.Networks.RadialBasis
 import SquigglyLine.Networks.Positions
 import SquigglyLine.Networks.RandomFourier
+import SquigglyLine.Networks.Initialisation
 -- 3. Supporting material: how training moves
 import SquigglyLine.Supporting.Training.LeastAction
 import SquigglyLine.Supporting.Training.SpectralBias

@@ -96,10 +96,96 @@ setup the widths agree.
 
 Standard initialisation of the weights is designed to keep the size of
 the output the same at every width, and squared error at the start reads
-only that. The lemma needs equal one-point marginals. For a real network
-of each width this book proves no such thing, so the lemma is consistent
-with the measurement but does not explain it. This part is **measured**,
-not proved here.
+only that. For a network with one hidden layer this is **proved**, in
+[`Initialisation.lean`](../lean/SquigglyLine/Networks/Initialisation.lean).
+
+First in plain English. The network adds up its hidden units, each
+multiplied by an outer weight:
+
+```
+output = sum over the hidden units of outer_weight × hidden_value
+```
+
+Draw the outer weights independently of each other and of the first layer.
+Give each a mean of zero and a mean square of `outer_scale / width`. This
+is what the standard schemes do. Suppose every hidden unit has the same
+mean square at the input, `hidden_mean_square`. Then:
+
+- the mean of the output is zero;
+- the mean of the squared output is `outer_scale × hidden_mean_square`.
+
+The width has cancelled. There are `width` units, and the mean square of
+each outer weight is `outer_scale / width`. Two different units add nothing
+to the mean square, because their weights are independent and have mean
+zero.
+
+```lean
+theorem output_mean_is_zero_and_mean_square_has_no_width
+    {FirstLayer : Type*} [MeasurableSpace FirstLayer]
+    [Nonempty Units]
+    (weight_distribution : Measure ℝ)
+    [IsProbabilityMeasure weight_distribution]
+    (first_layer_distribution : Measure FirstLayer)
+    [IsProbabilityMeasure first_layer_distribution]
+    (hidden : Units → FirstLayer → ℝ)                 -- the value of each hidden unit at the input, for each draw of the first layer
+    {outer_scale : ℝ}
+    {hidden_mean_square : ℝ}
+    (weight_is_square_integrable :
+      MemLp (fun weight : ℝ => weight) 2 weight_distribution)
+    (weight_mean_is_zero : ∫ weight, weight ∂weight_distribution = 0)
+    (weight_mean_square_is_scale_over_width :
+      ∫ weight, weight ^ 2 ∂weight_distribution
+        = outer_scale / Fintype.card Units)
+    (hidden_is_square_integrable :
+      ∀ unit, MemLp (hidden unit) 2 first_layer_distribution)
+    (hidden_mean_square_is_same :
+      ∀ unit, ∫ first_layer, hidden unit first_layer ^ 2
+        ∂first_layer_distribution = hidden_mean_square) :
+    let prior :=
+      (Measure.pi (fun _ : Units => weight_distribution)).prod
+        first_layer_distribution                      -- outer weights and first layer, drawn independently
+    let output := fun parameters : (Units → ℝ) × FirstLayer =>
+      ∑ unit, parameters.1 unit * hidden unit parameters.2
+    let mean_output        := ∫ parameters, output parameters ∂prior
+    let mean_square_output := ∫ parameters, output parameters ^ 2 ∂prior
+    mean_output = 0
+      ∧ mean_square_output = outer_scale * hidden_mean_square := by
+```
+
+*Read aloud:* under those assumptions, the mean output is zero and the mean
+squared output is the scale times the mean square of one hidden unit.
+
+The notation: `Units` is the set of hidden units, and `Fintype.card Units`
+is how many there are, the width. `Measure.pi (fun _ => weight_distribution)`
+draws one outer weight for each unit, independently, all from the same
+distribution. `.prod` draws a pair, the two parts independently: here the
+outer weights and the first layer. `∫ weight, weight ^ 2 ∂weight_distribution`
+is the mean of the squared weight. `MemLp ... 2 ...` says that a square has a
+finite mean. `hidden unit first_layer` is the value of one hidden unit at
+the input, for one draw of the first layer.
+
+Squared error reads only those two numbers (the formula is just below). So
+the expected squared error at the start is
+`label² + outer_scale × hidden_mean_square` at every width. That is
+`expected_squared_error_at_start_has_no_width`, and
+`expected_squared_error_at_start_is_same_at_two_widths` compares two
+networks of different widths directly.
+
+What the proof needs and does not need:
+
+- It needs no Gaussian weights and no ReLU. Any activation and any
+  distribution with these two moments will do.
+- It assumes that a hidden unit has the same mean square at every width.
+  That holds when the incoming weights of each unit are drawn in the same
+  way at every width: a hidden unit does not know how many others there
+  are.
+- It is about the weights. A bias on the output is outside it, and the
+  second measurement below shows what such a bias does.
+- It is for one hidden layer and for squared error. For deeper networks
+  and for other losses the flat loss is **measured**, not proved here.
+- It is not the lemma of this chapter. That lemma asks for equal one-point
+  marginals, and a real network does not have them across widths. Only
+  these two numbers agree.
 
 **A common misunderstanding.** The same loss at every width does not
 mean the same distribution of outputs at every width. Squared error
