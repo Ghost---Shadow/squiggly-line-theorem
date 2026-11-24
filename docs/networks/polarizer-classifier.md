@@ -165,7 +165,7 @@ in window `j` is
 score_j(x) = Σ over points of window j of |(T x)|² = xᵀ Q_j x
 ```
 
-with `Q_j` symmetric and never negative. Three things follow.
+with the matrix of each window symmetric and never negative. Three things follow.
 
 1. **Each score is a sum of squares of straight-line readings** of the
    digit, at most four per screen point (two vibrations, each with a real and

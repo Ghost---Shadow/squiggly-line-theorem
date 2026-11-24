@@ -3,7 +3,7 @@
 # The Squiggly Line Theorem (Early Access)
 
 <!-- progress-bar:start -->
-`█████░░░░░░░░░░░░░░░` **24% done** · ETA unknown ([what this counts](PROGRESS.md), [burn-down](PROGRESS.md#burn-down))
+`██████░░░░░░░░░░░░░░` **28% done** · ETA unknown ([what this counts](PROGRESS.md), [burn-down](PROGRESS.md#burn-down))
 <!-- progress-bar:end -->
 
 **A squigglier curve passes closer to the data. It is steeper by the same
@@ -122,15 +122,19 @@ side from git history, the right side from the file as it is now.
 Here is one claim of the theorem, in traditional notation and in this
 style. Lean checks that the two say the same thing.
 
-```lean
--- Traditional
-GET_VERTICAL_ERROR ((MAKE_RANDOM_PHASE_SINE A w).eval φ) p / √(1 + (A * w) ^ 2)
-    ≤ GET_NEAREST_DISTANCE ((MAKE_RANDOM_PHASE_SINE A w).eval φ) p ∧
-  GET_NEAREST_DISTANCE ((MAKE_RANDOM_PHASE_SINE A w).eval φ) p ≤ π / w
-```
+Traditional (three lines cut from the middle of the original statement, as
+it is kept in
+[`Tests/StatementsUnchanged.lean`](lean/SquigglyLine/Tests/StatementsUnchanged.lean)):
 
 ```lean
--- Here
+          GET_VERTICAL_ERROR ((MAKE_RANDOM_PHASE_SINE A w).eval φ) p / √(1 + (A * w) ^ 2)
+              ≤ GET_NEAREST_DISTANCE ((MAKE_RANDOM_PHASE_SINE A w).eval φ) p ∧
+            GET_NEAREST_DISTANCE ((MAKE_RANDOM_PHASE_SINE A w).eval φ) p ≤ π / w) ∧
+```
+
+Here:
+
+```lean
 let curve            := DRAW_SINE_CURVE amplitude frequency phase
 let vertical_error   := GET_VERTICAL_ERROR curve data_point    -- orange line in the graph: what training sees
 let nearest_distance := GET_NEAREST_DISTANCE curve data_point  -- blue line in the graph: what the eye sees
@@ -554,6 +558,7 @@ checks that each restyled statement says what its original said.
 | [`RadialBasis`](lean/SquigglyLine/Networks/RadialBasis.lean) | a Gaussian bump of width `σ` is the unit bump squeezed by `1 / σ`, so it has slope at most `1 / σ`; a network of bumps is no steeper than its heights over its width, is a flat model on the lift by bumps, and fits any labels once the bumps hardly overlap |
 | [`Positions`](lean/SquigglyLine/Networks/Positions.lean) | position embeddings: the overlap of two sinusoidal position signals is a sum of cosines of their gap; with rotary positions the score depends on the positions only through the gap and no length changes; a relative bias survives a shift of the sequence; a learned table ties no two positions together |
 | [`RandomFourier`](lean/SquigglyLine/Networks/RandomFourier.lean) | random Fourier features: the kernel of the Fourier lift, averaged over frequencies drawn from a bell curve of variance `v`, is the Gaussian bump `exp(−v gap² / 2)`, so the Fourier lift and the radial basis kernel are one thing on average |
+| [`Initialisation`](lean/SquigglyLine/Networks/Initialisation.lean) | standard initialisation, one hidden layer: with outer weights independent of each other and of the first layer, of mean zero and mean square `c / width`, the mean output is zero and the mean squared output is `c` times the mean square of one hidden unit, so the expected squared error at the start is the same at every width; no Gaussian weights and no ReLU needed |
 
 **Connections to other problems.** Proofs in
 [`lean/SquigglyLine/Connections/`](lean/SquigglyLine/Connections), notes in
@@ -702,7 +707,6 @@ python readme_figures.py         # redraws the figures on this page, ~2 min
 | `scripts/` (experiments) | the scripts listed above |
 | `scripts/` (other) | the first exploratory code, kept as a record |
 | `graphs/` | figures |
-| `handoff.md` | open experiments, with a prediction and a stop rule for each |
 
 ## What went wrong the first time
 
@@ -742,8 +746,9 @@ The full list, with a status for each, is in
 - Do the fixed-kernel results in section 8 survive when the kernel moves
   during training?
 
-Experiments that are specified and not yet run are in
-[`handoff.md`](handoff.md).
+Experiments that were specified and not yet run were listed in `handoff.md`.
+That file was removed on 15 Nov 2026; its text is in the git history, and the
+rules it held for experiments are now in [`CLAUDE.md`](CLAUDE.md).
 
 ## Wishlist and open problems
 

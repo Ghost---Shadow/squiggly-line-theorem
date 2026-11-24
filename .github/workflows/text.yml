@@ -1,0 +1,35 @@
+name: Text matches Lean
+
+# The book, docs/ and the README quote Lean statements and name Lean theorems
+# and files. These two checks fail when a quoted line is no longer a line of
+# the sources, when a named theorem no longer exists, or when a link is broken.
+# They need only Python, so they run on every push.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'book/**'
+      - 'docs/**'
+      - 'lean/**'
+      - 'README.md'
+      - 'scripts/check_docs_lean.py'
+      - '.github/workflows/text.yml'
+  pull_request:
+    paths:
+      - 'book/**'
+      - 'docs/**'
+      - 'lean/**'
+      - 'README.md'
+      - 'scripts/check_docs_lean.py'
+      - '.github/workflows/text.yml'
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: The book against the Lean sources
+        run: python3 book/tools/check_book.py | grep -v '^checked' ; exit ${PIPESTATUS[0]}
+      - name: docs/ and the README against the Lean sources
+        run: python3 scripts/check_docs_lean.py | grep -v '^checked' ; exit ${PIPESTATUS[0]}

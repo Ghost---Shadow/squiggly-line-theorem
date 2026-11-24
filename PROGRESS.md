@@ -16,7 +16,7 @@ plan are not counted. To change the bar, tick an item here and run
 <!-- burndown:start -->
 ![Burn-down chart: items still to do against the date, with the straight line to zero](docs/burndown.svg)
 
-No ETA yet: the history covers 5.7 days, and no pace can be read from items ticked in it. As of 2026-11-24. The blue line is read from git (every commit that changed this list); the dashed line is the straight line to zero at that pace. When items are added to the list the blue line goes up.
+No ETA yet: the history covers 5.9 days, and no pace can be read from items ticked in it. As of 2026-11-24. The blue line is read from git (every commit that changed this list); the dashed line is the straight line to zero at that pace. When items are added to the list the blue line goes up.
 <!-- burndown:end -->
 
 ## Proofs
@@ -27,12 +27,15 @@ No ETA yet: the history covers 5.7 days, and no pace can be read from items tick
 - [x] Chapter 18: the Fourier version
 - [x] Chapter 17: open item 1 about plates
 - [ ] Chapter 17: open item 2 about plates
-- [ ] Chapter 5: a proof that standard initialisation gives the same loss at every width
+- [x] Chapter 5: a proof that standard initialisation gives the same loss at every width
 - [ ] Theorem names in the style of the rest of the code: `Networks/Bridge.lean`
 - [ ] Theorem names in the style of the rest of the code: `Networks/Depth.lean`
 - [ ] Theorem names in the style of the rest of the code: `Networks/DoubleDescent.lean`
 - [ ] Theorem names in the style of the rest of the code: `Networks/ExchangeRate.lean`
 - [ ] Theorem names in the style of the rest of the code: `Networks/FourierLift.lean`
+- [x] Theorem names in the style of the rest of the code: `Connections/ParityZigzag.lean`
+- [x] Theorem names in the style of the rest of the code: `Connections/PrimeWaves.lean`
+- [x] Theorem names in the style of the rest of the code: `Networks/Initialisation.lean`
 - [ ] Theorem names in the style of the rest of the code: `Networks/Kernel.lean`
 - [ ] Theorem names in the style of the rest of the code: `Networks/Lift.lean`
 - [ ] Theorem names in the style of the rest of the code: `Networks/LinearModel.lean`
@@ -117,6 +120,9 @@ No ETA yet: the history covers 5.7 days, and no pace can be read from items tick
 - [ ] Long proof steps split into named lines, repeated steps made lemmas: `Networks/DoubleDescent.lean`
 - [ ] Long proof steps split into named lines, repeated steps made lemmas: `Networks/ExchangeRate.lean`
 - [ ] Long proof steps split into named lines, repeated steps made lemmas: `Networks/FourierLift.lean`
+- [ ] Long proof steps split into named lines, repeated steps made lemmas: `Connections/ParityZigzag.lean`
+- [ ] Long proof steps split into named lines, repeated steps made lemmas: `Connections/PrimeWaves.lean`
+- [ ] Long proof steps split into named lines, repeated steps made lemmas: `Networks/Initialisation.lean`
 - [ ] Long proof steps split into named lines, repeated steps made lemmas: `Networks/Kernel.lean`
 - [ ] Long proof steps split into named lines, repeated steps made lemmas: `Networks/Lift.lean`
 - [ ] Long proof steps split into named lines, repeated steps made lemmas: `Networks/LinearModel.lean`
@@ -199,7 +205,7 @@ No ETA yet: the history covers 5.7 days, and no pace can be read from items tick
 
 ## Book
 
-- [x] All 47 chapters written
+- [x] All 49 chapters written
 - [x] A figure in chapter 1
 - [x] A figure in chapter 3
 - [x] A figure in chapter 4
@@ -246,6 +252,8 @@ No ETA yet: the history covers 5.7 days, and no pace can be read from items tick
 - [x] A figure in chapter 45
 - [x] A figure in chapter 46
 - [x] A figure in chapter 47
+- [x] A figure in chapter 48
+- [x] A figure in chapter 49
 - [ ] Chapter 17: every "recalled" claim checked against its paper
 - [ ] Chapter 18: every "recalled" claim checked against its paper
 - [ ] Chapter 19: every "recalled" claim checked against its paper
@@ -275,6 +283,8 @@ No ETA yet: the history covers 5.7 days, and no pace can be read from items tick
 - [ ] Chapter 45: every "recalled" claim checked against its paper
 - [ ] Chapter 46: every "recalled" claim checked against its paper
 - [ ] Chapter 47: every "recalled" claim checked against its paper
+- [ ] Chapter 48: every "recalled" and "cited" claim checked against its paper
+- [ ] Chapter 49: every "recalled" and "cited" claim checked against its paper
 - [ ] Chapter 0: a "Preliminaries" section at the start
 - [ ] Chapter 1: a "Preliminaries" section at the start
 - [ ] Chapter 2: a "Preliminaries" section at the start
@@ -323,6 +333,8 @@ No ETA yet: the history covers 5.7 days, and no pace can be read from items tick
 - [ ] Chapter 45: a "Preliminaries" section at the start
 - [ ] Chapter 46: a "Preliminaries" section at the start
 - [ ] Chapter 47: a "Preliminaries" section at the start
+- [ ] Chapter 48: a "Preliminaries" section at the start
+- [ ] Chapter 49: a "Preliminaries" section at the start
 - [ ] Chapter 1: units for the numbers in the worked examples
 - [ ] Chapter 2: units for the numbers in the worked examples
 - [ ] Chapter 3: units for the numbers in the worked examples
@@ -461,6 +473,8 @@ No ETA yet: the history covers 5.7 days, and no pace can be read from items tick
 - [x] A notebook for chapter 45
 - [x] A notebook for chapter 46
 - [x] A notebook for chapter 47
+- [x] A notebook for chapter 48
+- [x] A notebook for chapter 49
 - [ ] The notebook of chapter 14 read by a second reader
 - [ ] The notebook of chapter 15 read by a second reader
 - [x] The notebook of chapter 16 read by a second reader
@@ -495,6 +509,8 @@ No ETA yet: the history covers 5.7 days, and no pace can be read from items tick
 - [ ] The notebook of chapter 45 read by a second reader
 - [ ] The notebook of chapter 46 read by a second reader
 - [ ] The notebook of chapter 47 read by a second reader
+- [x] The notebook of chapter 48 read by a second reader
+- [ ] The notebook of chapter 49 read by a second reader
 - [ ] A test of whether the theory can guess hyperparameters
 
 ## Publishing
@@ -503,16 +519,17 @@ No ETA yet: the history covers 5.7 days, and no pace can be read from items tick
 - [x] A web edition built on every push
 - [x] A draft of the paper
 - [x] Lean highlighting on the website, built and looked at
-- [ ] Lean code blocks checked against the sources: `docs/theorem/general-theorem.md`
-- [ ] Lean code blocks checked against the sources: `docs/theorem/phase-matching.md`
-- [ ] Lean code blocks checked against the sources: `docs/networks/chain-of-markov-chains.md`
-- [ ] Lean code blocks checked against the sources: `docs/networks/double-descent.md`
-- [ ] Lean code blocks checked against the sources: `docs/networks/fourier-and-relu-bridge.md`
-- [ ] Lean code blocks checked against the sources: `docs/networks/fourier-lift.md`
-- [ ] Lean code blocks checked against the sources: `docs/networks/fourier-parameters.md`
-- [ ] Lean code blocks checked against the sources: `docs/networks/kernel-trick.md`
-- [ ] Lean code blocks checked against the sources: `docs/networks/polarizer-classifier.md`
-- [ ] Lean code blocks checked against the sources: `docs/networks/position-embeddings.md`
-- [ ] Lean code blocks checked against the sources: `docs/networks/radial-basis.md`
-- [ ] Lean code blocks checked against the sources: `docs/networks/three-polarizers.md`
-- [ ] Lean code blocks checked against the sources: `docs/networks/wind-tunnel-and-polarizers.md`
+- [x] The book and `docs/` checked against the Lean sources on every push
+- [x] Lean names, links and code blocks checked against the sources: `docs/theorem/general-theorem.md`
+- [x] Lean names, links and code blocks checked against the sources: `docs/theorem/phase-matching.md`
+- [x] Lean names, links and code blocks checked against the sources: `docs/networks/chain-of-markov-chains.md`
+- [x] Lean names, links and code blocks checked against the sources: `docs/networks/double-descent.md`
+- [x] Lean names, links and code blocks checked against the sources: `docs/networks/fourier-and-relu-bridge.md`
+- [x] Lean names, links and code blocks checked against the sources: `docs/networks/fourier-lift.md`
+- [x] Lean names, links and code blocks checked against the sources: `docs/networks/fourier-parameters.md`
+- [x] Lean names, links and code blocks checked against the sources: `docs/networks/kernel-trick.md`
+- [x] Lean names, links and code blocks checked against the sources: `docs/networks/polarizer-classifier.md`
+- [x] Lean names, links and code blocks checked against the sources: `docs/networks/position-embeddings.md`
+- [x] Lean names, links and code blocks checked against the sources: `docs/networks/radial-basis.md`
+- [x] Lean names, links and code blocks checked against the sources: `docs/networks/three-polarizers.md`
+- [x] Lean names, links and code blocks checked against the sources: `docs/networks/wind-tunnel-and-polarizers.md`

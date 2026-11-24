@@ -98,10 +98,10 @@ them proves the phenomenon for real networks.
 |---|---|
 | Neural tangent kernel, lazy training | The fixed-kernel setting of most rows above. [`Kernel`](../lean/SquigglyLine/Networks/Kernel.lean) is the statement that training sees only the kernel. |
 | Implicit bias of gradient descent | It reaches the nearest fit: `gradientDescent_fit_is_nearest` in [`LeastAction`](../lean/SquigglyLine/Supporting/Training/LeastAction.lean). |
-| Robustness against accuracy | The slope sandwich of [section 3](#3-why-it-is-true), and the [dimpled manifold](supporting/new-inputs/dimpled-manifold.md). |
-| Memorising random labels | The travel table of [section 5](#5-where-the-idea-is-right) uses random labels, and [benign overfitting](supporting/new-inputs/benign-overfitting.md) says when that is harmless. |
+| Robustness against accuracy | The slope sandwich of [section 3](../README.md#3-why-it-is-true), and the [dimpled manifold](supporting/new-inputs/dimpled-manifold.md). |
+| Memorising random labels | The travel table of [section 5](../README.md#5-where-the-idea-is-right) uses random labels, and [benign overfitting](supporting/new-inputs/benign-overfitting.md) says when that is harmless. |
 | Kernel trick, support vector machines | A squiggly line or boundary is a flat plane after a lift, and prediction needs only the kernel: [`Lift`](../lean/SquigglyLine/Networks/Lift.lean), [note](networks/kernel-trick.md). |
-| Random Fourier features | The model of [section 5](#5-where-the-idea-is-right). |
+| Random Fourier features | The model of [section 5](../README.md#5-where-the-idea-is-right). |
 | Dying ReLU | "Dead stays dead" in [`MarkovChains`](../lean/SquigglyLine/Networks/MarkovChains.lean). |
 | Grokking, and double descent over training time | Argued from the clocks in [spectral bias](supporting/training/spectral-bias.md). Not proved. |
 
