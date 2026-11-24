@@ -35,7 +35,7 @@ theorem gain_pow_le_exp
     let decay_bound := Real.exp (-(layer_count * (1 - gain)))  -- 1 - gain <= exp (-gain), raised to the depth
     signal_after_layers ≤ decay_bound := by
   unfold_named_pieces
-  have step := pow_one_sub_le_exp (show 1 - gain ≤ 1 by linarith) layer_count
+  have step := learning_does_run_out (show 1 - gain ≤ 1 by linarith) layer_count
   rwa [sub_sub_cancel] at step
 
 /-- **A gain above one blows up.** -/

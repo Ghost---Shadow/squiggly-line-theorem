@@ -198,7 +198,7 @@ theorem forgetting_is_at_most_predict_size_times_travel
             start_weights := by
     refine le_csInf ⟨_, _, new_fit, rfl⟩ ?_
     rintro distance ⟨other_weights, other_weights_fit, rfl⟩
-    exact gradientDescent_fit_is_nearest new_predict new_labels learning_rate
+    exact gradient_descent_fit_is_the_nearest_fit new_predict new_labels learning_rate
       start_weights step_count new_fit other_weights_fit
   have change_le :
       ‖GET_RESIDUAL (predict : Weights →ₗ[ℝ] Outputs) labels

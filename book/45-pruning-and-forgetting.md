@@ -197,7 +197,7 @@ every step adds nothing, and an induction on the step count finishes it.
 **The ceiling.** Moving the weights by a distance changes the old outputs
 by at most `‖predict‖` times that distance (`forgetting_is_at_most_predict_size_times_distance`).
 Gradient descent that fits the new task has moved no further than the
-nearest fit (chapter 13, `gradientDescent_fit_is_nearest`). The distance to
+nearest fit (chapter 13, `gradient_descent_fit_is_the_nearest_fit`). The distance to
 the nearest fit is the travel. Put the two together.
 
 ## What it explains

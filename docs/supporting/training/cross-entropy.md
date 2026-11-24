@@ -22,12 +22,12 @@ Most of it does, and the reason is one line.
 Squared error pushes each output by `output − label`.
 
 Cross-entropy pushes each score by `prediction − label`, where the prediction
-is the softmax of the scores (**proved**: `hasDerivAt_crossEntropy` for any
-number of classes, `hasDerivAt_logLoss` for two).
+is the softmax of the scores (**proved**: `cross_entropy_slope_is_prediction_minus_label` for any
+number of classes, `log_loss_slope_is_prediction_minus_label` for two).
 
 The form is the same. The only change is that the output is read through the
 softmax before the label is taken away. The softmax itself is a set of
-positive shares that add up to one (**proved**: `softmax_pos`, `sum_softmax`).
+positive shares that add up to one (**proved**: `softmax_share_is_greater_than_zero`, `softmax_shares_add_to_one`).
 
 This is no accident of these two losses. In statistics both are generalized
 linear models with their natural link, and every such model has this form
@@ -39,34 +39,34 @@ Take a model that is linear in its weights, and let the loss push the outputs
 by any rule at all: `err(outputs)`.
 
 - **The same kernel.** One step moves the outputs by the kernel applied to
-  the error (**proved**: `map_errorStep`). Squared error is the case
-  `err = output − label` (**proved**: `gradientStep_eq_errorStep`).
+  the error (**proved**: `error_step_moves_outputs_through_the_kernel`). Squared error is the case
+  `err = output − label` (**proved**: `squared_error_step_is_an_error_step`).
   Cross-entropy is the case `err = prediction − label` (**proved**:
-  `hasDerivAt_totalLogLoss` and `inner_adjoint_eq_sum`, for two classes).
+  `total_log_loss_slope_is_error_times_features` and `overlap_with_pulled_back_vector_is_a_sum`, for two classes).
 - **Same kernel, same learner.** Two models with the same kernel that start
   from the same outputs have the same outputs after every step, whatever the
-  loss (**proved**: `map_iterate_errorStep_eq`). So the Fourier model and the
+  loss (**proved**: `same_kernel_gives_same_outputs_for_any_loss`). So the Fourier model and the
   ReLU model of `docs/networks/fourier-and-relu-bridge.md` are the same
   classifier too.
 - **Least travel.** Training never leaves the directions of the features. So
   after any number of steps, no weights that give the same outputs are nearer
-  to the start (**proved**: `iterate_errorStep_is_nearest`).
+  to the start (**proved**: `training_takes_least_travel_for_any_loss`).
 - **One valley.** On a straight line between two settings of the weights, the
   cross-entropy loss stays below the straight line between the two end losses
-  (**proved**: `totalLogLoss_along_le`). So there is no hill between them
-  (**proved**: `totalLogLoss_along_le_max`).
+  (**proved**: `total_log_loss_on_a_line_is_at_most_the_blend`). So there is no hill between them
+  (**proved**: `no_hill_between_two_settings`).
 - **A budget of movement.** Going the share `t` of the way to better weights
   removes at least the share `t` of the gap in loss (**proved**:
-  `le_totalLogLoss_sub_along`). For squared error the error left was exactly
+  `budget_of_movement_buys_its_share_of_log_loss`). For squared error the error left was exactly
   `1 − t`. Here it is a bound.
 
 ## What changes
 
 For a yes-or-no label there is no best score. The loss is never zero, and a
-larger score always has a smaller loss (**proved**: `logLoss_one_pos`,
-`strictAnti_logLoss_one`). The same holds with many classes: no share
+larger score always has a smaller loss (**proved**: `log_loss_of_label_yes_is_greater_than_zero`,
+`no_finite_score_is_best_for_label_yes`). The same holds with many classes: no share
 reaches one, so the loss of a sure label is never zero (**proved**:
-`softmax_lt_one`, `crossEntropy_single_pos`).
+`softmax_share_is_less_than_one`, `cross_entropy_of_a_sure_label_is_greater_than_zero`).
 
 So a classifier that can separate its training data never finishes. Its loss
 keeps falling as its scores grow, and its scores grow only if its weights do.
@@ -83,8 +83,8 @@ Three things follow (**argued**).
 - **Label smoothing gives the loss a floor.** With a label of 0.9 in place of
   1 the best score is finite, and the weights can stop. This one is
   **proved**: for a label strictly between zero and one, the score whose
-  prediction equals the label has the least loss (`logLoss_le_of_sigmoid_eq`,
-  `exists_best_score`).
+  prediction equals the label has the least loss (`score_whose_prediction_equals_the_label_is_best`,
+  `soft_label_has_a_finite_best_score`).
 
 ## Policy gradient is the same push, times the reward
 
@@ -99,15 +99,15 @@ Williams 1992).
 - **The log of a share is minus a cross-entropy.** Label the action taken
   with a one and every other action with a zero. The log of the policy's
   share for that action is minus the cross-entropy of the scores against
-  that label (**proved**: `log_softmax_eq_neg_crossEntropy`).
+  that label (**proved**: `log_of_policy_share_is_minus_cross_entropy`).
 - **So the push is "action taken minus prediction".** Moving the scores in
   any direction changes that log at the rate "label minus share", summed
-  against the direction (**proved**: `hasDerivAt_log_policy`). It is the
+  against the direction (**proved**: `push_on_scores_is_action_minus_prediction`). It is the
   push of this note with the sign turned, because a reward is raised and a
   loss is lowered.
 - **The policy gradient.** The expected reward changes at the rate: the
   share of each action, times its reward, times that push (**proved**:
-  `hasDerivAt_expectedReward`). Sampling an action and applying its push
+  `policy_gradient`). Sampling an action and applying its push
   times its reward gives this on average.
 
 So a policy-gradient step is a cross-entropy step toward the action taken,

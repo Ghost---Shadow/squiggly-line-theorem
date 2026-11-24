@@ -11,27 +11,27 @@ four other rules in common use, each read as a statement about travel.
 | `GradientPerStep`   | one gradient for each step of training               |
 
 Adam with no memory (`TAKE_ADAM_STEP`), one coordinate at a time:
-* `adamStep_eq_sign` : the step is the sign of the gradient.
-* `adamStep_mul` : multiplying the loss by a positive number changes nothing.
-* `abs_adamStep` : every coordinate with a gradient moves the same distance.
-* `abs_sub_signStep` : so a gap closes by exactly `learning_rate` per step,
+* `adam_step_is_the_sign_of_the_gradient` : the step is the sign of the gradient.
+* `adam_step_ignores_the_loss_scale` : multiplying the loss by a positive number changes nothing.
+* `adam_moves_every_coordinate_the_same_distance` : every coordinate with a gradient moves the same distance.
+* `sign_step_closes_a_gap_by_the_learning_rate` : so a gap closes by exactly `learning_rate` per step,
   whatever the strength of the direction.
 
 Gradient clipping (`CLIP`):
-* `norm_clip_le` : a clipped gradient is no longer than the limit.
-* `clip_of_norm_le` : a gradient within the limit is left alone.
-* `norm_sum_clip_le` : so `step_count` steps travel at most
+* `clipped_gradient_is_at_most_the_limit` : a clipped gradient is no longer than the limit.
+* `gradient_within_the_limit_is_left_alone` : a gradient within the limit is left alone.
+* `clipping_caps_the_travel` : so `step_count` steps travel at most
   `step_count * |learning_rate| * limit`.
 
 Training inside a subspace:
-* `travel_le_travel_comp` : weights confined to a subspace never have a
+* `confining_the_weights_never_shortens_the_trip` : weights confined to a subspace never have a
   shorter trip to a fit.
 
 Rounding the weights:
-* `liftedModel_add` : the model is additive in its weights.
-* `abs_liftedModel_add_sub_le` : moving the weights by `weight_change` moves
+* `lifted_model_is_additive_in_its_weights` : the model is additive in its weights.
+* `rounding_moves_each_output_a_little` : moving the weights by `weight_change` moves
   each output by at most `‖weight_change‖` times the size of the features.
-* `lipschitzWith_liftedModel_add_sub` : and changes the slope by at most
+* `rounding_changes_the_slope_a_little` : and changes the slope by at most
   `‖weight_change‖` times the stretch of the lift.
 -/
 import Mathlib.Analysis.Real.Sqrt
@@ -58,7 +58,7 @@ noncomputable def TAKE_ADAM_STEP
   gradient / √(gradient ^ 2)
 
 /-- **The step is the sign of the gradient.** -/
-theorem adamStep_eq_sign
+theorem adam_step_is_the_sign_of_the_gradient
     (gradient : ℝ) :
     let step          := TAKE_ADAM_STEP gradient
     let gradient_sign : ℝ := SignType.sign gradient  -- minus one, zero or one
@@ -75,7 +75,7 @@ theorem adamStep_eq_sign
     simp
 
 /-- **Multiplying the loss by a positive number changes nothing.** -/
-theorem adamStep_mul
+theorem adam_step_ignores_the_loss_scale
     {scale : ℝ}
     (scale_pos : 0 < scale)
     (gradient : ℝ) :
@@ -85,12 +85,12 @@ theorem adamStep_mul
   unfold_named_pieces
   have step_is_sign (value : ℝ) :
       TAKE_ADAM_STEP value = SignType.sign value :=
-    adamStep_eq_sign value
+    adam_step_is_the_sign_of_the_gradient value
   -- Both steps are signs, and a positive scale does not change a sign.
   rw [step_is_sign, step_is_sign, sign_mul, sign_pos scale_pos, one_mul]
 
 /-- **Every coordinate with a gradient moves the same distance.** -/
-theorem abs_adamStep
+theorem adam_moves_every_coordinate_the_same_distance
     {gradient : ℝ}
     (gradient_ne_zero : gradient ≠ 0) :
     let step_size := |TAKE_ADAM_STEP gradient|
@@ -103,7 +103,7 @@ theorem abs_adamStep
 coordinate is off by `gap`. A step of size `learning_rate` against the sign of
 the error leaves it off by `|gap| - learning_rate`. The strength of the
 direction does not appear. -/
-theorem abs_sub_signStep
+theorem sign_step_closes_a_gap_by_the_learning_rate
     {gap : ℝ}
     {learning_rate : ℝ}
     (learning_rate_nonneg : 0 ≤ learning_rate)
@@ -148,7 +148,7 @@ noncomputable def CLIP
   min 1 (limit / ‖gradient‖) • gradient
 
 /-- **A clipped gradient is no longer than the limit.** -/
-theorem norm_clip_le
+theorem clipped_gradient_is_at_most_the_limit
     {limit : ℝ}
     (limit_nonneg : 0 ≤ limit)
     (gradient : Weights) :
@@ -170,7 +170,7 @@ theorem norm_clip_le
     _ = limit := div_mul_cancel₀ limit length_pos.ne'
 
 /-- A gradient within the limit is left alone. -/
-theorem clip_of_norm_le
+theorem gradient_within_the_limit_is_left_alone
     {limit : ℝ}
     {gradient : Weights}
     (gradient_ne_zero : gradient ≠ 0)
@@ -187,7 +187,7 @@ theorem clip_of_norm_le
 /-- **Clipping caps the travel.** After `step_count` steps of size
 `learning_rate` with gradients clipped to `limit`, the weights have moved at
 most `step_count * |learning_rate| * limit`, whatever the gradients were. -/
-theorem norm_sum_clip_le
+theorem clipping_caps_the_travel
     {limit : ℝ}
     (limit_nonneg : 0 ≤ limit)
     (gradients : GradientPerStep Weights)
@@ -209,7 +209,7 @@ theorem norm_sum_clip_le
         Finset.sum_le_sum fun k _ => by
           rw [norm_smul, Real.norm_eq_abs]
           exact mul_le_mul_of_nonneg_left
-            (norm_clip_le limit_nonneg _) (abs_nonneg _)
+            (clipped_gradient_is_at_most_the_limit limit_nonneg _) (abs_nonneg _)
     _ = step_count * (|learning_rate| * limit) := by simp
 
 end Clip
@@ -227,7 +227,7 @@ variable {Weights SubWeights Outputs : Type*}
 only inside a subspace, given by a map `embed` that keeps lengths. If a fit
 exists there, it is at least as far from the start as the nearest fit of the
 full model. -/
-theorem travel_le_travel_comp
+theorem confining_the_weights_never_shortens_the_trip
     (predict : LinearPredictor Weights Outputs)
     (embed : LinearPredictor SubWeights Weights)
     (embed_keeps_length : ∀ change, ‖embed change‖ = ‖change‖)
@@ -261,7 +261,7 @@ variable {Inputs Weights : Type*}
 
 /-- The model is additive in its weights: the output for summed weights is
 the sum of the outputs. -/
-theorem liftedModel_add
+theorem lifted_model_is_additive_in_its_weights
     (features : FeatureMap Inputs Weights)
     (weights : Weights)
     (weight_change : Weights)
@@ -276,7 +276,7 @@ theorem liftedModel_add
 
 /-- **Rounding moves each output by at most the rounding error times the size
 of the features.** -/
-theorem abs_liftedModel_add_sub_le
+theorem rounding_moves_each_output_a_little
     (features : FeatureMap Inputs Weights)
     (weights : Weights)
     (weight_change : Weights)
@@ -293,14 +293,14 @@ theorem abs_liftedModel_add_sub_le
       EVALUATE_LIFTED_MODEL features (weights + weight_change) input
         = EVALUATE_LIFTED_MODEL features weights input
           + EVALUATE_LIFTED_MODEL features weight_change input :=
-    liftedModel_add features weights weight_change input
+    lifted_model_is_additive_in_its_weights features weights weight_change input
   -- The extra output is one dot product, of the change with the features.
   rw [add_split, add_sub_cancel_left]
   exact abs_real_inner_le_norm _ _
 
 /-- **Rounding changes the slope by at most the rounding error times the
 stretch of the lift.** -/
-theorem lipschitzWith_liftedModel_add_sub
+theorem rounding_changes_the_slope_a_little
     [PseudoMetricSpace Inputs]
     {features : FeatureMap Inputs Weights}
     {lift_slope_limit : SlopeLimit}
@@ -316,7 +316,7 @@ theorem lipschitzWith_liftedModel_add_sub
       EVALUATE_LIFTED_MODEL features (weights + weight_change) point
         = EVALUATE_LIFTED_MODEL features weights point
           + EVALUATE_LIFTED_MODEL features weight_change point :=
-    liftedModel_add features weights weight_change point
+    lifted_model_is_additive_in_its_weights features weights weight_change point
   -- The old output cancels, leaving the model of the change alone.
   simp only [add_split, add_sub_cancel_left]
   exact lifted_model_slope_is_at_most_tilt_times_stretch lift_slope_is_bounded weight_change

@@ -32,7 +32,7 @@ They are nearly the same. The exact difference is one term:
 two small steps  =  one big step  −  η² × (second batch's view of what the first step changed)
 ```
 
-(**proved**: `gradientStep_two_batches`.) The first step moved the weights,
+(**proved**: `two_small_steps_against_one_big_step`.) The first step moved the weights,
 so by the time the second batch is used, its errors have shifted a little.
 The shift goes through the kernel between the two batches: how alike the
 model finds the inputs of one batch and the inputs of the other.
@@ -60,7 +60,7 @@ up with the batch must stop there.
 
 If the model sees no input of one batch as like any input of the other, the
 correction is zero, and two small steps equal one big step exactly
-(**proved**: `two_batches_of_cross_kernel_eq_zero`).
+(**proved**: `two_small_steps_equal_one_big_step_for_separate_batches`).
 
 So the two ways differ only through what the batches have in common. This is
 the same cross kernel that set how much a new task makes the model forget in

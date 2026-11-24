@@ -31,7 +31,7 @@ the error:
 share of the error left  =  μ / (λ + μ)
 ```
 
-(**proved**: `residual_ridgeFit`, and `decayStep_ridgeFit` shows it is where
+(**proved**: `weight_decay_leaves_a_share_of_the_residual`, and `decay_step_rests_at_the_weight_decay_fit` shows it is where
 gradient descent with weight decay rests.) A strong direction, `λ` much bigger
 than `μ`, is fitted almost fully. A weak one, `λ` much smaller than `μ`, is
 left almost alone. So `μ` is a cut-off: directions weaker than `μ` are not
@@ -45,7 +45,7 @@ At a new input, the weight-decay fit moves the answer by
 overlap with the new input / (λ + μ)
 ```
 
-(**proved**: `inner_ridgeFit`.) This is the formula from
+(**proved**: `weight_decay_is_spare_parameters`.) This is the formula from
 `docs/supporting/new-inputs/benign-overfitting.md`, where a pile of junk features of strength `c'` gave
 `overlap / (λ + c')`. The two are the same with `c' = μ`.
 
@@ -64,9 +64,9 @@ caught between two numbers:
 1 − t·ηλ   ≤   share left after t steps   ≤   1 / (1 + t·ηλ)
 ```
 
-(**proved**: `one_sub_mul_le_pow_one_sub` earlier, `early_stopping_le_ridge`
+(**proved**: `learning_cannot_be_hurried` earlier, `early_stopping_leaves_at_most_what_weight_decay_leaves`
 here.) The right-hand number is exactly the share that weight decay leaves
-when its penalty is `μ = 1 / (ηt)` (**proved**: `ridge_share_eq`).
+when its penalty is `μ = 1 / (ηt)` (**proved**: `matching_penalty_gives_the_same_share`).
 
 So stopping after `t` steps cuts every direction at least as hard as weight
 decay of strength `1 / (ηt)`, and in the same order: strong directions kept,
@@ -95,35 +95,35 @@ the same floor in another shape or a direct charge on slope.
 
 - **Lasso.** Charge `μ` times the size of a weight, not its square. For one
   weight with target `a`: if `a` is no larger than `μ` the best weight is
-  exactly zero (**proved**: `lassoCost_zero_le`), and if it is larger the
-  best weight is `a - μ` (**proved**: `lassoCost_sub_le`). Weight decay's
+  exactly zero (**proved**: `lasso_sets_a_weak_direction_to_zero`), and if it is larger the
+  best weight is `a - μ` (**proved**: `lasso_shortens_a_strong_direction_by_the_penalty`). Weight decay's
   best weight is `a / (1 + μ)`, which is zero only when `a` is (**proved**:
-  `ridgeCost_div_le`). So weight decay shrinks a weak direction and lasso
+  `weight_decay_only_shrinks`). So weight decay shrinks a weak direction and lasso
   does not travel along it at all.
 - **Noise on the input.** For the line `w * x`, average the squared error
   over input noise of mean zero and variance `σ²`. The result is the plain
-  squared error plus `σ² * w²` (**proved**: `sum_mul_sq_sub_noisy_eq`). The
+  squared error plus `σ² * w²` (**proved**: `input_noise_is_a_charge_on_slope`). The
   weight of a line is its slope, so noise on the input is a charge on slope.
 - **Adversarial training.** For a linear model, no nudge of size at most `ε`
   on each input lowers the score by more than `ε` times the summed sizes of
-  the weights (**proved**: `sub_le_score_add`), and one nudge lowers it by
-  exactly that (**proved**: `score_add_worst_nudge`). Training against the
+  the weights (**proved**: `worst_nudge_costs_at_most_size_times_summed_weights`), and one nudge lowers it by
+  exactly that (**proved**: `worst_nudge_costs_exactly_that`). Training against the
   worst nudge is training with that penalty. The summed sizes of the
   weights are the slope of the model when distance is measured by the
   largest change in any one input.
 - **Stochastic depth.** Keep a residual branch with chance `p` and drop it
   otherwise. On average the layer is the input plus `p` times the branch
-  (**proved**: `mean_stochasticDepth`).
+  (**proved**: `stochastic_depth_on_average`).
 - **Mixup.** Train on blends of two examples, with the labels blended the
   same way. A model that fits every blend is straight between the two: the
   gap in its output between two blends is the gap in labels times the share
-  of the way between them (**proved**: `mixup_fit_gap`). Any line through
+  of the way between them (**proved**: `mixup_asks_for_the_least_slope`). Any line through
   both examples has at least that slope (**proved**:
-  `abs_sub_le_of_lipschitz_fit`). So mixup asks for the least slope a fit
+  `fit_through_two_examples_needs_slope`). So mixup asks for the least slope a fit
   can have between examples.
 - **Distillation.** Train a student on a teacher's soft label. Against that
   label the teacher's own score is a best score (**proved**:
-  `logLoss_teacher_le`). A hard label has no best score
+  `distillation_gives_a_finite_target`). A hard label has no best score
   (`cross-entropy.md`). So a student is never asked for more slope than its
   teacher has.
 

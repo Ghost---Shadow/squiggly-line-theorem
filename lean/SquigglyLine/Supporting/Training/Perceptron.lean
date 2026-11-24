@@ -9,34 +9,34 @@ Throughout, `inner ℝ direction point` is the dot product of two vectors
 (Python: `dot(direction, point)`) and `‖point‖` is the length of a vector.
 
 The margin is a nearest-point distance:
-* `abs_inner_le_infDist_flatBoundary` : a point whose score against a unit
+* `margin_is_a_distance_to_the_boundary` : a point whose score against a unit
   direction is `score` is at least `|score|` from the flat boundary
   (`GET_FLAT_BOUNDARY`).
 
 The perceptron (`GET_PERCEPTRON_WEIGHTS`), which adds each example it gets
 wrong:
-* `mul_margin_le_inner` : each mistake moves the weights at least `margin`
+* `each_mistake_moves_weights_along_the_true_direction` : each mistake moves the weights at least `margin`
   along the true direction.
-* `norm_sq_perceptronWeights_le` : each mistake adds at most `radius²` to the
+* `each_mistake_adds_at_most_radius_squared` : each mistake adds at most `radius²` to the
   squared size of the weights.
 * `perceptron_mistake_bound` : so there are at most `(radius / margin)²`
   mistakes.
 
 XOR (`SEPARATES_XOR`):
-* `not_separatesXor_flat` : no flat boundary splits it.
-* `separatesXor_lift` : one lifted feature, the product, does.
-* `separatesXor_fold` : so does one fold.
-* `not_separatesXor_twoScores` : two classes with a softmax are still flat.
-* `oneHot_fits` : with one feature per input, any labels are flat. A table
+* `no_flat_boundary_splits_xor` : no flat boundary splits it.
+* `one_lifted_feature_splits_xor` : one lifted feature, the product, does.
+* `one_fold_splits_xor` : so does one fold.
+* `two_flat_scores_do_not_split_xor` : two classes with a softmax are still flat.
+* `table_lookup_fits_anything` : with one feature per input, any labels are flat. A table
   lookup is a lift.
-* `anchorScore_le_iff`, `anchorScore_lt_self` : a flat layer with one score
+* `flat_layer_names_the_nearest_anchor`, `anchor_scores_highest_at_itself` : a flat layer with one score
   per class (`GET_ANCHOR_SCORE`) names the nearest anchor, so it tells any
   distinct points apart.
 
 No free lunch (`FLIP_LABEL_AT`):
-* `card_agree_eq_card_disagree` : at an unseen input, any prediction is right
+* `no_free_lunch` : at an unseen input, any prediction is right
   on exactly half of all possible labellings.
-* `mean_sq_error_unseen` : for labels `±1` with no pattern, a prediction
+* `flat_is_best_on_an_unseen_label` : for labels `±1` with no pattern, a prediction
   costs `prediction² + 1` on average, so the flat line at zero is best.
 -/
 import Mathlib.Analysis.InnerProductSpace.Basic
@@ -71,7 +71,7 @@ def GET_FLAT_BOUNDARY
 
 /-- A point's score is at most its distance to any one point of the
 boundary. -/
-theorem abs_inner_le_dist_of_mem_flatBoundary
+theorem score_is_at_most_distance_to_a_boundary_point
     {direction : Space}
     (direction_is_short : ‖direction‖ ≤ 1)  -- a longer direction would make every score larger
     (point : Space)
@@ -95,7 +95,7 @@ theorem abs_inner_le_dist_of_mem_flatBoundary
 /-- **The margin is a distance to the boundary.** A point whose score against
 a direction of length at most one is `score` lies at least `|score|` from the
 flat boundary. -/
-theorem abs_inner_le_infDist_flatBoundary
+theorem margin_is_a_distance_to_the_boundary
     {direction : Space}
     (direction_is_short : ‖direction‖ ≤ 1)
     (point : Space) :
@@ -107,7 +107,7 @@ theorem abs_inner_le_infDist_flatBoundary
   -- against each of its points.
   (Metric.le_infDist ⟨0, by simp [GET_FLAT_BOUNDARY]⟩).2
     fun _ is_on_boundary =>
-      abs_inner_le_dist_of_mem_flatBoundary direction_is_short point
+      score_is_at_most_distance_to_a_boundary_point direction_is_short point
         is_on_boundary
 
 end Margin
@@ -129,7 +129,7 @@ def GET_PERCEPTRON_WEIGHTS
 
 omit [InnerProductSpace ℝ Space] in
 /-- One more mistake adds that example to the weights. -/
-theorem perceptronWeights_succ
+theorem one_more_mistake_adds_that_example
     (mistakes : ℕ → Space)
     (mistake_count : ℕ) :
     let weights_before := GET_PERCEPTRON_WEIGHTS mistakes mistake_count
@@ -140,7 +140,7 @@ theorem perceptronWeights_succ
 
 /-- Each mistake moves the weights at least `margin` along the true
 direction. -/
-theorem mul_margin_le_inner
+theorem each_mistake_moves_weights_along_the_true_direction
     {mistakes : ℕ → Space}
     {true_direction : Space}
     {margin : ℝ}
@@ -164,13 +164,13 @@ theorem mul_margin_le_inner
       every_example_clears_the_margin mistakes_so_far within_count
     -- The new weights are the old weights plus the new mistake, and the
     -- score of a sum is the sum of the scores.
-    rw [perceptronWeights_succ, inner_add_right]
+    rw [one_more_mistake_adds_that_example, inner_add_right]
     push_cast
     linarith
 
 /-- Each mistake adds at most `radius²` to the squared size of the weights,
 because the example was on the wrong side. -/
-theorem norm_sq_perceptronWeights_le
+theorem each_mistake_adds_at_most_radius_squared
     {mistakes : ℕ → Space}
     {radius : ℝ}
     {mistake_count : ℕ}
@@ -199,7 +199,7 @@ theorem norm_sq_perceptronWeights_le
         (every_example_is_within_radius mistakes_so_far within_count) 2
     -- ‖old + new‖² = ‖old‖² + 2 * dot(old, new) + ‖new‖². The middle term
     -- is not positive, because the example was a mistake.
-    rw [perceptronWeights_succ, norm_add_sq_real]
+    rw [one_more_mistake_adds_that_example, norm_add_sq_real]
     push_cast
     linarith
 
@@ -234,12 +234,12 @@ theorem perceptron_mistake_bound
       mistake_count * margin
         ≤ inner ℝ true_direction
             (GET_PERCEPTRON_WEIGHTS mistakes mistake_count) :=
-    mul_margin_le_inner every_example_clears_the_margin mistake_count le_rfl
+    each_mistake_moves_weights_along_the_true_direction every_example_clears_the_margin mistake_count le_rfl
   -- ... but they are not long ...
   have size_is_small :
       ‖GET_PERCEPTRON_WEIGHTS mistakes mistake_count‖ ^ 2
         ≤ mistake_count * radius ^ 2 :=
-    norm_sq_perceptronWeights_le every_example_was_a_mistake
+    each_mistake_adds_at_most_radius_squared every_example_was_a_mistake
       every_example_is_within_radius mistake_count le_rfl
   -- ... and they cannot have moved further than their own length.
   have progress_le_size :
@@ -278,7 +278,7 @@ def SEPARATES_XOR
     is_positive_at_0_1 ∧ is_positive_at_1_0
 
 /-- **No flat boundary splits XOR.** -/
-theorem not_separatesXor_flat
+theorem no_flat_boundary_splits_xor
     (first_weight second_weight bias : ℝ) :
     let flat_score : ScoreFunction := fun first second =>
       first_weight * first + second_weight * second + bias  -- zero along a straight line
@@ -294,7 +294,7 @@ theorem not_separatesXor_flat
 
 /-- **One lifted feature is enough.** With the product `first * second` as a
 third feature, the boundary is flat. -/
-theorem separatesXor_lift :
+theorem one_lifted_feature_splits_xor :
     let lifted_score : ScoreFunction := fun first second =>
       let product := first * second          -- the lifted feature: 1 only at (1, 1)
       first + second - 2 * product - 1 / 2   -- 0, 1, 1, 0 at the four corners, then 1/2 taken off
@@ -303,7 +303,7 @@ theorem separatesXor_lift :
   refine ⟨?_, ?_, ?_, ?_⟩ <;> norm_num
 
 /-- **One fold is enough.** Fold the plane along the line `first = second`. -/
-theorem separatesXor_fold :
+theorem one_fold_splits_xor :
     let folded_score : ScoreFunction := fun first second =>
       |first - second| - 1 / 2  -- the fold `|·|` is 0 on equal inputs and 1 on different ones
     SEPARATES_XOR folded_score := by
@@ -313,7 +313,7 @@ theorem separatesXor_fold :
 /-- **Two classes with a softmax are still flat.** With one flat score per
 class, the answer changes where the two scores are equal, and that is again a
 flat boundary. -/
-theorem not_separatesXor_twoScores
+theorem two_flat_scores_do_not_split_xor
     (first_weight_0 second_weight_0 bias_0 : ℝ)
     (first_weight_1 second_weight_1 bias_1 : ℝ) :
     let score_difference : ScoreFunction := fun first second =>
@@ -333,7 +333,7 @@ theorem not_separatesXor_twoScores
 /-- **A table lookup is a lift that fits anything.** Give every input its own
 feature, one for that input and zero for the rest. Then any labels at all are
 a flat function of the features: the weights are the labels. -/
-theorem oneHot_fits
+theorem table_lookup_fits_anything
     {Inputs : Type*}
     [Fintype Inputs]
     [DecidableEq Inputs]
@@ -357,11 +357,11 @@ variable {Space : Type*} [NormedAddCommGroup Space] [InnerProductSpace ℝ Space
 Python: `2 * dot(anchor, input) - norm(anchor) ** 2`. -/
 def GET_ANCHOR_SCORE
     (anchor input : Space) : ℝ :=
-  2 * inner ℝ anchor input - ‖anchor‖ ^ 2  -- flat in `input`; equal to ‖input‖² - ‖input - anchor‖² (`anchorScore_eq`)
+  2 * inner ℝ anchor input - ‖anchor‖ ^ 2  -- flat in `input`; equal to ‖input‖² - ‖input - anchor‖² (`anchor_score_is_size_minus_squared_distance`)
 
 /-- The anchor score is the squared size of the input minus the squared
 distance from the input to the anchor. -/
-theorem anchorScore_eq
+theorem anchor_score_is_size_minus_squared_distance
     (anchor input : Space) :
     let score              := GET_ANCHOR_SCORE anchor input
     let input_size_squared := ‖input‖ ^ 2           -- the same for every anchor, so it does not change which score is highest
@@ -373,7 +373,7 @@ theorem anchorScore_eq
 
 /-- **A flat layer with one score per class names the nearest anchor.** The
 anchor with the highest score is the one nearest to the input. -/
-theorem anchorScore_le_iff
+theorem flat_layer_names_the_nearest_anchor
     (anchor other_anchor input : Space) :
     let anchor_scores_at_least_as_high :=
       GET_ANCHOR_SCORE other_anchor input ≤ GET_ANCHOR_SCORE anchor input
@@ -381,13 +381,13 @@ theorem anchorScore_le_iff
       ‖input - anchor‖ ≤ ‖input - other_anchor‖
     anchor_scores_at_least_as_high ↔ anchor_is_at_least_as_near := by
   unfold_named_pieces
-  rw [anchorScore_eq, anchorScore_eq, sub_le_sub_iff_left,
+  rw [anchor_score_is_size_minus_squared_distance, anchor_score_is_size_minus_squared_distance, sub_le_sub_iff_left,
     sq_le_sq₀ (norm_nonneg _) (norm_nonneg _)]
 
 /-- So it tells any set of distinct points apart: at an anchor, its own score
 is the highest. This names the point. It does not compute anything about
 it. -/
-theorem anchorScore_lt_self
+theorem anchor_scores_highest_at_itself
     {anchor other_anchor : Space}
     (anchors_differ : other_anchor ≠ anchor) :
     let score_of_other_anchor := GET_ANCHOR_SCORE other_anchor anchor  -- both scores are read at the point `anchor` itself
@@ -397,7 +397,7 @@ theorem anchorScore_lt_self
   have anchors_are_apart : 0 < ‖anchor - other_anchor‖ :=
     norm_pos_iff.mpr (sub_ne_zero.mpr anchors_differ.symm)
   -- The own anchor is at distance zero. The other one is further away.
-  rw [anchorScore_eq, anchorScore_eq, sub_self, norm_zero,
+  rw [anchor_score_is_size_minus_squared_distance, anchor_score_is_size_minus_squared_distance, sub_self, norm_zero,
     zero_pow two_ne_zero, sub_zero]
   linarith [pow_pos anchors_are_apart 2]
 
@@ -418,7 +418,7 @@ def FLIP_LABEL_AT
 
 omit [Fintype Inputs] in
 /-- After the flip, the label at that input is the opposite. -/
-theorem flipAt_apply_self
+theorem flip_gives_the_opposite_label
     (input : Inputs)
     (labels : Labelling Inputs) :
     let flipped_labels := FLIP_LABEL_AT input labels
@@ -428,7 +428,7 @@ theorem flipAt_apply_self
 
 omit [Fintype Inputs] in
 /-- Flipping twice gives back the labelling you started with. -/
-theorem flipAt_flipAt
+theorem flipping_twice_gives_the_labelling_back
     (input : Inputs)
     (labels : Labelling Inputs) :
     let flipped_once  := FLIP_LABEL_AT input labels
@@ -440,7 +440,7 @@ theorem flipAt_flipAt
 /-- **No free lunch.** Fix an unseen input `input` and any guess for its
 label. Of all the ways to label the inputs, exactly as many agree with the
 guess at `input` as disagree. -/
-theorem card_agree_eq_card_disagree
+theorem no_free_lunch
     (input : Inputs)
     (guess : Bool) :
     let labellings_that_agree :=
@@ -456,22 +456,22 @@ theorem card_agree_eq_card_disagree
   · intro labels labels_in_agreeing_group
     have labels_agree : labels input = guess := by
       simpa using labels_in_agreeing_group
-    simp [flipAt_apply_self, labels_agree]
+    simp [flip_gives_the_opposite_label, labels_agree]
   · intro labels labels_in_disagreeing_group
     have labels_disagree : labels input ≠ guess := by
       simpa using labels_in_disagreeing_group
     cases label_here : labels input <;> cases guess <;>
-      simp_all [flipAt_apply_self]
+      simp_all [flip_gives_the_opposite_label]
   · intro labels _
-    exact flipAt_flipAt input labels
+    exact flipping_twice_gives_the_labelling_back input labels
   · intro labels _
-    exact flipAt_flipAt input labels
+    exact flipping_twice_gives_the_labelling_back input labels
 
 /-- **With no pattern in the labels, flat is best.** If an unseen label is
 `+1` or `-1` with equal chance, a prediction `prediction` has mean squared
 error `prediction² + 1`. Any move away from zero, in either direction, only
 adds. -/
-theorem mean_sq_error_unseen
+theorem flat_is_best_on_an_unseen_label
     (prediction : ℝ) :
     let error_if_label_is_plus_1  := (prediction - 1) ^ 2
     let error_if_label_is_minus_1 := (prediction + 1) ^ 2  -- prediction - (-1)

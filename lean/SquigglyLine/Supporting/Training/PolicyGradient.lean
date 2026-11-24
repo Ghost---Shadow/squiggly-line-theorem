@@ -13,11 +13,11 @@ Definitions: `MARK_ACTION`.
 
 Theorems:
 
-* `log_softmax_eq_neg_crossEntropy`  the log of a policy's share is minus a
+* `log_of_policy_share_is_minus_cross_entropy`  the log of a policy's share is minus a
                                      cross-entropy;
-* `hasDerivAt_log_policy`            the push on the scores is "action taken
+* `push_on_scores_is_action_minus_prediction`            the push on the scores is "action taken
                                      minus prediction";
-* `hasDerivAt_expectedReward`        the policy gradient.
+* `policy_gradient`        the policy gradient.
 -/
 import SquigglyLine.Supporting.Training.CrossEntropy
 
@@ -36,7 +36,7 @@ def MARK_ACTION
   fun action => if action = taken_action then 1 else 0
 
 /-- **The log of a policy's share is minus a cross-entropy.** -/
-theorem log_softmax_eq_neg_crossEntropy
+theorem log_of_policy_share_is_minus_cross_entropy
     (scores : Actions → ℝ)
     (taken_action : Actions) :
     let log_share  := log (APPLY_SOFTMAX scores taken_action)
@@ -48,12 +48,12 @@ theorem log_softmax_eq_neg_crossEntropy
   have usual_form :
       GET_CROSS_ENTROPY (MARK_ACTION taken_action) scores
         = -∑ i, MARK_ACTION taken_action i * log (APPLY_SOFTMAX scores i) :=
-    crossEntropy_eq_neg_sum_log label_sums_to_one scores
+    cross_entropy_equals_minus_weighted_log_of_shares label_sums_to_one scores
   rw [usual_form]
   simp [MARK_ACTION]
 
 /-- **The push on the scores is "action taken minus prediction".** -/
-theorem hasDerivAt_log_policy
+theorem push_on_scores_is_action_minus_prediction
     (scores direction : Actions → ℝ)
     (taken_action : Actions) :
     let log_share_along : ℝ → ℝ := fun fraction =>
@@ -70,7 +70,7 @@ theorem hasDerivAt_log_policy
             fun i => scores i + fraction * direction i)
         (∑ i, (APPLY_SOFTMAX scores i - MARK_ACTION taken_action i)
           * direction i) 0 :=
-    hasDerivAt_crossEntropy (MARK_ACTION taken_action) scores direction
+    cross_entropy_slope_is_prediction_minus_label (MARK_ACTION taken_action) scores direction
   have minus_loss_deriv :
       HasDerivAt
         (fun fraction : ℝ =>
@@ -87,7 +87,7 @@ theorem hasDerivAt_log_policy
           -GET_CROSS_ENTROPY (MARK_ACTION taken_action)
             fun i => scores i + fraction * direction i := by
     funext fraction
-    exact log_softmax_eq_neg_crossEntropy _ taken_action
+    exact log_of_policy_share_is_minus_cross_entropy _ taken_action
   -- Turning the sign of the loss turns the sign of its push.
   have rate_is_minus_push :
       ∑ i, (MARK_ACTION taken_action i - APPLY_SOFTMAX scores i)
@@ -102,7 +102,7 @@ theorem hasDerivAt_log_policy
 /-- **The policy gradient.** The expected reward changes at the rate: the share
 of each action, times its reward, times the push "that action minus
 prediction". -/
-theorem hasDerivAt_expectedReward
+theorem policy_gradient
     (scores direction rewards : Actions → ℝ) :
     let expected_reward_along : ℝ → ℝ := fun fraction =>
       ∑ action,
@@ -129,7 +129,7 @@ theorem hasDerivAt_expectedReward
               action))
           (∑ i, (MARK_ACTION action i - APPLY_SOFTMAX scores i)
             * direction i) 0 :=
-      hasDerivAt_log_policy scores direction action
+      push_on_scores_is_action_minus_prediction scores direction action
     -- A share is the exponential of its log, so differentiate through `exp`.
     have exp_log_deriv :
         HasDerivAt
@@ -149,12 +149,12 @@ theorem hasDerivAt_expectedReward
             APPLY_SOFTMAX (fun i => scores i + fraction * direction i)
               action := by
       funext fraction
-      exact exp_log (softmax_pos _ action)
+      exact exp_log (softmax_share_is_greater_than_zero _ action)
     have share_at_zero :
         exp (log (APPLY_SOFTMAX
             (fun i => scores i + (0 : ℝ) * direction i) action))
           = APPLY_SOFTMAX scores action := by
-      rw [exp_log (softmax_pos _ action)]
+      rw [exp_log (softmax_share_is_greater_than_zero _ action)]
       simp
     rw [exp_log_is_share, share_at_zero] at exp_log_deriv
     have times_reward := exp_log_deriv.mul_const (rewards action)

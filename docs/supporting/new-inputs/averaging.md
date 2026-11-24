@@ -101,5 +101,5 @@ it draws in its place is the open question (`docs/wishlist.md`).
 - **Weight averaging for networks.** Only the linear case is proved.
 - **Ensembles under other losses.** The split is for squared error. For
   cross-entropy the ensemble is still no worse than the average member, by
-  convexity (`convexOn_logLoss` in [`CrossEntropy.lean`](../../../lean/SquigglyLine/Supporting/Training/CrossEntropy.lean)), but that is not
+  convexity (`log_loss_is_convex` in [`CrossEntropy.lean`](../../../lean/SquigglyLine/Supporting/Training/CrossEntropy.lean)), but that is not
   written out.

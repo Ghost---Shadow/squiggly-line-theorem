@@ -3,22 +3,22 @@ Many small steps.
 
 Cover a distance `distance` in `step_count` equal steps.
 
-* `quadratic_cost_total` : if a step of size `step_size` costs
+* `square_law_cost_shrinks_with_step_count` : if a step of size `step_size` costs
   `cost_rate * step_size²`, the steps cost `cost_rate * distance² / step_count`
   in all. More steps, less cost.
-* `linear_cost_total` : if a step of size `step_size` costs
+* `proportional_cost_does_not_shrink` : if a step of size `step_size` costs
   `cost_rate * step_size`, the steps cost `cost_rate * distance` in all. More
   steps gain nothing.
 * `small_steps_keep` : if a step of size `step_size` keeps at least
   `1 - cost_rate * step_size²`, the `step_count` steps together keep at least
   `1 - cost_rate * distance² / step_count`.
-* `turn_in_steps_keeps` : polarizers. Turning light through any angle `angle`
+* `any_turn_in_enough_plates_keeps_almost_everything` : polarizers. Turning light through any angle `angle`
   in `plate_count` plates keeps at least `1 - angle² / (2 * plate_count)` of
   its length.
-* `cos_pow_le_cos_half_pow` : replacing every plate by two of half the turn
+* `more_plates_never_hurt` : replacing every plate by two of half the turn
   never loses.
 
-Also here: `cos_le_cos_half_sq` (one plate keeps no more than two plates of
+Also here: `one_plate_keeps_at_most_two_half_plates` (one plate keeps no more than two plates of
 half the turn).
 -/
 import SquigglyLine.Supporting.Training.LeastAction
@@ -34,7 +34,7 @@ section Counting
 variable {step_count : ℕ}
 
 /-- **A square-law cost shrinks with the number of steps.** -/
-theorem quadratic_cost_total
+theorem square_law_cost_shrinks_with_step_count
     (step_count_pos : 0 < step_count)
     (cost_rate : ℝ)
     (distance : ℝ) :
@@ -49,7 +49,7 @@ theorem quadratic_cost_total
   field_simp
 
 /-- **A cost in proportion to the step does not.** -/
-theorem linear_cost_total
+theorem proportional_cost_does_not_shrink
     (step_count_pos : 0 < step_count)
     (cost_rate : ℝ)
     (distance : ℝ) :
@@ -83,13 +83,13 @@ theorem small_steps_keep
   have total_cost :
       (step_count : ℝ) * (cost_rate * (distance / step_count) ^ 2)
         = cost_rate * distance ^ 2 / step_count :=
-    quadratic_cost_total step_count_pos cost_rate distance
+    square_law_cost_shrinks_with_step_count step_count_pos cost_rate distance
   -- Bernoulli: `step_count` steps of cost `step_cost` keep `1 - total cost`.
   calc 1 - cost_rate * distance ^ 2 / step_count
       = 1 - step_count * (cost_rate * (distance / step_count) ^ 2) := by
         rw [total_cost]
     _ ≤ (1 - cost_rate * (distance / step_count) ^ 2) ^ step_count :=
-        one_sub_mul_le_pow_one_sub step_is_small step_count
+        learning_cannot_be_hurried step_is_small step_count
     _ ≤ keep (distance / step_count) ^ step_count :=
         pow_le_pow_left₀ (by linarith) (step_keeps _) step_count
 
@@ -104,7 +104,7 @@ open Real
 /-- **Any turn, in enough plates.** Turning light through an angle `angle` in
 `plate_count` equal plates keeps at least `1 - angle² / (2 * plate_count)` of
 its length. -/
-theorem turn_in_steps_keeps
+theorem any_turn_in_enough_plates_keeps_almost_everything
     {plate_count : ℕ}
     (plate_count_pos : 0 < plate_count)
     {angle : ℝ}
@@ -123,18 +123,18 @@ theorem turn_in_steps_keeps
     _ ≤ cos (angle / plate_count) ^ plate_count := small_steps
 
 /-- One plate keeps no more than two plates of half the turn. -/
-theorem cos_le_cos_half_sq
+theorem one_plate_keeps_at_most_two_half_plates
     (turn : ℝ) :
     let kept_by_one_plate  := cos turn
     let kept_by_two_plates := cos (turn / 2) ^ 2
     kept_by_one_plate ≤ kept_by_two_plates := by
   unfold_named_pieces
   -- Two turns, one of `turn` and one of `0`, keep no more than two halves.
-  simpa using cos_mul_cos_le_cos_half_sq turn 0
+  simpa using two_turns_keep_at_most_two_equal_turns turn 0
 
 /-- **More plates never hurt.** Replacing each of `plate_count` plates by two of
 half the turn keeps at least as much. -/
-theorem cos_pow_le_cos_half_pow
+theorem more_plates_never_hurt
     {turn : ℝ}
     (cos_turn_nonneg : 0 ≤ cos turn)
     (plate_count : ℕ) :
@@ -143,7 +143,7 @@ theorem cos_pow_le_cos_half_pow
     kept_by_plates ≤ kept_by_halves := by
   unfold_named_pieces
   rw [pow_mul]
-  exact pow_le_pow_left₀ cos_turn_nonneg (cos_le_cos_half_sq turn) plate_count
+  exact pow_le_pow_left₀ cos_turn_nonneg (one_plate_keeps_at_most_two_half_plates turn) plate_count
 
 end Plates
 

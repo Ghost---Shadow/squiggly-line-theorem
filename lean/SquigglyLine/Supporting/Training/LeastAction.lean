@@ -2,22 +2,22 @@
 The trained path as a path of least action.
 
 Through training (a model linear in its weights):
-* `exists_iterate_gradientStep` : gradient descent moves only along the
+* `gradient_descent_stays_in_the_directions_of_the_features` : gradient descent moves only along the
   features. It never spends movement on a direction that leaves the outputs
   unchanged.
-* `gradientDescent_fit_is_nearest` : so whenever it arrives at a fit, that fit
+* `gradient_descent_fit_is_the_nearest_fit` : so whenever it arrives at a fit, that fit
   is the nearest one to the start. Training takes the least travel.
 
 Through the layers (the polarizer chain):
-* `cos_mul_cos_le_cos_half_sq` : two turns `first_turn`, `second_turn` never
+* `two_turns_keep_at_most_two_equal_turns` : two turns `first_turn`, `second_turn` never
   keep more than two turns of their average. Evening out a pair of steps never
   loses.
 
-Also here: `norm_sub_le_of_fit_along_features` (a fit reached along the
+Also here: `moving_along_the_features_is_moving_least` (a fit reached along the
 features is the nearest) and `even_turns_keep_more` (the same, with a length in
 front).
 
-* `prod_cos_le_cos_average_pow` : the same for any number of plates, each
+* `equal_turns_keep_the_most` : the same for any number of plates, each
   turning by at most a quarter turn either way. Together they never keep more
   than the same number of plates each turning by the average turn.
 -/
@@ -44,7 +44,7 @@ variable {Weights Outputs : Type*}
 /-- **Moving only along the features is moving least.** A fit reached from
 `start_weights` by a move of the form `A† vector` is at least as near to
 `start_weights` as any other fit. -/
-theorem norm_sub_le_of_fit_along_features
+theorem moving_along_the_features_is_moving_least
     (predict : Weights →L[ℝ] Outputs)
     {labels : Outputs}
     {start_weights : Weights}
@@ -85,7 +85,7 @@ theorem norm_sub_le_of_fit_along_features
 
 /-- **Gradient descent never wastes movement.** After any number of steps the
 parameters differ from the start by a move along the features. -/
-theorem exists_iterate_gradientStep
+theorem gradient_descent_stays_in_the_directions_of_the_features
     (predict : Weights →L[ℝ] Outputs)
     (labels : Outputs)
     (learning_rate : ℝ)
@@ -112,7 +112,7 @@ theorem exists_iterate_gradientStep
 
 /-- **Training takes the least travel.** If gradient descent arrives at a fit,
 no other fit is nearer to the start. -/
-theorem gradientDescent_fit_is_nearest
+theorem gradient_descent_fit_is_the_nearest_fit
     (predict : Weights →L[ℝ] Outputs)
     (labels : Outputs)
     (learning_rate : ℝ)
@@ -131,9 +131,9 @@ theorem gradientDescent_fit_is_nearest
     trained_distance ≤ other_distance := by
   unfold_named_pieces
   obtain ⟨vector, vector_gives_weights⟩ :=
-    exists_iterate_gradientStep predict labels learning_rate start_weights
+    gradient_descent_stays_in_the_directions_of_the_features predict labels learning_rate start_weights
       step_count
-  exact norm_sub_le_of_fit_along_features predict vector_gives_weights
+  exact moving_along_the_features_is_moving_least predict vector_gives_weights
     trained_weights_fit other_weights_fit
 
 end Training
@@ -146,7 +146,7 @@ open Real
 
 /-- **Even steps lose least.** Two turns of `first_turn` and `second_turn`
 never keep more than two turns of their average. -/
-theorem cos_mul_cos_le_cos_half_sq
+theorem two_turns_keep_at_most_two_equal_turns
     (first_turn : ℝ)
     (second_turn : ℝ) :
     let kept_by_two_turns := cos first_turn * cos second_turn
@@ -179,14 +179,14 @@ theorem even_turns_keep_more
   unfold_named_pieces
   have turns_le_average : cos first_turn * cos second_turn
       ≤ cos ((first_turn + second_turn) / 2) ^ 2 :=
-    cos_mul_cos_le_cos_half_sq first_turn second_turn
+    two_turns_keep_at_most_two_equal_turns first_turn second_turn
   exact mul_le_mul_of_nonneg_left turns_le_average length_nonneg
 
 open Finset in
 /-- **Equal turns keep the most, for any number of plates.** Each plate turns
 by at most a quarter turn either way. Together the plates never keep more
 than the same number of plates keep when each turns by the average turn. -/
-theorem prod_cos_le_cos_average_pow
+theorem equal_turns_keep_the_most
     {Plates : Type*}
     (plates : Finset Plates)
     (plates_nonempty : plates.Nonempty)

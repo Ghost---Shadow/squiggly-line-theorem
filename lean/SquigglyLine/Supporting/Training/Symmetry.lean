@@ -11,11 +11,11 @@ Throughout, `inner ℝ gradient weights` is the dot product of two vectors
 
 Rescaling everything (weights that feed a normalisation,
 `IS_SCALE_INVARIANT`):
-* `inner_gradient_self_eq_zero` : if the loss does not change when the weights
+* `gradient_is_at_right_angles_to_the_weights` : if the loss does not change when the weights
   are rescaled, the gradient is at right angles to the weights.
-* `norm_sq_sub_smul_of_inner_eq_zero` : so a gradient step adds
+* `step_at_right_angles_lengthens_the_weights` : so a gradient step adds
   `learning_rate² * ‖gradient‖²` to the squared size of the weights.
-* `norm_le_norm_sub_smul` : the weights never get shorter.
+* `gradient_descent_never_shortens_the_weights` : the weights never get shorter.
 
 Rescaling one layer against the next (two weights multiplied,
 `first_weight * second_weight`, stepped by `TAKE_STEP_ON_FIRST_WEIGHT` and
@@ -24,11 +24,11 @@ Rescaling one layer against the next (two weights multiplied,
   `first_weight² - second_weight²` only by a factor
   `1 - learning_rate² * error²`.
 * `balanced_stays_balanced` : layers of equal size stay of equal size.
-* `abs_eq_abs_of_balanced` : and then each carries the same share of the
+* `balanced_layers_have_the_same_size` : and then each carries the same share of the
   slope.
 
 Relabelling the hidden units (`EVALUATE_ONE_HIDDEN_LAYER`):
-* `oneHiddenLayer_relabel` : shuffling the units of a hidden layer gives the
+* `shuffling_hidden_units_gives_the_same_function` : shuffling the units of a hidden layer gives the
   same function.
 -/
 import Mathlib.Analysis.Calculus.Deriv.Basic
@@ -72,7 +72,7 @@ def IS_SCALE_INVARIANT
 the gradient of `loss` at `weights`, in the sense that the loss changes at
 the rate `inner ℝ gradient weights` when the weights move along
 themselves. -/
-theorem inner_gradient_self_eq_zero
+theorem gradient_is_at_right_angles_to_the_weights
     {loss : Weights → ℝ}
     (loss_is_scale_invariant : IS_SCALE_INVARIANT loss)
     {weights gradient : Weights}
@@ -100,7 +100,7 @@ theorem inner_gradient_self_eq_zero
     loss_is_constant_near_zero).unique (hasDerivAt_const 0 (loss weights))
 
 /-- **A step at right angles makes the weights longer.** -/
-theorem norm_sq_sub_smul_of_inner_eq_zero
+theorem step_at_right_angles_lengthens_the_weights
     {weights gradient : Weights}
     (gradient_is_at_right_angles : inner ℝ gradient weights = 0)
     (learning_rate : ℝ) :
@@ -113,7 +113,7 @@ theorem norm_sq_sub_smul_of_inner_eq_zero
   ring
 
 /-- With such a loss, gradient descent never shortens the weights. -/
-theorem norm_le_norm_sub_smul
+theorem gradient_descent_never_shortens_the_weights
     {weights gradient : Weights}
     (gradient_is_at_right_angles : inner ℝ gradient weights = 0)
     (learning_rate : ℝ) :
@@ -122,7 +122,7 @@ theorem norm_le_norm_sub_smul
   unfold_named_pieces
   -- Lengths are not negative, so it is enough to compare their squares.
   refine (sq_le_sq₀ (norm_nonneg _) (norm_nonneg _)).mp ?_
-  rw [norm_sq_sub_smul_of_inner_eq_zero gradient_is_at_right_angles]
+  rw [step_at_right_angles_lengthens_the_weights gradient_is_at_right_angles]
   exact le_add_of_nonneg_right (by positivity)
 
 end Scale
@@ -199,7 +199,7 @@ theorem balanced_stays_balanced
 
 /-- Balanced layers have the same size, so each carries the same share of the
 slope `first_weight * second_weight`. -/
-theorem abs_eq_abs_of_balanced
+theorem balanced_layers_have_the_same_size
     {first_weight second_weight : ℝ}
     (layers_are_balanced : first_weight ^ 2 = second_weight ^ 2) :
     let first_size  := |first_weight|
@@ -228,7 +228,7 @@ def EVALUATE_ONE_HIDDEN_LAYER
   ∑ i, output_weights i * activation (read_input i input)
 
 /-- **Shuffling the hidden units gives the same function.** -/
-theorem oneHiddenLayer_relabel
+theorem shuffling_hidden_units_gives_the_same_function
     (activation : RealFunction)
     (read_input : InputReaders HiddenUnits Inputs)
     (output_weights : HiddenUnits → ℝ)

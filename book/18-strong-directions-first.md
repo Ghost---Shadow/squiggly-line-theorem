@@ -110,9 +110,9 @@ theorem strong_directions_first
 left than the weak one.
 
 Two more results complete the picture.
-`inner_residual_iterate_gradientStep` gives the exact share,
+`each_direction_runs_on_its_own_clock` gives the exact share,
 `(1 − learning_rate × kernel_strength) ^ step_count`, and
-`inner_residual_iterate_of_kernel_eq_zero` says that a direction of
+`direction_of_zero_strength_is_never_learned` says that a direction of
 strength zero keeps its error for ever.
 
 ## Why it is true
@@ -121,18 +121,18 @@ strength zero keeps its error for ever.
 A gradient step removes `learning_rate` times the kernel applied to the
 error. Along `direction` that is `learning_rate × kernel_strength` of the
 error. So the error is multiplied by `1 − learning_rate × kernel_strength`
-(`inner_residual_gradientStep`).
+(`one_step_shrinks_one_direction`).
 
 **Many steps.** Repeat. Each step multiplies by the same factor, so
 `step_count` steps multiply by its power. The directions do not talk to
 each other.
 
 **The two bounds.** The share left is `(1 − rate) ^ step_count`. The lower
-bound is Bernoulli's inequality, `one_sub_mul_le_pow_one_sub`: raising a
+bound is Bernoulli's inequality, `learning_cannot_be_hurried`: raising a
 number just below 1 to a power cannot take away more than the power times
 the gap. The upper bound uses the fact that `1 − x` is at most `exp(−x)`,
-raised to the same power (`pow_one_sub_le_exp`). The comparison of two
-directions is `pow_one_sub_anti`: a larger rate, up to 1, leaves a smaller
+raised to the same power (`learning_does_run_out`). The comparison of two
+directions is `larger_rate_leaves_a_smaller_share`: a larger rate, up to 1, leaves a smaller
 share.
 
 ## All the directions at once
@@ -156,7 +156,7 @@ squared loss after step_count steps
 ```
 
 ```lean
-theorem norm_sq_residual_iterate_eq_sum
+theorem loss_after_many_steps_is_a_sum_over_directions
     (predict : Weights →L[ℝ] Outputs)
     (labels : Outputs)
     (learning_rate : ℝ)
@@ -189,8 +189,8 @@ the squared factor times the squared start part.
 The proof is short. An error is the sum of its parts along such a set,
 and its squared length is the sum of their squares, which is the theorem
 of Pythagoras. Each part is covered by
-`inner_residual_iterate_gradientStep` above.
-`residual_iterate_eq_sum` says the same for the error itself.
+`each_direction_runs_on_its_own_clock` above.
+`residual_after_many_steps_is_a_sum_over_directions` says the same for the error itself.
 
 So the loss curve of a model that is linear in its weights is a sum of
 decaying terms. The strong directions are gone early. What is left later
@@ -206,7 +206,7 @@ cosines of that gap, where frequency `k` enters with the square of
 `amplitude k`. A Fourier series has such a kernel. Its features are
 `amplitude k × cos(k × input)` and `amplitude k × sin(k × input)` for
 each frequency `k`, and the overlap of the features of two inputs is the
-sum of `amplitude k ² × cos(k × gap)` (`inner_liftByFourierSeries`). Keep
+sum of `amplitude k ² × cos(k × gap)` (`fourier_series_kernel_sees_only_the_gap`). Keep
 every frequency below half the number of inputs.
 
 > Then the wave of a given frequency, read off at the inputs, is a
@@ -255,7 +255,7 @@ So `spectral_bias` applies to the wave, with that strength.
 `fourier_spectral_bias` states the factor: each step multiplies the
 error along the wave by
 `1 − learning_rate × input_count / 2 × amplitude frequency ²`.
-`fourierSeries_direction_is_stretched` is the same statement for the
+`fourier_series_direction_is_stretched` is the same statement for the
 Fourier series itself, with nothing assumed about the kernel.
 
 **An example.** Take 8 inputs, amplitude 1 at frequency 1 and amplitude
@@ -270,7 +270,7 @@ ten times larger.
 1. *A wave read at evenly spaced points cancels.* Read a cosine at
    points that go round a whole number of turns in equal steps. The
    values sum to zero, unless each step is itself a whole number of
-   turns (`sum_cos_arith_eq_zero`). To see it, multiply each value by
+   turns (`evenly_sampled_wave_sums_to_zero`). To see it, multiply each value by
    twice the sine of half a step. That turns it into the difference of
    two sines. The differences telescope, and the two sines that are left
    are a whole number of turns apart, so they are equal.
@@ -279,13 +279,13 @@ ten times larger.
    their difference. Summed over the inputs, each half is a wave as in
    step 1, so it cancels. There is one exception. When the two
    frequencies are equal the difference is constant, and the sum is half
-   the number of inputs (`sum_cos_mul_cos`). Keeping the frequencies
+   the number of inputs (`sampled_waves_of_different_frequencies_do_not_overlap`). Keeping the frequencies
    below half the number of inputs is what stops the sum of two
    frequencies from being a whole number of turns per step.
 3. *The kernel in coordinates.* Give each input a number. The kernel
    sends this list to a new list: at each input, the sum over all the
    inputs of the kernel between the two, times the number
-   (`kernel_predictOnExamples_apply`). Put the wave in and use step 2
+   (`kernel_of_predictor_in_coordinates`). Put the wave in and use step 2
    once for each frequency. Only the wave's own frequency is left.
 
 ## What it explains
@@ -370,7 +370,7 @@ only stretched by the kernel, to within `3e-14`, each with strength
 remove half of the error for `k` from 1 to 7. The same numbers came from the
 cosines, from the sines and from the formula `(1 − rate) ^ step`. For evenly
 spaced inputs that the cosines and sines are only stretched by the kernel is
-proved by `fourierSeries_direction_is_stretched`; the run measures what that theorem states. The control moves each input by up
+proved by `fourier_series_direction_is_stretched`; the run measures what that theorem states. The control moves each input by up
 to 0.3 of the spacing. The sampled cosines and sines were then not eigen-directions: the
 gap was between 0.03 and 0.94, and the strengths read off them were off from
 `8 / k²` by a relative error of up to 1.8.
@@ -429,7 +429,7 @@ It makes 18 checks and prints the same lines every time.
 **Answers.** (1) The rate is `0.01 × 20 = 0.2`, so the clock is 5 steps.
 After 5 steps the share is `0.8^5`, about 0.33. It lies between the bounds
 `1 − 5 × 0.2 = 0` and `exp(−1)`, about 0.37. (2) All of it, by
-`inner_residual_iterate_of_kernel_eq_zero`. (3) The one of strength 3:
+`direction_of_zero_strength_is_never_learned`. (3) The one of strength 3:
 `0.7^4` is about 0.24, and `0.8^4` is about 0.41. That is
 `strong_directions_first` with rates 0.3 and 0.2. (4) Half the number
 of inputs times the square of the amplitude: `16 / 2 × 0.25 = 2`, by

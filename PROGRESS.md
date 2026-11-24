@@ -16,7 +16,7 @@ plan are not counted. To change the bar, tick an item here and run
 <!-- burndown:start -->
 ![Burn-down chart: items still to do against the date, with the straight line to zero](docs/burndown.svg)
 
-No ETA yet: the history covers 5.9 days, and no pace can be read from items ticked in it. As of 2026-11-24. The blue line is read from git (every commit that changed this list); the dashed line is the straight line to zero at that pace. When items are added to the list the blue line goes up.
+No ETA yet: the history covers 6.0 days, and no pace can be read from items ticked in it. As of 2026-11-24. The blue line is read from git (every commit that changed this list); the dashed line is the straight line to zero at that pace. When items are added to the list the blue line goes up.
 <!-- burndown:end -->
 
 ## Proofs
@@ -83,25 +83,25 @@ No ETA yet: the history covers 5.9 days, and no pace can be read from items tick
 - [x] Theorem names in the style of the rest of the code: `Supporting/NewInputs/OnAverage.lean`
 - [x] Theorem names in the style of the rest of the code: `Supporting/NewInputs/Pruning.lean`
 - [x] Theorem names in the style of the rest of the code: `Supporting/NewInputs/SameKernel.lean`
-- [ ] Theorem names in the style of the rest of the code: `Supporting/Training/AdamW.lean`
-- [ ] Theorem names in the style of the rest of the code: `Supporting/Training/BatchSize.lean`
-- [ ] Theorem names in the style of the rest of the code: `Supporting/Training/ComputeBudget.lean`
-- [ ] Theorem names in the style of the rest of the code: `Supporting/Training/CrossEntropy.lean`
-- [ ] Theorem names in the style of the rest of the code: `Supporting/Training/Dropout.lean`
-- [ ] Theorem names in the style of the rest of the code: `Supporting/Training/EdgeOfStability.lean`
-- [ ] Theorem names in the style of the rest of the code: `Supporting/Training/GanGame.lean`
-- [ ] Theorem names in the style of the rest of the code: `Supporting/Training/KernelSpectrum.lean`
-- [ ] Theorem names in the style of the rest of the code: `Supporting/Training/LeastAction.lean`
-- [ ] Theorem names in the style of the rest of the code: `Supporting/Training/Optimisers.lean`
-- [ ] Theorem names in the style of the rest of the code: `Supporting/Training/Perceptron.lean`
-- [ ] Theorem names in the style of the rest of the code: `Supporting/Training/PolicyGradient.lean`
-- [ ] Theorem names in the style of the rest of the code: `Supporting/Training/Regularisers.lean`
-- [ ] Theorem names in the style of the rest of the code: `Supporting/Training/Reparam.lean`
-- [ ] Theorem names in the style of the rest of the code: `Supporting/Training/SmallSteps.lean`
-- [ ] Theorem names in the style of the rest of the code: `Supporting/Training/SpectralBias.lean`
-- [ ] Theorem names in the style of the rest of the code: `Supporting/Training/StepRules.lean`
-- [ ] Theorem names in the style of the rest of the code: `Supporting/Training/Symmetry.lean`
-- [ ] Theorem names in the style of the rest of the code: `Supporting/Training/WeightDecay.lean`
+- [x] Theorem names in the style of the rest of the code: `Supporting/Training/AdamW.lean`
+- [x] Theorem names in the style of the rest of the code: `Supporting/Training/BatchSize.lean`
+- [x] Theorem names in the style of the rest of the code: `Supporting/Training/ComputeBudget.lean`
+- [x] Theorem names in the style of the rest of the code: `Supporting/Training/CrossEntropy.lean`
+- [x] Theorem names in the style of the rest of the code: `Supporting/Training/Dropout.lean`
+- [x] Theorem names in the style of the rest of the code: `Supporting/Training/EdgeOfStability.lean`
+- [x] Theorem names in the style of the rest of the code: `Supporting/Training/GanGame.lean`
+- [x] Theorem names in the style of the rest of the code: `Supporting/Training/KernelSpectrum.lean`
+- [x] Theorem names in the style of the rest of the code: `Supporting/Training/LeastAction.lean`
+- [x] Theorem names in the style of the rest of the code: `Supporting/Training/Optimisers.lean`
+- [x] Theorem names in the style of the rest of the code: `Supporting/Training/Perceptron.lean`
+- [x] Theorem names in the style of the rest of the code: `Supporting/Training/PolicyGradient.lean`
+- [x] Theorem names in the style of the rest of the code: `Supporting/Training/Regularisers.lean`
+- [x] Theorem names in the style of the rest of the code: `Supporting/Training/Reparam.lean`
+- [x] Theorem names in the style of the rest of the code: `Supporting/Training/SmallSteps.lean`
+- [x] Theorem names in the style of the rest of the code: `Supporting/Training/SpectralBias.lean`
+- [x] Theorem names in the style of the rest of the code: `Supporting/Training/StepRules.lean`
+- [x] Theorem names in the style of the rest of the code: `Supporting/Training/Symmetry.lean`
+- [x] Theorem names in the style of the rest of the code: `Supporting/Training/WeightDecay.lean`
 - [x] Theorem names in the style of the rest of the code: `Theorem/Compression.lean`
 - [x] Theorem names in the style of the rest of the code: `Theorem/Conjecture.lean`
 - [x] Theorem names in the style of the rest of the code: `Theorem/Coverage.lean`

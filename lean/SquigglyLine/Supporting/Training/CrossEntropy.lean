@@ -6,31 +6,31 @@ cross-entropy, with a softmax (for two classes, a sigmoid) between its scores
 and its predictions.
 
 One example:
-* `softmax_pos`, `sum_softmax` : a softmax is a set of positive shares.
-* `softmax_lt_one`, `crossEntropy_single_pos` : with two or more classes no
+* `softmax_share_is_greater_than_zero`, `softmax_shares_add_to_one` : a softmax is a set of positive shares.
+* `softmax_share_is_less_than_one`, `cross_entropy_of_a_sure_label_is_greater_than_zero` : with two or more classes no
   share reaches one, so the loss of a sure label is never zero.
-* `hasDerivAt_crossEntropy`, `hasDerivAt_logLoss` : the push on the scores is
+* `cross_entropy_slope_is_prediction_minus_label`, `log_loss_slope_is_prediction_minus_label` : the push on the scores is
   prediction minus label, as it is for squared error.
-* `convexOn_logLoss` : the loss is convex in the score.
-* `logLoss_one_pos`, `strictAnti_logLoss_one` : for a yes-or-no label no
+* `log_loss_is_convex` : the loss is convex in the score.
+* `log_loss_of_label_yes_is_greater_than_zero`, `no_finite_score_is_best_for_label_yes` : for a yes-or-no label no
   finite score is best. A larger score is always better.
-* `logLoss_le_of_sigmoid_eq`, `exists_best_score` : for a soft label, the
+* `score_whose_prediction_equals_the_label_is_best`, `soft_label_has_a_finite_best_score` : for a soft label, the
   score whose prediction equals the label is best, and it is finite.
 
 A model linear in its weights, under any reading of the error:
-* `gradientStep_eq_errorStep` : squared error is the case "output minus label".
-* `map_errorStep` : a step moves the outputs through the same kernel.
-* `map_iterate_errorStep_eq` : same kernel, same outputs at every step.
-* `iterate_errorStep_is_nearest` : the weights reached are the nearest to the
+* `squared_error_step_is_an_error_step` : squared error is the case "output minus label".
+* `error_step_moves_outputs_through_the_kernel` : a step moves the outputs through the same kernel.
+* `same_kernel_gives_same_outputs_for_any_loss` : same kernel, same outputs at every step.
+* `training_takes_least_travel_for_any_loss` : the weights reached are the nearest to the
   start among all weights with the same outputs.
 
 Cross-entropy on such a model:
-* `hasDerivAt_totalLogLoss`, `inner_adjoint_eq_sum` : its error is prediction
+* `total_log_loss_slope_is_error_times_features`, `overlap_with_pulled_back_vector_is_a_sum` : its error is prediction
   minus label, so it is one of the steps above.
-* `totalLogLoss_along_le` : on a straight line in weight space the loss stays
+* `total_log_loss_on_a_line_is_at_most_the_blend` : on a straight line in weight space the loss stays
   below the straight line between the two end losses.
-* `totalLogLoss_along_le_max` : so there is no hill between two settings.
-* `le_totalLogLoss_sub_along` : and a share `fraction` of the way removes at
+* `no_hill_between_two_settings` : so there is no hill between two settings.
+* `budget_of_movement_buys_its_share_of_log_loss` : and a share `fraction` of the way removes at
   least the share `fraction` of the gap in loss.
 
 Definitions: `APPLY_SOFTMAX`, `GET_CROSS_ENTROPY`, `GET_LOG_LOSS`,
@@ -69,7 +69,7 @@ noncomputable def GET_CROSS_ENTROPY
   log (∑ j, exp (scores j)) - ∑ i, labels i * scores i
 
 /-- The sum of the exponentials of the scores is positive. -/
-theorem sum_exp_pos [Nonempty Classes]
+theorem sum_of_exponentials_is_greater_than_zero [Nonempty Classes]
     (scores : Classes → ℝ) :
     let total_weight := ∑ j, exp (scores j)
     0 < total_weight := by
@@ -77,27 +77,27 @@ theorem sum_exp_pos [Nonempty Classes]
   exact Finset.sum_pos (fun j _ => exp_pos (scores j)) Finset.univ_nonempty
 
 /-- Every share is positive. -/
-theorem softmax_pos [Nonempty Classes]
+theorem softmax_share_is_greater_than_zero [Nonempty Classes]
     (scores : Classes → ℝ)
     (chosen_class : Classes) :
     let share := APPLY_SOFTMAX scores chosen_class
     0 < share := by
   unfold_named_pieces
-  have total_weight_pos : 0 < ∑ j, exp (scores j) := sum_exp_pos scores
+  have total_weight_pos : 0 < ∑ j, exp (scores j) := sum_of_exponentials_is_greater_than_zero scores
   exact div_pos (exp_pos (scores chosen_class)) total_weight_pos
 
 /-- The shares add up to one. -/
-theorem sum_softmax [Nonempty Classes]
+theorem softmax_shares_add_to_one [Nonempty Classes]
     (scores : Classes → ℝ) :
     let total_share := ∑ i, APPLY_SOFTMAX scores i
     total_share = 1 := by
   unfold_named_pieces
-  have total_weight_pos : 0 < ∑ j, exp (scores j) := sum_exp_pos scores
+  have total_weight_pos : 0 < ∑ j, exp (scores j) := sum_of_exponentials_is_greater_than_zero scores
   simp only [APPLY_SOFTMAX, ← Finset.sum_div]
   exact div_self total_weight_pos.ne'
 
 /-- The usual form of the loss: minus the label-weighted log of the shares. -/
-theorem crossEntropy_eq_neg_sum_log [Nonempty Classes]
+theorem cross_entropy_equals_minus_weighted_log_of_shares [Nonempty Classes]
     {labels : Classes → ℝ}
     (labels_sum_to_one : ∑ i, labels i = 1)
     (scores : Classes → ℝ) :
@@ -105,7 +105,7 @@ theorem crossEntropy_eq_neg_sum_log [Nonempty Classes]
     let usual_form := -∑ i, labels i * log (APPLY_SOFTMAX scores i)
     loss = usual_form := by
   unfold_named_pieces
-  have total_weight_pos : 0 < ∑ j, exp (scores j) := sum_exp_pos scores
+  have total_weight_pos : 0 < ∑ j, exp (scores j) := sum_of_exponentials_is_greater_than_zero scores
   have log_share (i : Classes) :
       log (APPLY_SOFTMAX scores i) = scores i - log (∑ j, exp (scores j)) := by
     rw [APPLY_SOFTMAX, log_div (exp_pos _).ne' total_weight_pos.ne', log_exp]
@@ -114,14 +114,14 @@ theorem crossEntropy_eq_neg_sum_log [Nonempty Classes]
   ring
 
 /-- With at least two classes, every share is below one. -/
-theorem softmax_lt_one [Nontrivial Classes]
+theorem softmax_share_is_less_than_one [Nontrivial Classes]
     (scores : Classes → ℝ)
     (chosen_class : Classes) :
     let share := APPLY_SOFTMAX scores chosen_class
     share < 1 := by
   unfold_named_pieces
   classical
-  have total_weight_pos : 0 < ∑ j, exp (scores j) := sum_exp_pos scores
+  have total_weight_pos : 0 < ∑ j, exp (scores j) := sum_of_exponentials_is_greater_than_zero scores
   obtain ⟨other_class, other_ne⟩ := exists_ne chosen_class
   have rest_pos : 0 < ∑ k ∈ Finset.univ.erase chosen_class, exp (scores k) :=
     Finset.sum_pos (fun k _ => exp_pos (scores k))
@@ -135,7 +135,7 @@ theorem softmax_lt_one [Nontrivial Classes]
 /-- **The loss of a sure label is never zero.** Against the label "class
 `chosen_class`, for certain", no finite scores bring the cross-entropy to
 zero. -/
-theorem crossEntropy_single_pos [Nontrivial Classes] [DecidableEq Classes]
+theorem cross_entropy_of_a_sure_label_is_greater_than_zero [Nontrivial Classes] [DecidableEq Classes]
     (scores : Classes → ℝ)
     (chosen_class : Classes) :
     let sure_label : Classes → ℝ := Pi.single chosen_class 1
@@ -144,19 +144,19 @@ theorem crossEntropy_single_pos [Nontrivial Classes] [DecidableEq Classes]
   unfold_named_pieces
   have loss_eq : GET_CROSS_ENTROPY (Pi.single chosen_class 1) scores
       = -log (APPLY_SOFTMAX scores chosen_class) := by
-    rw [crossEntropy_eq_neg_sum_log (by simp)]
+    rw [cross_entropy_equals_minus_weighted_log_of_shares (by simp)]
     simp [Pi.single_apply]
   have share_pos : 0 < APPLY_SOFTMAX scores chosen_class :=
-    softmax_pos scores chosen_class
+    softmax_share_is_greater_than_zero scores chosen_class
   have share_lt_one : APPLY_SOFTMAX scores chosen_class < 1 :=
-    softmax_lt_one scores chosen_class
+    softmax_share_is_less_than_one scores chosen_class
   rw [loss_eq, neg_pos]
   exact log_neg share_pos share_lt_one
 
 /-- **Prediction minus label.** Move the scores in the direction `direction`.
 The loss changes at the rate "share minus label", summed against
 `direction`. -/
-theorem hasDerivAt_crossEntropy [Nonempty Classes]
+theorem cross_entropy_slope_is_prediction_minus_label [Nonempty Classes]
     (labels scores direction : Classes → ℝ) :
     let rate := ∑ i, (APPLY_SOFTMAX scores i - labels i) * direction i
     HasDerivAt
@@ -164,7 +164,7 @@ theorem hasDerivAt_crossEntropy [Nonempty Classes]
         GET_CROSS_ENTROPY labels fun i => scores i + fraction * direction i)
       rate 0 := by
   unfold_named_pieces
-  have total_weight_pos : 0 < ∑ j, exp (scores j) := sum_exp_pos scores
+  have total_weight_pos : 0 < ∑ j, exp (scores j) := sum_of_exponentials_is_greater_than_zero scores
   have score_deriv (i : Classes) :
       HasDerivAt (fun fraction : ℝ => scores i + fraction * direction i)
         (direction i) 0 := by
@@ -202,7 +202,7 @@ noncomputable def GET_LOG_LOSS
   log (1 + exp score) - label * score
 
 /-- The log of the sigmoid, written with the exponential of the score. -/
-theorem log_sigmoid
+theorem log_of_sigmoid
     (score : ℝ) :
     let log_prediction := log (sigmoid score)
     let log_form       := score - log (1 + exp score)
@@ -217,7 +217,7 @@ theorem log_sigmoid
   ring
 
 /-- The log of one minus the sigmoid. -/
-theorem log_one_sub_sigmoid
+theorem log_of_one_minus_sigmoid
     (score : ℝ) :
     let log_complement := log (1 - sigmoid score)
     let log_form       := -log (1 + exp score)
@@ -227,7 +227,7 @@ theorem log_one_sub_sigmoid
 
 /-- The usual form of the loss, with the sigmoid of the score as the
 prediction. -/
-theorem logLoss_eq
+theorem log_loss_in_its_usual_form
     (label : ℝ)
     (score : ℝ) :
     let loss := GET_LOG_LOSS label score
@@ -236,15 +236,15 @@ theorem logLoss_eq
     loss = usual_form := by
   unfold_named_pieces
   have log_prediction : log (sigmoid score) = score - log (1 + exp score) :=
-    log_sigmoid score
+    log_of_sigmoid score
   have log_complement : log (1 - sigmoid score) = -log (1 + exp score) :=
-    log_one_sub_sigmoid score
+    log_of_one_minus_sigmoid score
   rw [log_prediction, log_complement, GET_LOG_LOSS]
   ring
 
 /-- **Prediction minus label.** The loss changes with the score at the rate
 "sigmoid of the score, minus the label". -/
-theorem hasDerivAt_logLoss
+theorem log_loss_slope_is_prediction_minus_label
     (label : ℝ)
     (score : ℝ) :
     let loss := GET_LOG_LOSS label
@@ -264,26 +264,26 @@ theorem hasDerivAt_logLoss
   ring
 
 /-- The slope of the loss, as a function of the score. -/
-theorem deriv_logLoss
+theorem slope_of_log_loss
     (label : ℝ) :
     let loss_slope     := deriv (GET_LOG_LOSS label)
     let expected_slope := fun score => sigmoid score - label
     loss_slope = expected_slope := by
   unfold_named_pieces
-  exact funext fun score => (hasDerivAt_logLoss label score).deriv
+  exact funext fun score => (log_loss_slope_is_prediction_minus_label label score).deriv
 
 /-- The loss is convex in the score. -/
-theorem convexOn_logLoss
+theorem log_loss_is_convex
     (label : ℝ) :
     let loss := GET_LOG_LOSS label
     ConvexOn ℝ Set.univ loss := by
   unfold_named_pieces
   have rate_at (score : ℝ) :
       HasDerivAt (GET_LOG_LOSS label) (sigmoid score - label) score :=
-    hasDerivAt_logLoss label score
+    log_loss_slope_is_prediction_minus_label label score
   have slope_eq :
       deriv (GET_LOG_LOSS label) = fun score => sigmoid score - label :=
-    deriv_logLoss label
+    slope_of_log_loss label
   refine Monotone.convexOn_univ_of_deriv
     (fun score => (rate_at score).differentiableAt) ?_
   rw [slope_eq]
@@ -291,31 +291,31 @@ theorem convexOn_logLoss
   exact fun _ _ below => sub_le_sub_right (sigmoid_le below) label
 
 /-- For the label "yes" the loss is never zero. -/
-theorem logLoss_one_pos
+theorem log_loss_of_label_yes_is_greater_than_zero
     (score : ℝ) :
     let loss := GET_LOG_LOSS 1 score
     0 < loss := by
   unfold_named_pieces
   have loss_eq : GET_LOG_LOSS 1 score = -log (sigmoid score) := by
-    rw [GET_LOG_LOSS, (log_sigmoid score)]
+    rw [GET_LOG_LOSS, (log_of_sigmoid score)]
     ring
   rw [loss_eq, neg_pos]
   exact log_neg (sigmoid_pos score) (sigmoid_lt_one score)
 
 /-- **No finite score is best.** For the label "yes", a larger score always
 has a smaller loss. -/
-theorem strictAnti_logLoss_one :
+theorem no_finite_score_is_best_for_label_yes :
     let loss_for_yes := GET_LOG_LOSS 1
     StrictAnti loss_for_yes := by
   unfold_named_pieces
   have slope_eq : deriv (GET_LOG_LOSS 1) = fun score => sigmoid score - 1 :=
-    deriv_logLoss 1
+    slope_of_log_loss 1
   refine strictAnti_of_deriv_neg fun score => ?_
   rw [slope_eq]
   exact sub_neg.mpr (sigmoid_lt_one score)
 
 /-- A score whose prediction equals the label is a best score. -/
-theorem logLoss_le_of_sigmoid_eq
+theorem score_whose_prediction_equals_the_label_is_best
     {label best_score : ℝ}
     (prediction_matches : sigmoid best_score = label)
     (score : ℝ) :
@@ -325,7 +325,7 @@ theorem logLoss_le_of_sigmoid_eq
   unfold_named_pieces
   have rate_at (input : ℝ) :
       HasDerivAt (GET_LOG_LOSS label) (sigmoid input - label) input :=
-    hasDerivAt_logLoss label input
+    log_loss_slope_is_prediction_minus_label label input
   have loss_differentiable : Differentiable ℝ (GET_LOG_LOSS label) :=
     fun input => (rate_at input).differentiableAt
   have slope_eq (input : ℝ) :
@@ -353,8 +353,8 @@ theorem logLoss_le_of_sigmoid_eq
 
 /-- **A soft label has a finite best score.** For a label strictly between
 zero and one, some finite score has the least loss. Compare
-`strictAnti_logLoss_one`. -/
-theorem exists_best_score
+`no_finite_score_is_best_for_label_yes`. -/
+theorem soft_label_has_a_finite_best_score
     {label : ℝ}
     (label_pos : 0 < label)
     (label_lt_one : label < 1) :
@@ -367,7 +367,7 @@ theorem exists_best_score
     rw [range_sigmoid]
     exact ⟨label_pos, label_lt_one⟩
   obtain ⟨best_score, best_score_matches⟩ := label_in_range
-  exact ⟨best_score, logLoss_le_of_sigmoid_eq best_score_matches⟩
+  exact ⟨best_score, score_whose_prediction_equals_the_label_is_best best_score_matches⟩
 
 end TwoClasses
 
@@ -395,7 +395,7 @@ noncomputable def TAKE_ERROR_STEP
   weights - learning_rate • adjoint predict (error_of (predict weights))
 
 /-- Squared error is the case "output minus label". -/
-theorem gradientStep_eq_errorStep
+theorem squared_error_step_is_an_error_step
     (predict : Weights →L[ℝ] Outputs)
     (labels : Outputs)
     (learning_rate : ℝ)
@@ -417,7 +417,7 @@ theorem gradientStep_eq_errorStep
 
 /-- **The same kernel, whatever the loss.** A step moves the outputs by the
 kernel `A A†` applied to the error. -/
-theorem map_errorStep
+theorem error_step_moves_outputs_through_the_kernel
     (predict : Weights →L[ℝ] Outputs)
     (error_of : Outputs → Outputs)
     (learning_rate : ℝ)
@@ -435,7 +435,7 @@ theorem map_errorStep
 /-- **Same kernel, same learner, whatever the loss.** Two models with the same
 kernel that start from the same outputs have the same outputs after every
 step. -/
-theorem map_iterate_errorStep_eq
+theorem same_kernel_gives_same_outputs_for_any_loss
     {predict : Weights →L[ℝ] Outputs}
     {other_predict : OtherWeights →L[ℝ] Outputs}
     (same_kernel : ∀ vector,
@@ -462,14 +462,14 @@ theorem map_iterate_errorStep_eq
       predict (TAKE_ERROR_STEP predict error_of learning_rate weights)
         = predict weights - learning_rate
           • predict (adjoint predict (error_of (predict weights))) :=
-    map_errorStep predict error_of learning_rate weights
+    error_step_moves_outputs_through_the_kernel predict error_of learning_rate weights
   have other_predict_step (weights : OtherWeights) :
       other_predict (TAKE_ERROR_STEP other_predict error_of learning_rate
           weights)
         = other_predict weights - learning_rate
           • other_predict
               (adjoint other_predict (error_of (other_predict weights))) :=
-    map_errorStep other_predict error_of learning_rate weights
+    error_step_moves_outputs_through_the_kernel other_predict error_of learning_rate weights
   induction step_count with
   | zero => exact same_start_outputs
   | succ previous_count earlier_case =>
@@ -477,7 +477,7 @@ theorem map_iterate_errorStep_eq
       predict_step, other_predict_step, earlier_case, same_kernel]
 
 /-- Training never leaves the directions of the features. -/
-theorem exists_iterate_errorStep
+theorem training_stays_in_the_directions_of_the_features
     (predict : Weights →L[ℝ] Outputs)
     (error_of : Outputs → Outputs)
     (learning_rate : ℝ)
@@ -503,7 +503,7 @@ theorem exists_iterate_errorStep
 
 /-- **Least travel, whatever the loss.** After any number of steps, no weights
 with the same outputs are nearer to the start. -/
-theorem iterate_errorStep_is_nearest
+theorem training_takes_least_travel_for_any_loss
     (predict : Weights →L[ℝ] Outputs)
     (error_of : Outputs → Outputs)
     (learning_rate : ℝ)
@@ -522,9 +522,9 @@ theorem iterate_errorStep_is_nearest
     trained_distance ≤ other_distance := by
   unfold_named_pieces
   obtain ⟨vector, vector_gives_weights⟩ :=
-    exists_iterate_errorStep predict error_of learning_rate start_weights
+    training_stays_in_the_directions_of_the_features predict error_of learning_rate start_weights
       step_count
-  exact norm_sub_le_of_fit_along_features predict vector_gives_weights rfl
+  exact moving_along_the_features_is_moving_least predict vector_gives_weights rfl
     same_outputs
 
 end AnyError
@@ -554,7 +554,7 @@ omit [CompleteSpace Weights] in
 /-- **The gradient is error times features.** Move the weights in the
 direction `direction`. The loss changes at the rate "prediction minus label"
 on each example, times how fast `direction` moves that example's score. -/
-theorem hasDerivAt_totalLogLoss
+theorem total_log_loss_slope_is_error_times_features
     (weights direction : Weights) :
     let rate := ∑ i, (sigmoid (predict weights i) - labels i)
       * predict direction i
@@ -578,13 +578,13 @@ theorem hasDerivAt_totalLogLoss
     simpa using
       ((hasDerivAt_id (0 : ℝ)).mul_const (predict direction i)).const_add
         (predict weights i)
-  exact (hasDerivAt_logLoss (labels i) (predict weights i)).comp_of_eq 0
+  exact (log_loss_slope_is_prediction_minus_label (labels i) (predict weights i)).comp_of_eq 0
     score_deriv (by simp)
 
 /-- That rate is the inner product of `direction` with `A†` applied to the
 error, so a gradient step on cross-entropy is an `TAKE_ERROR_STEP` whose error
 is prediction minus label. -/
-theorem inner_adjoint_eq_sum
+theorem overlap_with_pulled_back_vector_is_a_sum
     (error : ExampleScores Examples)
     (direction : Weights) :
     let pulled_back := inner ℝ (adjoint predict error) direction
@@ -599,7 +599,7 @@ variable (start_weights end_weights : Weights)
 omit [CompleteSpace Weights] in
 /-- **One valley.** On the straight line between two settings of the weights,
 the loss is at most the matching blend of the two end losses. -/
-theorem totalLogLoss_along_le
+theorem total_log_loss_on_a_line_is_at_most_the_blend
     {fraction : ℝ}
     (fraction_nonneg : 0 ≤ fraction)
     (fraction_le_one : fraction ≤ 1) :
@@ -622,14 +622,14 @@ theorem totalLogLoss_along_le
   rw [score_blend]
   -- Each example's loss is convex in its score.
   have loss_convex : ConvexOn ℝ Set.univ (GET_LOG_LOSS (labels i)) :=
-    convexOn_logLoss (labels i)
+    log_loss_is_convex (labels i)
   exact loss_convex.2 (Set.mem_univ _) (Set.mem_univ _)
     (sub_nonneg.mpr fraction_le_one) fraction_nonneg (by ring)
 
 omit [CompleteSpace Weights] in
 /-- **No hill between two settings.** The loss on the line is never above the
 worse end. -/
-theorem totalLogLoss_along_le_max
+theorem no_hill_between_two_settings
     {fraction : ℝ}
     (fraction_nonneg : 0 ≤ fraction)
     (fraction_le_one : fraction ≤ 1) :
@@ -646,7 +646,7 @@ theorem totalLogLoss_along_le_max
           (MOVE_ALONG start_weights end_weights fraction)
         ≤ (1 - fraction) * GET_TOTAL_LOG_LOSS predict labels start_weights
           + fraction * GET_TOTAL_LOG_LOSS predict labels end_weights :=
-    totalLogLoss_along_le predict labels start_weights end_weights
+    total_log_loss_on_a_line_is_at_most_the_blend predict labels start_weights end_weights
       fraction_nonneg fraction_le_one
   have start_le_max := le_max_left
     (GET_TOTAL_LOG_LOSS predict labels start_weights)
@@ -663,7 +663,7 @@ omit [CompleteSpace Weights] in
 /-- **A budget of movement buys at least its share.** Going the share
 `fraction` of the way to better weights removes at least the share `fraction`
 of the gap in loss. -/
-theorem le_totalLogLoss_sub_along
+theorem budget_of_movement_buys_its_share_of_log_loss
     {fraction : ℝ}
     (fraction_nonneg : 0 ≤ fraction)
     (fraction_le_one : fraction ≤ 1) :
@@ -682,7 +682,7 @@ theorem le_totalLogLoss_sub_along
           (MOVE_ALONG start_weights end_weights fraction)
         ≤ (1 - fraction) * GET_TOTAL_LOG_LOSS predict labels start_weights
           + fraction * GET_TOTAL_LOG_LOSS predict labels end_weights :=
-    totalLogLoss_along_le predict labels start_weights end_weights
+    total_log_loss_on_a_line_is_at_most_the_blend predict labels start_weights end_weights
       fraction_nonneg fraction_le_one
   linarith
 

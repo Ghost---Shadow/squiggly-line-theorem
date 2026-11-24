@@ -16,23 +16,24 @@
 <line x1="56" x2="616" y1="29.3" y2="29.3" stroke="#e4e4e4"/>
 <text x="48" y="33.3" text-anchor="end" fill="#555">366</text>
 <text x="85.3" y="298" text-anchor="middle" fill="#555">19 Nov</text>
-<text x="179.5" y="298" text-anchor="middle" fill="#555">20 Nov</text>
-<text x="273.6" y="298" text-anchor="middle" fill="#555">21 Nov</text>
-<text x="367.8" y="298" text-anchor="middle" fill="#555">22 Nov</text>
-<text x="462.0" y="298" text-anchor="middle" fill="#555">23 Nov</text>
-<text x="556.1" y="298" text-anchor="middle" fill="#555">24 Nov</text>
-<polyline points="56.0,266.5 94.3,267.2 594.9,246.7 595.1,145.3 595.1,100.1 596.8,28.7 614.0,32.7 614.4,38.8 614.6,40.8 615.0,43.5 615.5,52.3 616.0,74.5 616.0,74.5" fill="none" stroke="#4c72b0" stroke-width="2.5"/>
+<text x="179.4" y="298" text-anchor="middle" fill="#555">20 Nov</text>
+<text x="273.5" y="298" text-anchor="middle" fill="#555">21 Nov</text>
+<text x="367.6" y="298" text-anchor="middle" fill="#555">22 Nov</text>
+<text x="461.7" y="298" text-anchor="middle" fill="#555">23 Nov</text>
+<text x="555.8" y="298" text-anchor="middle" fill="#555">24 Nov</text>
+<polyline points="56.0,266.5 94.3,267.2 594.6,246.7 594.7,145.3 594.7,100.1 596.4,28.7 613.6,32.7 614.1,38.8 614.3,40.8 614.7,43.5 615.1,52.3 615.7,74.5 616.0,87.3 616.0,87.3" fill="none" stroke="#4c72b0" stroke-width="2.5"/>
 <circle cx="56.0" cy="266.5" r="4" fill="#4c72b0"/>
 <circle cx="94.3" cy="267.2" r="4" fill="#4c72b0"/>
-<circle cx="594.9" cy="246.7" r="4" fill="#4c72b0"/>
-<circle cx="595.1" cy="145.3" r="4" fill="#4c72b0"/>
-<circle cx="595.1" cy="100.1" r="4" fill="#4c72b0"/>
-<circle cx="596.8" cy="28.7" r="4" fill="#4c72b0"/>
-<circle cx="614.0" cy="32.7" r="4" fill="#4c72b0"/>
-<circle cx="614.4" cy="38.8" r="4" fill="#4c72b0"/>
-<circle cx="614.6" cy="40.8" r="4" fill="#4c72b0"/>
-<circle cx="615.0" cy="43.5" r="4" fill="#4c72b0"/>
-<circle cx="615.5" cy="52.3" r="4" fill="#4c72b0"/>
-<circle cx="616.0" cy="74.5" r="4" fill="#4c72b0"/>
-<text x="624.0" y="66.5" fill="#4c72b0" font-weight="bold">299.0 left</text>
+<circle cx="594.6" cy="246.7" r="4" fill="#4c72b0"/>
+<circle cx="594.7" cy="145.3" r="4" fill="#4c72b0"/>
+<circle cx="594.7" cy="100.1" r="4" fill="#4c72b0"/>
+<circle cx="596.4" cy="28.7" r="4" fill="#4c72b0"/>
+<circle cx="613.6" cy="32.7" r="4" fill="#4c72b0"/>
+<circle cx="614.1" cy="38.8" r="4" fill="#4c72b0"/>
+<circle cx="614.3" cy="40.8" r="4" fill="#4c72b0"/>
+<circle cx="614.7" cy="43.5" r="4" fill="#4c72b0"/>
+<circle cx="615.1" cy="52.3" r="4" fill="#4c72b0"/>
+<circle cx="615.7" cy="74.5" r="4" fill="#4c72b0"/>
+<circle cx="616.0" cy="87.3" r="4" fill="#4c72b0"/>
+<text x="624.0" y="79.3" fill="#4c72b0" font-weight="bold">280.0 left</text>
 </svg>

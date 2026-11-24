@@ -64,8 +64,8 @@ theorem attend_mem_of_convex
     let output := ATTEND score value
     output ∈ region := by
   unfold_named_pieces
-  exact region_is_convex.sum_mem (fun i _ => (softmax_pos score i).le)
-    (sum_softmax score) fun i _ => values_in_region i
+  exact region_is_convex.sum_mem (fun i _ => (softmax_share_is_greater_than_zero score i).le)
+    (softmax_shares_add_to_one score) fun i _ => values_in_region i
 
 /-- The output lies among the values. -/
 theorem attend_mem_convexHull
@@ -87,7 +87,7 @@ theorem attend_const
     let output                        := ATTEND score same_values
     output = shared_value := by
   unfold_named_pieces
-  rw [ATTEND, ← Finset.sum_smul, sum_softmax, one_smul]
+  rw [ATTEND, ← Finset.sum_smul, softmax_shares_add_to_one, one_smul]
 
 /-- With equal scores every token gets the same share. -/
 theorem softmax_const

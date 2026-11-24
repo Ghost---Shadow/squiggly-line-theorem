@@ -25,18 +25,18 @@ with weight `q`. The critic's loss at that input is
     p * (loss for calling it real) + q * (loss for calling it made)
 
 That is the cross-entropy of [`CrossEntropy.lean`](../../../lean/SquigglyLine/Supporting/Training/CrossEntropy.lean), with total weight `p + q`
-and the soft label `p / (p + q)` (**proved**: `criticLoss_eq_logLoss`). The
+and the soft label `p / (p + q)` (**proved**: `critic_loss_is_a_log_loss_with_a_soft_label`). The
 label is the share of what lands there that is real.
 
 ## Where real and made overlap, the best critic is finite
 
 A cross-entropy with a soft label has a best score: the one whose prediction
 equals the label. So where both `p` and `q` are positive, the best critic
-predicts `p / (p + q)` (**proved**: `criticLoss_le_of_sigmoid_eq`,
-`exists_best_critic`).
+predicts `p / (p + q)` (**proved**: `best_critic_predicts_the_real_share`,
+`best_critic_exists_where_both_are_present`).
 
 When the maker has won, `p = q` everywhere. The best critic then predicts
-one half, which is the score zero (**proved**: `criticLoss_zero_le_of_eq`).
+one half, which is the score zero (**proved**: `critic_cannot_tell_when_the_maker_has_won`).
 It can no longer tell.
 
 ## Where they do not overlap, the critic is asked to be steeper forever
@@ -44,7 +44,7 @@ It can no longer tell.
 Take an input where real data lands and made data does not: `q = 0`. The
 label is one. A cross-entropy with a sure label has no best score: a larger
 score always has a smaller loss (**proved**:
-`strictAnti_criticLoss_of_no_fake`, from `strictAnti_logLoss_one` in
+`no_score_is_best_where_made_data_is_absent`, from `no_finite_score_is_best_for_label_yes` in
 [`CrossEntropy.lean`](../../../lean/SquigglyLine/Supporting/Training/CrossEntropy.lean)).
 
 Early in training the maker's samples are far from the data, so most inputs
@@ -69,10 +69,10 @@ the critic wants it large. The only resting point is `x = y = 0`.
 
 Let both take a gradient step at the same time, of size `η`. Then the
 squared distance of `(x, y)` from the resting point is multiplied by exactly
-`1 + η²` (**proved**: `sq_add_sq_gameStep`). After `n` steps it has grown by
-`(1 + η²)^n` (**proved**: `sq_add_sq_iterate_gameStep`). Unless they start
+`1 + η²` (**proved**: `one_game_step_moves_outward`). After `n` steps it has grown by
+`(1 + η²)^n` (**proved**: `players_spiral_outward`). Unless they start
 at the resting point, they move away from it at every step (**proved**:
-`sq_add_sq_lt_gameStep`).
+`every_game_step_moves_further_from_rest`).
 
 So simultaneous gradient steps never settle this game, however small the
 step. Each player's move is at right angles to the direction home.

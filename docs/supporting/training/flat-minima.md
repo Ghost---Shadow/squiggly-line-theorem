@@ -26,12 +26,12 @@ parameters are `c` times the old ones, and which divides them by `c` before
 using them. Nothing the model computes has changed.
 
 - **Same outputs, same error.** The new model at `c × θ` gives what the old
-  model gave at `θ` (**proved**: `rescale_smul`, `residual_rescale`).
+  model gave at `θ` (**proved**: `rescaled_model_gives_same_outputs`, `rescaled_model_has_same_error`).
 - **Flatter by `c²`.** The loss curves less in every direction: its curvature
-  is divided by `c²` (**proved**: `norm_rescale_sq`). So does the kernel
-  (**proved**: `kernel_rescale`).
+  is divided by `c²` (**proved**: `rescaled_model_is_flatter_by_scale_squared`). So does the kernel
+  (**proved**: `rescaled_kernel_is_weaker_by_scale_squared`).
 - **Farther by `|c|`.** The nearest fit is now `|c|` times as far from the start
-  (**proved**: `travel_rescale`).
+  (**proved**: `rescaled_model_travels_farther_by_scale`).
 
 So a valley can be made ten times flatter. The price is that every fit moves
 `√10` times farther away. Flatness on its own says nothing about the function.
@@ -45,7 +45,7 @@ curvature of the loss there. Then
 strength × travel²  =  error²
 ```
 
-(**proved**: `strength_mul_travel_sq`.) The right side is the error at the
+(**proved**: `strength_times_travel_squared_does_not_change`.) The right side is the error at the
 start, which rescaling does not touch. So flatness and distance are two
 readings of one number. Flat means far. Sharp means near. Neither is better
 before you say how the parameters are measured.
@@ -54,7 +54,7 @@ before you say how the parameters are measured.
 
 Gradient descent is not blind to rescaling. One step of the rescaled model with
 step size `η` is one step of the old model with step size `η / c²`
-(**proved**: `gradientStep_rescale`). So "which valley does training find" and
+(**proved**: `rescaling_is_a_change_of_step_size`). So "which valley does training find" and
 "how flat is it" both depend on a choice of units. The only thing rescaling
 changes about training is how fast it goes.
 

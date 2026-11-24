@@ -20,17 +20,17 @@ coordinate's size (**recalled**: Kingma and Ba 2015). Take the simplest case,
 with no memory of earlier steps. The estimate is then the size of the
 present gradient, and:
 
-- the step is the sign of the gradient (**proved**: `adamStep_eq_sign`);
+- the step is the sign of the gradient (**proved**: `adam_step_is_the_sign_of_the_gradient`);
 - multiplying the loss by a positive number changes nothing (**proved**:
-  `adamStep_mul`);
+  `adam_step_ignores_the_loss_scale`);
 - every coordinate with a gradient moves the same distance (**proved**:
-  `abs_adamStep`).
+  `adam_moves_every_coordinate_the_same_distance`).
 
 Set this beside `docs/supporting/training/spectral-bias.md`. Under plain
 gradient descent the error along a direction of strength `λ` shrinks by the
 factor `1 − ηλ` per step. Strong directions are learned first and weak ones
 wait. Under the sign rule a gap of `d` closes by `η` per step and takes
-`|d| / η` steps, whatever the strength (**proved**: `abs_sub_signStep`).
+`|d| / η` steps, whatever the strength (**proved**: `sign_step_closes_a_gap_by_the_learning_rate`).
 
 So Adam takes away the clock that makes gradient descent learn gentle
 functions first. In the terms of the line: the squiggly parts of the fit,
@@ -52,24 +52,24 @@ rescale the sum. Adam divides by the size of what it is given, so the size
 of the pull is divided away with everything else.
 
 - The weight moves by exactly `η`, whatever `μ` is (**proved**:
-  `abs_adamL2Step_sub`).
+  `decay_inside_adam_is_rescaled_away`).
 - With no gradient from the loss, a large weight and a small one both lose
-  the same amount `η` (**proved**: `adamL2Step_of_no_gradient`). The decay
+  the same amount `η` (**proved**: `decay_inside_adam_moves_every_weight_alike`). The decay
   is no longer in proportion to the weight.
 - Making the loss `c` times larger is the same as making the decay `c` times
-  weaker (**proved**: `adamL2Step_mul`). The decay has no strength of its
+  weaker (**proved**: `scaling_the_loss_inside_adam_is_scaling_the_decay`). The decay has no strength of its
   own.
 
 **Outside the rescaling (AdamW).** Take Adam's step on the gradient of the
 loss alone, then shrink the weight.
 
 - The step is the weight times `1 - η μ`, minus Adam's step (**proved**:
-  `adamWStep_eq`).
+  `adamw_shrinks_then_steps`).
 - With no gradient from the loss every weight shrinks at the same rate, and
   after `n` steps is `(1 - η μ)^n` of what it was (**proved**:
-  `adamWStep_of_no_gradient`, `iterate_adamWStep_of_no_gradient`).
+  `adamw_with_no_gradient_shrinks_every_weight`, `adamw_with_no_gradient_after_many_steps`).
 - The size of the loss does not change the decay (**proved**:
-  `adamWStep_mul`).
+  `adamw_decay_does_not_depend_on_loss_scale`).
 
 In the terms of `docs/supporting/training/weight-decay.md`, weight decay is
 a floor on travel: directions weaker than the floor are not learned. Inside
@@ -81,10 +81,10 @@ Hutter 2019).
 
 Clipping shortens any gradient longer than a limit `c` to length `c`, and
 leaves the rest alone (**recalled**: Pascanu, Mikolov and Bengio 2013;
-**proved**: `norm_clip_le`, `clip_of_norm_le`).
+**proved**: `clipped_gradient_is_at_most_the_limit`, `gradient_within_the_limit_is_left_alone`).
 
 It is a cap on travel. After `t` steps of size `η` the weights have moved at
-most `t·η·c`, whatever the gradients were (**proved**: `norm_sum_clip_le`).
+most `t·η·c`, whatever the gradients were (**proved**: `clipping_caps_the_travel`).
 A fit at distance `d` therefore cannot be reached in fewer than `d / (η·c)`
 steps. Clipping is used where one bad step would throw the weights far away,
 which is where the slope product of
@@ -99,7 +99,7 @@ has (**recalled**: Li et al. 2018).
 
 Confining the weights to a subspace never shortens the trip. If a fit exists
 inside the subspace, it is at least as far from the start as the nearest fit
-of the full model (**proved**: `travel_le_travel_comp`). This is
+of the full model (**proved**: `confining_the_weights_never_shortens_the_trip`). This is
 `more_weights_never_move_the_fit_away` in [`LinearModel.lean`](../../../lean/SquigglyLine/Networks/LinearModel.lean) read the other way: adding
 directions never lengthens the trip, and removing them never shortens it.
 
@@ -115,9 +115,9 @@ error `δ`.
 
 For a model linear in its weights, each output moves by at most the size of
 `δ` times the size of the features (**proved**:
-`abs_liftedModel_add_sub_le`), and the slope changes by at most the size of
+`rounding_moves_each_output_a_little`), and the slope changes by at most the size of
 `δ` times the stretch of the lift (**proved**:
-`lipschitzWith_liftedModel_add_sub`).
+`rounding_changes_the_slope_a_little`).
 
 So rounding is a small forced trip in weight space, and the damage is that
 trip times the stretch. A model whose lift stretches a lot is a model that is

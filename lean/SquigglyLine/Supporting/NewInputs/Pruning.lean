@@ -153,7 +153,7 @@ theorem winning_ticket
           * inner ℝ direction
             (GET_RESIDUAL (kept_predict : KeptWeights →ₗ[ℝ] Outputs) labels
               kept_weights) :=
-    inner_residual_iterate_gradientStep kept_predict labels learning_rate
+    each_direction_runs_on_its_own_clock kept_predict labels learning_rate
       kept_weights kept_stretches step_count
   have whole_formula :
       inner ℝ direction
@@ -164,7 +164,7 @@ theorem winning_ticket
           * inner ℝ direction
             (GET_RESIDUAL (whole_predict : WholeWeights →ₗ[ℝ] Outputs) labels
               whole_weights) :=
-    inner_residual_iterate_gradientStep whole_predict labels learning_rate
+    each_direction_runs_on_its_own_clock whole_predict labels learning_rate
       whole_weights whole_stretches step_count
   rw [kept_formula, whole_formula, same_start_error]
 

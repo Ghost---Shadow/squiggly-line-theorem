@@ -4,9 +4,9 @@ Spectral bias: strong directions are learned first.
 Take a direction `direction` of the labels that the kernel only stretches, by
 `kernel_strength`.
 
-* `inner_residual_gradientStep` : one gradient step multiplies the error along
+* `one_step_shrinks_one_direction` : one gradient step multiplies the error along
   `direction` by `1 - learning_rate * kernel_strength`.
-* `inner_residual_iterate_gradientStep` : after `step_count` steps the factor
+* `each_direction_runs_on_its_own_clock` : after `step_count` steps the factor
   is `(1 - learning_rate * kernel_strength) ^ step_count`. Each direction
   shrinks on its own clock.
 * `strong_directions_first` : a stronger direction has a smaller share left.
@@ -14,11 +14,11 @@ Take a direction `direction` of the labels that the kernel only stretches, by
   `1 - step_count * rate` and `exp (-(step_count * rate))`, where
   `rate = learning_rate * kernel_strength`. The clock of a direction is
   `1 / rate` steps: it cannot be hurried, and it does run out.
-* `inner_residual_iterate_of_kernel_eq_zero` : a direction of strength zero is
+* `direction_of_zero_strength_is_never_learned` : a direction of strength zero is
   never learned.
 
-Also here: `pow_one_sub_anti`, `one_sub_mul_le_pow_one_sub` and
-`pow_one_sub_le_exp`, the three facts about `(1 - rate) ^ step_count` that
+Also here: `larger_rate_leaves_a_smaller_share`, `learning_cannot_be_hurried` and
+`learning_does_run_out`, the three facts about `(1 - rate) ^ step_count` that
 these rest on.
 -/
 import Mathlib.Analysis.SpecialFunctions.Exp
@@ -31,7 +31,7 @@ namespace SquigglyLine
 section Share
 
 /-- A larger rate leaves a smaller share. -/
-theorem pow_one_sub_anti
+theorem larger_rate_leaves_a_smaller_share
     {small_rate : ℝ}
     {large_rate : ℝ}
     (small_le_large : small_rate ≤ large_rate)
@@ -45,7 +45,7 @@ theorem pow_one_sub_anti
 
 /-- **It cannot be hurried.** After `step_count` steps at rate `rate`, at
 least `1 - step_count * rate` is left. -/
-theorem one_sub_mul_le_pow_one_sub
+theorem learning_cannot_be_hurried
     {rate : ℝ}
     (rate_le_one : rate ≤ 1)
     (step_count : ℕ) :
@@ -62,7 +62,7 @@ theorem one_sub_mul_le_pow_one_sub
 
 /-- **It does run out.** After `step_count` steps at rate `rate`, at most
 `exp (-(step_count * rate))` is left. -/
-theorem pow_one_sub_le_exp
+theorem learning_does_run_out
     {rate : ℝ}
     (rate_le_one : rate ≤ 1)
     (step_count : ℕ) :
@@ -93,7 +93,7 @@ theorem strong_directions_first
     let weak_share   := (1 - weak_rate) ^ step_count
     strong_share ≤ weak_share := by
   unfold_named_pieces
-  exact pow_one_sub_anti
+  exact larger_rate_leaves_a_smaller_share
     (mul_le_mul_of_nonneg_left weak_le_strong learning_rate_nonneg)
     strong_rate_le_one step_count
 
@@ -114,7 +114,7 @@ variable {Weights Outputs : Type*}
 /-- **One step, one direction.** If the kernel stretches `direction` by
 `kernel_strength`, a gradient step multiplies the error along `direction` by
 `1 - learning_rate * kernel_strength`. -/
-theorem inner_residual_gradientStep
+theorem one_step_shrinks_one_direction
     (predict : Weights →L[ℝ] Outputs)
     (labels : Outputs)
     (learning_rate : ℝ)
@@ -140,7 +140,7 @@ theorem inner_residual_gradientStep
 /-- **Each direction on its own clock.** After `step_count` steps the error
 along `direction` is `(1 - learning_rate * kernel_strength) ^ step_count`
 times what it was at the start. -/
-theorem inner_residual_iterate_gradientStep
+theorem each_direction_runs_on_its_own_clock
     (predict : Weights →L[ℝ] Outputs)
     (labels : Outputs)
     (learning_rate : ℝ)
@@ -167,7 +167,7 @@ theorem inner_residual_iterate_gradientStep
   | succ previous_count earlier_case =>
     -- One more step multiplies the error by one more factor.
     rw [Function.iterate_succ_apply',
-      inner_residual_gradientStep predict labels learning_rate _
+      one_step_shrinks_one_direction predict labels learning_rate _
         direction_is_stretched,
       earlier_case, pow_succ]
     ring
@@ -175,7 +175,7 @@ theorem inner_residual_iterate_gradientStep
 /-- **Strength zero: never learned.** If the kernel sends `direction` to zero,
 the error along `direction` stays where it started, however long training
 runs. -/
-theorem inner_residual_iterate_of_kernel_eq_zero
+theorem direction_of_zero_strength_is_never_learned
     (predict : Weights →L[ℝ] Outputs)
     (labels : Outputs)
     (learning_rate : ℝ)
@@ -196,7 +196,7 @@ theorem inner_residual_iterate_of_kernel_eq_zero
   have direction_has_strength_zero :
       predict (adjoint predict direction) = (0 : ℝ) • direction := by
     rw [kernel_kills_direction, zero_smul]
-  rw [inner_residual_iterate_gradientStep predict labels learning_rate
+  rw [each_direction_runs_on_its_own_clock predict labels learning_rate
     start_weights direction_has_strength_zero step_count]
   simp
 
@@ -235,13 +235,13 @@ theorem spectral_bias
   have share_nonneg :
       0 ≤ (1 - learning_rate * kernel_strength) ^ step_count :=
     pow_nonneg (by linarith) step_count
-  rw [inner_residual_iterate_gradientStep predict labels learning_rate
+  rw [each_direction_runs_on_its_own_clock predict labels learning_rate
     start_weights direction_is_stretched step_count, abs_mul,
     abs_of_nonneg share_nonneg]
   exact ⟨mul_le_mul_of_nonneg_right
-      (one_sub_mul_le_pow_one_sub rate_le_one step_count) (abs_nonneg _),
+      (learning_cannot_be_hurried rate_le_one step_count) (abs_nonneg _),
     mul_le_mul_of_nonneg_right
-      (pow_one_sub_le_exp rate_le_one step_count) (abs_nonneg _)⟩
+      (learning_does_run_out rate_le_one step_count) (abs_nonneg _)⟩
 
 end Direction
 

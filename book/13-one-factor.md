@@ -44,7 +44,7 @@ Two more results make the rest of Part III possible.
 
 - **Gradient descent takes the shortest trip.** It moves the weights
   only along the features. So any fit it reaches is the nearest one to
-  where it started (`gradientDescent_fit_is_nearest` in
+  where it started (`gradient_descent_fit_is_the_nearest_fit` in
   [`LeastAction`](../lean/SquigglyLine/Supporting/Training/LeastAction.lean)).
   The travel of chapter 9 is the trip training really makes.
 - **Classification is the same machine.** The cross-entropy loss pushes

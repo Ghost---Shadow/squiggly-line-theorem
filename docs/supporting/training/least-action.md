@@ -21,14 +21,14 @@ in this project.
 Gradient descent does not wander. At each step it moves the parameters only in
 directions that change the outputs on the data. It never spends movement on a
 direction that leaves every output where it was (**proved**:
-`exists_iterate_gradientStep`).
+`gradient_descent_stays_in_the_directions_of_the_features`).
 
 That has a sharp consequence.
 
 > Whenever gradient descent arrives at a fit, it is the fit nearest to where
 > it started. No other fit could have been reached with less movement.
 
-(**proved**: `gradientDescent_fit_is_nearest`.) So of all the parameter
+(**proved**: `gradient_descent_fit_is_the_nearest_fit`.) So of all the parameter
 settings that fit the data, training
 picks the one that needed the least travel. This is the least-action statement
 for the outer chain. The "action" is the distance moved in parameter space.
@@ -51,7 +51,7 @@ never loses more:
 cos(a) × cos(b)  ≤  cos((a + b) / 2)²
 ```
 
-(**proved**: `cos_mul_cos_le_cos_half_sq`.) So any uneven pair of neighbouring
+(**proved**: `two_turns_keep_at_most_two_equal_turns`.) So any uneven pair of neighbouring
 turns can be improved by
 evening it out. The best path is the one with no uneven pair left: every step
 the same size. In the space where the vibration lives that is the path of
@@ -82,7 +82,7 @@ Both say the same thing in different spaces: no movement that was not needed.
   orthogonal features it lands in one step.
 - **Turns of more than a quarter turn.** For any number of plates, each
   turning by at most a quarter turn either way, the equal split keeps the
-  most (`prod_cos_le_cos_average_pow`: the mean inequality, then Jensen's
+  most (`equal_turns_keep_the_most`: the mean inequality, then Jensen's
   inequality for the cosine). Past a quarter turn a plate flips the sign of
   the light and the equal split need not be best.
 - **That a trained network's layers do turn evenly.** That is an observation

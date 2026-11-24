@@ -41,13 +41,13 @@ as you like.
 
 The reason is plain counting. There are `N` steps, each of size `D / N`, each
 losing about `c·(D/N)²`. The total is `N × c·D²/N² = c·D²/N`
-(**proved**: `quadratic_cost_total`).
+(**proved**: `square_law_cost_shrinks_with_step_count`).
 
 ## When it does not help
 
 Now say the loss of a step is proportional to the step itself, not its
 square: a step of size `s` costs `c·s`. Then `N` steps cost
-`N × c·D/N = c·D`, the same as one (**proved**: `linear_cost_total`).
+`N × c·D/N = c·D`, the same as one (**proved**: `proportional_cost_does_not_shrink`).
 
 So the rule is sharp. Small steps help exactly when a step's cost falls faster
 than its size. If halving a step halves its cost, nothing is gained. If
@@ -63,12 +63,12 @@ That is a square-law loss with `c = 1/2`. So turning light through any angle
 1 − φ² / (2N)
 ```
 
-(**proved**: `turn_in_steps_keeps`.) This holds for any angle: a quarter turn,
+(**proved**: `any_turn_in_enough_plates_keeps_almost_everything`.) This holds for any angle: a quarter turn,
 a half turn that flips the sign, or several full turns. It extends
 `quarter_turn_arrives`.
 
 And more plates never hurt: replacing every plate by two plates of half the
-turn keeps at least as much (**proved**: `cos_pow_le_cos_half_pow`).
+turn keeps at least as much (**proved**: `more_plates_never_hurt`).
 
 ## What this says about the other methods
 

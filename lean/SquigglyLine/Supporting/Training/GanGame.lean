@@ -13,10 +13,10 @@ spiral outward.
 
 Definitions: `GET_CRITIC_LOSS`, `TAKE_GAME_STEP`.
 
-Theorems: `criticLoss_eq_logLoss`, `criticLoss_le_of_sigmoid_eq`,
-`exists_best_critic`, `criticLoss_zero_le_of_eq`,
-`strictAnti_criticLoss_of_no_fake`, `sq_add_sq_gameStep`,
-`sq_add_sq_iterate_gameStep`, `sq_add_sq_lt_gameStep`.
+Theorems: `critic_loss_is_a_log_loss_with_a_soft_label`, `best_critic_predicts_the_real_share`,
+`best_critic_exists_where_both_are_present`, `critic_cannot_tell_when_the_maker_has_won`,
+`no_score_is_best_where_made_data_is_absent`, `one_game_step_moves_outward`,
+`players_spiral_outward`, `every_game_step_moves_further_from_rest`.
 -/
 import SquigglyLine.Supporting.Training.CrossEntropy
 
@@ -38,7 +38,7 @@ noncomputable def GET_CRITIC_LOSS
 
 /-- **The critic's loss is a cross-entropy with a soft label.** The label is the
 share of what lands at the input that is real. -/
-theorem criticLoss_eq_logLoss
+theorem critic_loss_is_a_log_loss_with_a_soft_label
     {real_weight made_weight : ℝ}
     (total_weight_ne_zero : real_weight + made_weight ≠ 0)
     (score : ℝ) :
@@ -55,7 +55,7 @@ theorem criticLoss_eq_logLoss
 /-- **The best critic predicts the real share.** Where real and made data are
 both present, a score whose prediction is `real_weight / (real_weight +
 made_weight)` has the least loss. -/
-theorem criticLoss_le_of_sigmoid_eq
+theorem best_critic_predicts_the_real_share
     {real_weight made_weight best_score : ℝ}
     (real_pos : 0 < real_weight)
     (made_pos : 0 < made_weight)
@@ -71,23 +71,23 @@ theorem criticLoss_le_of_sigmoid_eq
   have share_bound :
       GET_LOG_LOSS (real_weight / (real_weight + made_weight)) best_score
         ≤ GET_LOG_LOSS (real_weight / (real_weight + made_weight)) score :=
-    logLoss_le_of_sigmoid_eq prediction_matches score
+    score_whose_prediction_equals_the_label_is_best prediction_matches score
   have best_eq :
       GET_CRITIC_LOSS real_weight made_weight best_score
         = (real_weight + made_weight)
           * GET_LOG_LOSS (real_weight / (real_weight + made_weight))
               best_score :=
-    criticLoss_eq_logLoss total_weight_pos.ne' best_score
+    critic_loss_is_a_log_loss_with_a_soft_label total_weight_pos.ne' best_score
   have loss_eq :
       GET_CRITIC_LOSS real_weight made_weight score
         = (real_weight + made_weight)
           * GET_LOG_LOSS (real_weight / (real_weight + made_weight)) score :=
-    criticLoss_eq_logLoss total_weight_pos.ne' score
+    critic_loss_is_a_log_loss_with_a_soft_label total_weight_pos.ne' score
   rw [best_eq, loss_eq]
   exact mul_le_mul_of_nonneg_left share_bound total_weight_pos.le
 
 /-- Where real and made data are both present, a best critic exists. -/
-theorem exists_best_critic
+theorem best_critic_exists_where_both_are_present
     {real_weight made_weight : ℝ}
     (real_pos : 0 < real_weight)
     (made_pos : 0 < made_weight) :
@@ -109,12 +109,12 @@ theorem exists_best_critic
       (div_lt_one total_weight_pos).mpr (by linarith)⟩
   obtain ⟨best_score, best_score_matches⟩ := share_in_range
   exact ⟨best_score, best_score_matches,
-    criticLoss_le_of_sigmoid_eq real_pos made_pos best_score_matches⟩
+    best_critic_predicts_the_real_share real_pos made_pos best_score_matches⟩
 
 /-- **When the maker has won, the critic cannot tell.** If real and made data
 land with the same weight, the score zero (a prediction of one half) is
 best. -/
-theorem criticLoss_zero_le_of_eq
+theorem critic_cannot_tell_when_the_maker_has_won
     {weight : ℝ}
     (weight_pos : 0 < weight)
     (score : ℝ) :
@@ -129,18 +129,18 @@ theorem criticLoss_zero_le_of_eq
   have zero_predicts_share : sigmoid 0 = weight / (weight + weight) := by
     rw [half_share, sigmoid_def]
     norm_num
-  exact criticLoss_le_of_sigmoid_eq (best_score := 0) weight_pos weight_pos
+  exact best_critic_predicts_the_real_share (best_score := 0) weight_pos weight_pos
     zero_predicts_share score
 
 /-- **Where made data is absent, no score is best.** A larger score always has a
 smaller loss, so the critic is asked to be steeper forever. -/
-theorem strictAnti_criticLoss_of_no_fake
+theorem no_score_is_best_where_made_data_is_absent
     {real_weight : ℝ}
     (real_pos : 0 < real_weight) :
     let loss_without_made := GET_CRITIC_LOSS real_weight 0
     StrictAnti loss_without_made := by
   unfold_named_pieces
-  have log_loss_anti : StrictAnti (GET_LOG_LOSS 1) := strictAnti_logLoss_one
+  have log_loss_anti : StrictAnti (GET_LOG_LOSS 1) := no_finite_score_is_best_for_label_yes
   intro low_score high_score low_lt_high
   simp only [GET_CRITIC_LOSS, zero_mul, add_zero]
   exact mul_lt_mul_of_pos_left (log_loss_anti low_lt_high) real_pos
@@ -155,7 +155,7 @@ def TAKE_GAME_STEP
 
 /-- **One step outward.** A simultaneous step multiplies the squared distance
 from the resting point by `1 + learning_rate²`. -/
-theorem sq_add_sq_gameStep
+theorem one_game_step_moves_outward
     (learning_rate : ℝ)
     (state : PlayerNumbers) :
     let stepped         := TAKE_GAME_STEP learning_rate state
@@ -170,7 +170,7 @@ theorem sq_add_sq_gameStep
 /-- **The players spiral outward.** After `step_count` simultaneous steps the
 squared distance from the resting point has grown by `(1 + learning_rate²) ^
 step_count`. -/
-theorem sq_add_sq_iterate_gameStep
+theorem players_spiral_outward
     (learning_rate : ℝ)
     (state : PlayerNumbers)
     (step_count : ℕ) :
@@ -184,7 +184,7 @@ theorem sq_add_sq_iterate_gameStep
       (TAKE_GAME_STEP learning_rate position).1 ^ 2
           + (TAKE_GAME_STEP learning_rate position).2 ^ 2
         = (1 + learning_rate ^ 2) * (position.1 ^ 2 + position.2 ^ 2) :=
-    sq_add_sq_gameStep learning_rate position
+    one_game_step_moves_outward learning_rate position
   induction step_count with
   | zero => simp
   | succ previous_count earlier_case =>
@@ -192,7 +192,7 @@ theorem sq_add_sq_iterate_gameStep
     ring
 
 /-- Off the resting point, every step moves the players further from it. -/
-theorem sq_add_sq_lt_gameStep
+theorem every_game_step_moves_further_from_rest
     {learning_rate : ℝ}
     (learning_rate_ne_zero : learning_rate ≠ 0)
     {state : PlayerNumbers}
@@ -206,7 +206,7 @@ theorem sq_add_sq_lt_gameStep
       (TAKE_GAME_STEP learning_rate state).1 ^ 2
           + (TAKE_GAME_STEP learning_rate state).2 ^ 2
         = (1 + learning_rate ^ 2) * (state.1 ^ 2 + state.2 ^ 2) :=
-    sq_add_sq_gameStep learning_rate state
+    one_game_step_moves_outward learning_rate state
   rw [one_step]
   have learning_rate_sq_pos : 0 < learning_rate ^ 2 := by positivity
   nlinarith

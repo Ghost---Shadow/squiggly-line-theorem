@@ -28,10 +28,10 @@ changes nothing downstream. The loss is the same.
 For any loss with that property:
 
 - The gradient is at right angles to the weights (**proved**:
-  `inner_gradient_self_eq_zero`).
+  `gradient_is_at_right_angles_to_the_weights`).
 - So a gradient step of size `η` adds `η²·‖gradient‖²` to the squared size of
-  the weights (**proved**: `norm_sq_sub_smul_of_inner_eq_zero`).
-- The weights never get shorter (**proved**: `norm_le_norm_sub_smul`).
+  the weights (**proved**: `step_at_right_angles_lengthens_the_weights`).
+- The weights never get shorter (**proved**: `gradient_descent_never_shortens_the_weights`).
 
 Two things follow for the squiggly line.
 
@@ -93,7 +93,7 @@ at all. So:
 - layers of equal size stay of equal size (**proved**:
   `balanced_stays_balanced`), and
 - each then carries the same share of the slope: `|a| = |b|` (**proved**:
-  `abs_eq_abs_of_balanced`).
+  `balanced_layers_have_the_same_size`).
 
 Training does not let one layer take all the slope while the other sits near
 zero, unless it started that way. This is the conservation law behind the
@@ -106,7 +106,7 @@ sizes in the slope bound is spread evenly over the layers in practice
 
 Shuffle the units of a hidden layer, taking each unit's incoming and outgoing
 weights along with it. The function is the same (**proved**:
-`oneHiddenLayer_relabel`).
+`shuffling_hidden_units_gives_the_same_function`).
 
 So every fit comes in as many copies as there are ways to shuffle the units.
 Two trained networks may sit far apart in weight space only because their

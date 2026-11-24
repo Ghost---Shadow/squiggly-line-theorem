@@ -153,7 +153,7 @@ second step does the same with each value replaced by the error still left
 ## Why it is true
 
 **An average stays inside.** The shares are positive and add to one
-(`softmax_pos`, `sum_softmax`), and a region with no dents is closed under
+(`softmax_share_is_greater_than_zero`, `softmax_shares_add_to_one`), and a region with no dents is closed under
 such blends. For layers, induct on depth: one more layer is an average of
 the tokens one layer earlier, which are inside by the step before.
 

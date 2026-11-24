@@ -244,7 +244,7 @@ theorem softmax_le_softmax_iff
     share_order ↔ score_order := by
   unfold_named_pieces
   rw [APPLY_SOFTMAX, APPLY_SOFTMAX,
-    div_le_div_iff_of_pos_right (sum_exp_pos scores), Real.exp_le_exp]
+    div_le_div_iff_of_pos_right (sum_of_exponentials_is_greater_than_zero scores), Real.exp_le_exp]
 
 /-- **Temperature changes confidence, never the ranking.** -/
 theorem softmax_temperature_order

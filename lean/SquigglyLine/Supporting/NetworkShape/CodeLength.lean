@@ -261,7 +261,7 @@ theorem descriptionLength_gradientDescent_le
   -- The trained fit is the nearest, and the cost grows with the distance.
   exact div_le_div_of_nonneg_right
     (pow_le_pow_left₀ (norm_nonneg _)
-      (gradientDescent_fit_is_nearest predict labels learning_rate
+      (gradient_descent_fit_is_the_nearest_fit predict labels learning_rate
         start_weights step_count trained_fits other_fits) 2)
     (by positivity)
 

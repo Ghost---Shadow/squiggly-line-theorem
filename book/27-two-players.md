@@ -48,7 +48,7 @@ measure.
 
 ## The statement
 
-The first fact is `criticLoss_eq_logLoss`: the critic's loss at an input
+The first fact is `critic_loss_is_a_log_loss_with_a_soft_label`: the critic's loss at an input
 is the total weight times the cross-entropy (`GET_LOG_LOSS`, chapter 25)
 against the label "share that is real". A **score** becomes a prediction
 through the sigmoid, which squeezes it between 0 and 1.
@@ -56,7 +56,7 @@ through the sigmoid, which squeezes it between 0 and 1.
 ```lean
 /-- **Where made data is absent, no score is best.** A larger score always has a
 smaller loss, so the critic is asked to be steeper forever. -/
-theorem strictAnti_criticLoss_of_no_fake
+theorem no_score_is_best_where_made_data_is_absent
     {real_weight : ℝ}
     (real_pos : 0 < real_weight) :
     let loss_without_made := GET_CRITIC_LOSS real_weight 0
@@ -76,7 +76,7 @@ lower loss.
 /-- **The players spiral outward.** After `step_count` simultaneous steps the
 squared distance from the resting point has grown by `(1 + learning_rate²) ^
 step_count`. -/
-theorem sq_add_sq_iterate_gameStep
+theorem players_spiral_outward
     (learning_rate : ℝ)
     (state : PlayerNumbers)
     (step_count : ℕ) :
@@ -93,16 +93,16 @@ number.
 
 `TAKE_GAME_STEP` is one simultaneous step, as in the example, and
 `^[step_count]` means "do it `step_count` times". The one-step case is
-`sq_add_sq_gameStep`.
+`one_game_step_moves_outward`.
 
 **Measured**, set beside the **proved** factor. The path of the two numbers from `(1, 0)` at learning rate 0.1, and the squared distance from rest against steps. The control, alternating steps, is not in the chapter's theorem.
 
 ![Left: the path of the two numbers spiralling outward when both step together, and staying bounded, between squared distances of 0.95 and 1.05 from rest, when they alternate. Right: squared distance against steps on a log scale, the exactly iterated curve lying on the proved one for simultaneous steps and bounded, oscillating between 0.9524 and 1.0526, for alternating steps](figures/27-spiral-outward.png)
 
 Two more results. Where real and made weights are both positive, the best
-critic predicts the real share (`criticLoss_le_of_sigmoid_eq`,
-`exists_best_critic`). When the weights are equal, the score zero is best
-(`criticLoss_zero_le_of_eq`). And `sq_add_sq_lt_gameStep` says that off
+critic predicts the real share (`best_critic_predicts_the_real_share`,
+`best_critic_exists_where_both_are_present`). When the weights are equal, the score zero is best
+(`critic_cannot_tell_when_the_maker_has_won`). And `every_game_step_moves_further_from_rest` says that off
 the resting point, with a nonzero step, every step moves the players
 further from it.
 
@@ -115,7 +115,7 @@ whose label is the real share. The proof is a line of algebra.
 
 **A finite best, or none.** A cross-entropy with a soft label has a best
 score: the one whose prediction equals the label. With a sure label, a
-larger score always has a smaller loss (`strictAnti_logLoss_one`), and
+larger score always has a smaller loss (`no_finite_score_is_best_for_label_yes`), and
 with no made data the critic's loss is the real weight times that. So no
 score is best.
 
@@ -196,9 +196,9 @@ jupyter nbconvert --to notebook --execute --inplace experiments/part4/ch27_two_p
    settle the critic's score there?
 
 **Answers.** (1) The real share, `1 / (1 + 3) = 0.25`, from
-`criticLoss_le_of_sigmoid_eq`. (2) `1 + 0.04 = 1.04`. After 25 steps it
-is `1.04 ^ 25`, about 2.7, from `sq_add_sq_iterate_gameStep`. (3) No. By
-`strictAnti_criticLoss_of_no_fake` a higher score always has a lower
+`best_critic_predicts_the_real_share`. (2) `1 + 0.04 = 1.04`. After 25 steps it
+is `1.04 ^ 25`, about 2.7, from `players_spiral_outward`. (3) No. By
+`no_score_is_best_where_made_data_is_absent` a higher score always has a lower
 loss, so the loss keeps asking for a steeper critic.
 
 Previous: [26. The perceptron, XOR and no free lunch](26-the-perceptron.md) · Next: [28. The slope of a network](28-the-slope-of-a-network.md)

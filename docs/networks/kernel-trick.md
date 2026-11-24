@@ -67,8 +67,8 @@ first. Training is the second, and it is what travel measures.
 ## The kernel trick
 
 Training moves the weights only along the lifted data points
-(`exists_iterate_gradientStep` in [`LeastAction.lean`](../../lean/SquigglyLine/Supporting/Training/LeastAction.lean), and
-`exists_iterate_errorStep` in [`CrossEntropy.lean`](../../lean/SquigglyLine/Supporting/Training/CrossEntropy.lean) for any loss). Weights of
+(`gradient_descent_stays_in_the_directions_of_the_features` in [`LeastAction.lean`](../../lean/SquigglyLine/Supporting/Training/LeastAction.lean), and
+`training_stays_in_the_directions_of_the_features` in [`CrossEntropy.lean`](../../lean/SquigglyLine/Supporting/Training/CrossEntropy.lean) for any loss). Weights of
 that kind predict at a new input by
 
 ```

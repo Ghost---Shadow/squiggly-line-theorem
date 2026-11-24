@@ -3,7 +3,7 @@
 # The Squiggly Line Theorem (Early Access)
 
 <!-- progress-bar:start -->
-`████████░░░░░░░░░░░░` **41% done** · ETA unknown ([what this counts](PROGRESS.md), [burn-down](PROGRESS.md#burn-down))
+`█████████░░░░░░░░░░░` **44% done** · ETA unknown ([what this counts](PROGRESS.md), [burn-down](PROGRESS.md#burn-down))
 <!-- progress-bar:end -->
 
 **A squigglier curve passes closer to the data. It is steeper by the same
@@ -607,7 +607,7 @@ speed of light and with no power spent on the plates.
   (`relu_is_a_projection_onto_the_quadrant` in [`Polarizer`](lean/SquigglyLine/Networks/Polarizer.lean)).
 - Depth is affordable. A quarter turn spread over `N` plates loses at most
   `π² / (8N)` of the light (`quarter_turn_arrives`), and any turn `φ` loses at
-  most `φ² / (2N)` once each step is small (`turn_in_steps_keeps`).
+  most `φ² / (2N)` once each step is small (`any_turn_in_enough_plates_keeps_almost_everything`).
 - The two tricks of deep networks have optical parts. A skip connection is a
   beam that goes around the plate and rejoins. A normalisation is an amplifier
   after it ([`SkipAndNorm`](lean/SquigglyLine/Supporting/NetworkShape/SkipAndNorm.lean)).

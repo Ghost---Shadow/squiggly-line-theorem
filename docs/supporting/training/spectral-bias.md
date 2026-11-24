@@ -29,13 +29,13 @@ the error along `u` by the same number:
 error along u after one step  =  (1 − ηλ) × error along u before
 ```
 
-(**proved**: `inner_residual_gradientStep`.) So after `t` steps
+(**proved**: `one_step_shrinks_one_direction`.) So after `t` steps
 
 ```
 error along u after t steps  =  (1 − ηλ)^t × error along u at the start
 ```
 
-(**proved**: `inner_residual_iterate_gradientStep`.) The directions do not talk
+(**proved**: `each_direction_runs_on_its_own_clock`.) The directions do not talk
 to each other. Each one shrinks on its own clock.
 
 ## What follows
@@ -56,7 +56,7 @@ strength is learned in the end. The left side says it cannot be hurried: until
 `t` is near `1 / (ηλ)`, almost all of the error is still there.
 
 **A direction of strength zero is never learned.** Its error stays exactly
-where it started, for ever (**proved**: `inner_residual_iterate_of_kernel_eq_zero`).
+where it started, for ever (**proved**: `direction_of_zero_strength_is_never_learned`).
 This is the training-time side of `no_fit_along_a_direction_of_zero_strength`.
 
 ## Three things this explains
@@ -98,32 +98,32 @@ the step can be read off the same number.
 
 **A schedule.** If the step size changes from step to step, what is left of
 the error is the product of the factors `1 - η_t λ` (**proved**:
-`runSchedule_eq`). While every `η_t λ` is between zero and two the error
-never grows (**proved**: `abs_runSchedule_le`). A step that is too large for
-a direction makes its error grow (**proved**: `one_lt_abs_one_sub`). Warmup
+`schedule_multiplies_its_factors`). While every `η_t λ` is between zero and two the error
+never grows (**proved**: `schedule_never_grows_the_error_below_the_edge`). A step that is too large for
+a direction makes its error grow (**proved**: `step_too_large_grows_the_error`). Warmup
 starts with small steps so that the sharpest directions are not hit with a
 factor above one before they have settled (**argued**).
 
 **The condition number.** Say the strengths lie between `m` and `M`. The
 step `2 / (m + M)` shrinks every direction by at least `(M - m) / (M + m)` a
-step (**proved**: `abs_one_sub_best_step_le`), and the weakest direction by
-exactly that (**proved**: `one_sub_best_step_at_weakest`). With `κ = M / m`
+step (**proved**: `condition_number_sets_the_speed`), and the weakest direction by
+exactly that (**proved**: `weakest_direction_shrinks_by_exactly_that_factor`). With `κ = M / m`
 the factor is `(κ - 1) / (κ + 1)`. So the more uneven the strengths, the
 slower the best plain step is.
 
 **Momentum.** With momentum `β` a step also adds `β` times the last move.
 At `η λ = 2 (1 + β)` an error that flips sign every step is carried forward
-at full size, for ever (**proved**: `momentumStep_alternating`,
-`iterate_momentumStep_alternating`). With `β = 0` this is the edge
+at full size, for ever (**proved**: `momentum_moves_the_edge_of_stability`,
+`flipping_error_at_the_momentum_edge_keeps_its_size`). With `β = 0` this is the edge
 `η λ = 2` of `edge-of-stability.md`. So momentum moves the edge of
 stability from `2 / η` to `2 (1 + β) / η`.
 
 **Steps on part of the data.** Let each of several clients take one step
 from the same weights, each on its own gradient. The average of where they
 land, weighted by their shares of the data, is one step on the gradient of
-all the data (**proved**: `sum_smul_step_eq_step`). With one example per
+all the data (**proved**: `average_of_steps_is_a_step_on_the_average`). With one example per
 client and equal shares this says a step on a random example is the full
-step on average (**proved**: `mean_step_eq_step`). It is stochastic gradient
+step on average (**proved**: `step_on_a_random_example_is_the_full_step_on_average`). It is stochastic gradient
 descent in the mean, and federated averaging after one local step.
 
 Not shown: that directions below momentum's edge are stable, the noise of a
@@ -136,7 +136,7 @@ local step, where the average is no longer a single step.
 adds two things. Given an orthonormal basis of directions that the kernel only
 stretches, the squared loss after `t` steps is the sum over the basis of
 `(1 − ηλ_i)^(2t)` times the squared start part
-(`norm_sq_residual_iterate_eq_sum`). And for `N` inputs evenly spaced over one
+(`loss_after_many_steps_is_a_sum_over_directions`). And for `N` inputs evenly spaced over one
 period, with a kernel that is a sum of `a_k² cos(k × gap)` over frequencies
 below `N / 2`, the sampled wave of frequency `m` is such a direction, with
 strength `N / 2 × a_m²` (`fourier_direction_is_stretched`,

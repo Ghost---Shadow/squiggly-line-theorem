@@ -189,8 +189,8 @@ error (see `docs/networks/fourier-parameters.md`). These ask what survives a
 change of link or loss. Added 12 Nov 2026.
 
 25. **A budget of movement under any convex loss.** (**proved** for
-    cross-entropy with two classes, 12 Nov 2026: `le_totalLogLoss_sub_along`
-    and `totalLogLoss_along_le_max` in [`CrossEntropy.lean`](../lean/SquigglyLine/Supporting/Training/CrossEntropy.lean); other losses
+    cross-entropy with two classes, 12 Nov 2026: `budget_of_movement_buys_its_share_of_log_loss`
+    and `no_hill_between_two_settings` in [`CrossEntropy.lean`](../lean/SquigglyLine/Supporting/Training/CrossEntropy.lean); other losses
     **known, not formalised**)
     `budget_of_travel_buys_its_share_of_the_loss` says a move of `ε` toward a fit at distance `d`
     removes exactly `ε / d` of the error. For any loss that is convex in the
@@ -199,9 +199,9 @@ change of link or loss. Added 12 Nov 2026.
     way.
 
 26. **Gradient descent reaches the nearest fit, under any link.**
-    (**proved**, 12 Nov 2026: `iterate_errorStep_is_nearest` in
+    (**proved**, 12 Nov 2026: `training_takes_least_travel_for_any_loss` in
     [`CrossEntropy.lean`](../lean/SquigglyLine/Supporting/Training/CrossEntropy.lean))
-    `gradientDescent_fit_is_nearest` is proved for squared error. Under any
+    `gradient_descent_fit_is_the_nearest_fit` is proved for squared error. Under any
     link each step is still a weighted sum of the feature vectors, which is
     all the proof uses.
 

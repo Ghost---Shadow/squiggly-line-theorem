@@ -5,19 +5,19 @@ Follow a direction `direction` of the labels that the kernel stretches by
 `kernel_strength`. With step size `learning_rate`, each gradient step
 multiplies the size of the error along `direction` by
 `|1 - learning_rate * kernel_strength|`
-(`abs_inner_residual_iterate_gradientStep`).
+(`size_of_error_along_a_direction_after_many_steps`).
 
 * `shrinks_below_edge` : if `0 < learning_rate * kernel_strength < 2` the error
-  never grows, and the factor is below one (`abs_one_sub_lt_one_iff`).
+  never grows, and the factor is below one (`factor_is_less_than_one_exactly_below_two`).
 * `holds_at_edge` : if `learning_rate * kernel_strength = 2` the error keeps
   its size for ever.
 * `grows_past_edge` : if `learning_rate * kernel_strength ≥ 2` the error after
   `step_count` steps is at least
   `1 + step_count * (learning_rate * kernel_strength - 2)` times what it was.
-* `stable_iff_lt_two_div` : a direction is stable exactly when the step size
+* `stable_exactly_below_two_over_strength` : a direction is stable exactly when the step size
   is below `2 / kernel_strength`.
 
-Also here: `one_add_mul_le_abs_pow`, the growth of the factor's powers past the
+Also here: `powers_past_the_edge_grow_at_least_linearly`, the growth of the factor's powers past the
 edge.
 -/
 import SquigglyLine.Supporting.Training.SpectralBias
@@ -30,7 +30,7 @@ section Factor
 
 /-- **The edge is at two.** The factor is below one exactly when
 `0 < rate < 2`. -/
-theorem abs_one_sub_lt_one_iff
+theorem factor_is_less_than_one_exactly_below_two
     {rate : ℝ} :
     let factor_is_below_one := |1 - rate| < 1
     let rate_is_positive    := 0 < rate
@@ -46,7 +46,7 @@ theorem abs_one_sub_lt_one_iff
     exact ⟨by linarith, by linarith⟩
 
 /-- **Stable exactly below `2 / kernel_strength`.** -/
-theorem stable_iff_lt_two_div
+theorem stable_exactly_below_two_over_strength
     {learning_rate : ℝ}
     {kernel_strength : ℝ}
     (learning_rate_pos : 0 < learning_rate)
@@ -55,7 +55,7 @@ theorem stable_iff_lt_two_div
     let step_is_below_edge  := learning_rate < 2 / kernel_strength  -- `rate < 2`, divided by `kernel_strength`
     factor_is_below_one ↔ step_is_below_edge := by
   unfold_named_pieces
-  rw [propext (abs_one_sub_lt_one_iff
+  rw [propext (factor_is_less_than_one_exactly_below_two
     (rate := learning_rate * kernel_strength)),
     lt_div_iff₀ kernel_strength_pos]
   exact ⟨fun in_range => in_range.2,
@@ -63,7 +63,7 @@ theorem stable_iff_lt_two_div
       below_edge⟩⟩
 
 /-- Past the edge the factor's powers grow at least linearly. -/
-theorem one_add_mul_le_abs_pow
+theorem powers_past_the_edge_grow_at_least_linearly
     {rate : ℝ}
     (rate_past_edge : 2 ≤ rate)
     (step_count : ℕ) :
@@ -94,7 +94,7 @@ variable {Weights Outputs : Type*}
 
 /-- After `step_count` steps the size of the error along `direction` is
 `|1 - learning_rate * kernel_strength| ^ step_count` times what it was. -/
-theorem abs_inner_residual_iterate_gradientStep
+theorem size_of_error_along_a_direction_after_many_steps
     (predict : Weights →L[ℝ] Outputs)
     (labels : Outputs)
     (learning_rate : ℝ)
@@ -115,7 +115,7 @@ theorem abs_inner_residual_iterate_gradientStep
     let factor       := |1 - learning_rate * kernel_strength|  -- the size of one step's multiplier
     trained_size = factor ^ step_count * start_size := by
   unfold_named_pieces
-  rw [inner_residual_iterate_gradientStep predict labels learning_rate
+  rw [each_direction_runs_on_its_own_clock predict labels learning_rate
     start_weights direction_is_stretched step_count, abs_mul, abs_pow]
 
 /-- **Below the edge the error never grows.** -/
@@ -150,11 +150,11 @@ theorem shrinks_below_edge
           * |inner ℝ direction
             (GET_RESIDUAL (predict : Weights →ₗ[ℝ] Outputs) labels
               start_weights)| :=
-    abs_inner_residual_iterate_gradientStep predict labels learning_rate
+    size_of_error_along_a_direction_after_many_steps predict labels learning_rate
       start_weights direction_is_stretched step_count
   rw [size_formula]
   have factor_le_one : |1 - learning_rate * kernel_strength| ≤ 1 :=
-    (abs_one_sub_lt_one_iff.mpr
+    (factor_is_less_than_one_exactly_below_two.mpr
       ⟨rate_is_positive, rate_below_edge⟩).le
   exact mul_le_of_le_one_left (abs_nonneg _)
     (pow_le_one₀ (abs_nonneg _) factor_le_one)
@@ -191,7 +191,7 @@ theorem holds_at_edge
           * |inner ℝ direction
             (GET_RESIDUAL (predict : Weights →ₗ[ℝ] Outputs) labels
               start_weights)| :=
-    abs_inner_residual_iterate_gradientStep predict labels learning_rate
+    size_of_error_along_a_direction_after_many_steps predict labels learning_rate
       start_weights direction_is_stretched step_count
   -- At the edge the factor is `|1 - 2| = 1`.
   rw [size_formula, rate_at_edge]
@@ -232,12 +232,12 @@ theorem grows_past_edge
           * |inner ℝ direction
             (GET_RESIDUAL (predict : Weights →ₗ[ℝ] Outputs) labels
               start_weights)| :=
-    abs_inner_residual_iterate_gradientStep predict labels learning_rate
+    size_of_error_along_a_direction_after_many_steps predict labels learning_rate
       start_weights direction_is_stretched step_count
   have growth_le_power :
       1 + step_count * (learning_rate * kernel_strength - 2)
         ≤ |1 - learning_rate * kernel_strength| ^ step_count :=
-    one_add_mul_le_abs_pow rate_past_edge step_count
+    powers_past_the_edge_grow_at_least_linearly rate_past_edge step_count
   rw [size_formula]
   exact mul_le_mul_of_nonneg_right growth_le_power (abs_nonneg _)
 

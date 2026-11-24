@@ -19,22 +19,22 @@ Definitions: `GET_LASSO_COST`, `GET_RIDGE_COST`.
 
 Theorems:
 
-* `lassoCost_zero_le`          a target no larger than the penalty gives the
+* `lasso_sets_a_weak_direction_to_zero`          a target no larger than the penalty gives the
                                best weight zero;
-* `lassoCost_sub_le`           a stronger target is kept, shortened by the
+* `lasso_shortens_a_strong_direction_by_the_penalty`           a stronger target is kept, shortened by the
                                penalty;
-* `ridgeCost_div_le`           weight decay only shrinks;
-* `sum_mul_sq_sub_noisy_eq`    noise on the input is a charge on slope;
-* `sub_le_score_add`           the worst nudge costs at most the summed
+* `weight_decay_only_shrinks`           weight decay only shrinks;
+* `input_noise_is_a_charge_on_slope`    noise on the input is a charge on slope;
+* `worst_nudge_costs_at_most_size_times_summed_weights`           the worst nudge costs at most the summed
                                weights times its size;
-* `score_add_worst_nudge`      and one nudge costs exactly that;
-* `mean_stochasticDepth`       on average a kept branch is the branch at
+* `worst_nudge_costs_exactly_that`      and one nudge costs exactly that;
+* `stochastic_depth_on_average`       on average a kept branch is the branch at
                                strength `keep_chance`;
-* `abs_sub_le_of_lipschitz_fit`  a line through two examples has slope at least
+* `fit_through_two_examples_needs_slope`  a line through two examples has slope at least
                                the label gap over the distance;
-* `mixup_fit_gap`              a model fitting every blend is straight between
+* `mixup_asks_for_the_least_slope`              a model fitting every blend is straight between
                                the two examples;
-* `logLoss_teacher_le`         the teacher's own score is a best score.
+* `distillation_gives_a_finite_target`         the teacher's own score is a best score.
 -/
 import SquigglyLine.Supporting.NetworkShape.NetworkSlope
 
@@ -58,7 +58,7 @@ noncomputable def GET_RIDGE_COST
 
 /-- **Lasso sets a weak direction to exactly zero.** If the target is no larger
 than the penalty, the best weight is zero. -/
-theorem lassoCost_zero_le
+theorem lasso_sets_a_weak_direction_to_zero
     {penalty target : ℝ}
     (target_within_penalty : |target| ≤ penalty)
     (weight : ℝ) :
@@ -76,7 +76,7 @@ theorem lassoCost_zero_le
 
 /-- A direction stronger than the penalty is kept, shortened by exactly the
 penalty. -/
-theorem lassoCost_sub_le
+theorem lasso_shortens_a_strong_direction_by_the_penalty
     {penalty target : ℝ}
     (penalty_nonneg : 0 ≤ penalty)
     (penalty_lt_target : penalty < target)
@@ -93,7 +93,7 @@ theorem lassoCost_sub_le
 
 /-- **Weight decay only shrinks.** Its best weight is the target divided by
 `1 + penalty`, which is zero only if the target is. -/
-theorem ridgeCost_div_le
+theorem weight_decay_only_shrinks
     {penalty target : ℝ}
     (penalty_nonneg : 0 ≤ penalty)
     (weight : ℝ) :
@@ -121,7 +121,7 @@ variable {Outcomes : Type*} [Fintype Outcomes]
 the line `slope * input` over input noise of mean zero and spread
 `noise_spread`. The result is the plain squared error plus
 `noise_spread² * slope²`. -/
-theorem sum_mul_sq_sub_noisy_eq
+theorem input_noise_is_a_charge_on_slope
     {chances noises : Outcomes → ℝ}
     {noise_spread : ℝ}
     (chances_sum_to_one : ∑ j, chances j = 1)
@@ -149,7 +149,7 @@ variable {Coordinates : Type*} [Fintype Coordinates]
 
 /-- **The worst nudge costs at most `size_limit` times the summed weights.** No
 nudge of size at most `size_limit` on each input lowers the score by more. -/
-theorem sub_le_score_add
+theorem worst_nudge_costs_at_most_size_times_summed_weights
     (weights input nudge : Coordinates → ℝ)
     {size_limit : ℝ}
     (nudge_is_small : ∀ i, |nudge i| ≤ size_limit) :
@@ -171,7 +171,7 @@ theorem sub_le_score_add
 /-- **And one nudge costs exactly that.** So training against the worst nudge
 is training with a penalty of `nudge_size` times the summed sizes of the
 weights. -/
-theorem score_add_worst_nudge
+theorem worst_nudge_costs_exactly_that
     (weights input : Coordinates → ℝ)
     (nudge_size : ℝ) :
     let nudged_input : Coordinates → ℝ :=
@@ -196,7 +196,7 @@ variable {Space : Type*} [NormedAddCommGroup Space] [NormedSpace ℝ Space]
 /-- **Stochastic depth.** Keep a branch with chance `keep_chance` and drop it
 otherwise. On average the layer is the input plus `keep_chance` times the
 branch. -/
-theorem mean_stochasticDepth
+theorem stochastic_depth_on_average
     (keep_chance : ℝ)
     (input branch : Space) :
     let average_layer : Space :=
@@ -209,7 +209,7 @@ theorem mean_stochasticDepth
 omit [NormedSpace ℝ Space] in
 /-- Any line through two examples has slope at least their gap in labels over
 their distance. -/
-theorem abs_sub_le_of_lipschitz_fit
+theorem fit_through_two_examples_needs_slope
     {model : Model Space}
     {slope_limit : SlopeLimit}
     (slope_is_bounded : LipschitzWith slope_limit model)
@@ -224,7 +224,7 @@ theorem abs_sub_le_of_lipschitz_fit
 /-- **Mixup asks for the least slope.** A model that fits every blend of two
 examples is straight between them: the gap in its output between two blends is
 the gap in labels times the share of the way between them. -/
-theorem mixup_fit_gap
+theorem mixup_asks_for_the_least_slope
     {model : Model Space}
     {start_point end_point : Space}
     {start_label end_label : ℝ}
@@ -274,12 +274,12 @@ theorem mixup_fit_gap
 
 /-- **Distillation gives the student a finite target.** Against the teacher's
 soft label, the teacher's own score is a best score. -/
-theorem logLoss_teacher_le
+theorem distillation_gives_a_finite_target
     (teacher_score score : ℝ) :
     let best_loss := GET_LOG_LOSS (sigmoid teacher_score) teacher_score
     let loss      := GET_LOG_LOSS (sigmoid teacher_score) score
     best_loss ≤ loss := by
   unfold_named_pieces
-  exact logLoss_le_of_sigmoid_eq rfl score
+  exact score_whose_prediction_equals_the_label_is_best rfl score
 
 end SquigglyLine

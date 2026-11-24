@@ -61,7 +61,7 @@ answer, and dropout multiplies it by `mask j`. If the masks are independent,
 one on average and of variance `mask_variance`, the expected squared error is
 the plain squared error plus `mask_variance` times the sum of the squared
 shares. -/
-theorem expected_dropout_loss
+theorem dropout_adds_a_penalty
     {mask : RandomMask Features Outcomes}
     (masks_are_square_integrable :
       ∀ feature, MemLp (mask feature) 2 probability)  -- each mask has a finite average and variance, so the averages below exist
@@ -72,13 +72,13 @@ theorem expected_dropout_loss
       ARE_MASKS_OF_VARIANCE probability mask mask_variance)
     (label : ℝ)
     (shares : Features → ℝ) :
-    let expected_dropout_loss :=
+    let dropout_adds_a_penalty :=
       GET_AVERAGE probability fun outcome =>
         let noisy_answer := ∑ j, mask j outcome * shares j  -- each share, multiplied by its mask
         (label - noisy_answer) ^ 2
     let plain_loss := (label - ∑ j, shares j) ^ 2           -- the squared error with no dropout
     let penalty    := mask_variance * ∑ j, shares j ^ 2     -- the variance of the noisy answer: independent variances add
-    expected_dropout_loss = plain_loss + penalty := by      -- mean of a square = square of the mean + variance
+    dropout_adds_a_penalty = plain_loss + penalty := by      -- mean of a square = square of the mean + variance
 ```
 
 *Read aloud:* when the masks are independent, average to one and have
@@ -91,20 +91,20 @@ exist.
 
 Two more results turn this into weight decay. Over a whole set of
 examples, the penalty on weight `j` is its square times the total squared
-size of feature `j` over the data (`expected_dropout_loss_dataset`). If
+size of feature `j` over the data (`dropout_adds_a_penalty_over_a_dataset`). If
 every feature has the same total squared size `feature_size`, the
 penalty is `mask_variance × feature_size` times the squared length of the
-weights (`expected_dropout_loss_of_equal_features`). That is weight decay
+weights (`dropout_is_weight_decay_for_equal_features`). That is weight decay
 of chapter 20 with `decay_strength = mask_variance × feature_size`. The
 usual mask has variance `(1 − keep_probability) / keep_probability`
-(`keepMask_variance`).
+(`variance_of_the_keep_mask`).
 
 ```lean
 /-- **Noise on the input is a charge on slope.** Average the squared error of
 the line `slope * input` over input noise of mean zero and spread
 `noise_spread`. The result is the plain squared error plus
 `noise_spread² * slope²`. -/
-theorem sum_mul_sq_sub_noisy_eq
+theorem input_noise_is_a_charge_on_slope
     {chances noises : Outcomes → ℝ}
     {noise_spread : ℝ}
     (chances_sum_to_one : ∑ j, chances j = 1)
@@ -132,7 +132,7 @@ slope, the currency of chapter 3.
 ```lean
 /-- **Lasso sets a weak direction to exactly zero.** If the target is no larger
 than the penalty, the best weight is zero. -/
-theorem lassoCost_zero_le
+theorem lasso_sets_a_weak_direction_to_zero
     {penalty target : ℝ}
     (target_within_penalty : |target| ≤ penalty)
     (weight : ℝ) :
@@ -147,8 +147,8 @@ costs no more than any other weight.
 `GET_LASSO_COST penalty target weight` is half the squared miss of the
 target plus `penalty` times the size of the weight. Weight decay, with
 `GET_RIDGE_COST`, uses the square of the weight instead. By
-`ridgeCost_div_le` its best weight is `target / (1 + penalty)`, which is
-zero only when the target is. By `lassoCost_sub_le`, a target above the
+`weight_decay_only_shrinks` its best weight is `target / (1 + penalty)`, which is
+zero only when the target is. By `lasso_shortens_a_strong_direction_by_the_penalty`, a target above the
 penalty is kept, shortened by exactly the penalty.
 
 ## Why it is true
@@ -177,18 +177,18 @@ are not learned. The note also reads other habits as charges.
 
 - **Adversarial training.** No nudge of size at most `size_limit` on
   each input lowers a linear score by more than `size_limit` times the
-  summed sizes of the weights (`sub_le_score_add`), and one nudge
-  lowers it by exactly that (`score_add_worst_nudge`). With a nudge of
+  summed sizes of the weights (`worst_nudge_costs_at_most_size_times_summed_weights`), and one nudge
+  lowers it by exactly that (`worst_nudge_costs_exactly_that`). With a nudge of
   0.1 and weights 2 and −3, the score drops by `0.1 × 5 = 0.5`.
 - **Stochastic depth.** Keep a residual branch with chance `keep_chance`.
   On average the layer is the input plus `keep_chance` times the branch
-  (`mean_stochasticDepth`). With chance 0.8, input 5 and branch 10 that
+  (`stochastic_depth_on_average`). With chance 0.8, input 5 and branch 10 that
   is `5 + 8 = 13`.
 - **Mixup.** A model that fits every blend of two examples is straight
-  between them (`mixup_fit_gap`), so it has the least slope that any
-  line through both can have (`abs_sub_le_of_lipschitz_fit`).
+  between them (`mixup_asks_for_the_least_slope`), so it has the least slope that any
+  line through both can have (`fit_through_two_examples_needs_slope`).
 - **Distillation.** Against a teacher's soft label, the teacher's own
-  score is a best score (`logLoss_teacher_le`). A hard label has none.
+  score is a best score (`distillation_gives_a_finite_target`). A hard label has none.
 
 ## How this meets the squiggly line
 
@@ -268,10 +268,10 @@ distillation are not tested. Command:
 3. Penalty 1 and target 0.8. What is the best weight for lasso? For weight
    decay?
 
-**Answers.** (1) By `keepMask_variance`, `(1 − 1/4) / (1/4) = 3`. The plain
-error is 0, so by `expected_dropout_loss` the penalty is
-`3 × (2² + 2²) = 24`. (2) `0.1² × 5² = 0.25`, by `sum_mul_sq_sub_noisy_eq`.
-(3) Lasso gives 0, since `0.8 ≤ 1` (`lassoCost_zero_le`). Weight decay
-gives `0.8 / (1 + 1) = 0.4`, by `ridgeCost_div_le`.
+**Answers.** (1) By `variance_of_the_keep_mask`, `(1 − 1/4) / (1/4) = 3`. The plain
+error is 0, so by `dropout_adds_a_penalty` the penalty is
+`3 × (2² + 2²) = 24`. (2) `0.1² × 5² = 0.25`, by `input_noise_is_a_charge_on_slope`.
+(3) Lasso gives 0, since `0.8 ≤ 1` (`lasso_sets_a_weak_direction_to_zero`). Weight decay
+gives `0.8 / (1 + 1) = 0.4`, by `weight_decay_only_shrinks`.
 
 Previous: [20. Weight decay and early stopping](20-weight-decay-and-early-stopping.md) · Next: [22. Batches, small steps and budgets](22-batches-steps-and-budgets.md)

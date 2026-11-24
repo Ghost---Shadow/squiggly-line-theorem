@@ -27,21 +27,21 @@ Definitions: `RUN_SCHEDULE`, `TAKE_MOMENTUM_STEP`.
 
 Theorems:
 
-* `runSchedule_eq`                 a schedule multiplies its factors;
-* `abs_runSchedule_le`             while every factor is at most one in size,
+* `schedule_multiplies_its_factors`                 a schedule multiplies its factors;
+* `schedule_never_grows_the_error_below_the_edge`             while every factor is at most one in size,
                                    the error never grows;
-* `one_lt_abs_one_sub`             a step that is too large makes the error
+* `step_too_large_grows_the_error`             a step that is too large makes the error
                                    grow (why warmup);
-* `abs_one_sub_best_step_le`       the condition number sets the speed;
-* `one_sub_best_step_at_weakest`   and the weakest direction hits that speed
+* `condition_number_sets_the_speed`       the condition number sets the speed;
+* `weakest_direction_shrinks_by_exactly_that_factor`   and the weakest direction hits that speed
                                    exactly;
-* `momentumStep_of_no_momentum`    with no momentum it is the plain step;
-* `momentumStep_alternating`       momentum moves the edge of stability;
-* `iterate_momentumStep_alternating`  at that edge the flipping error never
+* `momentum_step_with_no_momentum_is_the_plain_step`    with no momentum it is the plain step;
+* `momentum_moves_the_edge_of_stability`       momentum moves the edge of stability;
+* `flipping_error_at_the_momentum_edge_keeps_its_size`  at that edge the flipping error never
                                    dies and never grows;
-* `sum_smul_step_eq_step`          an average of steps is a step on the
+* `average_of_steps_is_a_step_on_the_average`          an average of steps is a step on the
                                    average;
-* `mean_step_eq_step`              a step on a random example is the full step
+* `step_on_a_random_example_is_the_full_step_on_average`              a step on a random example is the full step
                                    on average.
 -/
 import SquigglyLine.Supporting.Training.StepRules
@@ -69,7 +69,7 @@ def RUN_SCHEDULE
       * RUN_SCHEDULE learning_rates strength step_count error
 
 /-- **A schedule multiplies its factors.** -/
-theorem runSchedule_eq
+theorem schedule_multiplies_its_factors
     (learning_rates : LearningRatePerStep)
     (strength : ℝ)
     (step_count : ℕ)
@@ -88,7 +88,7 @@ theorem runSchedule_eq
 
 /-- While every `learning_rates step * strength` is between zero and two, the
 error never grows. -/
-theorem abs_runSchedule_le
+theorem schedule_never_grows_the_error_below_the_edge
     {learning_rates : LearningRatePerStep}
     {strength : ℝ}
     (steps_are_stable : ∀ step,
@@ -119,7 +119,7 @@ theorem abs_runSchedule_le
 
 /-- **Why warmup.** A step that is too large for a direction makes its error
 grow. -/
-theorem one_lt_abs_one_sub
+theorem step_too_large_grows_the_error
     {learning_rate strength : ℝ}
     (step_too_large : 2 < learning_rate * strength) :
     let factor_size := |1 - learning_rate * strength|
@@ -131,7 +131,7 @@ theorem one_lt_abs_one_sub
 /-- **The condition number sets the speed.** With strengths between `weakest`
 and `strongest` and the step `2 / (weakest + strongest)`, every direction
 shrinks by at least `(strongest - weakest) / (strongest + weakest)` a step. -/
-theorem abs_one_sub_best_step_le
+theorem condition_number_sets_the_speed
     {weakest strongest strength : ℝ}
     (weakest_pos : 0 < weakest)
     (weakest_le_strongest : weakest ≤ strongest)
@@ -154,7 +154,7 @@ theorem abs_one_sub_best_step_le
 
 /-- The weakest direction shrinks by exactly that factor, so no direction can
 be promised more. -/
-theorem one_sub_best_step_at_weakest
+theorem weakest_direction_shrinks_by_exactly_that_factor
     {weakest strongest : ℝ}
     (weakest_pos : 0 < weakest)
     (weakest_le_strongest : weakest ≤ strongest) :
@@ -185,7 +185,7 @@ def TAKE_MOMENTUM_STEP
       - momentum * state.2, state.1)
 
 /-- With no momentum it is the plain step. -/
-theorem momentumStep_of_no_momentum
+theorem momentum_step_with_no_momentum_is_the_plain_step
     (learning_rate strength : ℝ)
     (state : MomentumState) :
     let momentum_step :=
@@ -199,7 +199,7 @@ theorem momentumStep_of_no_momentum
 /-- **Momentum moves the edge of stability.** At
 `learning_rate * strength = 2 * (1 + momentum)` an error that flips sign at
 every step is carried forward at full size. -/
-theorem momentumStep_alternating
+theorem momentum_moves_the_edge_of_stability
     {learning_rate momentum strength : ℝ}
     (at_edge : learning_rate * strength = 2 * (1 + momentum))
     (amplitude : ℝ) :
@@ -216,7 +216,7 @@ theorem momentumStep_alternating
   ring
 
 /-- At that edge the flipping error never dies and never grows. -/
-theorem iterate_momentumStep_alternating
+theorem flipping_error_at_the_momentum_edge_keeps_its_size
     {learning_rate momentum strength : ℝ}
     (at_edge : learning_rate * strength = 2 * (1 + momentum))
     (amplitude : ℝ)
@@ -237,7 +237,7 @@ theorem iterate_momentumStep_alternating
     have one_flip (value : ℝ) :
         TAKE_MOMENTUM_STEP learning_rate momentum strength (value, -value)
           = (-value, value) :=
-      momentumStep_alternating at_edge value
+      momentum_moves_the_edge_of_stability at_edge value
     rw [Function.iterate_succ_apply', ih, one_flip]
     ext <;> simp [pow_succ]
 
@@ -248,7 +248,7 @@ variable {Parts Weights : Type*} [Fintype Parts] [AddCommGroup Weights]
 holding the share `shares k` of the data, take one step from the same weights
 on its own gradient. The average of where they land is one step on the
 gradient of all the data. -/
-theorem sum_smul_step_eq_step
+theorem average_of_steps_is_a_step_on_the_average
     {shares : Parts → ℝ}
     (shares_sum_to_one : ∑ k, shares k = 1)
     (learning_rate : ℝ)
@@ -266,7 +266,7 @@ theorem sum_smul_step_eq_step
   exact Finset.sum_congr rfl fun k _ => smul_comm _ _ _
 
 /-- **A step on a random example is the full step on average.** -/
-theorem mean_step_eq_step
+theorem step_on_a_random_example_is_the_full_step_on_average
     [Nonempty Parts]
     (learning_rate : ℝ)
     (weights : Weights)
@@ -291,7 +291,7 @@ theorem mean_step_eq_step
           • (weights - learning_rate • gradients k)
         = weights - learning_rate
           • ∑ k, (Fintype.card Parts : ℝ)⁻¹ • gradients k :=
-    sum_smul_step_eq_step equal_shares_sum_to_one learning_rate weights
+    average_of_steps_is_a_step_on_the_average equal_shares_sum_to_one learning_rate weights
       gradients
   rwa [← Finset.smul_sum, ← Finset.smul_sum] at averaged
 

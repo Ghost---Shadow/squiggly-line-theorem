@@ -14,7 +14,7 @@ each query.
 
 - **Score.** Give every token a score against the query.
 - **Share.** Turn the scores into shares with a softmax. The shares are
-  positive and add up to one (**proved**: `softmax_pos`, `sum_softmax` in
+  positive and add up to one (**proved**: `softmax_share_is_greater_than_zero`, `softmax_shares_add_to_one` in
   [`CrossEntropy.lean`](../../../lean/SquigglyLine/Supporting/Training/CrossEntropy.lean)).
 - **Average.** Return the tokens' values, averaged with those shares.
 

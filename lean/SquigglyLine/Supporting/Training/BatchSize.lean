@@ -4,10 +4,10 @@ Batch size and learning rate.
 One set of weights and two batches of data, with features `first_predict` and
 `second_predict` and labels `first_labels` and `second_labels`.
 
-* `gradientStep_two_batches` : a step on the first batch and then a step on
+* `two_small_steps_against_one_big_step` : a step on the first batch and then a step on
   the second is one step on both at once, minus `learning_rate ^ 2` times the
   second batch's view of what the first step changed.
-* `two_batches_of_cross_kernel_eq_zero` : if the model sees no input of one
+* `two_small_steps_equal_one_big_step_for_separate_batches` : if the model sees no input of one
   batch as like any input of the other, the two are equal.
 * `linear_scaling_rule` : with the push averaged over a batch of size
   `batch_size`, two steps at learning rate `learning_rate` are, up to that
@@ -35,7 +35,7 @@ variable {Weights FirstOutputs SecondOutputs : Type*}
 then a step on the second equals one step on both batches at once, minus
 `learning_rate ^ 2` times a term that passes through the kernel between the
 batches. -/
-theorem gradientStep_two_batches
+theorem two_small_steps_against_one_big_step
     (learning_rate : ℝ)
     (weights : Weights) :
     let first_linear_predict : LinearPredictor Weights FirstOutputs :=
@@ -73,7 +73,7 @@ theorem gradientStep_two_batches
   module
 
 /-- **When the batches share nothing, the two are equal.** -/
-theorem two_batches_of_cross_kernel_eq_zero
+theorem two_small_steps_equal_one_big_step_for_separate_batches
     (cross_kernel_zero : ∀ vector,
       second_predict (adjoint first_predict vector) = 0)
     (learning_rate : ℝ)
@@ -107,7 +107,7 @@ theorem two_batches_of_cross_kernel_eq_zero
             (adjoint first_predict
               (GET_RESIDUAL (first_predict : Weights →ₗ[ℝ] FirstOutputs)
                 first_labels weights))) :=
-    gradientStep_two_batches first_predict second_predict first_labels
+    two_small_steps_against_one_big_step first_predict second_predict first_labels
       second_labels learning_rate weights
   rw [step, cross_kernel_zero, map_zero, smul_zero, sub_zero]
 
@@ -155,7 +155,7 @@ theorem linear_scaling_rule
             (second_predict (adjoint first_predict
               (GET_RESIDUAL (first_predict : Weights →ₗ[ℝ] FirstOutputs)
                 first_labels weights))) :=
-    gradientStep_two_batches first_predict second_predict first_labels
+    two_small_steps_against_one_big_step first_predict second_predict first_labels
       second_labels (learning_rate / batch_size) weights
   rw [step, mul_div_mul_left learning_rate batch_size two_ne_zero]
 

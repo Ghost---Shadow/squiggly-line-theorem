@@ -24,9 +24,9 @@ exact, and it comes from the same line of algebra as spectral bias.
 Follow a direction of the labels of strength `λ`. The strength is the
 sharpness of the loss in that direction. Each step multiplies the error along
 it by `1 − ηλ`, where `η` is the step size (**proved** earlier:
-`inner_residual_gradientStep` in [`SpectralBias.lean`](../../../lean/SquigglyLine/Supporting/Training/SpectralBias.lean)). So the size of the
+`one_step_shrinks_one_direction` in [`SpectralBias.lean`](../../../lean/SquigglyLine/Supporting/Training/SpectralBias.lean)). So the size of the
 error is multiplied by `|1 − ηλ|` each step
-(**proved**: `abs_inner_residual_iterate_gradientStep`).
+(**proved**: `size_of_error_along_a_direction_after_many_steps`).
 
 Everything turns on whether that number is below one.
 
@@ -40,7 +40,7 @@ Everything turns on whether that number is below one.
   limit (**proved**: `grows_past_edge`).
 
 Put another way: a direction is stable exactly when the step size is below
-`2 / λ` (**proved**: `stable_iff_lt_two_div`). The sharpest direction has the
+`2 / λ` (**proved**: `stable_exactly_below_two_over_strength`). The sharpest direction has the
 largest `λ`, so it sets the largest step that training can take.
 
 ## What this explains, and what it does not

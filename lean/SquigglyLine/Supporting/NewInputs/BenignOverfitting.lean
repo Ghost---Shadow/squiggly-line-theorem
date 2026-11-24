@@ -165,7 +165,7 @@ theorem split_fit_is_the_nearest_fit
     let other_distance := ‖other_weights - start_weights‖
     fit_distance ≤ other_distance := by
   unfold_named_pieces
-  exact norm_sub_le_of_fit_along_features whole_predict rfl fit_fits
+  exact moving_along_the_features_is_moving_least whole_predict rfl fit_fits
     other_fits
 
 /-- **What the fit does to a new input.** The answer at `query_features`

@@ -100,7 +100,7 @@ theorem one_sub_softmax_div_le
   unfold_named_pieces
   have shares_sum_to_one :
       ∑ j, APPLY_SOFTMAX (fun j => scores j / temperature) j = 1 :=
-    sum_softmax _
+    softmax_shares_add_to_one _
   -- What the top score misses is what the others hold.
   have miss_is_others_share :
       1 - APPLY_SOFTMAX (fun j => scores j / temperature) top

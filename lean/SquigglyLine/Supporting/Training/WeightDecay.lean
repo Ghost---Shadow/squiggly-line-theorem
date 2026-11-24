@@ -5,29 +5,29 @@ Follow a direction of the labels that the kernel stretches by
 `kernel_strength`. Weight decay adds a penalty `decay_strength` on the distance
 of the weights from their start.
 
-* `residual_ridgeFit` : the weight-decay fit leaves the share
+* `weight_decay_leaves_a_share_of_the_residual` : the weight-decay fit leaves the share
   `decay_strength / (kernel_strength + decay_strength)` of the error.
-* `ridge_stationary`, `decayStep_ridgeFit` : it is where gradient descent
+* `weight_decay_fit_is_a_resting_point`, `decay_step_rests_at_the_weight_decay_fit` : it is where gradient descent
   with weight decay comes to rest.
-* `inner_ridgeFit` : it moves the answer at a new input by the overlap divided
+* `weight_decay_is_spare_parameters` : it moves the answer at a new input by the overlap divided
   by `kernel_strength + decay_strength`. This is the benign-overfitting formula
   with the strength of the dropped features equal to `decay_strength`.
-* `early_stopping_le_ridge` : stopping after `step_count` steps leaves at most
+* `early_stopping_leaves_at_most_what_weight_decay_leaves` : stopping after `step_count` steps leaves at most
   `1 / (1 + step_count * rate)` of the error, where
   `rate = learning_rate * kernel_strength`.
-* `ridge_share_eq` : and that is the share weight decay leaves when
+* `matching_penalty_gives_the_same_share` : and that is the share weight decay leaves when
   `decay_strength = 1 / (learning_rate * step_count)`.
 
 Definitions and theorems:
 
 * `GET_RIDGE_FIT`          the fit that weight decay rests at;
 * `TAKE_DECAY_STEP`        one step of gradient descent with weight decay;
-* `early_stopping_le_ridge`  early stopping cuts at least as hard;
-* `ridge_share_eq`         the matching penalty;
-* `residual_ridgeFit`      what weight decay leaves;
-* `ridge_stationary`       the resting point;
-* `decayStep_ridgeFit`     gradient descent with weight decay rests there;
-* `inner_ridgeFit`         weight decay is spare parameters.
+* `early_stopping_leaves_at_most_what_weight_decay_leaves`  early stopping cuts at least as hard;
+* `matching_penalty_gives_the_same_share`         the matching penalty;
+* `weight_decay_leaves_a_share_of_the_residual`      what weight decay leaves;
+* `weight_decay_fit_is_a_resting_point`       the resting point;
+* `decay_step_rests_at_the_weight_decay_fit`     gradient descent with weight decay rests there;
+* `weight_decay_is_spare_parameters`         weight decay is spare parameters.
 -/
 import Mathlib.Tactic.LinearCombination
 import SquigglyLine.Supporting.Training.SpectralBias
@@ -41,7 +41,7 @@ section Share
 /-- **Early stopping cuts at least as hard as weight decay.** After
 `step_count` steps at rate `rate` the share of the error left is at most
 `1 / (1 + step_count * rate)`. -/
-theorem early_stopping_le_ridge
+theorem early_stopping_leaves_at_most_what_weight_decay_leaves
     {rate : ℝ}
     (rate_nonneg : 0 ≤ rate)
     (rate_le_one : rate ≤ 1)
@@ -54,7 +54,7 @@ theorem early_stopping_le_ridge
     mul_nonneg (Nat.cast_nonneg step_count) rate_nonneg
   -- `1 - rate` is at most `exp (-rate)`, and `exp x` is at least `1 + x`.
   calc (1 - rate) ^ step_count ≤ Real.exp (-(step_count * rate)) :=
-        pow_one_sub_le_exp rate_le_one step_count
+        learning_does_run_out rate_le_one step_count
     _ = 1 / Real.exp (step_count * rate) := by rw [Real.exp_neg, one_div]
     _ ≤ 1 / (1 + step_count * rate) :=
         one_div_le_one_div_of_le (by linarith)
@@ -63,7 +63,7 @@ theorem early_stopping_le_ridge
 /-- **The matching penalty.** Weight decay with
 `decay_strength = 1 / (learning_rate * step_count)` leaves the share
 `1 / (1 + step_count * (learning_rate * kernel_strength))`. -/
-theorem ridge_share_eq
+theorem matching_penalty_gives_the_same_share
     {learning_rate : ℝ}
     {kernel_strength : ℝ}
     {step_count : ℕ}
@@ -135,7 +135,7 @@ variable (predict : Weights →L[ℝ] Outputs) (labels : Outputs)
 
 /-- **What weight decay leaves.** The share
 `decay_strength / (kernel_strength + decay_strength)` of the error. -/
-theorem residual_ridgeFit
+theorem weight_decay_leaves_a_share_of_the_residual
     (strengths_sum_ne_zero : kernel_strength + decay_strength ≠ 0)
     (residual_is_stretched :
       predict (adjoint predict
@@ -184,7 +184,7 @@ theorem residual_ridgeFit
 
 /-- **The resting point.** At the weight-decay fit, the pull of the data and
 the pull of the penalty balance. -/
-theorem ridge_stationary
+theorem weight_decay_fit_is_a_resting_point
     (strengths_sum_ne_zero : kernel_strength + decay_strength ≠ 0)
     (residual_is_stretched :
       predict (adjoint predict
@@ -209,13 +209,13 @@ theorem ridge_stationary
         = (decay_strength / (kernel_strength + decay_strength))
           • GET_RESIDUAL (predict : Weights →ₗ[ℝ] Outputs) labels
               start_weights :=
-    residual_ridgeFit predict labels start_weights strengths_sum_ne_zero
+    weight_decay_leaves_a_share_of_the_residual predict labels start_weights strengths_sum_ne_zero
       residual_is_stretched
   rw [ridge_residual, map_smul, GET_RIDGE_FIT, add_sub_cancel_left, smul_smul,
     div_eq_mul_inv]
 
 /-- **Gradient descent with weight decay rests there.** -/
-theorem decayStep_ridgeFit
+theorem decay_step_rests_at_the_weight_decay_fit
     (learning_rate : ℝ)
     (strengths_sum_ne_zero : kernel_strength + decay_strength ≠ 0)
     (residual_is_stretched :
@@ -241,7 +241,7 @@ theorem decayStep_ridgeFit
         = decay_strength
           • (GET_RIDGE_FIT predict labels start_weights kernel_strength
               decay_strength - start_weights) :=
-    ridge_stationary predict labels start_weights strengths_sum_ne_zero
+    weight_decay_fit_is_a_resting_point predict labels start_weights strengths_sum_ne_zero
       residual_is_stretched
   rw [TAKE_DECAY_STEP, TAKE_GRADIENT_STEP, stationary, smul_smul,
     add_sub_cancel_right]
@@ -249,7 +249,7 @@ theorem decayStep_ridgeFit
 /-- **Weight decay is spare parameters.** The answer at a new input with
 features `features` moves by the overlap divided by
 `kernel_strength + decay_strength`. -/
-theorem inner_ridgeFit
+theorem weight_decay_is_spare_parameters
     (features : Weights)
     (kernel_strength : ℝ)
     (decay_strength : ℝ) :

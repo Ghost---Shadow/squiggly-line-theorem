@@ -190,7 +190,7 @@ theorem abs_attend_sub_attend_le
       (weight_floor := exp (-2 * score_bound) / Fintype.card Tokens)
       (exp_neg_div_card_le_softmax scores_are_bounded)
       (exp_neg_div_card_le_softmax other_scores_are_bounded)
-      (sum_softmax scores) (sum_softmax other_scores)
+      (softmax_shares_add_to_one scores) (softmax_shares_add_to_one other_scores)
       values_above_lower values_below_upper
   rw [mul_div_cancel₀ _ card_ne_zero] at shared_bound
   simpa [ATTEND] using shared_bound

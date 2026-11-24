@@ -81,9 +81,9 @@ curvature of the loss by `scale²`, and multiplies the travel by
 `RESCALE scale predict` is the model with its parameters in other units:
 the new parameters are `scale` times the old ones, and are divided by
 `scale` before use. `∧` means "and". The three parts are
-`residual_rescale`, `norm_rescale_sq` and `travel_rescale`. The same
-file shows `kernel_rescale` (the kernel is weaker by `scale²`) and
-`gradientStep_rescale`: a step of the rescaled model with step size
+`rescaled_model_has_same_error`, `rescaled_model_is_flatter_by_scale_squared` and `rescaled_model_travels_farther_by_scale`. The same
+file shows `rescaled_kernel_is_weaker_by_scale_squared` (the kernel is weaker by `scale²`) and
+`rescaling_is_a_change_of_step_size`: a step of the rescaled model with step size
 `learning_rate` is a step of the old model with step size
 `learning_rate / scale²`.
 
@@ -94,7 +94,7 @@ points sit on the proved lines at every scale from 0.1 to 30.
 ![Two panels against the rescaling. Left: sharpness of the loss, falling as one over scale squared, measured points on the proved line. Right: travel of gradient descent, rising in proportion to the scale, measured points on the proved line, with the unscaled travel as a dotted level.](figures/24-flatter-is-farther.png)
 
 ```lean
-theorem norm_sq_sub_smul_of_inner_eq_zero
+theorem step_at_right_angles_lengthens_the_weights
     {weights gradient : Weights}
     (gradient_is_at_right_angles : inner ℝ gradient weights = 0)
     (learning_rate : ℝ) :
@@ -107,10 +107,10 @@ theorem norm_sq_sub_smul_of_inner_eq_zero
 squared step to their squared length.
 
 `inner ℝ gradient weights` is the dot product, and `‖ ‖` is length. The
-theorem `inner_gradient_self_eq_zero` says that a **scale invariant**
+theorem `gradient_is_at_right_angles_to_the_weights` says that a **scale invariant**
 loss (`IS_SCALE_INVARIANT`: unchanged when all weights are multiplied by
 a positive number) has a gradient at right angles to the weights. Then
-`norm_le_norm_sub_smul` says the weights never get shorter.
+`gradient_descent_never_shortens_the_weights` says the weights never get shorter.
 
 **Measured** on a one-hidden-layer network with an RMSNorm after the hidden
 layer, trained by gradient descent with `learning_rate = 0.1` from long weights.
@@ -138,8 +138,8 @@ theorem balance_after_step
 squared weights by `1 - learning_rate² × error²`.
 
 From this, `balanced_stays_balanced` says equal layers stay equal, and
-`abs_eq_abs_of_balanced` says each then carries the same share of the
-slope. Two more results: `oneHiddenLayer_relabel` says shuffling the
+`balanced_layers_have_the_same_size` says each then carries the same share of the
+slope. Two more results: `shuffling_hidden_units_gives_the_same_function` says shuffling the
 hidden units of a one-layer network gives the same function, and for
 RMSNorm, `normalizeByRms_smul` says it forgets the scale.
 
@@ -150,7 +150,7 @@ by it, so the outputs cancel. Dividing the outputs by `scale` divides
 their squares by `scale²`, which is the curvature. The fits are the
 weights that give the labels, and they are all multiplied by `scale`, so
 the nearest is `|scale|` times as far. Since `strength × travel²` equals
-the error squared (`strength_mul_travel_sq`), flat and far are one
+the error squared (`strength_times_travel_squared_does_not_change`), flat and far are one
 number read two ways.
 
 **Right angles.** Stretch the weights a little along themselves. That is
@@ -253,11 +253,11 @@ proofs.
 3. In the balance example the layers are `3` and `1`, the label is 2 and
    `learning_rate = 0.5`. What is the imbalance after one step?
 
-**Answers.** (1) By `norm_rescale_sq` the curvature is divided by
-`2² = 4`, and by `travel_rescale` the travel is multiplied by 2. (2) The
+**Answers.** (1) By `rescaled_model_is_flatter_by_scale_squared` the curvature is divided by
+`2² = 4`, and by `rescaled_model_travels_farther_by_scale` the travel is multiplied by 2. (2) The
 squared length grows by `0.2² × 10²`, which is 4. It was
 `6² + 8² = 100`, so it is 104 and the length is about 10.2, by
-`norm_sq_sub_smul_of_inner_eq_zero`. (3) The error is `3 × 1 − 2 = 1`,
+`step_at_right_angles_lengthens_the_weights`. (3) The error is `3 × 1 − 2 = 1`,
 so the imbalance `8` is multiplied by `1 − 0.5² × 1² = 0.75`, giving 6,
 by `balance_after_step`.
 

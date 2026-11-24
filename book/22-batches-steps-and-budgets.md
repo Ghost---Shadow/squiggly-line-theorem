@@ -45,7 +45,7 @@ of `param_count × data_count`. At 20 parameters and 5 data the terms are
 ## The statement
 
 ```lean
-theorem gradientStep_two_batches
+theorem two_small_steps_against_one_big_step
     (learning_rate : ℝ)
     (weights : Weights) :
     let first_linear_predict : LinearPredictor Weights FirstOutputs :=
@@ -76,7 +76,7 @@ the first step.
 `first_predict` and `second_predict` are the two batches' features. The
 correction passes through the cross kernel of chapter 10, how alike the
 model finds the inputs of one batch and the other.
-`two_batches_of_cross_kernel_eq_zero` says that when that is zero the two
+`two_small_steps_equal_one_big_step_for_separate_batches` says that when that is zero the two
 ways are equal. `linear_scaling_rule` restates it with the push averaged
 over the batch: two steps at `learning_rate` on batches of `batch_size`
 are one step on `2 × batch_size` at `2 × learning_rate`, minus the same
@@ -101,9 +101,9 @@ theorem small_steps_keep
 `1 − cost_rate × step_size²`, then `step_count` steps together keep at
 least `1 − cost_rate × distance² / step_count`.
 
-The counting behind it is `quadratic_cost_total`. When a step costs its
-size instead, `linear_cost_total` shows the total does not fall. For
-polarizers, `turn_in_steps_keeps` says any angle in `plate_count` plates
+The counting behind it is `square_law_cost_shrinks_with_step_count`. When a step costs its
+size instead, `proportional_cost_does_not_shrink` shows the total does not fall. For
+polarizers, `any_turn_in_enough_plates_keeps_almost_everything` says any angle in `plate_count` plates
 keeps at least `1 − angle² / (2 × plate_count)`.
 
 ```lean
@@ -136,8 +136,8 @@ budget has a smaller loss above the floor.
 `GET_LOSS_ABOVE_FLOOR` is `param_cost / param_count + data_cost /
 data_count`. `IS_BALANCED_SPLIT` says the two terms are equal. The same
 file shows the ratio at the best split is `param_cost / data_cost`
-whatever the budget (`balanced_ratio`), and scaling both counts by one
-factor keeps it balanced (`balanced_scale`).
+whatever the budget (`balanced_split_has_a_fixed_ratio`), and scaling both counts by one
+factor keeps it balanced (`balanced_split_scales_together`).
 
 ## Why it is true
 
@@ -153,9 +153,9 @@ step_count)²`. The total is `cost_rate × distance² / step_count`. Then
 total cost into the guarantee.
 
 **Budget.** The square of a sum is at least four times the product
-(`four_mul_div_le_sq`). The product of the two terms is
+(`sum_with_fixed_product_is_at_least_twice_the_root`). The product of the two terms is
 `param_cost × data_cost / budget`, the same for every split. A balanced
-split reaches the bound (`balanced_loss_sq`), so nothing beats it. At the
+split reaches the bound (`balanced_split_loss_squared`), so nothing beats it. At the
 best split the loss above the floor, squared, is
 `4 × param_cost × data_cost / budget`.
 
@@ -185,7 +185,7 @@ model ties fewer far inputs together, so its batches interfere less. Small
 steps are the polarizers of chapter 12: many small turns deliver what a
 few big ones lose. In the budget, the model term is the cost of a curve
 that cannot bend enough, so a squigglier target has a larger
-`param_cost`, and by `balanced_ratio` wants more parameters per datum.
+`param_cost`, and by `balanced_split_has_a_fixed_ratio` wants more parameters per datum.
 That last link is the note's reading.
 
 ## Run it yourself
@@ -204,7 +204,7 @@ runs of a model.
 
 **Batches (measured).** With two random batches of 5 examples on 6 weights, the
 gap between one big step and two small steps matched the correction of
-`gradientStep_two_batches` to a relative `9.1e-13` at eight learning rates from
+`two_small_steps_against_one_big_step` to a relative `9.1e-13` at eight learning rates from
 0.001 to 0.1. The fitted slope of gap against learning rate on log axes was
 2.000000. The linear scaling rule matched to `2.6e-15` at three learning rates.
 When the two batches are built on disjoint weights the gap was `3.1e-16`. The
@@ -271,7 +271,7 @@ jupyter nbconvert --to notebook --execute --inplace experiments/part4/ch22_batch
 3. With `param_cost = 8` and `data_cost = 2` and a budget of 400, what
    split is balanced and what is the loss above the floor?
 
-**Answers.** (1) By `gradientStep_two_batches` the gap is
+**Answers.** (1) By `two_small_steps_against_one_big_step` the gap is
 `0.2² × 1 × 1 × 1 = 0.04`. Check: the weight goes to 0.2, then
 `0.2 + 0.2 × 2.8 = 0.76`, against `0.2 × 4 = 0.8`. (2) By
 `small_steps_keep` it is at least `1 − 3 × 2² / 10 = −0.2`, which says
@@ -279,6 +279,6 @@ nothing yet: the steps are too few. With 100 steps it is `1 − 0.12 =
 0.88`. (3) Balanced means `8 / param_count = 2 / data_count` with
 `param_count × data_count = 400`. So `param_count` is four times
 `data_count`, which gives `data_count = 10` and `param_count = 40`. The loss is `0.2 + 0.2 = 0.4`, and its square
-0.16 is `4 × 16 / 400` as `balanced_loss_sq` says.
+0.16 is `4 × 16 / 400` as `balanced_split_loss_squared` says.
 
 Previous: [21. Dropout, noise and other regularisers](21-dropout-and-noise.md) · Next: [23. Adam, AdamW and clipping](23-adam-and-clipping.md)

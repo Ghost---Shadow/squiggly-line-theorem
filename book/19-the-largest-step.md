@@ -60,7 +60,7 @@ start from the same error. The size of the error is on a log scale.
 ## The statement
 
 ```lean
-theorem stable_iff_lt_two_div
+theorem stable_exactly_below_two_over_strength
     {learning_rate : ℝ}
     {kernel_strength : ℝ}
     (learning_rate_pos : 0 < learning_rate)
@@ -99,15 +99,15 @@ never grows, and `holds_at_edge`, where it keeps its size.
 
 **The factor.** By chapter 18, the error after `step_count` steps is the
 factor to the power `step_count`, times the start
-(`abs_inner_residual_iterate_gradientStep`). So everything turns on
+(`size_of_error_along_a_direction_after_many_steps`). So everything turns on
 whether `|1 − rate|` is below, at or above one. That is
-`abs_one_sub_lt_one_iff`: the factor is below one in size exactly when
+`factor_is_less_than_one_exactly_below_two`: the factor is below one in size exactly when
 `rate` is between 0 and 2. Divide by `kernel_strength` for
-`stable_iff_lt_two_div`.
+`stable_exactly_below_two_over_strength`.
 
 **Past the edge.** Then `|1 − rate| = rate − 1` is at least 1, and a
 power of `1 + (rate − 2)` is at least `1 + step_count × (rate − 2)`. That
-is Bernoulli's inequality again (`one_add_mul_le_abs_pow`).
+is Bernoulli's inequality again (`powers_past_the_edge_grow_at_least_linearly`).
 
 ## Four changes to the step
 
@@ -115,9 +115,9 @@ is Bernoulli's inequality again (`one_add_mul_le_abs_pow`).
 
 **A schedule.** If the learning rate changes from step to step, what is
 left of the error is the product of the factors
-(`runSchedule_eq`). While every `learning_rate × strength` is between 0
-and 2, the error never grows (`abs_runSchedule_le`). A step that is too
-large for a direction makes it grow (`one_lt_abs_one_sub`). Warmup starts
+(`schedule_multiplies_its_factors`). While every `learning_rate × strength` is between 0
+and 2, the error never grows (`schedule_never_grows_the_error_below_the_edge`). A step that is too
+large for a direction makes it grow (`step_too_large_grows_the_error`). Warmup starts
 small so that the sharpest directions are not hit with a factor above one
 before they have settled. That reading of warmup is **argued**.
 
@@ -125,7 +125,7 @@ before they have settled. That reading of warmup is **argued**.
 `strongest`.
 
 ```lean
-theorem abs_one_sub_best_step_le
+theorem condition_number_sets_the_speed
     {weakest strongest strength : ℝ}
     (weakest_pos : 0 < weakest)
     (weakest_le_strongest : weakest ≤ strongest)
@@ -139,7 +139,7 @@ theorem abs_one_sub_best_step_le
 
 *Read aloud:* with the step `2 / (weakest + strongest)`, every direction
 shrinks by at least `(strongest − weakest) / (strongest + weakest)` per
-step. By `one_sub_best_step_at_weakest` the weakest direction shrinks by
+step. By `weakest_direction_shrinks_by_exactly_that_factor` the weakest direction shrinks by
 exactly that, so no direction can be promised more. With strengths from 1
 to 9 the best step is `2 / 10 = 0.2`. The factors are 0.8 for strength 1
 and −0.8 for strength 9, and the bound is `8 / 10 = 0.8`. The more uneven
@@ -153,13 +153,13 @@ edge.
 
 **Momentum.** With momentum `momentum`, the oscillation that never dies
 sits at `learning_rate × strength = 2 × (1 + momentum)` instead of 2
-(`momentumStep_alternating`, `iterate_momentumStep_alternating`). With no
-momentum this is the plain edge (`momentumStep_of_no_momentum`).
+(`momentum_moves_the_edge_of_stability`, `flipping_error_at_the_momentum_edge_keeps_its_size`). With no
+momentum this is the plain edge (`momentum_step_with_no_momentum_is_the_plain_step`).
 
 **Steps on part of the data.** An average of steps, each on one client's
-gradient, is one step on the averaged gradient (`sum_smul_step_eq_step`).
+gradient, is one step on the averaged gradient (`average_of_steps_is_a_step_on_the_average`).
 With one example per client and equal shares, a step on a random example
-is the full step on average (`mean_step_eq_step`). That is stochastic
+is the full step on average (`step_on_a_random_example_is_the_full_step_on_average`). That is stochastic
 gradient descent in the mean, and federated averaging after one local
 step.
 
@@ -233,10 +233,10 @@ with `jupyter nbconvert --to notebook --execute --inplace experiments/part4/ch19
 3. Strengths run from 2 to 8. What is the best step, and how much does the
    weakest direction shrink per step?
 
-**Answers.** (1) Below `2 / 50 = 0.04`, by `stable_iff_lt_two_div`.
+**Answers.** (1) Below `2 / 50 = 0.04`, by `stable_exactly_below_two_over_strength`.
 (2) The rate is 1.6 and the factor is −0.6, so the errors are −3, 1.8,
 −1.08, by `shrinks_below_edge`. (3) `2 / (2 + 8) = 0.2`. The weakest
 factor is `1 − 0.2 × 2 = 0.6`, which is `(8 − 2) / (8 + 2)`, by
-`one_sub_best_step_at_weakest`.
+`weakest_direction_shrinks_by_exactly_that_factor`.
 
 Previous: [18. Strong directions first](18-strong-directions-first.md) · Next: [20. Weight decay and early stopping](20-weight-decay-and-early-stopping.md)

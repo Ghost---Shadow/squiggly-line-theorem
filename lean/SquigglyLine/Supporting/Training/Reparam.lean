@@ -4,29 +4,29 @@ Flat minima: flatter is farther.
 Rescale a model: multiply its parameters by `scale`, and divide them by `scale`
 before use. Nothing it computes changes.
 
-* `rescale_smul`, `residual_rescale` : same outputs, same error.
-* `norm_rescale_sq`, `kernel_rescale` : the loss is flatter by `scale²`.
-* `travel_rescale` : the nearest fit is farther by `|scale|`.
-* `gradientStep_rescale` : a gradient step of the rescaled model is a step of
+* `rescaled_model_gives_same_outputs`, `rescaled_model_has_same_error` : same outputs, same error.
+* `rescaled_model_is_flatter_by_scale_squared`, `rescaled_kernel_is_weaker_by_scale_squared` : the loss is flatter by `scale²`.
+* `rescaled_model_travels_farther_by_scale` : the nearest fit is farther by `|scale|`.
+* `rescaling_is_a_change_of_step_size` : a gradient step of the rescaled model is a step of
   the old one with step size `learning_rate / scale²`.
-* `strength_mul_travel_sq` : what does not change. Along a direction of
+* `strength_times_travel_squared_does_not_change` : what does not change. Along a direction of
   strength `kernel_strength`, strength times travel squared is the error
   squared.
 
 Definition and theorems:
 
 * `RESCALE`                  the model with its parameters in other units;
-* `rescale_smul`             the same outputs;
-* `residual_rescale`         the same error;
-* `norm_rescale_sq`          flatter by `scale²`;
-* `fitDistances_rescale`     the distances to the fits are multiplied by
+* `rescaled_model_gives_same_outputs`             the same outputs;
+* `rescaled_model_has_same_error`         the same error;
+* `rescaled_model_is_flatter_by_scale_squared`          flatter by `scale²`;
+* `fit_distances_scale_with_the_rescaling`     the distances to the fits are multiplied by
                              `|scale|`;
-* `travel_rescale`           the nearest fit is farther by `|scale|`;
+* `rescaled_model_travels_farther_by_scale`           the nearest fit is farther by `|scale|`;
 * `flatter_is_farther`       the three facts together;
-* `adjoint_rescale`          the adjoint of the rescaled model;
-* `kernel_rescale`           the kernel is weaker by `scale²`;
-* `gradientStep_rescale`     rescaling is a change of step size;
-* `strength_mul_travel_sq`   strength times travel squared does not change.
+* `adjoint_of_rescaled_model`          the adjoint of the rescaled model;
+* `rescaled_kernel_is_weaker_by_scale_squared`           the kernel is weaker by `scale²`;
+* `rescaling_is_a_change_of_step_size`     rescaling is a change of step size;
+* `strength_times_travel_squared_does_not_change`   strength times travel squared does not change.
 -/
 import SquigglyLine.Networks.DoubleDescent
 
@@ -52,7 +52,7 @@ noncomputable def RESCALE
 
 /-- **Same outputs.** The rescaled model at `scale • weights` gives what the
 model gave at `weights`. -/
-theorem rescale_smul
+theorem rescaled_model_gives_same_outputs
     {scale : ℝ}
     (scale_ne_zero : scale ≠ 0)
     (predict : Weights →L[ℝ] Outputs)
@@ -64,7 +64,7 @@ theorem rescale_smul
   rw [RESCALE, smul_apply, map_smul, inv_smul_smul₀ scale_ne_zero]
 
 /-- **Same error.** -/
-theorem residual_rescale
+theorem rescaled_model_has_same_error
     {scale : ℝ}
     (scale_ne_zero : scale ≠ 0)
     (predict : Weights →L[ℝ] Outputs)
@@ -80,12 +80,12 @@ theorem residual_rescale
   unfold_named_pieces
   have same_output :
       RESCALE scale predict (scale • weights) = predict weights :=
-    rescale_smul scale_ne_zero predict weights
+    rescaled_model_gives_same_outputs scale_ne_zero predict weights
   simp only [GET_RESIDUAL, ContinuousLinearMap.coe_coe, same_output]
 
 /-- **Flatter by `scale²`.** The curvature of the loss along any direction is
 divided by `scale²`. -/
-theorem norm_rescale_sq
+theorem rescaled_model_is_flatter_by_scale_squared
     (scale : ℝ)
     (predict : Weights →L[ℝ] Outputs)
     (move : Weights) :
@@ -98,7 +98,7 @@ theorem norm_rescale_sq
   ring
 
 /-- The distances to the fits are all multiplied by `|scale|`. -/
-theorem fitDistances_rescale
+theorem fit_distances_scale_with_the_rescaling
     {scale : ℝ}
     (scale_ne_zero : scale ≠ 0)
     (predict : Weights →L[ℝ] Outputs)
@@ -134,14 +134,14 @@ theorem fitDistances_rescale
     refine ⟨scale • weights, ?_, ?_⟩
     · have fit_original : predict weights = labels := weights_fit
       rw [ContinuousLinearMap.coe_coe,
-        (rescale_smul scale_ne_zero predict weights :
+        (rescaled_model_gives_same_outputs scale_ne_zero predict weights :
           RESCALE scale predict (scale • weights) = predict weights),
         fit_original]
     · rw [← smul_sub, norm_smul, Real.norm_eq_abs, smul_eq_mul]
 
 /-- **Farther by `|scale|`.** The nearest fit of the rescaled model is
 `|scale|` times as far from the start. -/
-theorem travel_rescale
+theorem rescaled_model_travels_farther_by_scale
     {scale : ℝ}
     (scale_ne_zero : scale ≠ 0)
     (predict : Weights →L[ℝ] Outputs)
@@ -161,7 +161,7 @@ theorem travel_rescale
           (scale • start_weights)
         = |scale| • GET_FIT_DISTANCES (predict : Weights →ₗ[ℝ] Outputs) labels
             start_weights :=
-    fitDistances_rescale scale_ne_zero predict labels start_weights
+    fit_distances_scale_with_the_rescaling scale_ne_zero predict labels start_weights
   rw [GET_TRAVEL, GET_TRAVEL, distances_scaled,
     Real.sInf_smul_of_nonneg (abs_nonneg scale), smul_eq_mul]
 
@@ -187,9 +187,9 @@ theorem flatter_is_farther
         = |scale| * GET_TRAVEL linear_predict labels start_weights
     error_is_kept ∧ loss_is_flatter ∧ fit_is_farther := by
   unfold_named_pieces
-  exact ⟨residual_rescale scale_ne_zero predict labels start_weights,
-    norm_rescale_sq scale predict,
-    travel_rescale scale_ne_zero predict labels start_weights⟩
+  exact ⟨rescaled_model_has_same_error scale_ne_zero predict labels start_weights,
+    rescaled_model_is_flatter_by_scale_squared scale predict,
+    rescaled_model_travels_farther_by_scale scale_ne_zero predict labels start_weights⟩
 
 end Units
 
@@ -206,7 +206,7 @@ variable {Weights Outputs : Type*}
   [CompleteSpace Outputs]
 
 /-- The adjoint of the rescaled model. -/
-theorem adjoint_rescale
+theorem adjoint_of_rescaled_model
     (scale : ℝ)
     (predict : Weights →L[ℝ] Outputs) :
     let rescaled_adjoint := adjoint (RESCALE scale predict)
@@ -216,7 +216,7 @@ theorem adjoint_rescale
   rw [RESCALE, map_smulₛₗ, conj_trivial]
 
 /-- **The kernel is weaker by `scale²`.** -/
-theorem kernel_rescale
+theorem rescaled_kernel_is_weaker_by_scale_squared
     (scale : ℝ)
     (predict : Weights →L[ℝ] Outputs)
     (vector : Outputs) :
@@ -228,14 +228,14 @@ theorem kernel_rescale
   unfold_named_pieces
   have adjoint_scaled :
       adjoint (RESCALE scale predict) = scale⁻¹ • adjoint predict :=
-    adjoint_rescale scale predict
+    adjoint_of_rescaled_model scale predict
   rw [adjoint_scaled, RESCALE, smul_apply, smul_apply, map_smul, smul_smul,
     ← mul_inv, ← sq]
 
 /-- **Rescaling is a change of step size.** A gradient step of the rescaled
 model with step size `learning_rate` is a step of the model with step size
 `learning_rate / scale²`. -/
-theorem gradientStep_rescale
+theorem rescaling_is_a_change_of_step_size
     {scale : ℝ}
     (scale_ne_zero : scale ≠ 0)
     (predict : Weights →L[ℝ] Outputs)
@@ -257,17 +257,17 @@ theorem gradientStep_rescale
       GET_RESIDUAL (RESCALE scale predict : Weights →ₗ[ℝ] Outputs) labels
           (scale • weights)
         = GET_RESIDUAL (predict : Weights →ₗ[ℝ] Outputs) labels weights :=
-    residual_rescale scale_ne_zero predict labels weights
+    rescaled_model_has_same_error scale_ne_zero predict labels weights
   have adjoint_scaled :
       adjoint (RESCALE scale predict) = scale⁻¹ • adjoint predict :=
-    adjoint_rescale scale predict
+    adjoint_of_rescaled_model scale predict
   rw [TAKE_GRADIENT_STEP, TAKE_GRADIENT_STEP, residual_same, adjoint_scaled,
     smul_apply, smul_add, smul_smul, smul_smul, step_factor]
 
 /-- **What does not change.** If the residual lies along a direction of
 strength `kernel_strength`, then strength times travel squared is the error
 squared. Flat means far and sharp means near. -/
-theorem strength_mul_travel_sq
+theorem strength_times_travel_squared_does_not_change
     (predict : Weights →L[ℝ] Outputs)
     (kernel_inverse : Outputs → Outputs)
     (kernel_inverse_works : ∀ vector,

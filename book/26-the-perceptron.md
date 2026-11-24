@@ -86,11 +86,11 @@ weights with the example was not positive.
 
 The margin really is a nearest distance. A point whose score against a
 direction of length at most one is `score` lies at least `|score|` from
-the flat boundary (`abs_inner_le_infDist_flatBoundary`).
+the flat boundary (`margin_is_a_distance_to_the_boundary`).
 
 ```lean
 /-- **No flat boundary splits XOR.** -/
-theorem not_separatesXor_flat
+theorem no_flat_boundary_splits_xor
     (first_weight second_weight bias : ℝ) :
     let flat_score : ScoreFunction := fun first second =>
       first_weight * first + second_weight * second + bias  -- zero along a straight line
@@ -101,12 +101,12 @@ theorem not_separatesXor_flat
 at `(0, 0)` and `(1, 1)` and positive at `(0, 1)` and `(1, 0)` all at
 once.
 
-The two repairs are `separatesXor_lift`, with the product `first ×
-second` as a third feature, and `separatesXor_fold`, with the fold
+The two repairs are `one_lifted_feature_splits_xor`, with the product `first ×
+second` as a third feature, and `one_fold_splits_xor`, with the fold
 `|first − second|`.
 
-The no free lunch statement is `card_agree_eq_card_disagree`. For labels
-plus or minus one with equal chance, `mean_sq_error_unseen` says a
+The no free lunch statement is `no_free_lunch`. For labels
+plus or minus one with equal chance, `flat_is_best_on_an_unseen_label` says a
 prediction costs `prediction² + 1` on average.
 
 ## Why it is true
@@ -115,12 +115,12 @@ prediction costs `prediction² + 1` on average.
 mistake.
 
 First, each mistake moves the weights at least `margin` along the true
-direction (`mul_margin_le_inner`). The example clears the margin, and the
+direction (`each_mistake_moves_weights_along_the_true_direction`). The example clears the margin, and the
 weights gain exactly the example. After `mistake_count` mistakes the weights have
 moved at least `mistake_count × margin` along that direction.
 
 Second, each mistake adds at most `radius²` to the squared size of the
-weights (`norm_sq_perceptronWeights_le`). The new squared size is the old
+weights (`each_mistake_adds_at_most_radius_squared`). The new squared size is the old
 one, plus twice the dot product of the old weights with the example,
 plus the example's own squared size. The middle term is not positive,
 because the example was a mistake. So after `mistake_count` mistakes the squared size
@@ -134,7 +134,7 @@ The first grows like `mistake_count` and the second like `√mistake_count`. So
 first_weight + second_weight`, and so do the other two. The lift and the
 fold are checked by putting in the four corners. For no free lunch,
 flipping the label at `input` pairs each agreeing labelling with a
-disagreeing one (`flipAt_flipAt`).
+disagreeing one (`flipping_twice_gives_the_labelling_back`).
 
 ## What it explains
 
@@ -146,9 +146,9 @@ no flat boundary has one. A hidden layer is a fold, and a fold is one
 way to make a flat boundary work. The lift is the other.
 
 Two encodings seem to avoid a hidden layer, but each hides a lift. One
-input per corner fits any labels (`oneHot_fits`), but making those inputs
+input per corner fits any labels (`table_lookup_fits_anything`), but making those inputs
 is the lift. One class per corner names the nearest corner
-(`anchorScore_le_iff`), but reading XOR off the outputs is a second step.
+(`flat_layer_names_the_nearest_anchor`), but reading XOR off the outputs is a second step.
 
 **Why results about new inputs need an assumption.** With no assumption
 about the labels, a squigglier line is no better than a flat one. It
@@ -184,7 +184,7 @@ dimensions was dropped: some of those sets stayed separable.)
 
 For XOR, none of 200 000 sampled flat lines separated the corners, and the best
 got 3 corners of 4 (25 418 of them did). A sample is not a proof: the proof is
-`not_separatesXor_flat`. The lift and the fold
+`no_flat_boundary_splits_xor`. The lift and the fold
 separating the four corners is **from the formula** (the notebook prints it as
 by construction, not as evidence), and so are the hand examples (25, 100, 16)
 and the factor of four for halving the margin. The perceptron on the raw
@@ -228,7 +228,7 @@ jupyter nbconvert --to notebook --execute --inplace experiments/part4/ch26_the_p
 **Answers.** (1) `(6 / 1.5)² = 16`, from `perceptron_mistake_bound`.
 (2) Both are `2 − 3 = −1`. The sums are `−3 + 1 = −2` and
 `−1 + −1 = −2`, equal. XOR needs the last two positive, and they are
-not, as `not_separatesXor_flat` says. (3) There are `2⁴ = 16`
-labellings, and by `card_agree_eq_card_disagree` half agree: 8.
+not, as `no_flat_boundary_splits_xor` says. (3) There are `2⁴ = 16`
+labellings, and by `no_free_lunch` half agree: 8.
 
 Previous: [25. Classification](25-classification.md) · Next: [27. Two players: the GAN game](27-two-players.md)

@@ -53,7 +53,7 @@ most `50 × 0.1 × 2 = 10`, whatever the gradients were.
 
 ```lean
 /-- **The step is the sign of the gradient.** -/
-theorem adamStep_eq_sign
+theorem adam_step_is_the_sign_of_the_gradient
     (gradient : ℝ) :
     let step          := TAKE_ADAM_STEP gradient
     let gradient_sign : ℝ := SignType.sign gradient  -- minus one, zero or one
@@ -64,13 +64,13 @@ theorem adamStep_eq_sign
 the sign of the gradient.
 
 `TAKE_ADAM_STEP gradient` is the gradient divided by its own size,
-`gradient / √(gradient²)`. The theorem `adamStep_mul` says that
+`gradient / √(gradient²)`. The theorem `adam_step_ignores_the_loss_scale` says that
 multiplying the loss by a positive number changes nothing, and
-`abs_adamStep` says every coordinate with a gradient moves the same
+`adam_moves_every_coordinate_the_same_distance` says every coordinate with a gradient moves the same
 distance.
 
 ```lean
-theorem abs_sub_signStep
+theorem sign_step_closes_a_gap_by_the_learning_rate
     {gap : ℝ}
     {learning_rate : ℝ}
     (learning_rate_nonneg : 0 ≤ learning_rate)
@@ -86,7 +86,7 @@ error leaves a gap of `|gap| - learning_rate`, so the strength of the
 direction never appears.
 
 ```lean
-theorem adamWStep_eq
+theorem adamw_shrinks_then_steps
     (learning_rate decay gradient weight : ℝ) :
     let adamw_step   := TAKE_ADAMW_STEP learning_rate decay gradient weight
     let shrink_factor := 1 - learning_rate * decay  -- the decay is applied to the weight alone
@@ -104,16 +104,16 @@ applies the decay. `TAKE_ADAM_STEP_WITH_L2` is the other form: the pull
 sum.
 
 The other results of the two files are named here. For the inside form,
-`abs_adamL2Step_sub` says the weight moves by exactly `learning_rate`
-whatever `decay` is, `adamL2Step_of_no_gradient` says a large weight and
-a small one lose the same amount, and `adamL2Step_mul` says a larger loss
-is the same as a weaker decay. For AdamW, `adamWStep_of_no_gradient` and
-`iterate_adamWStep_of_no_gradient` give the factor
+`decay_inside_adam_is_rescaled_away` says the weight moves by exactly `learning_rate`
+whatever `decay` is, `decay_inside_adam_moves_every_weight_alike` says a large weight and
+a small one lose the same amount, and `scaling_the_loss_inside_adam_is_scaling_the_decay` says a larger loss
+is the same as a weaker decay. For AdamW, `adamw_with_no_gradient_shrinks_every_weight` and
+`adamw_with_no_gradient_after_many_steps` give the factor
 `(1 - learning_rate × decay)` per step, to the power `step_count` after
-that many steps, and `adamWStep_mul` says the size of the loss does not
-change the decay. For clipping, `norm_clip_le` says a clipped gradient is
-no longer than the limit, `clip_of_norm_le` says a gradient within the
-limit is left alone, and `norm_sum_clip_le` says
+that many steps, and `adamw_decay_does_not_depend_on_loss_scale` says the size of the loss does not
+change the decay. For clipping, `clipped_gradient_is_at_most_the_limit` says a clipped gradient is
+no longer than the limit, `gradient_within_the_limit_is_left_alone` says a gradient within the
+limit is left alone, and `clipping_caps_the_travel` says
 
 ```
 travel  ≤  step_count × (|learning_rate| × limit)
@@ -129,15 +129,15 @@ and a weak one (strength 0.01), 200 steps each, and the length of one step again
 **Adam.** The size of a real number is the square root of its square.
 Dividing a number by its size leaves its sign: plus one if it was
 positive, minus one if negative, zero if it was zero. That is
-`adamStep_eq_sign`, proved by splitting into the three cases. A positive
-scale does not change a sign, which gives `adamStep_mul`. A gap that is
+`adam_step_is_the_sign_of_the_gradient`, proved by splitting into the three cases. A positive
+scale does not change a sign, which gives `adam_step_ignores_the_loss_scale`. A gap that is
 at least one step long loses exactly one step, on either side of zero,
-which gives `abs_sub_signStep`.
+which gives `sign_step_closes_a_gap_by_the_learning_rate`.
 
 **Inside or outside.** Put the decay inside, and Adam sees one number,
 the gradient plus `decay × weight`, and returns its sign. Both the size of
 the loss and the size of the decay are gone. Put it outside, and the
-shrink is a plain multiplication of the weight, so `adamWStep_eq` is
+shrink is a plain multiplication of the weight, so `adamw_shrinks_then_steps` is
 just the two terms collected. Repeating it `step_count` times gives the
 power.
 
@@ -164,11 +164,11 @@ so the length is at most `limit`. Each step is then at most
   `gap / (learning_rate × limit)` steps.
 
 The file also holds two smaller results on the same theme. Confining the
-weights to a subspace never shortens the trip, `travel_le_travel_comp`.
+weights to a subspace never shortens the trip, `confining_the_weights_never_shortens_the_trip`.
 Rounding the weights by `weight_change` moves each output by at most
 `‖weight_change‖` times the size of the features,
-`abs_liftedModel_add_sub_le`, and the slope by at most that times the
-stretch of the lift, `lipschitzWith_liftedModel_add_sub`.
+`rounding_moves_each_output_a_little`, and the slope by at most that times the
+stretch of the lift, `rounding_changes_the_slope_a_little`.
 
 ## How this meets the squiggly line
 
@@ -238,10 +238,10 @@ is made only on a landscape whose directions are the coordinates.
 3. Gradients are clipped to `limit = 5` with `learning_rate = 0.2`. A fit
    is at distance 250. Can 100 steps reach it?
 
-**Answers.** (1) Six for both: by `abs_sub_signStep` each step removes
+**Answers.** (1) Six for both: by `sign_step_closes_a_gap_by_the_learning_rate` each step removes
 `learning_rate = 0.5` from the gap, and the strength does not appear.
-(2) By `iterate_adamWStep_of_no_gradient` it is `0.95 ^ 20`, about 0.36.
-(3) No. By `norm_sum_clip_le` the weights move at most
+(2) By `adamw_with_no_gradient_after_many_steps` it is `0.95 ^ 20`, about 0.36.
+(3) No. By `clipping_caps_the_travel` the weights move at most
 `100 × (0.2 × 5) = 100`, and 250 needs at least `250 / 1 = 250` steps.
 
 Previous: [22. Batches, small steps and budgets](22-batches-steps-and-budgets.md) · Next: [24. Symmetry: flat minima and normalisation](24-symmetry.md)

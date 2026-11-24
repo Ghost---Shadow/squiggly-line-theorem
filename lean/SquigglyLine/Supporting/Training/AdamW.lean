@@ -14,17 +14,17 @@ Definitions: `TAKE_ADAM_STEP_WITH_L2`, `TAKE_ADAMW_STEP`.
 
 Theorems:
 
-* `abs_adamL2Step_sub`            inside Adam, the weight moves by exactly
+* `decay_inside_adam_is_rescaled_away`            inside Adam, the weight moves by exactly
                                   `learning_rate`, whatever the decay;
-* `adamL2Step_of_no_gradient`     with no loss gradient, every weight loses the
+* `decay_inside_adam_moves_every_weight_alike`     with no loss gradient, every weight loses the
                                   same amount;
-* `adamL2Step_mul`                a larger loss is a weaker decay;
-* `adamWStep_eq`                  AdamW shrinks, then steps;
-* `adamWStep_of_no_gradient`      with no loss gradient, AdamW shrinks every
+* `scaling_the_loss_inside_adam_is_scaling_the_decay`                a larger loss is a weaker decay;
+* `adamw_shrinks_then_steps`                  AdamW shrinks, then steps;
+* `adamw_with_no_gradient_shrinks_every_weight`      with no loss gradient, AdamW shrinks every
                                   weight at the same rate;
-* `iterate_adamWStep_of_no_gradient`  and after `step_count` steps by that
+* `adamw_with_no_gradient_after_many_steps`  and after `step_count` steps by that
                                   factor to the power `step_count`;
-* `adamWStep_mul`                 AdamW does not care how large the loss is.
+* `adamw_decay_does_not_depend_on_loss_scale`                 AdamW does not care how large the loss is.
 -/
 import SquigglyLine.Supporting.Training.StepRules
 
@@ -47,7 +47,7 @@ noncomputable def TAKE_ADAMW_STEP
 
 /-- **Inside Adam, the strength of the decay is rescaled away.** The weight
 moves by exactly `learning_rate`, whatever `decay` is. -/
-theorem abs_adamL2Step_sub
+theorem decay_inside_adam_is_rescaled_away
     {learning_rate : ℝ}
     {decay : ℝ}
     {gradient : ℝ}
@@ -61,14 +61,14 @@ theorem abs_adamL2Step_sub
   -- Adam's step is plus or minus one, so the weight moves by `learning_rate`.
   have adam_step_size :
       |TAKE_ADAM_STEP (gradient + decay * weight)| = 1 :=
-    abs_adamStep pull_ne_zero
+    adam_moves_every_coordinate_the_same_distance pull_ne_zero
   rw [TAKE_ADAM_STEP_WITH_L2, sub_sub_cancel_left, abs_neg, abs_mul,
     adam_step_size, mul_one, abs_of_nonneg learning_rate_nonneg]
 
 /-- With no gradient from the loss, decay inside Adam moves every weight toward
 zero by the same amount: a large weight and a small one both lose
 `learning_rate`. -/
-theorem adamL2Step_of_no_gradient
+theorem decay_inside_adam_moves_every_weight_alike
     {decay : ℝ}
     (decay_pos : 0 < decay)
     (learning_rate weight : ℝ) :
@@ -78,12 +78,12 @@ theorem adamL2Step_of_no_gradient
   unfold_named_pieces
   have decay_step_is_sign :
       TAKE_ADAM_STEP (decay * weight) = TAKE_ADAM_STEP weight :=
-    adamStep_mul decay_pos weight
+    adam_step_ignores_the_loss_scale decay_pos weight
   rw [TAKE_ADAM_STEP_WITH_L2, zero_add, decay_step_is_sign]
 
 /-- Inside Adam, making the loss `scale` times larger is the same as making
 the decay `scale` times weaker. The decay has no strength of its own. -/
-theorem adamL2Step_mul
+theorem scaling_the_loss_inside_adam_is_scaling_the_decay
     {scale : ℝ}
     (scale_pos : 0 < scale)
     (learning_rate decay gradient weight : ℝ) :
@@ -96,7 +96,7 @@ theorem adamL2Step_mul
   have scale_drops_out :
       TAKE_ADAM_STEP (scale * (gradient + decay / scale * weight))
         = TAKE_ADAM_STEP (gradient + decay / scale * weight) :=
-    adamStep_mul scale_pos _
+    adam_step_ignores_the_loss_scale scale_pos _
   have pull_scaled :
       scale * (gradient + decay / scale * weight)
         = scale * gradient + decay * weight := by
@@ -106,7 +106,7 @@ theorem adamL2Step_mul
 
 /-- **AdamW shrinks, then steps.** The decay is the factor
 `1 - learning_rate * decay` on the weight, exactly as in plain weight decay. -/
-theorem adamWStep_eq
+theorem adamw_shrinks_then_steps
     (learning_rate decay gradient weight : ℝ) :
     let adamw_step   := TAKE_ADAMW_STEP learning_rate decay gradient weight
     let shrink_factor := 1 - learning_rate * decay  -- the decay is applied to the weight alone
@@ -119,7 +119,7 @@ theorem adamWStep_eq
 
 /-- With no gradient from the loss, AdamW shrinks every weight at the same
 rate. -/
-theorem adamWStep_of_no_gradient
+theorem adamw_with_no_gradient_shrinks_every_weight
     (learning_rate decay weight : ℝ) :
     let adamw_step    := TAKE_ADAMW_STEP learning_rate decay 0 weight
     let shrink_factor := 1 - learning_rate * decay
@@ -132,13 +132,13 @@ theorem adamWStep_of_no_gradient
       TAKE_ADAMW_STEP learning_rate decay 0 weight
         = (1 - learning_rate * decay) * weight
           - learning_rate * TAKE_ADAM_STEP 0 :=
-    adamWStep_eq learning_rate decay 0 weight
+    adamw_shrinks_then_steps learning_rate decay 0 weight
   rw [shrink_then_step, adam_step_of_zero]
   ring
 
 /-- After `step_count` such steps a weight is
 `(1 - learning_rate * decay) ^ step_count` of what it was. -/
-theorem iterate_adamWStep_of_no_gradient
+theorem adamw_with_no_gradient_after_many_steps
     (learning_rate decay weight : ℝ)
     (step_count : ℕ) :
     let trained_weight :=
@@ -153,12 +153,12 @@ theorem iterate_adamWStep_of_no_gradient
     have one_step (current_weight : ℝ) :
         TAKE_ADAMW_STEP learning_rate decay 0 current_weight
           = (1 - learning_rate * decay) * current_weight :=
-      adamWStep_of_no_gradient learning_rate decay current_weight
+      adamw_with_no_gradient_shrinks_every_weight learning_rate decay current_weight
     rw [Function.iterate_succ_apply', ih, one_step]
     ring
 
 /-- AdamW does not care how large the loss is: its decay keeps its strength. -/
-theorem adamWStep_mul
+theorem adamw_decay_does_not_depend_on_loss_scale
     {scale : ℝ}
     (scale_pos : 0 < scale)
     (learning_rate decay gradient weight : ℝ) :
@@ -169,7 +169,7 @@ theorem adamWStep_mul
   unfold_named_pieces
   have scale_drops_out :
       TAKE_ADAM_STEP (scale * gradient) = TAKE_ADAM_STEP gradient :=
-    adamStep_mul scale_pos gradient
+    adam_step_ignores_the_loss_scale scale_pos gradient
   rw [TAKE_ADAMW_STEP, TAKE_ADAMW_STEP, scale_drops_out]
 
 end SquigglyLine

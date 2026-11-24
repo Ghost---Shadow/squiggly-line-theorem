@@ -8,8 +8,8 @@ This file does two more things.
 such directions, the error after `step_count` steps is the sum of its parts
 along them, each part multiplied by its own factor:
 
-* `residual_iterate_eq_sum`          the error after training, as that sum;
-* `norm_sq_residual_iterate_eq_sum`  its squared length, one term per direction.
+* `residual_after_many_steps_is_a_sum_over_directions`          the error after training, as that sum;
+* `loss_after_many_steps_is_a_sum_over_directions`  its squared length, one term per direction.
 
 **The Fourier case.** Take `input_count` inputs evenly spaced over one period
 and a lift whose kernel is a sum of cosines of the gap between two inputs, with
@@ -18,16 +18,16 @@ with `2 * frequency_count < input_count`. Then the sampled wave of frequency
 `frequency` is one of those directions, with strength
 `input_count / 2 * amplitude frequency ^ 2`:
 
-* `sum_cos_arith_eq_zero`            a wave sampled at evenly spaced points
+* `evenly_sampled_wave_sums_to_zero`            a wave sampled at evenly spaced points
                                      over whole turns sums to zero;
-* `sum_cos_mul_cos`                  two sampled waves of different
+* `sampled_waves_of_different_frequencies_do_not_overlap`                  two sampled waves of different
                                      frequencies do not overlap;
-* `sum_gapKernel_mul_wave`           the kernel sum stretches a sampled wave;
+* `gap_kernel_stretches_each_sampled_wave`           the kernel sum stretches a sampled wave;
 * `PREDICT_ON_EXAMPLES`              a lift on finitely many inputs, as a
                                      linear map from weights to outputs;
-* `predictOnExamples_apply`          its output at one input;
-* `adjoint_predictOnExamples`        its adjoint, as a weighted sum of lifts;
-* `kernel_predictOnExamples_apply`   its kernel, in coordinates;
+* `output_at_one_input_is_overlap_with_weights`          its output at one input;
+* `adjoint_of_predictor_sums_the_lifts`        its adjoint, as a weighted sum of lifts;
+* `kernel_of_predictor_in_coordinates`   its kernel, in coordinates;
 * `fourier_direction_is_stretched`   the sampled wave is stretched by
                                      `input_count / 2 * amplitude frequency ^ 2`;
 * `fourier_spectral_bias`            so its error shrinks by
@@ -39,9 +39,9 @@ A lift with that kernel:
 * `LIFT_BY_FOURIER_SERIES`           the features of a Fourier series: for each
                                      frequency a cosine and a sine, times its
                                      amplitude;
-* `inner_liftByFourierSeries`        its kernel is the sum of squared
+* `fourier_series_kernel_sees_only_the_gap`        its kernel is the sum of squared
                                      amplitudes times cosines of the gap;
-* `fourierSeries_direction_is_stretched`
+* `fourier_series_direction_is_stretched`
                                      so the Fourier version holds for it with
                                      nothing assumed about the kernel.
 -/
@@ -69,7 +69,7 @@ variable {Weights Outputs : Type*}
 by the kernel, the error after `step_count` steps is the sum of its parts along
 the basis, each multiplied by its own factor
 `(1 - learning_rate * strength i) ^ step_count`. -/
-theorem residual_iterate_eq_sum
+theorem residual_after_many_steps_is_a_sum_over_directions
     (predict : Weights →L[ℝ] Outputs)
     (labels : Outputs)
     (learning_rate : ℝ)
@@ -94,12 +94,12 @@ theorem residual_iterate_eq_sum
   -- Split the error into its parts along the basis, then shrink each part.
   conv_lhs => rw [← directions.sum_repr' (GET_RESIDUAL _ labels _)]
   exact Finset.sum_congr rfl fun i _ => by
-    rw [inner_residual_iterate_gradientStep predict labels learning_rate
+    rw [each_direction_runs_on_its_own_clock predict labels learning_rate
       start_weights (directions_are_stretched i) step_count]
 
 /-- **The whole loss.** The squared length of the error after `step_count`
 steps is a sum with one term per direction, each shrinking on its own clock. -/
-theorem norm_sq_residual_iterate_eq_sum
+theorem loss_after_many_steps_is_a_sum_over_directions
     (predict : Weights →L[ℝ] Outputs)
     (labels : Outputs)
     (learning_rate : ℝ)
@@ -125,7 +125,7 @@ theorem norm_sq_residual_iterate_eq_sum
   -- The squared length is the sum of the squared parts along the basis.
   rw [← directions.sum_sq_inner_right]
   exact Finset.sum_congr rfl fun i _ => by
-    rw [inner_residual_iterate_gradientStep predict labels learning_rate
+    rw [each_direction_runs_on_its_own_clock predict labels learning_rate
       start_weights (directions_are_stretched i) step_count, mul_pow]
 
 end AllDirections
@@ -137,7 +137,7 @@ open Real Finset ContinuousLinearMap
 /-- Waves sampled at evenly spaced points cancel: if `point_count` steps of
 `angle_step` make a whole number `turn_count` of turns, then the cosines at
 `start_angle + j * angle_step` sum to zero. -/
-theorem sum_cos_arith_eq_zero
+theorem evenly_sampled_wave_sums_to_zero
     (point_count : ℕ)
     (start_angle : ℝ)
     (angle_step : ℝ)
@@ -179,7 +179,7 @@ theorem sum_cos_arith_eq_zero
 
 /-- Two sampled waves of different frequencies do not overlap; a wave
 overlaps a shifted copy of itself by half the number of samples. -/
-theorem sum_cos_mul_cos
+theorem sampled_waves_of_different_frequencies_do_not_overlap
     (input_count : ℕ)
     (first_frequency : ℕ)
     (second_frequency : ℕ)
@@ -244,7 +244,7 @@ theorem sum_cos_mul_cos
       cos ((first_frequency * (2 * PI * input_index / input_count) + phase)
         + i * (-(2 * PI * ((first_frequency : ℝ) + second_frequency)
           / input_count))) = 0 := by
-    apply sum_cos_arith_eq_zero input_count _ _
+    apply evenly_sampled_wave_sums_to_zero input_count _ _
       (-((first_frequency : ℤ) + second_frequency))
     · have half_step :
           -(2 * PI * ((first_frequency : ℝ) + second_frequency) / input_count)
@@ -275,7 +275,7 @@ theorem sum_cos_mul_cos
         cos ((first_frequency * (2 * PI * input_index / input_count) - phase)
           + i * (2 * PI * ((second_frequency : ℝ) - first_frequency)
             / input_count)) = 0 := by
-      apply sum_cos_arith_eq_zero input_count _ _
+      apply evenly_sampled_wave_sums_to_zero input_count _ _
         ((second_frequency : ℤ) - first_frequency)
       · have half_step :
             2 * PI * ((second_frequency : ℝ) - first_frequency) / input_count
@@ -306,7 +306,7 @@ theorem sum_cos_mul_cos
     rw [difference_part_cancels, zero_div]
 
 /-- **The kernel of evenly spaced inputs stretches each sampled wave.** -/
-theorem sum_gapKernel_mul_wave
+theorem gap_kernel_stretches_each_sampled_wave
     (input_count : ℕ)
     (frequency_count : ℕ)
     (amplitude : ℕ → ℝ)
@@ -343,12 +343,12 @@ theorem sum_gapKernel_mul_wave
     exact sum_congr rfl fun k _ => sum_congr rfl fun i _ => by ring
   -- Only the term at the wave's own frequency survives.
   rw [swap_sums, sum_eq_single frequency]
-  · simp only [sum_cos_mul_cos input_count frequency frequency phase
+  · simp only [sampled_waves_of_different_frequencies_do_not_overlap input_count frequency frequency phase
       input_index frequency_pos frequency_pos (by omega), ↓reduceIte]
     ring
   · intro k k_in_range k_ne_frequency
     rw [mem_Icc] at k_in_range
-    simp only [sum_cos_mul_cos input_count k frequency phase input_index
+    simp only [sampled_waves_of_different_frequencies_do_not_overlap input_count k frequency phase input_index
       k_in_range.1 frequency_pos (by omega), k_ne_frequency, ↓reduceIte,
       mul_zero]
   · intro frequency_not_in_range
@@ -375,7 +375,7 @@ noncomputable def PREDICT_ON_EXAMPLES (lifted_inputs : Examples → Weights) :
 omit [CompleteSpace Weights] [Fintype Examples] in
 /-- The output at one input is the inner product of its lift with the
 weights. -/
-theorem predictOnExamples_apply
+theorem output_at_one_input_is_overlap_with_weights
     (lifted_inputs : Examples → Weights)
     (weights : Weights)
     (example_index : Examples) :
@@ -387,7 +387,7 @@ theorem predictOnExamples_apply
 
 /-- The adjoint of the predictor sends a vector to the sum of the lifts of the
 inputs, each weighted by the matching entry of the vector. -/
-theorem adjoint_predictOnExamples
+theorem adjoint_of_predictor_sums_the_lifts
     (lifted_inputs : Examples → Weights)
     (vector : EuclideanSpace ℝ Examples) :
     let predict := PREDICT_ON_EXAMPLES lifted_inputs
@@ -399,11 +399,11 @@ theorem adjoint_predictOnExamples
   intro weights
   rw [adjoint_inner_left, sum_inner, PiLp.inner_apply]
   refine sum_congr rfl fun i _ => ?_
-  rw [predictOnExamples_apply, real_inner_smul_left]
+  rw [output_at_one_input_is_overlap_with_weights, real_inner_smul_left]
   simp [mul_comm]
 
 /-- The kernel, in coordinates: a sum of the lift kernel against the vector. -/
-theorem kernel_predictOnExamples_apply
+theorem kernel_of_predictor_in_coordinates
     (lifted_inputs : Examples → Weights)
     (vector : EuclideanSpace ℝ Examples)
     (output_index : Examples) :
@@ -413,7 +413,7 @@ theorem kernel_predictOnExamples_apply
       inner ℝ (lifted_inputs output_index) (lifted_inputs i) * vector i
     kernel_image = kernel_sum := by
   unfold_named_pieces
-  rw [predictOnExamples_apply, adjoint_predictOnExamples, inner_sum]
+  rw [output_at_one_input_is_overlap_with_weights, adjoint_of_predictor_sums_the_lifts, inner_sum]
   exact sum_congr rfl fun i _ => by rw [real_inner_smul_right]; ring
 
 end Predictor
@@ -451,14 +451,14 @@ theorem fourier_direction_is_stretched
   unfold_named_pieces
   beta_reduce
   ext input_index
-  rw [kernel_predictOnExamples_apply, PiLp.smul_apply, smul_eq_mul]
+  rw [kernel_of_predictor_in_coordinates, PiLp.smul_apply, smul_eq_mul]
   simp only [kernel_is_cosines]
   rw [Fin.sum_univ_eq_sum_range (fun i : ℕ =>
     (∑ k ∈ Icc 1 frequency_count, amplitude k ^ 2
       * cos (k * (2 * PI * (input_index : ℕ) / input_count
         - 2 * PI * i / input_count)))
       * cos (frequency * (2 * PI * i / input_count) - phase)) input_count]
-  exact sum_gapKernel_mul_wave input_count frequency_count amplitude frequency
+  exact gap_kernel_stretches_each_sampled_wave input_count frequency_count amplitude frequency
     phase input_index frequencies_below_half_count frequency_pos
     frequency_le_count
 
@@ -507,7 +507,7 @@ theorem fourier_spectral_bias
         ^ step_count  -- one factor per step, the strength is that of the wave
     trained_error = share_left * start_error := by
   unfold_named_pieces
-  exact inner_residual_iterate_gradientStep (PREDICT_ON_EXAMPLES lifted_inputs)
+  exact each_direction_runs_on_its_own_clock (PREDICT_ON_EXAMPLES lifted_inputs)
     labels learning_rate start_weights
     (fourier_direction_is_stretched input_count frequency_count amplitude
       lifted_inputs kernel_is_cosines frequency phase
@@ -538,7 +538,7 @@ noncomputable def LIFT_BY_FOURIER_SERIES
 /-- **The kernel of a Fourier series sees only the gap.** It is the sum, over
 the frequencies, of the squared amplitude times the cosine of the frequency
 times the gap. -/
-theorem inner_liftByFourierSeries
+theorem fourier_series_kernel_sees_only_the_gap
     (frequency_count : ℕ)
     (amplitude : ℕ → ℝ)
     (input : ℝ)
@@ -563,7 +563,7 @@ theorem inner_liftByFourierSeries
 Fourier series on `input_count` evenly spaced inputs, the sampled wave of
 frequency `frequency` is stretched by the kernel, by
 `input_count / 2 * amplitude frequency ^ 2`. -/
-theorem fourierSeries_direction_is_stretched
+theorem fourier_series_direction_is_stretched
     (input_count : ℕ)
     (frequency_count : ℕ)
     (amplitude : ℕ → ℝ)
@@ -586,7 +586,7 @@ theorem fourierSeries_direction_is_stretched
   exact fourier_direction_is_stretched input_count frequency_count amplitude
     lifted_inputs
     (fun input_index other_index =>
-      inner_liftByFourierSeries frequency_count amplitude
+      fourier_series_kernel_sees_only_the_gap frequency_count amplitude
         (input_at input_index) (input_at other_index))
     frequency phase frequencies_below_half_count frequency_pos
     frequency_le_count

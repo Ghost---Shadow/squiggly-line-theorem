@@ -53,7 +53,7 @@ For the polarizers, take turns of 60° and 0°. The pair keeps
 ## The statement
 
 ```lean
-theorem gradientDescent_fit_is_nearest
+theorem gradient_descent_fit_is_the_nearest_fit
     (predict : Weights →L[ℝ] Outputs)
     (labels : Outputs)
     (learning_rate : ℝ)
@@ -80,7 +80,7 @@ length of a move, as in chapter 9. `[step_count]` on the step means
 The second statement is for the layers.
 
 ```lean
-theorem cos_mul_cos_le_cos_half_sq
+theorem two_turns_keep_at_most_two_equal_turns
     (first_turn : ℝ)
     (second_turn : ℝ) :
     let kept_by_two_turns := cos first_turn * cos second_turn
@@ -95,7 +95,7 @@ average. `even_turns_keep_more` is the same with a length in front.
 The third statement is for any number of plates.
 
 ```lean
-theorem prod_cos_le_cos_average_pow
+theorem equal_turns_keep_the_most
     {Plates : Type*}
     (plates : Finset Plates)
     (plates_nonempty : plates.Nonempty)
@@ -119,7 +119,7 @@ average turn. `∏` is a product over the plates, as `∑` is a sum.
 **Moving along the features.** After any number of steps, the weights
 differ from the start by a move of the form `adjoint predict vector`, the
 transpose of chapter 10 applied to some vector of outputs
-(`exists_iterate_gradientStep`). The proof is by counting steps. One more
+(`gradient_descent_stays_in_the_directions_of_the_features`). The proof is by counting steps. One more
 step adds a multiple of the error, and the error is itself pulled back by
 the transpose.
 
@@ -135,7 +135,7 @@ Because `move` lies along the features, its inner product with
 
 The last step is the Cauchy–Schwarz inequality of chapter 3. Divide by
 `‖move‖` and you have `‖move‖ ≤ ‖other_move‖`
-(`norm_sub_le_of_fit_along_features`).
+(`moving_along_the_features_is_moving_least`).
 
 **The plates.** The product of two cosines is half the sum of the cosine
 of their difference and the cosine of their sum. Two turns of the average
@@ -217,7 +217,7 @@ past a quarter turn the cosine changes sign.
 ![Light amplitude kept through N plates for a quarter turn in total, computed from the product of cosines: the equal split as a line and 40 random unequal splits per N as dots, none above the line](figures/17-n-plates.png)
 
 The experiment is evidence, not a proof. For turns within a quarter turn the
-N-plate result is **proved** by `prod_cos_le_cos_average_pow`. The "balanced layers"
+N-plate result is **proved** by `equal_turns_keep_the_most`. The "balanced layers"
 under a gradient step were not tested.
 
 ## What is not shown
@@ -228,7 +228,7 @@ under a gradient step were not tested.
   This is **open**.
 - **Reaching the fit.** Gradient descent usually approaches a fit
   without landing on it. The statement covers the case where it lands.
-- **Turns of more than a quarter turn.** `prod_cos_le_cos_average_pow`
+- **Turns of more than a quarter turn.** `equal_turns_keep_the_most`
   needs every plate to turn by at most a quarter turn either way. Past
   that a plate flips the sign of the light, and the equal split need not
   be the best. The notebook finds a split that beats it when three
@@ -246,11 +246,11 @@ under a gradient step were not tested.
 
 **Answers.** (1) The error is 4, so the step adds `0.5 × 4 × (1, 1)`,
 which is `(2, 2)`. The output is 4, so it is a fit, and by
-`gradientDescent_fit_is_nearest` it is the nearest. Check: `(4, 0)` is
+`gradient_descent_fit_is_the_nearest_fit` it is the nearest. Check: `(4, 0)` is
 at distance 4, and `(2, 2)` is at `√8`, about 2.83. (2) Its move lies
-along the features, and `norm_sub_le_of_fit_along_features` shows a fit
+along the features, and `moving_along_the_features_is_moving_least` shows a fit
 reached that way is at least as near as any other. (3) `cos 90° ×
 cos 0° = 0`, and `cos 45° × cos 45° = 0.5`. The even pair keeps more, as
-`cos_mul_cos_le_cos_half_sq` says.
+`two_turns_keep_at_most_two_equal_turns` says.
 
 Previous: [16. New inputs](16-new-inputs.md) · Next: [18. Strong directions first](18-strong-directions-first.md)

@@ -13,16 +13,16 @@ with `param_count` parameters and `data_count` data. The budget fixes
 | `GET_LOSS_ABOVE_FLOOR` | the two terms of the loss, added                |
 | `IS_BALANCED_SPLIT`    | the two terms of the loss are equal             |
 
-* `four_mul_div_le_sq` : for any split, the loss above the floor squared is
+* `sum_with_fixed_product_is_at_least_twice_the_root` : for any split, the loss above the floor squared is
   at least `4 * param_cost * data_cost / (param_count * data_count)`.
-* `balanced_loss_sq` : a balanced split reaches that bound.
+* `balanced_split_loss_squared` : a balanced split reaches that bound.
 * `balanced_is_optimal` : so no split with the same budget does better.
-* `balanced_ratio` : at the best split `param_count / data_count` is
+* `balanced_split_has_a_fixed_ratio` : at the best split `param_count / data_count` is
   `param_cost / data_cost`, whatever the budget.
-* `balanced_scale` : scaling parameters and data by the same factor keeps the
+* `balanced_split_scales_together` : scaling parameters and data by the same factor keeps the
   split balanced.
 * `chinchilla_optimal` : the same with the floor added.
-* `balanced_is_optimal_rpow` : the same when both terms fall as a common
+* `balanced_is_optimal_for_any_common_power` : the same when both terms fall as a common
   power of their size.
 -/
 import Mathlib.Analysis.SpecialFunctions.Pow.Real
@@ -52,7 +52,7 @@ abbrev IS_BALANCED_SPLIT
 /-- **A sum with a fixed product.** For any split of the budget, the loss
 above the floor squared is at least `4 * param_cost * data_cost` over the
 budget. -/
-theorem four_mul_div_le_sq
+theorem sum_with_fixed_product_is_at_least_twice_the_root
     (param_cost data_cost : ℝ)
     (param_count data_count : ℝ) :
     let loss_above_floor :=
@@ -69,7 +69,7 @@ theorem four_mul_div_le_sq
 
 /-- **What the best split buys.** With the two terms balanced, the loss above
 the floor squared is `4 * param_cost * data_cost` over the budget. -/
-theorem balanced_loss_sq
+theorem balanced_split_loss_squared
     {param_cost data_cost : ℝ}
     {balanced_param_count balanced_data_count : ℝ}
     (split_is_balanced :
@@ -79,7 +79,7 @@ theorem balanced_loss_sq
       GET_LOSS_ABOVE_FLOOR param_cost data_cost
         balanced_param_count balanced_data_count
     let budget      := balanced_param_count * balanced_data_count
-    let lower_bound := 4 * (param_cost * data_cost / budget)  -- the bound of `four_mul_div_le_sq`: (a + b)² = 4ab when a = b
+    let lower_bound := 4 * (param_cost * data_cost / budget)  -- the bound of `sum_with_fixed_product_is_at_least_twice_the_root`: (a + b)² = 4ab when a = b
     loss_above_floor ^ 2 = lower_bound := by
   unfold_named_pieces
   unfold GET_LOSS_ABOVE_FLOOR
@@ -128,15 +128,15 @@ theorem balanced_is_optimal
           + data_cost / balanced_data_count) ^ 2
       = 4 * (param_cost * data_cost
           / (balanced_param_count * balanced_data_count)) :=
-        balanced_loss_sq split_is_balanced
+        balanced_split_loss_squared split_is_balanced
     _ = 4 * (param_cost * data_cost / (param_count * data_count)) := by
         rw [same_budget]
     _ ≤ (param_cost / param_count + data_cost / data_count) ^ 2 :=
-        four_mul_div_le_sq param_cost data_cost param_count data_count
+        sum_with_fixed_product_is_at_least_twice_the_root param_cost data_cost param_count data_count
 
 /-- **A fixed ratio.** At the best split, parameters over data is
 `param_cost / data_cost`, whatever the budget. -/
-theorem balanced_ratio
+theorem balanced_split_has_a_fixed_ratio
     {param_cost data_cost : ℝ}
     {balanced_param_count balanced_data_count : ℝ}
     (data_cost_ne_zero : data_cost ≠ 0)
@@ -158,7 +158,7 @@ theorem balanced_ratio
 
 /-- **They grow together.** Scaling parameters and data by the same factor
 keeps the split balanced. -/
-theorem balanced_scale
+theorem balanced_split_scales_together
     {param_cost data_cost : ℝ}
     {balanced_param_count balanced_data_count : ℝ}
     (scale : ℝ)
@@ -213,7 +213,7 @@ theorem chinchilla_optimal
 
 /-- **Any common power.** The same holds when both terms fall as the same
 power `exponent` of their size. -/
-theorem balanced_is_optimal_rpow
+theorem balanced_is_optimal_for_any_common_power
     {param_cost data_cost : ℝ}
     {param_count data_count : ℝ}
     {balanced_param_count balanced_data_count : ℝ}

@@ -333,7 +333,7 @@ theorem ideal_denoiser_is_the_best_guess
     let other_spread    := ∑ i, shares i * ‖examples i - other_output‖ ^ 2
     denoiser_spread ≤ other_spread := by
   unfold_named_pieces
-  exact weighted_mean_is_the_best_single_guess (sum_softmax _) examples other_output
+  exact weighted_mean_is_the_best_single_guess (softmax_shares_add_to_one _) examples other_output
 
 /-- **The ideal denoiser only averages its training set.** Its output never
 leaves the region the training examples span. -/

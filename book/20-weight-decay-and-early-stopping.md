@@ -71,7 +71,7 @@ share left is `0.995 ^ 10`, about 0.951. The bound is `1 / 1.05`, about
 /-- **Early stopping cuts at least as hard as weight decay.** After
 `step_count` steps at rate `rate` the share of the error left is at most
 `1 / (1 + step_count * rate)`. -/
-theorem early_stopping_le_ridge
+theorem early_stopping_leaves_at_most_what_weight_decay_leaves
     {rate : ℝ}
     (rate_nonneg : 0 ≤ rate)
     (rate_le_one : rate ≤ 1)
@@ -93,7 +93,7 @@ statistics name for the weight-decay fit.
 /-- **The matching penalty.** Weight decay with
 `decay_strength = 1 / (learning_rate * step_count)` leaves the share
 `1 / (1 + step_count * (learning_rate * kernel_strength))`. -/
-theorem ridge_share_eq
+theorem matching_penalty_gives_the_same_share
     {learning_rate : ℝ}
     {kernel_strength : ℝ}
     {step_count : ℕ}
@@ -114,7 +114,7 @@ stopping.
 ```lean
 /-- **What weight decay leaves.** The share
 `decay_strength / (kernel_strength + decay_strength)` of the error. -/
-theorem residual_ridgeFit
+theorem weight_decay_leaves_a_share_of_the_residual
     (strengths_sum_ne_zero : kernel_strength + decay_strength ≠ 0)
     (residual_is_stretched :
       predict (adjoint predict
@@ -145,8 +145,8 @@ decay_strength)`.
 `residual_is_stretched` is that condition: the kernel applied to the
 error is `kernel_strength` times the error, as in chapter 10. `GET_RIDGE_FIT`
 is the start weights plus the adjoint of the error divided by
-`kernel_strength + decay_strength`. The theorems `ridge_stationary` and
-`decayStep_ridgeFit` say that this fit is where gradient descent with
+`kernel_strength + decay_strength`. The theorems `weight_decay_fit_is_a_resting_point` and
+`decay_step_rests_at_the_weight_decay_fit` say that this fit is where gradient descent with
 weight decay (`TAKE_DECAY_STEP`) stays put, which the example checked
 for one weight.
 
@@ -184,7 +184,7 @@ the error than weight decay does, in every direction. In the measurement
 below it left less in 26 of 30 directions, so early stopping fitted a
 little more than weight decay at the matched setting. The note adds that the weight-decay fit moves the answer at
 a new input by `overlap / (kernel_strength + decay_strength)`
-(`inner_ridgeFit`). That is the same formula as when a pile of spare
+(`weight_decay_is_spare_parameters`). That is the same formula as when a pile of spare
 features each add strength to every pattern. So a model with many spare
 parameters acts like a smaller one with weight decay.
 
@@ -250,11 +250,11 @@ jupyter nbconvert --to notebook --execute --inplace experiments/part4/ch20_weigh
 3. The overlap with a new input is 6 and the strength is 2. How far does
    the answer move with decay 1? With decay 4?
 
-**Answers.** (1) `3 / (1 + 3) = 0.75`, by `residual_ridgeFit`. (2) The
-rate is `0.05 × 10 = 0.5`, so by `early_stopping_le_ridge` the share is at
+**Answers.** (1) `3 / (1 + 3) = 0.75`, by `weight_decay_leaves_a_share_of_the_residual`. (2) The
+rate is `0.05 × 10 = 0.5`, so by `early_stopping_leaves_at_most_what_weight_decay_leaves` the share is at
 most `1 / (1 + 20 × 0.5) = 1 / 11`. The matching decay is
 `1 / (0.05 × 20) = 1`, and `1 / (10 + 1) = 1 / 11` agrees, as
-`ridge_share_eq` says. (3) By `inner_ridgeFit` the shift is
+`matching_penalty_gives_the_same_share` says. (3) By `weight_decay_is_spare_parameters` the shift is
 `6 / (2 + 1) = 2` and `6 / (2 + 4) = 1`.
 
 Previous: [19. The largest step](19-the-largest-step.md) · Next: [21. Dropout, noise and other regularisers](21-dropout-and-noise.md)

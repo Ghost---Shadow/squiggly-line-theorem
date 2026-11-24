@@ -33,7 +33,7 @@ expected squared error under dropout
     =  plain squared error  +  v × (sum of the squared shares)
 ```
 
-(**proved**: `expected_dropout_loss`.) The first term is what training
+(**proved**: `dropout_adds_a_penalty`.) The first term is what training
 without dropout would see. The second is a penalty, and it is paid by every
 weight that is doing work.
 
@@ -43,7 +43,7 @@ right on average and add noise around it. Squared error charges for noise,
 and the noise in a sum of independent shares is the sum of their own noises.
 
 For the usual mask the variance is `(1 − p) / p` (**proved**:
-`keepMask_variance`). Keeping half the features gives `v = 1`. Keeping nine
+`variance_of_the_keep_mask`). Keeping half the features gives `v = 1`. Keeping nine
 in ten gives `v = 1/9`.
 
 ## Over the data
@@ -54,13 +54,13 @@ Add up over the examples. The penalty on weight `j` is
 v × (weight j)² × (total squared size of feature j over the data)
 ```
 
-(**proved**: `expected_dropout_loss_dataset`.) So dropout is weight decay
+(**proved**: `dropout_adds_a_penalty_over_a_dataset`.) So dropout is weight decay
 with a separate rate for each weight, set by how large its feature is on the
 data.
 
 If every feature has the same total squared size `c`, the penalty is `v × c`
 times the squared length of the weights (**proved**:
-`expected_dropout_loss_of_equal_features`). That is plain weight decay. The
+`dropout_is_weight_decay_for_equal_features`). That is plain weight decay. The
 Fourier features come close to this: every sine and cosine has about the same
 total squared size on scattered points (**argued**).
 

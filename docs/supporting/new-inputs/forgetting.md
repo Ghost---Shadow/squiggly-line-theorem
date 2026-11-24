@@ -56,7 +56,7 @@ distance times the size of the old task's features
 
 Gradient descent moves the weights as little as any method could: if it
 arrives at a fit of the new task, that fit is the nearest one (**proved**
-earlier: `gradientDescent_fit_is_nearest` in [`LeastAction.lean`](../../../lean/SquigglyLine/Supporting/Training/LeastAction.lean)). Together:
+earlier: `gradient_descent_fit_is_the_nearest_fit` in [`LeastAction.lean`](../../../lean/SquigglyLine/Supporting/Training/LeastAction.lean)). Together:
 
 > The amount forgotten is at most the size of the old task's features times
 > the distance from the start to the nearest fit of the new task.

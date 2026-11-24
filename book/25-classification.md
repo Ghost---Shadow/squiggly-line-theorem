@@ -47,7 +47,7 @@ in place of 1. The best score is the one whose sigmoid is 0.9, which is
 ## The statement
 
 ```lean
-theorem hasDerivAt_crossEntropy [Nonempty Classes]
+theorem cross_entropy_slope_is_prediction_minus_label [Nonempty Classes]
     (labels scores direction : Classes → ℝ) :
     let rate := ∑ i, (APPLY_SOFTMAX scores i - labels i) * direction i
     HasDerivAt
@@ -62,15 +62,15 @@ changes at the rate "share minus label", summed against that direction.
 `APPLY_SOFTMAX scores i` is the share of class `i`.
 `GET_CROSS_ENTROPY labels scores` is the loss. `HasDerivAt f rate 0`
 says `f` changes at `rate` where its input is zero. The shares are
-positive and add up to one (`softmax_pos`, `sum_softmax`). For two
-classes the same push is `hasDerivAt_logLoss`.
+positive and add up to one (`softmax_share_is_greater_than_zero`, `softmax_shares_add_to_one`). For two
+classes the same push is `log_loss_slope_is_prediction_minus_label`.
 
 **Measured**, in 300 random cases (see "Run it yourself"): the rate of change of the loss, taken by a finite difference, against the rate that share minus label predicts, and against the squared-error form "score minus label" as a contrast.
 
 ![Measured rate of change of the cross-entropy against the rate from the rule: on the diagonal for share minus label, scattered for score minus label](figures/25-push-is-share-minus-label.png)
 
 ```lean
-theorem map_errorStep
+theorem error_step_moves_outputs_through_the_kernel
     (predict : Weights →L[ℝ] Outputs)
     (error_of : Outputs → Outputs)
     (learning_rate : ℝ)
@@ -89,11 +89,11 @@ outputs by the kernel applied to that push.
 
 `TAKE_ERROR_STEP` is a step when the loss pushes the outputs by
 `error_of outputs`. Squared error is the case "output minus label"
-(`gradientStep_eq_errorStep`). Cross-entropy is the case "prediction
-minus label" (`hasDerivAt_totalLogLoss`, `inner_adjoint_eq_sum`).
+(`squared_error_step_is_an_error_step`). Cross-entropy is the case "prediction
+minus label" (`total_log_loss_slope_is_error_times_features`, `overlap_with_pulled_back_vector_is_a_sum`).
 
 ```lean
-theorem strictAnti_logLoss_one :
+theorem no_finite_score_is_best_for_label_yes :
     let loss_for_yes := GET_LOG_LOSS 1
     StrictAnti loss_for_yes := by
 ```
@@ -102,17 +102,17 @@ theorem strictAnti_logLoss_one :
 loss.
 
 `StrictAnti` means strictly falling: a bigger input gives a smaller
-output. With `logLoss_one_pos`, the loss is never zero either. With many
-classes, `softmax_lt_one` and `crossEntropy_single_pos` say the same:
+output. With `log_loss_of_label_yes_is_greater_than_zero`, the loss is never zero either. With many
+classes, `softmax_share_is_less_than_one` and `cross_entropy_of_a_sure_label_is_greater_than_zero` say the same:
 no share reaches one, so the loss of a sure label is never zero. For a
-soft label, `logLoss_le_of_sigmoid_eq` and `exists_best_score` say the
+soft label, `score_whose_prediction_equals_the_label_is_best` and `soft_label_has_a_finite_best_score` say the
 score whose prediction equals the label is best.
 
 Policy gradient, in reinforcement learning, is the same push.
-`log_softmax_eq_neg_crossEntropy` says the log of a policy's share is
+`log_of_policy_share_is_minus_cross_entropy` says the log of a policy's share is
 minus a cross-entropy against the label "this action was taken".
-`hasDerivAt_log_policy` says its push is "action taken minus share", and
-`hasDerivAt_expectedReward` says the expected reward changes at the rate:
+`push_on_scores_is_action_minus_prediction` says its push is "action taken minus share", and
+`policy_gradient` says the expected reward changes at the rate:
 share of each action, times its reward, times that push.
 
 ## Why it is true
@@ -143,10 +143,10 @@ exponential of its log.
 - **A classifier is the same machine.** The same-kernel and least-travel
   results carry over. Two models with one kernel and the same start have
   the same outputs after every step, whatever the loss
-  (`map_iterate_errorStep_eq`). Training reaches the nearest weights that
-  give those outputs (`iterate_errorStep_is_nearest`). On a model linear
+  (`same_kernel_gives_same_outputs_for_any_loss`). Training reaches the nearest weights that
+  give those outputs (`training_takes_least_travel_for_any_loss`). On a model linear
   in its weights, the cross-entropy has no hill between two settings
-  (`totalLogLoss_along_le_max`).
+  (`no_hill_between_two_settings`).
 - **Training longer means more confidence.** On data it can separate, a
   classifier's loss only falls as its scores grow, so there is no fit at
   a finite distance. The drift toward overconfidence is known
@@ -242,9 +242,9 @@ jupyter nbconvert --to notebook --execute --inplace experiments/part4/ch25_class
 3. The label is 0.8. Which score is best, and is it finite?
 
 **Answers.** (1) Both shares are 0.5, so it is `(−0.5, 0.5)`, by
-`hasDerivAt_crossEntropy`. (2) No. By `logLoss_one_pos` the loss is
-positive, about 0.000045 here. Yes: by `strictAnti_logLoss_one` a higher
+`cross_entropy_slope_is_prediction_minus_label`. (2) No. By `log_loss_of_label_yes_is_greater_than_zero` the loss is
+positive, about 0.000045 here. Yes: by `no_finite_score_is_best_for_label_yes` a higher
 score always has a smaller loss. (3) The score whose sigmoid is 0.8,
-which is `ln 4`, about 1.39. It is finite, by `exists_best_score`.
+which is `ln 4`, about 1.39. It is finite, by `soft_label_has_a_finite_best_score`.
 
 Previous: [24. Symmetry: flat minima and normalisation](24-symmetry.md) · Next: [26. The perceptron, XOR and no free lunch](26-the-perceptron.md)

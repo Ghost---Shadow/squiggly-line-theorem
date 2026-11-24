@@ -149,7 +149,7 @@ theorem inner_gradient_self_eq_zero_of_rmsNorm
     let rate_along_the_weights := inner ℝ gradient weights
     rate_along_the_weights = 0 := by
   unfold_named_pieces
-  exact inner_gradient_self_eq_zero
+  exact gradient_is_at_right_angles_to_the_weights
     (isScaleInvariant_comp_normalizeByRms loss) gradient_gives_the_rate
 
 /-- A pre-norm block: the branch reads the normalised stream, and its output is

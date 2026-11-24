@@ -46,23 +46,23 @@ Take the form with both powers equal to one: the loss above the floor is
 (**proved**: `balanced_is_optimal`, and with the floor added,
 `chinchilla_optimal`). The reason is the oldest inequality there is: for a
 fixed product, a sum is smallest when its two parts are equal
-(**proved**: `four_mul_div_le_sq`).
+(**proved**: `sum_with_fixed_product_is_at_least_twice_the_root`).
 
 **At the best split, parameters and data are in a fixed ratio.** The ratio is
-`N / D = A / B`, whatever the budget (**proved**: `balanced_ratio`).
+`N / D = A / B`, whatever the budget (**proved**: `balanced_split_has_a_fixed_ratio`).
 
 **So they grow together.** Multiply both by the same factor and the split is
 still balanced, for a budget that many times squared
-(**proved**: `balanced_scale`). To use four times the compute, double the
+(**proved**: `balanced_split_scales_together`). To use four times the compute, double the
 model and double the data.
 
 **What it buys.** At the best split the loss above the floor, squared, is
-`4AB / budget` (**proved**: `balanced_loss_sq`). So the loss above the floor
+`4AB / budget` (**proved**: `balanced_split_loss_squared`). So the loss above the floor
 falls as one over the square root of the budget.
 
 **Any common power.** The same holds when both terms fall as the same power
 of their size, whatever that power is (**proved**:
-`balanced_is_optimal_rpow`). That covers the measured case to the extent that
+`balanced_is_optimal_for_any_common_power`). That covers the measured case to the extent that
 0.34 and 0.28 are equal.
 
 ## Two rules, two situations

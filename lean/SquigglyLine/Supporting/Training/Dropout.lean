@@ -14,16 +14,16 @@ around that.
 | `ARE_MASKS_ONE_ON_AVERAGE` | every mask averages to one                 |
 | `ARE_MASKS_OF_VARIANCE`    | every mask has the given variance          |
 
-* `expected_dropout_loss` : for one example, the expected squared error under
+* `dropout_adds_a_penalty` : for one example, the expected squared error under
   dropout is the plain squared error plus a penalty: the variance of the mask
   times the sum of the squared shares "feature times weight".
-* `expected_dropout_loss_dataset` : over a set of examples the penalty on
+* `dropout_adds_a_penalty_over_a_dataset` : over a set of examples the penalty on
   one weight is its square times the total squared size of its feature.
-* `expected_dropout_loss_of_equal_features` : when every feature has the same
+* `dropout_is_weight_decay_for_equal_features` : when every feature has the same
   total squared size `feature_size`, the penalty is
   `mask_variance * feature_size` times the squared length of the weights.
   That is weight decay.
-* `keepMask_variance` : the usual mask, kept with probability
+* `variance_of_the_keep_mask` : the usual mask, kept with probability
   `keep_probability` and scaled by `1 / keep_probability`, has variance
   `(1 - keep_probability) / keep_probability`.
 -/
@@ -54,7 +54,7 @@ abbrev FeatureTable (Examples Features : Type*) := Examples → Features → ℝ
 `keep_probability` and `0` otherwise. Its mean is one and its variance,
 written out over the two outcomes, is
 `(1 - keep_probability) / keep_probability`. -/
-theorem keepMask_variance
+theorem variance_of_the_keep_mask
     {keep_probability : ℝ}
     (keep_probability_ne_zero : keep_probability ≠ 0) :
     let kept_part :=
@@ -116,7 +116,7 @@ answer, and dropout multiplies it by `mask j`. If the masks are independent,
 one on average and of variance `mask_variance`, the expected squared error is
 the plain squared error plus `mask_variance` times the sum of the squared
 shares. -/
-theorem expected_dropout_loss
+theorem dropout_adds_a_penalty
     {mask : RandomMask Features Outcomes}
     (masks_are_square_integrable :
       ∀ feature, MemLp (mask feature) 2 probability)  -- each mask has a finite average and variance, so the averages below exist
@@ -127,13 +127,13 @@ theorem expected_dropout_loss
       ARE_MASKS_OF_VARIANCE probability mask mask_variance)
     (label : ℝ)
     (shares : Features → ℝ) :
-    let expected_dropout_loss :=
+    let dropout_adds_a_penalty :=
       GET_AVERAGE probability fun outcome =>
         let noisy_answer := ∑ j, mask j outcome * shares j  -- each share, multiplied by its mask
         (label - noisy_answer) ^ 2
     let plain_loss := (label - ∑ j, shares j) ^ 2           -- the squared error with no dropout
     let penalty    := mask_variance * ∑ j, shares j ^ 2     -- the variance of the noisy answer: independent variances add
-    expected_dropout_loss = plain_loss + penalty := by      -- mean of a square = square of the mean + variance
+    dropout_adds_a_penalty = plain_loss + penalty := by      -- mean of a square = square of the mean + variance
   unfold_named_pieces
   unfold GET_AVERAGE
   have share_is_square_integrable (feature : Features) :
@@ -197,7 +197,7 @@ variable {Examples : Type*} [Fintype Examples]
 /-- **Over a set of examples.** Example `i` has features `feature_values i`
 and label `labels i`, the weights are `weights`. The penalty on weight `j` is
 its square times the total squared size of feature `j` over the examples. -/
-theorem expected_dropout_loss_dataset
+theorem dropout_adds_a_penalty_over_a_dataset
     {mask : RandomMask Features Outcomes}
     (masks_are_square_integrable :
       ∀ feature, MemLp (mask feature) 2 probability)
@@ -220,7 +220,7 @@ theorem expected_dropout_loss_dataset
   unfold_named_pieces
   -- Use the one-example result on each example, then add up feature by
   -- feature instead of example by example.
-  simp only [expected_dropout_loss probability masks_are_square_integrable
+  simp only [dropout_adds_a_penalty probability masks_are_square_integrable
       masks_are_independent masks_are_one_on_average masks_have_this_variance,
     Finset.sum_add_distrib, ← Finset.mul_sum, mul_pow, Finset.sum_mul]
   rw [Finset.sum_comm]
@@ -228,7 +228,7 @@ theorem expected_dropout_loss_dataset
 /-- **Dropout is weight decay.** If every feature has the same total squared
 size `feature_size`, the penalty is `mask_variance * feature_size` times the
 squared length of the weights. -/
-theorem expected_dropout_loss_of_equal_features
+theorem dropout_is_weight_decay_for_equal_features
     {mask : RandomMask Features Outcomes}
     (masks_are_square_integrable :
       ∀ feature, MemLp (mask feature) 2 probability)
@@ -253,7 +253,7 @@ theorem expected_dropout_loss_of_equal_features
     let weight_decay := decay_strength * squared_length_of_weights
     total_expected_dropout_loss = total_plain_loss + weight_decay := by
   unfold_named_pieces
-  rw [expected_dropout_loss_dataset probability masks_are_square_integrable
+  rw [dropout_adds_a_penalty_over_a_dataset probability masks_are_square_integrable
     masks_are_independent masks_are_one_on_average masks_have_this_variance]
   -- Every feature has the same size, so it comes out of the sum.
   simp only [features_have_equal_size, ← Finset.mul_sum, mul_assoc]
