@@ -8,7 +8,7 @@ when an odd number are. Turn the bits on one at a time and the parity goes
 Several known proofs that small circuits of a weak kind cannot compute some
 function have a similar shape, and parity is their standard hard case.
 
-This file proves four things.
+This file proves five things.
 
 * `flipping_any_bit_flips_parity`: every single bit changes the parity. No
   function of bits changes more often.
@@ -19,12 +19,15 @@ This file proves four things.
   layer that reads the same count needs at least one unit for every two
   bits. This is `card_ge_of_zigzag` of `DepthSeparation.lean`, read for
   parity.
+* `shallow_network_needs_one_unit_per_bit_less_one`: in fact it needs one
+  unit for every bit, less one, and that cannot be improved. This is
+  `card_ge_of_alternating_sides`, read for parity.
 
 * `half_of_all_functions_change_at_any_flip`: among all functions of bits,
   exactly half change at any given flip. So being squiggly is common.
 
 So for `2 ^ layer_count` bits a deep network uses `2 * layer_count`
-neurons and a shallow one needs `2 ^ layer_count / 2` units.
+neurons and a shallow one needs `2 ^ layer_count - 1` units.
 
 Both networks see only how many bits are on, not which. That is a real
 limit on the statement. Parity is easy to compute. Nothing here is about a
@@ -263,6 +266,36 @@ theorem shallow_network_on_right_side_of_half_needs_one_unit_per_two_bits
   have low_at_end :=
     is_low_at_even_counts (2 * turn + 2) (by omega) ⟨turn + 1, by ring⟩
   exact ⟨low_at_start.trans high_at_middle, low_at_end.trans high_at_middle⟩
+
+/-- **A shallow network needs one unit for every bit, less one.** The same
+network, with the same weak hypothesis, has at least `bit_count - 1` units.
+This is about twice the bound above, and it cannot be improved: a zigzag
+with a kink at each count from 1 to `bit_count - 1` computes the parity.
+The proof counts the places where the network crosses one half, one in each
+step from a count to the next, and finds a kink between every two crossings
+next to each other (`card_ge_of_alternating_sides`). -/
+theorem shallow_network_needs_one_unit_per_bit_less_one
+    {Index : Type*}
+    (units : Finset Index)
+    (unit_gain : Index → ℝ)
+    (unit_slope : Index → ℝ)
+    (unit_bias : Index → ℝ)
+    (bit_count : ℕ)
+    (is_low_at_even_counts : ∀ ones_count : ℕ, ones_count ≤ bit_count →
+      Even ones_count →
+      EVALUATE_SHALLOW_NETWORK units unit_gain unit_slope unit_bias
+        (ones_count : ℝ) < 1 / 2)
+    (is_high_at_odd_counts : ∀ ones_count : ℕ, ones_count ≤ bit_count →
+      ¬ Even ones_count →
+      1 / 2 < EVALUATE_SHALLOW_NETWORK units unit_gain unit_slope unit_bias
+        (ones_count : ℝ)) :
+    let units_needed := bit_count - 1   -- one unit for every count strictly between 0 and `bit_count`
+    let unit_count   := units.card
+    units_needed ≤ unit_count := by
+  unfold_named_pieces
+  exact card_ge_of_alternating_sides units unit_gain unit_slope unit_bias
+    (checkpoints := fun ones_count : ℕ => (ones_count : ℝ))
+    Nat.strictMono_cast is_low_at_even_counts is_high_at_odd_counts
 
 /-! ## Being squiggly is common -/
 

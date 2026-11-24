@@ -13,6 +13,12 @@ Depth separation: a shallow network pays one unit per turn.
   neurons) draw a zigzag that no one-hidden-layer network with fewer than
   `2 ^ layer_count` units can follow, even to within one half at the grid
   points.
+* `card_ge_of_alternating_sides` : a network that is below a level at every
+  even checkpoint and above it at every odd one, over `step_count` steps,
+  needs `step_count - 1` units. It counts crossings of the level, not tops.
+* `depth_separation_with_nothing_to_spare` : so the shallow network needs
+  `2 ^ (layer_count + 1) - 1` units, one for every grid point strictly
+  inside. That is about twice `depth_separation`, and it cannot be improved.
 
 Definitions:
 
@@ -412,6 +418,269 @@ theorem depth_separation
       (by rw [Nat.not_even_iff_odd]; exact odd_two_mul_add_one i)
     have low_at_end := low_at_even (2 * i + 2) (by omega) ⟨i + 1, by ring⟩
     exact ⟨low_at_start.trans high_at_middle, low_at_end.trans high_at_middle⟩
+
+/-! ### One unit per crossing: the bound that cannot be improved
+
+`card_ge_of_zigzag` counts the tops of a zigzag and finds one unit for each.
+A zigzag that goes up and down `turn_count` times has about twice as many
+bends as tops, so that bound is about half of what is needed. This section
+counts the places where the network crosses a level instead. Between two
+crossings next to each other the network leaves the level and comes back,
+so it bends there, and these stretches do not overlap. -/
+
+/-- Changing the sign of every output weight changes the sign of the
+output. -/
+theorem evaluate_shallow_network_with_negated_gains
+    (units : Finset Index)
+    (unit_gain : Index → ℝ)
+    (unit_slope : Index → ℝ)
+    (unit_bias : Index → ℝ)
+    (input : ℝ) :
+    let negated_gain := fun unit => -unit_gain unit
+    EVALUATE_SHALLOW_NETWORK units negated_gain unit_slope unit_bias input
+      = -EVALUATE_SHALLOW_NETWORK units unit_gain unit_slope unit_bias
+          input := by
+  unfold_named_pieces
+  simp [EVALUATE_SHALLOW_NETWORK, Finset.sum_neg_distrib]
+
+/-- A network with one hidden layer is continuous: a small change of the
+input makes a small change of the output. -/
+theorem shallow_network_is_continuous
+    (units : Finset Index)
+    (unit_gain : Index → ℝ)
+    (unit_slope : Index → ℝ)
+    (unit_bias : Index → ℝ) :
+    Continuous
+      (EVALUATE_SHALLOW_NETWORK units unit_gain unit_slope unit_bias) := by
+  unfold EVALUATE_SHALLOW_NETWORK
+  refine continuous_finsetSum units fun unit _ => ?_
+  exact continuous_const.mul
+    (((continuous_const.mul continuous_id).add continuous_const).max
+      continuous_const)
+
+/-- **Between two crossings of a level there is a kink.** If the network is
+at `level` at both ends of a stretch and off it at a point between, some
+unit has its kink strictly inside the stretch. -/
+theorem exists_kink_between_two_crossings
+    (units : Finset Index)
+    (unit_gain : Index → ℝ)
+    (unit_slope : Index → ℝ)
+    (unit_bias : Index → ℝ)
+    {left middle right level : ℝ}
+    (left_lt_middle : left < middle)
+    (middle_lt_right : middle < right)
+    (left_is_at_level :
+      EVALUATE_SHALLOW_NETWORK units unit_gain unit_slope unit_bias left
+        = level)
+    (right_is_at_level :
+      EVALUATE_SHALLOW_NETWORK units unit_gain unit_slope unit_bias right
+        = level)
+    (middle_is_off_level :
+      EVALUATE_SHALLOW_NETWORK units unit_gain unit_slope unit_bias middle
+        ≠ level) :
+    ∃ unit ∈ units, unit_slope unit ≠ 0 ∧
+      ∃ crossing, left < crossing ∧ crossing < right
+        ∧ unit_slope unit * crossing + unit_bias unit = 0 := by
+  rcases lt_or_gt_of_ne middle_is_off_level with
+    middle_is_below | middle_is_above
+  · -- The network dips below the level. Turn it upside down: the same units,
+    -- with the same kinks, now go up and come back down.
+    have negated :=
+      evaluate_shallow_network_with_negated_gains units unit_gain unit_slope
+        unit_bias
+    exact exists_kink_of_zigzag units (fun unit => -unit_gain unit)
+      unit_slope unit_bias left_lt_middle middle_lt_right
+      (by rw [negated left, negated middle]; linarith)
+      (by rw [negated right, negated middle]; linarith)
+  · -- The network rises above the level and comes back down.
+    exact exists_kink_of_zigzag units unit_gain unit_slope unit_bias
+      left_lt_middle middle_lt_right (by linarith) (by linarith)
+
+/-- **One unit per crossing, less one.** Take an increasing run of inputs,
+numbered from 0 to `step_count`. If the network is below `level` at every
+even one and above it at every odd one, it has at least `step_count - 1`
+units. The network crosses the level once in each of the `step_count`
+steps, and between two crossings next to each other it has to bend. -/
+theorem card_ge_of_alternating_sides
+    (units : Finset Index)
+    (unit_gain : Index → ℝ)
+    (unit_slope : Index → ℝ)
+    (unit_bias : Index → ℝ)
+    {checkpoints : ℕ → ℝ}
+    (checkpoints_increase : StrictMono checkpoints)
+    {level : ℝ}
+    {step_count : ℕ}
+    (is_low_at_even : ∀ i ≤ step_count, Even i →
+      EVALUATE_SHALLOW_NETWORK units unit_gain unit_slope unit_bias
+        (checkpoints i) < level)
+    (is_high_at_odd : ∀ i ≤ step_count, ¬ Even i →
+      level < EVALUATE_SHALLOW_NETWORK units unit_gain unit_slope unit_bias
+        (checkpoints i)) :
+    let units_needed := step_count - 1
+    let unit_count   := units.card
+    units_needed ≤ unit_count := by
+  unfold_named_pieces
+  have network_is_continuous :=
+    shallow_network_is_continuous units unit_gain unit_slope unit_bias
+  -- The network is never exactly at the level at a checkpoint.
+  have checkpoint_is_off_level : ∀ i ≤ step_count,
+      EVALUATE_SHALLOW_NETWORK units unit_gain unit_slope unit_bias
+        (checkpoints i) ≠ level := by
+    intro i i_le
+    by_cases i_is_even : Even i
+    · exact (is_low_at_even i i_le i_is_even).ne
+    · exact (is_high_at_odd i i_le i_is_even).ne'
+  -- In every step the network crosses the level, strictly inside the step.
+  have every_step_has_crossing : ∀ i, i < step_count →
+      ∃ crossing, checkpoints i < crossing ∧ crossing < checkpoints (i + 1)
+        ∧ EVALUATE_SHALLOW_NETWORK units unit_gain unit_slope unit_bias
+            crossing = level := by
+    intro i i_lt
+    have step_is_ordered : checkpoints i ≤ checkpoints (i + 1) :=
+      (checkpoints_increase (Nat.lt_succ_self i)).le
+    -- A continuous function takes every value between two of its values.
+    have level_is_taken :
+        ∃ crossing ∈ Set.Icc (checkpoints i) (checkpoints (i + 1)),
+          EVALUATE_SHALLOW_NETWORK units unit_gain unit_slope unit_bias
+            crossing = level := by
+      by_cases i_is_even : Even i
+      · have low_at_start := is_low_at_even i i_lt.le i_is_even
+        have high_at_end := is_high_at_odd (i + 1) i_lt
+          (by rw [Nat.even_add_one]; exact not_not.mpr i_is_even)
+        exact intermediate_value_Icc step_is_ordered
+          network_is_continuous.continuousOn
+          ⟨low_at_start.le, high_at_end.le⟩
+      · have high_at_start := is_high_at_odd i i_lt.le i_is_even
+        have low_at_end := is_low_at_even (i + 1) i_lt
+          (by rw [Nat.even_add_one]; exact i_is_even)
+        exact intermediate_value_Icc' step_is_ordered
+          network_is_continuous.continuousOn
+          ⟨low_at_end.le, high_at_start.le⟩
+    obtain ⟨crossing, ⟨after_start, before_end⟩, crossing_is_at_level⟩ :=
+      level_is_taken
+    -- The crossing is not at either end, where the network is off the level.
+    have crossing_ne_start : crossing ≠ checkpoints i := by
+      intro crossing_is_start
+      rw [crossing_is_start] at crossing_is_at_level
+      exact checkpoint_is_off_level i i_lt.le crossing_is_at_level
+    have crossing_ne_end : crossing ≠ checkpoints (i + 1) := by
+      intro crossing_is_end
+      rw [crossing_is_end] at crossing_is_at_level
+      exact checkpoint_is_off_level (i + 1) i_lt crossing_is_at_level
+    exact ⟨crossing, lt_of_le_of_ne after_start (Ne.symm crossing_ne_start),
+      lt_of_le_of_ne before_end crossing_ne_end, crossing_is_at_level⟩
+  choose! crossing_of_step crossing_of_step_spec using every_step_has_crossing
+  -- Between the crossings of two steps next to each other lies a
+  -- checkpoint, where the network is off the level. So there is a kink
+  -- between them.
+  have every_gap_has_kink : ∀ i ∈ Finset.range (step_count - 1),
+      ∃ unit ∈ units, unit_slope unit ≠ 0 ∧
+        ∃ kink, crossing_of_step i < kink ∧ kink < crossing_of_step (i + 1)
+          ∧ unit_slope unit * kink + unit_bias unit = 0 := by
+    intro i i_in_range
+    have i_lt : i + 1 < step_count := by
+      have := Finset.mem_range.mp i_in_range
+      omega
+    obtain ⟨-, first_before_checkpoint, first_at_level⟩ :=
+      crossing_of_step_spec i (by omega)
+    obtain ⟨second_after_checkpoint, -, second_at_level⟩ :=
+      crossing_of_step_spec (i + 1) i_lt
+    exact exists_kink_between_two_crossings units unit_gain unit_slope
+      unit_bias first_before_checkpoint second_after_checkpoint
+      first_at_level second_at_level
+      (checkpoint_is_off_level (i + 1) i_lt.le)
+  rcases Nat.eq_zero_or_pos (step_count - 1) with no_gaps | some_gaps
+  · rw [no_gaps]
+    exact Nat.zero_le _
+  obtain ⟨first_unit, -⟩ :=
+    every_gap_has_kink 0 (Finset.mem_range.mpr some_gaps)
+  have : Nonempty Index := ⟨first_unit⟩
+  choose! kink_unit kink_unit_spec using every_gap_has_kink
+  -- The crossings come in order, so the gaps between them do not overlap.
+  have later_crossing_is_not_earlier : ∀ i k, i + 1 ≤ k → k < step_count →
+      crossing_of_step (i + 1) ≤ crossing_of_step k := by
+    intro i k i_succ_le_k k_lt
+    rcases Nat.eq_or_lt_of_le i_succ_le_k with same_step | earlier_step
+    · rw [same_step]
+    · obtain ⟨-, before_next_checkpoint, -⟩ :=
+        crossing_of_step_spec (i + 1) (by omega)
+      obtain ⟨after_own_checkpoint, -, -⟩ := crossing_of_step_spec k k_lt
+      have checkpoints_ordered :=
+        checkpoints_increase.monotone (show i + 1 + 1 ≤ k by omega)
+      linarith
+  -- Two different gaps cannot share a unit: a unit has only one kink.
+  have kink_unit_injective :
+      Set.InjOn kink_unit (Finset.range (step_count - 1) : Set ℕ) := by
+    intro gap gap_in_range other_gap other_gap_in_range same_unit
+    have gap_lt := Finset.mem_range.mp (Finset.mem_coe.mp gap_in_range)
+    have other_gap_lt :=
+      Finset.mem_range.mp (Finset.mem_coe.mp other_gap_in_range)
+    obtain ⟨-, unit_slope_ne_zero, kink, after_left, before_right,
+        kink_is_zero⟩ :=
+      kink_unit_spec gap (Finset.mem_coe.mp gap_in_range)
+    obtain ⟨-, -, other_kink, other_after_left, other_before_right,
+        other_kink_is_zero⟩ :=
+      kink_unit_spec other_gap (Finset.mem_coe.mp other_gap_in_range)
+    rw [← same_unit] at other_kink_is_zero
+    have same_kink : kink = other_kink :=
+      mul_left_cancel₀ unit_slope_ne_zero (by linarith)
+    by_contra gaps_differ
+    rcases Nat.lt_or_gt_of_ne gaps_differ with gap_first | other_gap_first
+    · have gaps_ordered :=
+        later_crossing_is_not_earlier gap other_gap (by omega) (by omega)
+      linarith
+    · have gaps_ordered :=
+        later_crossing_is_not_earlier other_gap gap (by omega) (by omega)
+      linarith
+  calc step_count - 1 = (Finset.range (step_count - 1)).card :=
+        (Finset.card_range (step_count - 1)).symm
+    _ ≤ units.card :=
+        Finset.card_le_card_of_injOn kink_unit
+          (fun gap gap_in_range => (kink_unit_spec gap gap_in_range).1)
+          kink_unit_injective
+
+/-- **Depth separation, with nothing to spare.** A network with one hidden
+layer that stays within one half of `layer_count + 1` tent layers at the
+grid points has at least `2 ^ (layer_count + 1) - 1` units. That is one for
+every grid point strictly inside, twice the bound of `depth_separation` less
+one. A zigzag through those grid points with a kink at each of them shows
+that fewer will not do and that this many is enough for the turning. -/
+theorem depth_separation_with_nothing_to_spare
+    (units : Finset Index)
+    (unit_gain : Index → ℝ)
+    (unit_slope : Index → ℝ)
+    (unit_bias : Index → ℝ)
+    (layer_count : ℕ)
+    (follows_zigzag : ∀ grid_index : ℕ, grid_index ≤ 2 ^ (layer_count + 1) →
+      |EVALUATE_SHALLOW_NETWORK units unit_gain unit_slope unit_bias
+          ((grid_index : ℝ) / 2 ^ (layer_count + 1))
+        - APPLY_TENT^[layer_count + 1]
+          ((grid_index : ℝ) / 2 ^ (layer_count + 1))|
+        < 1 / 2) :
+    let units_needed := 2 ^ (layer_count + 1) - 1   -- one unit for every grid point strictly inside
+    let unit_count := units.card
+    units_needed ≤ unit_count := by
+  unfold_named_pieces
+  refine card_ge_of_alternating_sides units unit_gain unit_slope unit_bias
+    (checkpoints := fun step : ℕ => (step : ℝ) / 2 ^ (layer_count + 1))
+    (level := 1 / 2) ?_ ?_ ?_
+  · intro step other_step step_lt_other_step
+    show (step : ℝ) / 2 ^ (layer_count + 1)
+      < (other_step : ℝ) / 2 ^ (layer_count + 1)
+    gcongr
+  · -- At even grid points the tent is 0, so the network is below one half.
+    intro grid_index index_on_grid index_even
+    have closeness := follows_zigzag grid_index index_on_grid
+    rw [iterate_tent_dyadic (layer_count + 1) grid_index index_on_grid,
+      ite_eq_left index_even, sub_zero] at closeness
+    exact (abs_lt.mp closeness).2
+  · -- At odd grid points the tent is 1, so it is above one half.
+    intro grid_index index_on_grid index_odd
+    have closeness := follows_zigzag grid_index index_on_grid
+    rw [iterate_tent_dyadic (layer_count + 1) grid_index index_on_grid,
+      ite_eq_right index_odd] at closeness
+    have lower_side := (abs_lt.mp closeness).1
+    linarith
 
 end Shallow
 

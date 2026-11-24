@@ -203,8 +203,13 @@ last step is **argued** in the note, not proved here.
 
 [`ch21_dropout_and_noise.ipynb`](../experiments/part4/ch21_dropout_and_noise.ipynb)
 checks these on models linear in their weights, listing every dropout mask
-so that each average is exact. It has 25 checks, and two runs print the same
-ones. Two lines are printed as "by construction, cannot fail" and are not counted. The table's 10 and `10 / 9` come out as 10.000000 and 1.111111. Over
+so that each average is exact (the table values are exact, not measured). Of its
+printed lines, 27 are checks that could fail and passed, and 5 are printed as "by
+construction, cannot fail" and are not counted as evidence: the noise being
+rescaled to mean zero, the worst nudge, the stochastic depth mean, and the two
+lines of figure 1, which re-run the identities of Claims 2 and 4 on 16 points. Two
+runs print the same lines. The table's 10 and `10 / 9` come out exact as 10.000000
+and 1.111111. Over
 100 random cases (five keep probabilities, eight features) the dropout
 identity holds to a relative gap of `1.0e-15`, and noise on the input to
 `7.0e-16` over 200 cases. Breaking a hypothesis breaks the result: with one
@@ -212,11 +217,19 @@ mask shared by all features the formula is off by a relative 830, with masks
 that are not one on average by 100, and with noise of mean 0.2 by 6.8. Over a
 data set with equal feature sizes the exact dropout loss is plain loss plus
 `mask_variance × feature_size` times the squared length of the weights, and
-no nudge lowers it at the weight-decay solution. With feature sizes 1 to 6,
+no nudge lowers it at the weight-decay solution (2000 random nudges, a weak
+check). A direct check is stronger: the gradient of the exact dropout loss
+at the solution, by central differences, has norm 3.6e-11, and the solution
+agrees with `numpy.linalg.lstsq` on the augmented system to 2.4e-15 (for the
+feature sizes 1 to 6 and the per-feature solution, 6.2e-11 and 1.3e-14). With feature sizes 1 to 6,
 one decay strength is no longer the minimiser: its loss is 2.8% above that
 of a strength per feature. Lasso gives weight 0 for all 300 weak targets and
 shortens a strong target by the penalty; weight decay never gives 0 there.
-The adversarial score drops by exactly 0.5 (the worst nudge, evaluated on the score). The stochastic depth mean of 13 is from the formula, not a measurement.
+The adversarial score drops by exactly 0.5 for the worst nudge, which holds by how
+that nudge is chosen (by construction, not a check). No random nudge in the box
+(100 000 of them, largest drop 0.4984) and none at a random corner of the box
+(2000 of them, largest drop 0.5000) lowers it by more; the score is linear in the
+nudge, so this could fail only on a bug. The stochastic depth mean of 13 is from the formula, not a measurement.
 
 For the slope step that the chapter calls argued, 15 points and 20 sine and cosine
 weights, the fit trained with dropout (sampled masks, keep probability 0.5) has a weight length of
@@ -226,7 +239,7 @@ trained one by 0.001 (relative) and gives the same numbers.
 
 **Measured.** Two fits to the same 15 points, one trained with sampled dropout masks:
 
-![Two fits to 15 points, with the true sin(x): without dropout (grey) passes through every point and reaches about -7 and 6, trained with dropout (purple) stays between about -1 and 1](figures/21-fit-with-and-without-dropout.png)
+![Two fits to 15 points, with the true sin(x): without dropout (grey) passes through every point and ranges from -6.942 to 5.670, trained with dropout (purple) ranges from -0.698 to 0.602, against -1 to 1 for sin(x)](figures/21-fit-with-and-without-dropout.png)
 
 The error against the true `sin(x)` is 1.949 without dropout and 0.497
 with it. These are evidence from one seed, not proofs. Mixup and

@@ -67,7 +67,8 @@ What is proved here, in
    The output is the parity. This is
    [`Depth.lean`](../../lean/SquigglyLine/Networks/Depth.lean): each layer
    doubles the number of turns.
-3. **A shallow network needs one unit for every two bits**
+3. **A shallow network needs one unit for every two bits** (and in fact one
+   for every bit, less one: see "Proved after the run" below)
    (`shallow_network_needs_one_unit_per_two_bits`, **proved**). Take a
    network with one hidden layer of ReLU units that reads the same count. If
    its output is closer than one half to the parity for every input, it has
@@ -259,7 +260,7 @@ The notebook is
 [`experiments/connections/parity_zigzag.ipynb`](../../experiments/connections/parity_zigzag.ipynb).
 A Sonnet helper wrote and ran it once from the predictions above and changed
 nothing afterwards. I read its report and the chapter it wrote from its
-stored output. No second reader has checked this notebook. Settings the
+stored output. A second reader checked the notebook the same day (below). Settings the
 helper fixed before the run, which are not in the predictions above: the
 Adam optimiser with step size 0.01, starting slopes of plus or minus 1,
 starting kinks uniform from -1 to 9, starting gains normal with standard
@@ -287,9 +288,32 @@ units.
 - **Z4 held**, as it must: the largest difference between the tent layers
   and the parity, over 1 to 10 layers and every count, was 0.
 
+A second reader then read the notebook and found no mistake in the search:
+the signs, the gradients and the optimiser are right. A diagnostic was added
+after that review, marked as not one of the predictions. Started from the
+known 7-unit network with a little noise on every weight, the same training
+keeps a margin above 0 (0.051 at the last step). From the 200 random starts
+it never gets there, at the last step or at any step. So the search is weak;
+it is not broken. The Z2 line in the notebook now says that its pass is not
+evidence.
+
 Nothing was tuned after the result, as the stop rule says. The claim that a
 shallow network needs `n - 1` units stays what it was: my argument, not
 checked by Lean and not tested by this run.
+
+**Proved after the run (24 Nov 2026).** The claim is now a theorem. A
+network with one hidden layer of ReLU units that reads the count, and is
+below one half at every even count and above it at every odd count, has at
+least `n - 1` units
+(`shallow_network_needs_one_unit_per_bit_less_one`, **proved**; the general
+form is `card_ge_of_alternating_sides` in `DepthSeparation.lean`). The proof
+is the argument above made exact: the network crosses one half once in each
+step from a count to the next, between two crossings next to each other it
+is off one half at a count, so it bends there, and these stretches do not
+overlap. The bound cannot be improved, because a network with exactly
+`n - 1` units exists (the notebook builds one for 8 bits). For 1,024 bits
+that is 1,023 units against 20 neurons for the deep network. The failed
+search stays in the record as it was: it showed nothing either way.
 
 **An earlier measurement that does bear on the claim.** The notebook of
 chapter 32 of the book had already looked at the same question for the tent
@@ -312,8 +336,8 @@ after the run) states it so. So a success of the search with fewer than
 ## Open
 
 - A shallow network on the bits themselves.
-- The claim of `n - 1` units: a proof in Lean, or a search strong enough to
-  find the 7-unit network, which this one was not.
+- A search strong enough to find the 7-unit network. The bound of `n - 1`
+  units no longer depends on it.
 - How the share of flips that change a function is spread round one half,
   for a function drawn at random. The Lean statement gives the average.
 - Whether any of this belongs in the book is the author's decision.

@@ -475,14 +475,14 @@ No ETA yet: the history covers 5.9 days, and no pace can be read from items tick
 - [x] A notebook for chapter 47
 - [x] A notebook for chapter 48
 - [x] A notebook for chapter 49
-- [ ] The notebook of chapter 14 read by a second reader
-- [ ] The notebook of chapter 15 read by a second reader
+- [x] The notebook of chapter 14 read by a second reader
+- [x] The notebook of chapter 15 read by a second reader
 - [x] The notebook of chapter 16 read by a second reader
 - [x] The notebook of chapter 17 read by a second reader
 - [x] The notebook of chapter 18 read by a second reader
 - [x] The notebook of chapter 19 read by a second reader
 - [x] The notebook of chapter 20 read by a second reader
-- [ ] The notebook of chapter 21 read by a second reader
+- [x] The notebook of chapter 21 read by a second reader
 - [x] The notebook of chapter 22 read by a second reader
 - [ ] The notebook of chapter 23 read by a second reader
 - [x] The notebook of chapter 24 read by a second reader
@@ -510,7 +510,7 @@ No ETA yet: the history covers 5.9 days, and no pace can be read from items tick
 - [ ] The notebook of chapter 46 read by a second reader
 - [ ] The notebook of chapter 47 read by a second reader
 - [x] The notebook of chapter 48 read by a second reader
-- [ ] The notebook of chapter 49 read by a second reader
+- [x] The notebook of chapter 49 read by a second reader
 - [ ] A test of whether the theory can guess hyperparameters
 
 ## Publishing

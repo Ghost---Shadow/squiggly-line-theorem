@@ -44,8 +44,10 @@ their skip connections.
 **Measured**, against the **proved** bound, for scores of size at most 0.5:
 over 100 runs of 24 tokens, the spread after each of 15 layers never exceeds
 `0.632 ** layers`, and scores that make each query favour its own side of the
-median come within 0.51 of the bound. With scores of size 8 the bound is
-broken and the spread ends 683 times above it.
+median reach at most 0.513 of the bound (a fraction of it, which is not
+"close to" the slowest merging the bound allows). With scores of size 8 the
+bound is broken and, at layer 15, the spread ends between 382 and 683 times
+above it (683 is also the largest ratio over all layers).
 
 ![Spread of the tokens against layers of attention on a log axis: the proved bound as a straight line, two measured curves under it, and a control curve with large scores above it](figures/15-attention-merging.png)
 
@@ -93,14 +95,15 @@ has three short facts.
   distance between the inputs (`one_le_slope_mul_dist_of_count`, the
   statement you read in chapter 2).
 
-**From the formula** (the denoiser evaluated, not trained), and **measured**
-for the head. For two examples at 0 and 1 read as five and six fingers, the
+**From the formula** (the denoiser evaluated, not trained), and the head
+**evaluated** (a softmax computed on chosen scores, not trained or fitted). For two examples at 0 and 1 read as five and six fingers, the
 denoiser says 5.5 at 0.5 for every noise level tried, 0.1 to 1. Its steepest
 slope is `1 / (4 * noise_level ** 2)` (25 at 0.1, 6.25 at 0.2, 1 at 0.5 and
 0.25 at 1), and the read-out changes by 1.000, 1.000, 0.762 and 0.245 between
 the two examples, never more than the slope allows. For a head run over `total`
-tokens with `copies` of one marked token (**measured**), the output is `copies / total`: one more copy
-moves it by exactly 0.100, 0.050 and 0.025 at 10, 20 and 40 tokens.
+tokens with `copies` of one marked token, equal scores give the output `copies / total`
+(so this holds by construction): one more copy moves it by 0.100, 0.050 and
+0.025 at 10, 20 and 40 tokens.
 
 ![Left: the output of a head against the number of copies of a marked token, for 10, 20 and 40 tokens and one with the mark scored higher. Right: the count read from the denoiser along the path between a five-finger and a six-finger example, for four noise levels, all crossing 5.5 at the middle](figures/15-count-against-copies.png)
 
@@ -126,32 +129,45 @@ draws six fingers. That needs experiments.
 ## Run it yourself
 
 `experiments/part3/ch15_averages.ipynb` has one experiment for each rule of this
-chapter, with 29 `[PASS]` checks and two lines marked "by construction, cannot fail",
-which are not evidence. It is evidence, not a proof: the proofs are in Lean.
+chapter. Of its printed lines, 23 are checks that could fail and passed, and 10 are
+marked "by construction, cannot fail" and are not evidence (they hold by symmetry,
+by the grid, or by algebra). It is evidence, not a proof: the proofs are in Lean.
 Seeded runs of attention heads, stacks, blends, gradient steps and the nearest-label
-rule are **measured**; the denoiser read-outs and the temperature sweep are exact
-evaluations, **from the formula**, and are labelled so.
+rule are **measured**; the denoiser read-outs, the head with equal scores and the
+temperature sweep are **evaluated**, from the formula, and are labelled so.
 
 - **Range.** 2000 random heads and 300 stacks of 20 layers with scores up to
   30 in size: no output or token leaves the interval of the values. Dividing
   nothing by the sum of the weights (control) leaves it in 1756 of 2000 heads.
 - **Merging rate.** Spread / starting range is at most `0.632 ** layers` for
   random and for stubborn scores of size 0.5; the worst ratios to the bound
-  at layers 1 to 15 are 0.171 and 0.513. Scores of size 8: 683.
+  at layers 1 to 15 are 0.171 and 0.513 (stubborn scores reach 0.513 of the
+  bound; that is not "close to" the slowest merging). Scores of size 8: at
+  layer 15 the ratio is between 382 and 683, and 683 is also the largest over
+  all layers.
 - **Slope of an average.** In 200 blends the slope is at most 0.992 of the
   steepest member's, and no blend leaves the members' range. (Shares adding up
   to 2 give 1.983 times it, but that is by construction and not counted.)
-- **Attention is a gradient step.** One step from zero weights matches the
-  linear-attention head to 1.3e-15; the head with the softmax kept differs from
-  it by 2.71.
+- **Attention is a gradient step.** One step from zero weights, with the
+  gradient of the squared loss computed by autograd (not from the formula),
+  matches the linear-attention head to 4.4e-16; the head with the softmax kept
+  differs from it by 2.71.
 - **Denoiser.** 2000 noisy inputs, 4 noise levels, some far out: always
-  inside the examples' range, and no other output of 500 tried has a smaller weighted
-  squared distance. The equal-share mean does worse on 1999 of 2000.
-- **Counts.** As above (from the formula for the denoiser, measured for the head). The wide average (noise level 1) separates the two
-  examples by only 0.245.
-- **Ensembles.** The error identity holds to 2.1e-14 in 1000 draws, and the
-  ensemble is never worse than its members' average. With a negative share
-  the inequality fails in 392 of 1000 draws.
+  inside the examples' range, and no other output has a smaller weighted
+  squared distance, among 500 candidates uniform in [-3, 3] per input and also
+  among 500 per input at noise 0.01 and 500 at noise 0.1 around the denoiser's
+  output (0 better candidates in each case). The equal-share mean does worse on
+  1999 of 2000.
+- **Counts.** As above (from the formula for the denoiser, evaluated for the
+  head). The checks that could fail are that the read-out never decreases, that
+  the steepest slope is `1 / (4 * noise_level ** 2)` to 0.1 percent, and that the
+  wide average (noise level 1) separates the two examples by only 0.245. The
+  read-out 5.5 at 0.5, the crossing at 0.5, the slope times 1 being at least the
+  gap, and everything about the head with equal scores are by construction.
+- **Ensembles.** The error identity (largest gap 2.1e-14 in 1000 draws) and
+  the ensemble never being worse than its members' average with non-negative
+  shares are algebra, by construction, not counted. The check that could fail is
+  the control: with a negative share the inequality fails in 392 of 1000 draws.
 - **Temperature** (from the formula, exact evaluations). Over 500 score vectors, the average score never fell as
   the temperature went from 4 to 0.05, and the share missing from the top
   stayed within `(answers - 1) * exp(-gap / temperature)` in all 20000 checks.

@@ -207,10 +207,10 @@ formula or construction was evaluated. An experiment is evidence, not a proof.
   kink positions described in the notebook) and for 3 (a random then a local search,
   which cannot prove it: best error found 0.5000 with 7 kinks). Control: one kink
   at every interior grid point fits exactly, with 3, 7 and 15 kinks for
-  `layer_count` 1, 2 and 3. The theorem is **not tight** in these runs: the fewest
+  `layer_count` 1, 2 and 3. The theorem `depth_separation` is **not tight** in these runs: the fewest
   kinks found within one half were 3 and 7 for `layer_count` 1 and 2, against
   the bounds 2 and 4. A straight piece crosses the level one half once, and the
-  grid values alternate around it, so every interior grid point needs a kink. This explanation is **argued**, not computed. The fewest kinks found for 4 to 6 kinks come from a coarser candidate grid than those for 0 to 3, so they are the fewest *found*, not proved needed.
+  grid values alternate around it, so every interior grid point needs a kink. This explanation was **argued** when the notebook was written. It is now **proved**: `depth_separation_with_nothing_to_spare` says that a network with one hidden layer that stays within one half of `layer_count + 1` tent layers at the grid points has at least `2 ^ (layer_count + 1) - 1` units, one for every grid point strictly inside. For `layer_count` 1 and 2 that is 3 and 7, the numbers found. The proof counts the places where the network crosses one half and finds a kink between every two of them (`card_ge_of_alternating_sides`). The fewest kinks found for 4 to 6 kinks come from a coarser candidate grid than those for 0 to 3, so they are the fewest *found*, not proved needed.
 - **Closeness** (the ramp network is built by the theorem's recipe, so it is **from the formula**; the errors are measured on it). It stayed within `2 * slope_limit / piece_count`
   for 1 to 640 pieces for `sin(3 x)`, `2 |x - 0.33|` and the three-layer tent
   stack. The largest `error × piece_count / slope_limit` was 0.31, 0.48 and

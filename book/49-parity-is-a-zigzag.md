@@ -128,6 +128,14 @@ is a finite set of unit names, `units.card` is how many there are, and `|...|` i
 the absolute value. `bit_count / 2` is whole-number division: 9 bits give 4. For
 `2^L` bits the bound is `2^L / 2`: for 1,024 bits, 512 units against 20 neurons.
 
+The bound can be about doubled, and then it cannot be improved.
+`shallow_network_needs_one_unit_per_bit_less_one` (**proved**, after the
+measurement below) says that the same network has at least `n − 1` units. It asks
+less of the network: only that the output is below one half at every even count
+and above one half at every odd count. A zigzag with a kink at each count from 1
+to `n − 1` computes the parity, so `n − 1` units are also enough. For 1,024 bits
+that is 1,023 units against 20 neurons.
+
 ## Why it is true
 
 **Flipping a bit.** Split the count into the bit at `position` and all the others.
@@ -147,6 +155,14 @@ be lower at both ends than in the middle (`not_zigzag`). The stretch from count
 `2 × turn` to count `2 × turn + 2` is low, high, low, so it holds the kink of some
 unit (`exists_kink_of_zigzag`). These stretches do not overlap and a unit has one
 kink, so each needs a different unit (`card_ge_of_zigzag`): one for every two bits.
+
+**The sharper bound.** Count crossings, not tops. From each count to the next the
+network goes from one side of one half to the other, so it crosses one half
+somewhere in between: `n` crossings. Between two crossings next to each other
+there is a count, where the network is off one half. A straight line that is at
+one half at two places is at one half everywhere between them, so the network
+bends between the two crossings. These stretches do not overlap: `n − 1` kinks
+(`card_ge_of_alternating_sides`).
 
 **Half of all functions.** The fourth statement, named and not quoted:
 `half_of_all_functions_change_at_any_flip` says that, among all functions of bits,
@@ -241,10 +257,11 @@ starting kinks uniform from −1 to 9, starting gains normal with standard devia
 1, the margin taken at the last step.
 
 The predictions: Z1 (a Lean theorem), no start gets a margin above 0 for 1, 2 or
-3 units. Z2, none does for 4, 5 or 6 units. This is the author's argument that the
-true number is `n − 1`, **not checked by Lean**: the network is a curve of
-straight pieces, at most one more than it has units, and it must turn between
-every two neighbouring counts from 1 to `n − 1`. This one can fail. Z3, the search
+3 units. Z2, none does for 4, 5 or 6 units. This rested on the author's argument
+that the true number is `n − 1`, which had **not been checked by Lean** when the
+prediction was written: the network is a curve of straight pieces, at most one
+more than it has units, and it must turn between every two neighbouring counts
+from 1 to `n − 1`. This one could fail. Z3, the search
 finds a margin above 0 for 7 and for 8 units. A 7-unit network that computes
 parity was built, but that is **by construction, cannot fail** and is not
 evidence; if Z3 fails, Z2 is weak evidence. Z4 (a Lean theorem, in floating
@@ -253,7 +270,7 @@ verdicts as printed (`k` is the number of units; counts are **found by search**)
 
 ```
 [PASS] Z1: successful starts for k = 1, 2, 3: k = 1: 0, k = 2: 0, k = 3: 0; best margins -0.0101, -0.0264, -0.0128; predicted none
-[PASS] Z2: starts with a margin above 0 for k = 4, 5, 6, found by search: k = 4: 0, k = 5: 0, k = 6: 0; predicted none
+[PASS] Z2: starts with a margin above 0 for k = 4, 5, 6, found by search: k = 4: 0, k = 5: 0, k = 6: 0; predicted none (weak: Z3 failed, so the search could not have found a network even if one existed)
 [FAIL] Z3: search finds a margin above 0 for k = 7 (0 starts) and for k = 8 (0 starts); predicted at least one each
 [PASS] Z4: largest absolute difference over L = 1 to 10 and every count: 0.0e+00; predicted at most 1e-12
 ```
@@ -268,10 +285,28 @@ Z1 and Z4 passed, as they must, since they are proved in Lean. Z3 **failed**: th
 search could not find a network that is known to exist, with 7 or 8 units. The notebook printed that the
 search is weak and Z2 is weak evidence. Z2 passed in that no start succeeded at 4,
 5 or 6 units, but the same search also failed at 7 and 8, where a network exists.
-So the measurement neither broke nor supported the claim of `n − 1`. A search that
+The summary counts it as passed but not evidence (3 of 4 passed, 2 as evidence).
+So the measurement neither broke nor supported the claim of `n − 1`. The claim
+was proved in Lean afterwards (the sharper bound above), so it does not rest on
+this search.
+
+**Diagnostic, added after the run and after a second reader's review; not one of the
+predictions, and it changes no verdict.** It is there to tell a weak search from a
+bug. Averaged over the 200 starts, dead units (ReLU zero at all nine counts) rose
+from 0.12 at the start for 1 unit to 0.71 for 8, and at the end were 0.23 for 1
+unit, 1.26 for 7 and 1.16 for 8. With the best margin recorded at **any** step, no
+start was above 0 at any step either (best margins from −0.000025 to −0.000290
+over the eight values of `k`). Started once from the known 7-unit network, with
+gains rescaled to margin 0.05 and noise of 0.01 on every weight, the same training
+had margin −0.027735 at the start, 0.072912 at best and 0.051090 at the last step,
+above 0: the training code can hold a parity network, but the 200 random starts do
+not reach one. The best margins for 5 and 7 units, −0.0041364590 and −0.0041357322,
+agree to six digits only; they come from different starts (138 and 123), with 4 and
+6 live units and outputs that differ by 0.200, so they are different networks. A search that
 finds nothing does not prove that nothing exists, and nothing was tuned to rescue
 it. From the formula, for 1,024 bits: 20 neurons for the deep network, 512 for the
-Lean bound, 1,023 for the unproved claim. An experiment is evidence, not a proof. To run it:
+first Lean bound, 1,023 for the sharper one (the figure calls it the unproved claim,
+which it was when the notebook ran). An experiment is evidence, not a proof. To run it:
 `python -m jupyter nbconvert --to notebook --execute --inplace experiments/connections/parity_zigzag.ipynb`
 
 ![Three panels. Left: parity of the count for 8 bits as dots at 0 and 1, with the output of three tent layers drawn through them as a zigzag. Middle: the best margin found by search against the number of units from 1 to 8, all below the line at 0, with markers at 4 and 7. Right: neurons against the number of bits on log axes, where the deep network grows slowly and the Lean bound and the unproved claim grow in proportion to the bits](../graphs/parity_zigzag.png)
@@ -296,9 +331,9 @@ Lean bound, 1,023 for the unproved claim. An experiment is evidence, not a proof
 - **The barrier has an assumption.** It needs pseudorandom functions to exist.
   That is believed and not proved. Proving it would itself show that P is not NP
   (**recalled**).
-- **The claim of `n − 1` units is not in Lean.** The Lean bound is `n / 2`, rounded
-  down. The author's argument for `n − 1` could be wrong, and the search, which
-  covers only 200 starts for each number of units for 8 bits, did not settle it.
+- **The search settled nothing.** The bound of `n − 1` units is proved in Lean.
+  The search, 200 starts for each number of units for 8 bits, could not find
+  even the network that exists, so it is evidence for nothing.
 
 ## Check yourself
 
@@ -309,12 +344,14 @@ Lean bound, 1,023 for the unproved claim. An experiment is evidence, not a proof
 4. The search found no parity network with 4, 5 or 6 units. Why is that weak
    evidence for `n − 1`?
 
-**Answers.** (1) 10 layers, so 20 neurons; the bound is `1,024 / 2 = 512` units
-(`shallow_network_needs_one_unit_per_two_bits`). (2) No. Parity is in P, the
+**Answers.** (1) 10 layers, so 20 neurons; the first bound is `1,024 / 2 = 512`
+units (`shallow_network_needs_one_unit_per_two_bits`) and the sharper one is 1,023
+(`shallow_network_needs_one_unit_per_bit_less_one`). (2) No. Parity is in P, the
 connection is a barrier, and the Lean networks see only the count. (3) Only if
 pseudorandom functions of sufficient strength exist, which is believed and not
 proved; and that the repository's method is "natural" is the author's reading.
 (4) With 7 and 8 units, where a network exists, the same search found none (Z3),
-and a search that finds nothing does not prove that nothing exists.
+and a search that finds nothing does not prove that nothing exists. The bound
+itself is proved in Lean and does not need the search.
 
 Previous: [48. The waves of the primes](48-the-waves-of-the-primes.md) · Next: [Glossary](glossary.md)

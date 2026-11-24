@@ -117,7 +117,7 @@ In `SquigglyLine/Supporting/NetworkShape/`.
 
 | File                     | Contents                                                            |
 |--------------------------|---------------------------------------------------------------------|
-| `DepthSeparation`        | one hidden layer needs `2^L` units to follow `L + 1` tent layers    |
+| `DepthSeparation`        | one hidden layer needs `2^(L+1) - 1` units to follow `L + 1` tent layers, and no fewer will do |
 | `UniversalApproximation` | `2n` ReLU units in one layer are within `2K / n` of `f`             |
 | `Capacity`               | storing arbitrary labels costs a parameter, or a bit, for each      |
 | `SkipAndNorm`            | a skip is a bypass (never dims); a norm is an amplifier             |
@@ -150,7 +150,7 @@ one. The notes are in `docs/connections/`.
 | File           | Contents                                                          |
 |----------------|-------------------------------------------------------------------|
 | `PrimeWaves`   | the waves of two primes reach every pair of phases and cover their band within a finite reach |
-| `ParityZigzag` | parity flips with every bit; deep tents compute it; a shallow network needs a unit per two bits |
+| `ParityZigzag` | parity flips with every bit; deep tents compute it; a shallow network needs a unit per bit, less one |
 -/
 -- 0. How statements are written
 import SquigglyLine.Style

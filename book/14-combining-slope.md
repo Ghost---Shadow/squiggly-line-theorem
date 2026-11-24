@@ -92,18 +92,22 @@ Squiggle can only come from stacking pieces that are steep or that fold
 
 [`ch14_combining_slope.ipynb`](../experiments/part3/ch14_combining_slope.ipynb)
 checks one thing per rule, on small random networks of `tanh`, sigmoid and
-linear layers, with the steepest slope read off a grid of 6001 inputs. Slopes
-and gaps below are **measured** (the networks were run); a number that comes
-from evaluating a formula is called **from the formula**. An experiment is
-evidence, not a proof.
+linear layers. The steepest slope of a network of one input is read off a grid
+of 6001 inputs; the stacks with skips use 301 inputs and the exact derivative,
+and the gate check uses its own random pairs of inputs. Slopes and gaps below
+are **measured** (the networks were run); a number that comes from evaluating a
+formula is called **from the formula**. An experiment is evidence, not a proof.
+Of the lines the notebook prints, 19 are checks that could fail and passed, and
+7 are printed as "by construction, cannot fail" and are not evidence.
 
-![Three panels of measured steepest slope against the bound of each rule, stacking, averaging and adding a skip. All points lie on or below the diagonal; the orthogonal linear stacks and the aligned tanh stacks lie on it, the random networks below](figures/14-three-ways-to-combine.png)
+![Three panels of measured steepest slope against the bound of each rule, stacking, averaging and adding a skip. All points lie on or below the diagonal; the orthogonal linear stacks and the aligned tanh stacks, built to meet the bound, lie on it, the random networks below](figures/14-three-ways-to-combine.png)
 
 - **Stacking.** Forty-eight random `tanh` stacks of 1 to 8 layers are never
   steeper than the product of their layer slope limits; the measured slope is
-  between 5.6e-03 and 1.00 of the product. Orthogonal linear layers of gain 1.3
-  meet the product (relative gap 3.3e-16), so the depth-8 stack has slope 8.16
-  against 1.3 for one layer: the slopes multiply. Sigmoid layers on orthogonal
+  between 5.6e-03 and 1.00 of the product. The depth-8 stack of orthogonal linear layers of gain 1.3
+  has slope 8.16 against 1.3 for one layer: the slopes multiply. (That these
+  layers reach the product exactly, relative gap 3.3e-16, holds by how they are
+  built and shows only that the bound can be attained.) Sigmoid layers on orthogonal
   weights stay below `0.25 ^ depth`, at 0.70 to 1.00 of it. For a depth-3
   classifier with `slope_limit` 181.33 (its measured steepest slope is 25.06),
   the smallest input move that flipped it, over 300 inputs, was at least 11.50
@@ -118,26 +122,38 @@ evidence, not a proof.
   gap over input gap between 0.933 and 1.093 (allowed, from the formula, 0.7 to
   1.3), and with slope 0.9 between 0.720 and 1.217 (allowed 0.1 to 1.9). In one
   dimension a branch of slope 0.9 never merged two inputs (smallest difference
-  quotient 0.100), while one of slope 1.5 turned (smallest -0.500) and sent 0 and
-  1.2878 to the same output. Stacks of 1 to 100 layers, with budgets 0.5, 1 and
+  quotient 0.100), while one of slope 1.5 turned (smallest -0.500); its root, found by
+  bisection, is 1.2878, where the output is again the output at 0 (found by
+  construction, not a check). Stacks of 1 to 100 layers, with budgets 0.5, 1 and
   2, were never steeper than `(1 + budget / depth) ^ depth` (at most 0.700 of
   it) or than `e ^ budget` (at most 0.9988 of it). Stacks of aligned `tanh`
-  branches meet the bound (relative gap 9.8e-15). With a hundred branches of
-  slope 0.01 the bound from the formula is 2.7048; random branches measured
-  1.0040 and aligned branches 2.7048. Without skips the bound from the formula is
-  `1e-200`, and the measured slope underflowed to 0.0. Over all the random-branch
+  branches reach the bound (relative gap 9.8e-15), but they are built so that
+  the slope is the formula: attainment by construction, not evidence. With a
+  hundred branches of slope 0.01 the bound from the formula is 2.7048; random
+  branches measured 1.0040 and aligned branches 2.7048. Without skips, the
+  measured slope was at most `(budget / depth) ^ depth` in 18 of the 21 stacks
+  (largest ratio 4.79e-01); the three stacks of 100 layers (one per budget) were
+  left out, because the measured slope underflowed to 0.0 and the check tests
+  nothing there. For a hundred layers of slope 0.01 the bound from the formula
+  is `1e-200`; no claim is made about the measured 0.0. Over all the random-branch
   skip stacks the measured slope was between 0.953 and 1.591, where the bound
   from the formula reaches 7.245. The LSTM cell multiplied the gap between two
-  memories by the product of the forget gates.
+  memories by the product of the forget gates, which is an identity of the
+  recurrence and not a check.
 - **The gate.** With three gentle experts (slope at most 0.17) and a sharp
   softmax gate, 20 000 pairs of inputs all changed the blend by at most the
   stated limit (largest ratio 1.000), and the blend's steepest slope was 5.75.
   With the gate made constant the blend's slope was 0.087, below the
   experts' 0.167.
 
-Two further lines are printed as "by construction, cannot fail" and are not
-evidence: a branch that is 0.9 times the identity gives the ends 1.900 and 0.100,
-and an LSTM cell with open gates keeps the gap. In the random networks the
+The seven lines printed as "by construction, cannot fail" are not evidence: the
+orthogonal linear stacks reaching the product, the root of the branch of slope
+1.5, the aligned `tanh` stacks reaching the bound, the LSTM forget-gate
+product, the LSTM with open gates keeping the gap, and a branch that is 0.9
+times the identity giving the ends 1.900 and 0.100 (two lines). The control
+for averaging (adding the members) was first written as 70 percent of the
+trials; the first run measured 54 percent, so the threshold was set to half
+after that run, as the notebook says. In the random networks the
 bounds are usually far from tight. That the real slope is that much gentler is
 not proved here.
 
