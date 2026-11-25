@@ -2,6 +2,24 @@
 
 > "All models are wrong, but some are useful." (George E. P. Box)
 
+## Finding a theorem
+
+Do not read whole Lean files to find out what is proved. Ask the search tool. It parses the
+sources each run, needs no Lean build, and prints YAML (`--json` for JSON).
+
+```bash
+python scripts/find_theorem.py search share token        # by words, best first
+python scripts/find_theorem.py show every_token_gets_a_share --used-by
+python scripts/find_theorem.py define COVERS_WITHIN      # a definition and the theorems about it
+python scripts/find_theorem.py chapter 36                # the Lean names a book chapter mentions
+python scripts/find_theorem.py search --statement LipschitzWith --folder Theorem
+```
+
+An old name from before the rename of 24 Nov 2026 finds the new one. The same index as a
+page, with a glossary of every definition, is `docs/theorem-index.md`. It is generated: after
+a change to a Lean file or to a book chapter, run `python scripts/find_theorem.py index
+--write`, or CI fails. The tool does not know Mathlib, and `--help` says what else it misses.
+
 ## Rules for experiments
 
 These were in `handoff.md` (removed 15 Nov 2026; the text is in git history at `e69437f^`)

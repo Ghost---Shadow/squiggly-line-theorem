@@ -3,6 +3,7 @@ name: Text matches Lean
 # The book, docs/ and the README quote Lean statements and name Lean theorems
 # and files. These two checks fail when a quoted line is no longer a line of
 # the sources, when a named theorem no longer exists, or when a link is broken.
+# A fourth check fails when the generated theorem index is out of date.
 # They need only Python, so they run on every push.
 
 on:
@@ -15,6 +16,7 @@ on:
       - 'README.md'
       - 'scripts/check_docs_lean.py'
       - 'scripts/make_references_page.py'
+      - 'scripts/find_theorem.py'
       - 'references.bib'
       - '.github/workflows/text.yml'
   pull_request:
@@ -24,6 +26,7 @@ on:
       - 'lean/**'
       - 'README.md'
       - 'scripts/check_docs_lean.py'
+      - 'scripts/find_theorem.py'
       - '.github/workflows/text.yml'
 
 jobs:
@@ -37,3 +40,7 @@ jobs:
         run: python3 scripts/check_docs_lean.py | grep -v '^checked' ; exit ${PIPESTATUS[0]}
       - name: The references page is made from references.bib
         run: python3 scripts/make_references_page.py --check
+      - name: The theorem index is made from the Lean sources
+        run: python3 scripts/find_theorem.py index --check
+      - name: The search tool passes its own test
+        run: python3 scripts/find_theorem.py selftest
