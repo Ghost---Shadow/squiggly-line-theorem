@@ -17,23 +17,23 @@
 <text x="48" y="33.3" text-anchor="end" fill="#555">366</text>
 <text x="143.5" y="298" text-anchor="middle" fill="#555">25 Nov</text>
 <text x="240.5" y="298" text-anchor="middle" fill="#555">02 Dec</text>
-<text x="337.6" y="298" text-anchor="middle" fill="#555">09 Dec</text>
-<text x="434.6" y="298" text-anchor="middle" fill="#555">16 Dec</text>
-<text x="531.7" y="298" text-anchor="middle" fill="#555">23 Dec</text>
-<line x1="147.7" y1="98.8" x2="616.0" y2="276.0" stroke="#dd8452" stroke-width="2" stroke-dasharray="6 4"/>
+<text x="337.5" y="298" text-anchor="middle" fill="#555">09 Dec</text>
+<text x="434.5" y="298" text-anchor="middle" fill="#555">16 Dec</text>
+<text x="531.6" y="298" text-anchor="middle" fill="#555">23 Dec</text>
+<line x1="147.8" y1="98.8" x2="616.0" y2="276.0" stroke="#dd8452" stroke-width="2" stroke-dasharray="6 4"/>
 <text x="610.0" y="256.0" text-anchor="end" fill="#dd8452" font-weight="bold">ETA 29 Dec 2026</text>
-<polyline points="56.0,266.5 61.6,267.2 135.3,246.7 135.4,145.3 135.4,100.1 135.6,28.7 138.1,32.7 138.2,38.8 138.2,40.8 138.3,43.5 138.4,52.3 138.4,74.5 138.5,87.3 138.5,102.8 138.6,105.5 138.9,98.8 147.5,94.7 147.7,98.8 147.7,98.8" fill="none" stroke="#4c72b0" stroke-width="2.5"/>
+<polyline points="56.0,266.5 61.6,267.2 135.3,246.7 135.3,145.3 135.3,100.1 135.6,28.7 138.1,32.7 138.2,38.8 138.2,40.8 138.3,43.5 138.3,52.3 138.4,74.5 138.5,87.3 138.5,102.8 138.6,105.5 138.9,98.8 147.5,94.7 147.7,98.8 147.8,98.8" fill="none" stroke="#4c72b0" stroke-width="2.5"/>
 <circle cx="56.0" cy="266.5" r="4" fill="#4c72b0"/>
 <circle cx="61.6" cy="267.2" r="4" fill="#4c72b0"/>
 <circle cx="135.3" cy="246.7" r="4" fill="#4c72b0"/>
-<circle cx="135.4" cy="145.3" r="4" fill="#4c72b0"/>
-<circle cx="135.4" cy="100.1" r="4" fill="#4c72b0"/>
+<circle cx="135.3" cy="145.3" r="4" fill="#4c72b0"/>
+<circle cx="135.3" cy="100.1" r="4" fill="#4c72b0"/>
 <circle cx="135.6" cy="28.7" r="4" fill="#4c72b0"/>
 <circle cx="138.1" cy="32.7" r="4" fill="#4c72b0"/>
 <circle cx="138.2" cy="38.8" r="4" fill="#4c72b0"/>
 <circle cx="138.2" cy="40.8" r="4" fill="#4c72b0"/>
 <circle cx="138.3" cy="43.5" r="4" fill="#4c72b0"/>
-<circle cx="138.4" cy="52.3" r="4" fill="#4c72b0"/>
+<circle cx="138.3" cy="52.3" r="4" fill="#4c72b0"/>
 <circle cx="138.4" cy="74.5" r="4" fill="#4c72b0"/>
 <circle cx="138.5" cy="87.3" r="4" fill="#4c72b0"/>
 <circle cx="138.5" cy="102.8" r="4" fill="#4c72b0"/>
