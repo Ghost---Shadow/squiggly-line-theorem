@@ -16,9 +16,11 @@ python scripts/find_theorem.py search --statement LipschitzWith --folder Theorem
 ```
 
 An old name from before the rename of 24 Nov 2026 finds the new one. The same index as a
-page, with a glossary of every definition, is `docs/theorem-index.md`. It is generated: after
-a change to a Lean file or to a book chapter, run `python scripts/find_theorem.py index
---write`, or CI fails. The tool does not know Mathlib, and `--help` says what else it misses.
+page, with a glossary of every definition, is `docs/theorem-index.md`. It is generated, and CI
+fails when it is out of date. After a change to a Lean file or to a book chapter, run `python
+scripts/find_theorem.py index --write` and commit the page with the change. A hook can do the
+first half: `scripts/refresh_theorem_index.py` says how to set it up. The tool does not know
+Mathlib, and `--help` says what else it misses.
 
 ## Rules for experiments
 

@@ -18,7 +18,7 @@ priority on 25 Nov 2026. To change the bar, tick an item here and run
 <!-- burndown:start -->
 ![Burn-down chart: items still to do against the date, with the straight line to zero](docs/burndown.svg)
 
-**ETA 2027-01-12.** 263.0 items are left. The pace so far is 38 items per working day (115 items ticked on 3 working days), and the project is worked on 1 day a week, so that is 6.9 more working days. That is a short history, and the items are not of equal size, so treat it as a guess, not a promise. As of 2026-11-25. The blue line is read from git (every commit that changed this list); the dashed line is the straight line to zero at that pace. When items are added to the list the blue line goes up; such a step is not counted in the pace.
+**ETA 2026-12-29.** 263.0 items are left. The pace so far is 54 items per working day (109 items ticked on 2 working days), and the project is worked on 1 day a week, so that is 4.8 more working days. That is a short history, and the items are not of equal size, so treat it as a guess, not a promise. 6 more items were ticked in overtime, outside the working day. They lower the items left and are not counted in the pace. As of 2026-11-25. The blue line is read from git (every commit that changed this list); the dashed line is the straight line to zero at that pace. When items are added to the list the blue line goes up; such a step is not counted in the pace.
 <!-- burndown:end -->
 
 ## Priority 1: a search tool over the theorems

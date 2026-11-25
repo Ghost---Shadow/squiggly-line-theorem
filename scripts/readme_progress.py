@@ -15,7 +15,10 @@ yet. The project is worked on one day a week (WORKING_DAYS_PER_WEEK), so the
 pace is the number of items ticked per working day: a working day is a date
 on which at least one item was ticked. It counts only commits
 that left the number of items as it was, because a commit that adds or
-splits items changes "items left" without any work being done or undone. The
+splits items changes "items left" without any work being done or undone. A
+session outside the working day is overtime (OVERTIME_DATES): what it ticks
+lowers the items left, but neither those items nor that date count in the
+pace, so an extra session cannot make the pace look slower or faster. The
 ETA is the items left divided by that pace, in working days, spread over the
 calendar at that many working days a week. It is rough, and the page says
 how many working days it rests on.
@@ -39,6 +42,8 @@ CHECKLIST = REPOSITORY / "PROGRESS.md"
 CHART = REPOSITORY / "docs" / "burndown.svg"
 BAR_CELLS = 20
 WORKING_DAYS_PER_WEEK = 1  # the project is worked on one day a week
+# Dates of sessions outside the working day, named as overtime by the author.
+OVERTIME_DATES = {date(2026, 11, 25)}
 
 BAR_BLOCK = re.compile(
     r"(<!-- progress-bar:start -->\n).*?(<!-- progress-bar:end -->)", re.S
@@ -137,21 +142,31 @@ def count_ticked_items(points: list[Point]) -> float:
     the list had the same number of items at both, so that adding or splitting
     items is not read as work undone, and a split of ticked items is not read
     as work done. Ticks made in a commit that also adds items are missed, so
-    the pace is, if anything, too low."""
-    ticked = 0.0
+    the pace is, if anything, too low. Ticks on overtime dates are left out."""
+    return sum(ticked for moment, ticked in list_ticks(points)
+               if moment.date() not in OVERTIME_DATES)
+
+
+def list_ticks(points: list[Point]) -> list[tuple[datetime, float]]:
+    """Each step that ticked items, with the moment of its commit."""
+    ticks = []
     for earlier, later in zip(points, points[1:]):
-        if earlier.item_count == later.item_count:
-            ticked += max(0.0, earlier.items_left - later.items_left)
-    return ticked
+        if earlier.item_count == later.item_count and later.items_left < earlier.items_left:
+            ticks.append((later.moment, earlier.items_left - later.items_left))
+    return ticks
+
+
+def count_overtime_items(points: list[Point]) -> float:
+    """Items ticked on overtime dates. They are left out of the pace."""
+    return sum(ticked for moment, ticked in list_ticks(points)
+               if moment.date() in OVERTIME_DATES)
 
 
 def count_working_days(points: list[Point]) -> int:
-    """The number of dates on which at least one item was ticked."""
-    working_dates = set()
-    for earlier, later in zip(points, points[1:]):
-        if earlier.item_count == later.item_count and later.items_left < earlier.items_left:
-            working_dates.add(later.moment.date())
-    return len(working_dates)
+    """The number of dates on which at least one item was ticked, without the
+    overtime dates."""
+    working_dates = {moment.date() for moment, _ in list_ticks(points)}
+    return len(working_dates - OVERTIME_DATES)
 
 
 def items_per_working_day(points: list[Point]) -> float | None:
@@ -277,6 +292,14 @@ def draw_chart_block(points: list[Point]) -> str:
             f"more working days. That is a short history, and the items are "
             f"not of equal size, so treat it as a guess, not a promise."
         )
+        overtime_items = count_overtime_items(points)
+        if overtime_items > 0:
+            verdict += (
+                f" {overtime_items:.0f} more "
+                f"{'item was' if overtime_items == 1 else 'items were'} ticked in "
+                f"overtime, outside the working day. They lower the items left "
+                f"and are not counted in the pace."
+            )
     return (
         "![Burn-down chart: items still to do against the date, with the "
         "straight line to zero](docs/burndown.svg)\n\n"
