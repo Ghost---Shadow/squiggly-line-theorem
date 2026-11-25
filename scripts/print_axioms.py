@@ -20,7 +20,7 @@ The output file has one line per theorem, sorted by name:
 
     SquigglyLine.some_theorem: Classical.choice, Quot.sound, propext
 
-An empty list is written as `(none)`. Compiler-made helpers (names with a
+An empty list is written as `(none)`. A private theorem is listed under its user-facing name. Compiler-made helpers (names with a
 `_proof_1`, `match_1` or `eq_1` part) are left out: a user-written theorem that
 uses one reports the helper's axioms as its own.
 """
@@ -54,7 +54,8 @@ def isOurs (env : Environment) (name : Name) : Bool :=
   | none => false
 
 def isHelper (name : Name) : Bool :=
-  name.isInternalDetail || name.isInaccessibleUserName
+  let shown := (privateToUserName? name).getD name
+  shown.isInternalDetail || shown.isInaccessibleUserName
 
 run_cmd Elab.Command.liftCoreM do
   let env ← getEnv
@@ -66,7 +67,8 @@ run_cmd Elab.Command.liftCoreM do
         let axioms ← collectAxioms name
         let names := (axioms.map toString).qsort (· < ·)
         let text := if names.isEmpty then "(none)" else ", ".intercalate names.toList
-        rows := rows.push s!"{{name}}: {{text}}"
+        let shown := (privateToUserName? name).getD name
+        rows := rows.push s!"{{shown}}: {{text}}"
     | _ => pure ()
   IO.println "{START}"
   for row in rows.qsort (· < ·) do

@@ -93,6 +93,7 @@ SquigglyLine.bump_slope_is_at_most_one_over_width: Classical.choice, Quot.sound,
 SquigglyLine.bumps_fit_when_narrower_than_the_gap: Classical.choice, Quot.sound, propext
 SquigglyLine.bypass_plates_blow_up: Classical.choice, Quot.sound, propext
 SquigglyLine.bypass_plates_get_closer_and_never_arrive: Classical.choice, Quot.sound, propext
+SquigglyLine.cauchy_schwarz_in_the_plane: Classical.choice, Quot.sound, propext
 SquigglyLine.cell_slope_is_the_forget_gate: Classical.choice, Quot.sound, propext
 SquigglyLine.chinchilla_optimal: Classical.choice, Quot.sound, propext
 SquigglyLine.clipped_gradient_is_at_most_the_limit: Classical.choice, Quot.sound, propext

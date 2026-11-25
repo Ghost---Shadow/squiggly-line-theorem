@@ -5,10 +5,14 @@ on:
   push:
     paths:
       - "lean/**"
+      - "docs/axioms.txt"
+      - "scripts/print_axioms.py"
       - ".github/workflows/lean.yml"
   pull_request:
     paths:
       - "lean/**"
+      - "docs/axioms.txt"
+      - "scripts/print_axioms.py"
   workflow_dispatch:
 
 jobs:
@@ -21,3 +25,8 @@ jobs:
           lake-package-directory: lean
       - name: No sorry in the sources
         run: "! grep -rn 'sorry' lean/SquigglyLine lean/SquigglyLine.lean"
+      - name: Axioms of every theorem have not drifted
+        # Fails if docs/axioms.txt is stale, or a theorem uses an axiom outside
+        # propext, Classical.choice and Quot.sound (or sorryAx). To update it,
+        # run `python scripts/print_axioms.py --write` and commit the file.
+        run: python scripts/print_axioms.py --check
